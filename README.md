@@ -31,3 +31,23 @@ It supports the following sensors:
 - RGB/EO fixed-mount camera
 - 360deg lidar
 - 3D radar
+
+## External Tracking Examples
+
+| X500 Quadcopter                        |  Standard VTOL                         |
+|:--------------------------------------:|:--------------------------------------:|
+| [`x500_ext_px4_navigator.sh`](link)    | [`vtol_ext_px4_navigator.sh`](link)    |
+| [`x500_ext_ardupilot_guided.sh`](link) | [`vtol_ext_ardupilot_guided.sh`](link) |
+| [`x500_ext_px4_ctbr.sh`](link)         |                                        |
+
+## On-board Tracking Examples
+
+| X500 Quadcopter                        |  Standard VTOL                         |
+|:--------------------------------------:|:--------------------------------------:|
+| [`x500_rgb_px4_navigator.sh`](link)    | [`vtol_rgb_px4_navigator.sh`](link)    |
+| [`x500_rgb_ardupilot_guided.sh`](link) | [`vtol_rgb_ardupilot_guided.sh`](link) |
+| [`x500_rgb_px4_ctbr.sh`](link)         |                                        |
+
+## Future Work
+
+- Basic fighter maneuvers (BFM) for VTOLs *via* PX4 Offboard Mode in CTBR
