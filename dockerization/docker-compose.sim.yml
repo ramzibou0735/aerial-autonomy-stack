@@ -1,0 +1,41 @@
+version: "3.8"
+
+networks:
+  simnet:
+    driver: bridge
+
+services:
+  simulation_env:
+    build:
+      context: .
+      dockerfile: Dockerfile.simulation_env
+    container_name: sim_agent1
+    networks: [simnet]
+    environment:
+      - DISPLAY=${DISPLAY}
+      - ROS_DOMAIN_ID=1
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    shm_size: "2g"
+
+  drone_sitl_0:
+    build:
+      context: .
+      dockerfile: Dockerfile.drone_sitl_env
+    container_name: drone_sitl_0
+    networks: [simnet]
+    environment:
+      - XRCE_PORT=8888
+      - ROS_DOMAIN_ID=2
+    shm_size: "1g"
+
+  drone_sitl_1:
+    build:
+      context: .
+      dockerfile: Dockerfile.drone_sitl_env
+    container_name: drone_sitl_1
+    networks: [simnet]
+    environment:
+      - XRCE_PORT=8889
+      - ROS_DOMAIN_ID=3
+    shm_size: "1g"

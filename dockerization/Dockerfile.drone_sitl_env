@@ -1,0 +1,17 @@
+FROM ros:humble-ros-base-jammy
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV ROS_DOMAIN_ID=2
+
+SHELL ["/bin/bash", "-c"]
+
+RUN apt-get update && apt-get install -y \
+    python3-pip tmux tmuxinator git \
+    ros-humble-micro-ros-agent \
+ && rm -rf /var/lib/apt/lists/*
+
+RUN pip3 install --upgrade pip && \
+    pip3 install pymavlink ultralytics
+
+COPY entrypoint-drone.sh /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]

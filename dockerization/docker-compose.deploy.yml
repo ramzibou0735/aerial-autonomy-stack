@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+  drone_deployed_env:
+    build:
+      context: .
+      dockerfile: Dockerfile.drone_deployed_env
+    container_name: deploy_agent
+    runtime: nvidia
+    network_mode: bridge
+    environment:
+      - ROS_DOMAIN_ID=2
+      - XRCE_PORT=8888
+      - NVIDIA_VISIBLE_DEVICES=all
+    shm_size: "1g"

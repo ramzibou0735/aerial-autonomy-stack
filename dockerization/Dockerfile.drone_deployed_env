@@ -1,0 +1,18 @@
+FROM nvcr.io/nvidia/l4t-jetpack:r36.2.0
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV ROS_DOMAIN_ID=2
+
+SHELL ["/bin/bash", "-c"]
+
+RUN apt-get update && apt-get install -y \
+    curl gnupg2 lsb-release python3-pip tmux tmuxinator git \
+ && curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | apt-key add - \
+ && echo \"deb http://packages.ros.org/ros2/ubuntu jammy main\" > /etc/apt/sources.list.d/ros2.list \
+ && apt-get update && apt-get install -y ros-humble-ros-base
+
+RUN pip3 install --upgrade pip && \
+    pip3 install pymavlink ultralytics
+
+COPY entrypoint-drone.sh /entrypoint.sh
+ENTRYPOINT [\"/entrypoint.sh\"]

@@ -1,0 +1,37 @@
+FROM ros:humble-ros-base-jammy
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV ROS_DOMAIN_ID=1
+
+SHELL ["/bin/bash", "-c"]
+
+RUN apt-get update && apt-get install -y \
+    git wget curl gnupg2 python3-pip software-properties-common \
+    g++ cmake build-essential ccache \
+    libeigen3-dev protobuf-compiler libprotobuf-dev \
+    libopencv-dev libxml2-utils \
+    gazebo11 libgazebo11-dev \
+    libqt5svg5-dev libfuse2 \
+ && rm -rf /var/lib/apt/lists/*
+
+# PX4 SITL
+RUN git clone https://github.com/PX4/PX4-Autopilot.git /px4 && \
+    cd /px4 && git checkout v1.15.0 && \
+    bash ./Tools/setup/ubuntu.sh --no-nuttx && \
+    pip3 install --user pyulog jinja2 toml numpy && \
+    make px4_sitl_rtps none_iris
+
+# ArduPilot SITL
+RUN git clone https://github.com/ArduPilot/ardupilot.git /ardupilot && \
+    cd /ardupilot && git checkout Copter-4.6.0 && \
+    ./Tools/environment_install/install-prereqs-ubuntu.sh -y && \
+    . ~/.profile && \
+    pip3 install --user MAVProxy
+
+# QGroundControl AppImage
+RUN wget https://d176tv9ibo4jno.cloudfront.net/latest/QGroundControl.AppImage -O /usr/local/bin/QGroundControl.AppImage && \
+    chmod +x /usr/local/bin/QGroundControl.AppImage
+
+COPY entrypoint-simulation.sh /entrypoint.sh
+COPY px4_multi_instance_launcher.sh /px4_launcher.sh
+ENTRYPOINT ["/entrypoint.sh"]
