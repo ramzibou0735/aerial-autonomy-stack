@@ -94,6 +94,19 @@ docker network create simnet
 # if not using docker-compose, this allows containers to resolve each other by name if needed
 ```
 
+Build `Dockerfile.drone_deployed_env` on Orin NX directly, transfer with
+```sh
+docker save -o drone_image.tar drone_deployed_env
+scp drone_image.tar user@destination:/home/user/
+docker load -i drone_image.tar
+```
+
+## Autopilot Interfaces
+
+PX4: leverage XRCE DDS and ROS2 C++ for Offboard mode and/or navigator-level vehicle commands
+
+ArduPilot: ROS2 Python wrapping of vehicle commands in "Guided Mode"
+
 ## Future Work
 
 - Basic fighter maneuvers (BFM) for VTOLs *via* PX4 Offboard Mode in CTBR
