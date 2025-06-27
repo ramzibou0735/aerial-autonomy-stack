@@ -114,6 +114,12 @@ ArduPilot: ROS2 Python wrapping of vehicle commands in "Guided Mode" (could incl
 - Start from PX4 X500, Standard VTOL .sdf for `gz sim`
 - Adapt ArduPilot models from https://ardupilot.org/dev/docs/sitl-with-gazebo.html (do NOT listen to ChatGPT who thinks ArduPilot is stuck on Gazebo Classic and hallucinates repos)
 - Add `camera` and `gpu_lidar`
+- For YOLOv8, radard driver interfaces, see https://github.com/nathanbowness/UAV-Object-Tracking
+
+## JSBSim
+
+- PX4 SITL support for JSBSim is legacy https://docs.px4.io/main/en/sim_jsbsim/index.html
+- ArduPilot's is not very documented https://ardupilot.org/dev/docs/sitl-with-jsbsim.html
 
 ## Future Work
 
