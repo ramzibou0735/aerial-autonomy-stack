@@ -105,7 +105,15 @@ docker load -i drone_image.tar
 
 PX4: leverage XRCE DDS and ROS2 C++ for Offboard mode and/or navigator-level vehicle commands
 
-ArduPilot: ROS2 Python wrapping of vehicle commands in "Guided Mode"
+ArduPilot: ROS2 Python wrapping of vehicle commands in "Guided Mode" (could include local frame velocity) with https://github.com/ArduPilot/pymavlink
+- Alternatively, use https://github.com/ArduPilot/ardupilot-mavsdk
+- https://ardupilot.org/dev/docs/mavlink-commands.html
+
+## Drone Models
+
+- Start from PX4 X500, Standard VTOL .sdf for `gz sim`
+- Adapt ArduPilot models from https://ardupilot.org/dev/docs/sitl-with-gazebo.html (do NOT listen to ChatGPT who thinks ArduPilot is stuck on Gazebo Classic and hallucinates repos)
+- Add `camera` and `gpu_lidar`
 
 ## Future Work
 
