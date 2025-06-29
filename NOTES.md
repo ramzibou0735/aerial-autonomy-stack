@@ -17,6 +17,8 @@ sudo snap refresh snap-store
 ## Host Computer Development Environment
 
 ```sh
+sudo apt update
+sudo apt upgrade
 sudo apt install git
 ```
 - ...
