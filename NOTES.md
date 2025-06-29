@@ -20,5 +20,17 @@ sudo snap refresh snap-store
 sudo apt update
 sudo apt upgrade
 sudo apt install git
+
+sudo dpkg -i code_1.101.2-1750797935_amd64.deb
+chmod +x Anaconda3-2025.06-0-Linux-x86_64.sh 
+./Anaconda3-2025.06-0-Linux-x86_64.sh
+conda config --set auto_activate_base false
+
+ssh-keygen 
+cat ~/.ssh/id_rsa.pub 
+mkdir ~/git
+cd ~/git/
+git clone git@github.com:JacopoPan/aerial-autonomy-stack.git
+
 ```
 - ...
