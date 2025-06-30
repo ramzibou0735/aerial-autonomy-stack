@@ -92,8 +92,6 @@ sudo docker build -t simulation-image -f Dockerfile.simulation . # this takes ab
 ```
 
 ```sh
-sudo docker run -it simulation-image /bin/bash
-
 xhost +local:docker
 
 sudo docker run -it \
@@ -103,7 +101,6 @@ sudo docker run -it \
   --volume /tmp/.X11-unix:/tmp/.X11-unix:rw \
   --device /dev/dri \
   --privileged \
-  --name simulation-container \
   simulation-image /bin/bash
 
 tmuxinator start -p /git/simulation_resources/simulation_tmuxinator.yml
@@ -124,4 +121,38 @@ Ctrl + P  then  Ctrl + Q detaches you from the container and leaves it running i
 
 - Ubuntu Containers (?): https://hub.docker.com/_/ubuntu/tags?name=jammy
 - NVIDIA Containers: https://catalog.ngc.nvidia.com/orgs/nvidia/containers/l4t-jetpack/tags
+
+```sh
+sudo docker build -t simulated-aircraft-image -f Dockerfile.simulated_aircraft . # this takes about 15-20' from scratch
+```
+
+```sh
+xhost +local:docker
+
+sudo docker run -it \
+  --net=host \
+  --env DISPLAY=$DISPLAY \
+  --env QT_X11_NO_MITSHM=1 \
+  --volume /tmp/.X11-unix:/tmp/.X11-unix:rw \
+  --privileged \
+  simulated-aircraft-image /bin/bash
+
+# CHECK
+  # --runtime nvidia \
+  # --gpus all \
+
+tmuxinator start -p /git/simulation_resources/aircraft_tmuxinator.yml
+# Move with Ctrl + b, then arrows
+# Detach with Ctrl + b, then press d
+# Re-attach with $ tmux attach-session -t aircraft_tmuxinator
+# Or kill with $ tmux kill-session -t aircraft_tmuxinator
+# List sessions with $ tmux list-sessions
+
+xhost -local:docker
+```
+
+`exit` or Ctrl+D will close the shell and stop the container if it was started interactively.
+Ctrl + P  then  Ctrl + Q detaches you from the container and leaves it running in the background. Re-attach with `docker attach <container_name_or_id>`
+
+
 
