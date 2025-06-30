@@ -1,0 +1,11 @@
+name: simulation_tmuxinator
+
+windows:
+  - simulation:
+      layout: even-horizontal
+      panes:
+        - gosu qgcuser /squashfs-root/AppRun
+        - gz sim
+        - /git/PX4-Autopilot/build/px4_sitl_default/bin/px4
+        - /git/ardupilot/build/sitl/bin/arducopter --model quad
+        - htop

@@ -1,6 +1,5 @@
 # Rolling Notes
 
-
 ## Host Computer Setup
 
 - Startup disk based on `ubuntu-22.04.5-desktop-amd64.iso`
@@ -58,23 +57,71 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
 sudo docker run hello-world
 sudo docker version # 28.3.0 at the time of writing
 
-# To avoid having to sudo the docker command:
+# To avoid having to sudo the docker command: (skip for now)
 # sudo groupadd docker
 # sudo usermod -aG docker $USER
 # newgrp docker # or logout/login
 # docker run hello-world
 
-# To add docker compose
+# To add docker compose: (skip for now)
 # sudo apt-get update
 # sudo apt-get install docker-compose-plugin
 # docker compose version
 ```
 
-## Use the Simulation Docker
+## Docker Hygiene
 
-...
+```sh
+sudo docker ps -a # list containers
+sudo docker stop $(docker ps -q) # stop all containers
+sudo docker container prune # remove all containers
+```
 
-## Use the Aircraft Docker
+```sh
+sudo docker images # list images
+sudo docker rmi <image_name_or_id> # remove a specific image
+sudo docker image prune # remove untagged images
+```
 
-...
+## Simulation Docker
+
+osrf Humble containers: https://hub.docker.com/r/osrf/ros/tags?name=humble
+
+```sh
+sudo docker build -t simulation-image -f Dockerfile.simulation . # this takes about 15-20' from scratch
+```
+
+```sh
+sudo docker run -it simulation-image /bin/bash
+
+xhost +local:docker
+
+sudo docker run -it \
+  --net=host \
+  --env DISPLAY=$DISPLAY \
+  --env QT_X11_NO_MITSHM=1 \
+  --volume /tmp/.X11-unix:/tmp/.X11-unix:rw \
+  --device /dev/dri \
+  --privileged \
+  --name simulation-container \
+  simulation-image /bin/bash
+
+tmuxinator start -p /git/simulation_resources/simulation_tmuxinator.yml
+# Move with Ctrl + b, then arrows
+# Detach with Ctrl + b, then press d
+# Re-attach with $ tmux attach-session -t simulation_tmuxinator
+# Or kill with $ tmux kill-session -t simulation_tmuxinator
+# List sessions with $ tmux list-sessions
+
+xhost -local:docker
+```
+
+`exit` or Ctrl+D will close the shell and stop the container if it was started interactively.
+Ctrl + P  then  Ctrl + Q detaches you from the container and leaves it running in the background. Re-attach with `docker attach <container_name_or_id>`
+
+
+## Aircraft Dockers
+
+- Ubuntu Containers (?): https://hub.docker.com/_/ubuntu/tags?name=jammy
+- NVIDIA Containers: https://catalog.ngc.nvidia.com/orgs/nvidia/containers/l4t-jetpack/tags
 

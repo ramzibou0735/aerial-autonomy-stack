@@ -48,59 +48,6 @@ It supports the following sensors:
 | [`x500_rgb_ardupilot_guided.sh`](link) | [`vtol_rgb_ardupilot_guided.sh`](link) |
 | [`x500_rgb_px4_ctbr.sh`](link)         |                                        |
 
-## Dockerization
-
-```sh
-# Build the PX4 + Gazebo + QGC simulation image
-docker build -t simulation_env -f Dockerfile.simulation_env .
-
-# Build the drone container for SITL (MAVLink + XRCE-DDS agent + micro-ROS bridge)
-docker build -t drone_sitl_env -f Dockerfile.drone_sitl_env .
-
-# Build the deployable drone image for Jetson (only if using JetPack)
-docker build -t drone_deployed_env -f Dockerfile.drone_deployed_env .
-```
-
-```sh
-xhost +local:root  # allow docker to access your X11
-
-docker run -it --rm \
-  --name sim_agent1 \
-  --env DISPLAY=$DISPLAY \
-  --volume /tmp/.X11-unix:/tmp/.X11-unix \
-  --shm-size=2g \
-  simulation_env
-```
-
-```sh
-docker run -it --rm \
-  --name drone_sitl_0 \
-  --env XRCE_PORT=8888 \
-  --env MAVLINK_PORT=14540 \
-  --shm-size=1g \
-  drone_sitl_env
-
-docker run -it --rm \
-  --name drone_sitl_1 \
-  --env XRCE_PORT=8889 \
-  --env MAVLINK_PORT=14541 \
-  --shm-size=1g \
-  drone_sitl_env
-```
-
-```sh
-docker network create simnet
---network simnet
-# if not using docker-compose, this allows containers to resolve each other by name if needed
-```
-
-Build `Dockerfile.drone_deployed_env` on Orin NX directly, transfer with
-```sh
-docker save -o drone_image.tar drone_deployed_env
-scp drone_image.tar user@destination:/home/user/
-docker load -i drone_image.tar
-```
-
 ## Autopilot Interfaces
 
 PX4: leverage XRCE DDS and ROS2 C++ for Offboard mode and/or navigator-level vehicle commands

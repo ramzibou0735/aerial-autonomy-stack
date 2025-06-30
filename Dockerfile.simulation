@@ -1,0 +1,69 @@
+FROM osrf/ros:humble-desktop-jammy
+
+# Tell apt (and other Debian tools) not to prompt for user input during package installs
+ENV DEBIAN_FRONTEND=noninteractive 
+
+# Update the package list and install basic dependencies
+RUN apt update
+RUN apt upgrade -y
+RUN apt install -y \
+    wget gosu htop ruby tmux
+RUN gem install tmuxinator
+
+# Gazebo Harmonic (as root)
+# Based on https://gazebosim.org/docs/harmonic/install_ubuntu/
+RUN apt-get update
+RUN apt-get install -y lsb-release gnupg
+RUN curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg
+RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null
+RUN apt-get update
+RUN apt-get install -y gz-harmonic
+RUN apt install -y ros-humble-ros-gzharmonic
+# run with $ gz sim
+
+# PX4 SITL (as root)
+# Based on https://docs.px4.io/main/en/dev_setup/dev_env_linux_ubuntu.html
+RUN mkdir -p /git/
+RUN git clone https://github.com/PX4/PX4-Autopilot.git /git/PX4-Autopilot
+WORKDIR /git/PX4-Autopilot
+RUN git checkout v1.15.4
+RUN git submodule update --init --recursive
+RUN bash ./Tools/setup/ubuntu.sh --no-sim-tools
+RUN make px4_sitl
+# run with $ /git/PX4-Autopilot/build/px4_sitl_default/bin/px4
+
+# ArduPilot SITL (as arduuser)
+# Based on https://ardupilot.org/dev/docs/building-setup-linux.html#building-setup-linux
+RUN mkdir -p /git/
+RUN git clone https://github.com/ArduPilot/ardupilot.git /git/ardupilot
+WORKDIR /git/ardupilot
+RUN git checkout Copter-4.6.0
+RUN git submodule update --init --recursive
+RUN useradd -m -s /bin/bash arduuser
+RUN echo "arduuser ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/arduuser && chmod 0440 /etc/sudoers.d/arduuser
+RUN gosu arduuser git config --global --add safe.directory /git/ardupilot
+RUN chown -R arduuser:arduuser /git/ardupilot
+RUN USER=arduuser gosu arduuser bash ./Tools/environment_install/install-prereqs-ubuntu.sh -y
+RUN gosu arduuser bash -c "cd /git/ardupilot && ./waf configure --board sitl && ./waf build"
+# run with $ /git/ardupilot/build/sitl/bin/arducopter --model quad
+
+# QGroundControl (as qgcuser)
+# Based on https://docs.qgroundcontrol.com/master/en/qgc-user-guide/getting_started/download_and_install.html
+WORKDIR /
+RUN useradd -m -s /bin/bash qgcuser
+RUN usermod -aG dialout qgcuser
+RUN apt-get remove modemmanager -y
+RUN apt install gstreamer1.0-plugins-bad gstreamer1.0-libav gstreamer1.0-gl -y
+RUN apt install libfuse2 -y
+RUN apt install libxcb-xinerama0 libxkbcommon-x11-0 libxcb-cursor-dev -y
+RUN wget https://d176tv9ibo4jno.cloudfront.net/latest/QGroundControl-x86_64.AppImage
+RUN chmod +x /QGroundControl-x86_64.AppImage
+RUN /QGroundControl-x86_64.AppImage --appimage-extract
+# run with $ gosu qgcuser /squashfs-root/AppRun
+
+# Copy resources from this repository
+COPY simulation_resources/ /git/simulation_resources
+
+# Final config
+WORKDIR /
+# ENTRYPOINT ["/bin/bash"]
