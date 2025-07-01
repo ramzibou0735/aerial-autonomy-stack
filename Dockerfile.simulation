@@ -1,10 +1,7 @@
-FROM osrf/ros:humble-desktop-jammy
+FROM ubuntu:22.04
 
 # Tell apt (and other Debian tools) not to prompt for user input during package installs
 ENV DEBIAN_FRONTEND=noninteractive
-
-# Set ROS_DOMAIN_ID to isolate ROS 2
-ENV ROS_DOMAIN_ID=99
 
 # Create folders
 RUN mkdir -p /git/
@@ -14,8 +11,29 @@ RUN mkdir -p /ros2_ws/src
 RUN apt update
 RUN apt upgrade -y
 RUN apt install -y \
-    wget gosu htop ruby tmux net-tools iproute2 python3-pip
+    wget gosu htop vim ruby tmux net-tools iproute2 python3-pip
 RUN gem install tmuxinator
+
+# Install ROS2 Humble
+# Based on https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debs.html
+RUN apt update
+RUN apt install -y locales 
+RUN locale-gen en_US en_US.UTF-8
+RUN update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
+ENV LANG=en_US.UTF-8
+RUN apt install -y software-properties-common curl
+RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
+RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu \
+    $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | tee /etc/apt/sources.list.d/ros2.list > /dev/null
+RUN apt update
+RUN apt upgrade -y
+RUN apt install -y ros-humble-desktop
+RUN apt install -y ros-dev-tools
+RUN apt install -y ros-humble-bondcpp ros-humble-ament-cmake-clang-format
+RUN echo "source /opt/ros/humble/setup.bash" >> /root/.bashrc
+RUN rosdep init
+# Set ROS_DOMAIN_ID to isolate ROS 2
+ENV ROS_DOMAIN_ID=99
 
 # Gazebo Harmonic (as root)
 # Based on https://gazebosim.org/docs/harmonic/install_ubuntu/
@@ -67,7 +85,7 @@ RUN /QGroundControl-x86_64.AppImage --appimage-extract
 # run with $ gosu qgcuser /squashfs-root/AppRun
 
 # Copy resources from this repository
-COPY simulation_resources/ /git/simulation_resources
+COPY resources/ /git/resources
 
 # Build ROS 2 workspace (unused)
 WORKDIR /ros2_ws
@@ -78,4 +96,6 @@ RUN bash -c "source /opt/ros/humble/setup.bash && colcon build --symlink-install
 
 # Final config
 WORKDIR /
-ENTRYPOINT ["/ros_entrypoint.sh"]
+ENTRYPOINT ["/bin/bash"]
+# ENTRYPOINT ["tmuxinator", "start", "-p", "/git/resources/simulation_tmuxinator.yml"]
+

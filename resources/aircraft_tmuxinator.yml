@@ -1,0 +1,15 @@
+name: aircraft_tmuxinator
+
+windows:
+  - simulation:
+      layout: even-horizontal
+      panes:
+        - htop
+        - echo $ROS_DISTRO && echo $ROS_DOMAIN_ID
+        - ip a && ss -tuln
+        - MicroXRCEAgent udp4 -p 8888
+        - python3 -c "import pymavlink; print(pymavlink.__version__)"
+        - pkg-config --modversion mavsdk
+        - /yolo-env/bin/python3 -c "import ultralytics; print(ultralytics.__version__)"
+        - /yolo-env/bin/python3 -c "import onnxruntime as ort; print('Execution providers:', ort.get_available_providers()); assert 'CUDAExecutionProvider' in ort.get_available_providers(), 'CUDA GPU support not available'; sess = ort.InferenceSession('yolov8n.onnx'); print('ONNX model loaded')"
+        - /yolo-env/bin/python3 /inference.py

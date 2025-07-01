@@ -69,6 +69,23 @@ sudo docker version # 28.3.0 at the time of writing
 # docker compose version
 ```
 
+## Add NVIDIA Container Toolkit for GPU access within the container
+
+```sh
+distribution=$(. /etc/os-release;echo $ID$VERSION_ID)  # e.g. ubuntu22.04
+curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
+curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+sudo apt update
+sudo apt install -y nvidia-container-toolkit
+sudo nvidia-ctk runtime configure --runtime=docker
+sudo systemctl restart docker
+```
+
+Test with
+```sh
+docker run --rm --gpus all nvidia/cuda:12.2.0-base-ubuntu22.04 nvidia-smi
+```
+
 ## Docker Hygiene
 
 ```sh
@@ -85,8 +102,6 @@ sudo docker image prune # remove untagged images
 
 ## Simulation Docker
 
-osrf Humble containers: https://hub.docker.com/r/osrf/ros/tags?name=humble
-
 ```sh
 sudo docker build -t simulation-image -f Dockerfile.simulation . # this takes about 15-20' from scratch
 ```
@@ -94,16 +109,16 @@ sudo docker build -t simulation-image -f Dockerfile.simulation . # this takes ab
 ```sh
 xhost +local:docker
 
-sudo docker run -it \
+sudo docker run --gpus all -it \
   --net=host \
   --env DISPLAY=$DISPLAY \
   --env QT_X11_NO_MITSHM=1 \
   --volume /tmp/.X11-unix:/tmp/.X11-unix:rw \
   --device /dev/dri \
   --privileged \
-  simulation-image /bin/bash
+  simulation-image
 
-tmuxinator start -p /git/simulation_resources/simulation_tmuxinator.yml
+# It starts $ tmuxinator start -p /git/resources/simulation_tmuxinator.yml
 # Move with Ctrl + b, then arrows
 # Detach with Ctrl + b, then press d
 # Re-attach with $ tmux attach-session -t simulation_tmuxinator
@@ -117,31 +132,29 @@ xhost -local:docker
 Ctrl + P  then  Ctrl + Q detaches you from the container and leaves it running in the background. Re-attach with `docker attach <container_name_or_id>`
 
 
-## Aircraft Dockers
+## Aircraft Docker
 
-- Ubuntu Containers (?): https://hub.docker.com/_/ubuntu/tags?name=jammy
 - NVIDIA Containers: https://catalog.ngc.nvidia.com/orgs/nvidia/containers/l4t-jetpack/tags
 
 ```sh
-sudo docker build -t simulated-aircraft-image -f Dockerfile.simulated_aircraft . # this takes about 15-20' from scratch
+sudo docker build -t aircraft-image -f Dockerfile.aircraft . # this takes about 15-20' from scratch
 ```
 
 ```sh
 xhost +local:docker
 
-sudo docker run -it \
+sudo docker run --gpus all -it \
   --net=host \
   --env DISPLAY=$DISPLAY \
   --env QT_X11_NO_MITSHM=1 \
   --volume /tmp/.X11-unix:/tmp/.X11-unix:rw \
   --privileged \
-  simulated-aircraft-image /bin/bash
+  aircraft-image
 
 # CHECK
   # --runtime nvidia \
-  # --gpus all \
 
-tmuxinator start -p /git/simulation_resources/aircraft_tmuxinator.yml
+# It starts $ tmuxinator start -p /git/resources/aircraft_tmuxinator.yml
 # Move with Ctrl + b, then arrows
 # Detach with Ctrl + b, then press d
 # Re-attach with $ tmux attach-session -t aircraft_tmuxinator
@@ -153,6 +166,4 @@ xhost -local:docker
 
 `exit` or Ctrl+D will close the shell and stop the container if it was started interactively.
 Ctrl + P  then  Ctrl + Q detaches you from the container and leaves it running in the background. Re-attach with `docker attach <container_name_or_id>`
-
-
 
