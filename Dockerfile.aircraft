@@ -77,13 +77,17 @@ RUN /yolo-env/bin/pip3 install --upgrade pip
 RUN /yolo-env/bin/pip3 install ultralytics
 RUN /yolo-env/bin/pip3 install onnx
 RUN /yolo-env/bin/pip3 install onnxruntime-gpu
-# Save the model weights (ONNX, Opset 11)
-RUN /yolo-env/bin/python3 -c "from ultralytics import YOLO; YOLO('yolov8n.pt').export(format='onnx', opset=11)"
+# Save the model weights (ONNX, Opset 12)
+RUN /yolo-env/bin/python3 -c "from ultralytics import YOLO; YOLO('yolov8n.pt').export(format='onnx', opset=12)"
 
 # TEMP: YOLOv8 example
-RUN wget https://github.com/intel-iot-devkit/sample-videos/raw/master/person-bicycle-car-detection.mp4 -O /sample.mp4
+RUN wget https://github.com/intel-iot-devkit/sample-videos/raw/master/car-detection.mp4 -O /sample.mp4
 COPY resources/inference.py /inference.py
-# TODO: bounding boxes are incorrect and CUDA acceleration is not used
+# TODO: bounding boxes are incorrect
+# TODO: CUDA acceleration is not used, improve pass through with --gpus all (not embedded in container but possible better for non NVIDIA users)
+# Check ONNX runtime for cuDNN version 8 or 9
+# or use NVIDIA base images (makes less sense for non NVIDIA)
+
 
 # Copy resources from this repository
 COPY resources/ /git/resources

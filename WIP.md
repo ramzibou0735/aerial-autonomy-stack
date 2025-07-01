@@ -71,6 +71,8 @@ sudo docker version # 28.3.0 at the time of writing
 
 ## Add NVIDIA Container Toolkit for GPU access within the container
 
+TODO: revise whether to use GPU passthrough or NVIDIA base images
+
 ```sh
 distribution=$(. /etc/os-release;echo $ID$VERSION_ID)  # e.g. ubuntu22.04
 curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
