@@ -4,7 +4,12 @@ import onnxruntime as ort
 
 # Load model
 model_path = "yolov8n.onnx"
-session = ort.InferenceSession(model_path, providers=["CUDAExecutionProvider", "CPUExecutionProvider"])
+
+session = ort.InferenceSession(model_path, providers=["CPUExecutionProvider"])
+
+# Confirm execution providers
+print("Execution providers in use:", session.get_providers())
+
 input_name = session.get_inputs()[0].name
 
 # Load video

@@ -1,4 +1,5 @@
-FROM ubuntu:22.04
+FROM nvcr.io/nvidia/cuda:12.8.1-cudnn-runtime-ubuntu22.04
+# FROM ubuntu:22.04
 
 # Tell apt (and other Debian tools) not to prompt for user input during package installs
 ENV DEBIAN_FRONTEND=noninteractive

@@ -11,5 +11,4 @@ windows:
         - python3 -c "import pymavlink; print(pymavlink.__version__)"
         - pkg-config --modversion mavsdk
         - /yolo-env/bin/python3 -c "import ultralytics; print(ultralytics.__version__)"
-        - /yolo-env/bin/python3 -c "import onnxruntime as ort; print('Execution providers:', ort.get_available_providers()); assert 'CUDAExecutionProvider' in ort.get_available_providers(), 'CUDA GPU support not available'; sess = ort.InferenceSession('yolov8n.onnx'); print('ONNX model loaded')"
-        - /yolo-env/bin/python3 /inference.py
+        - /yolo-env/bin/python3 /cpu-inference.py

@@ -11,6 +11,7 @@ sudo snap refresh snap-store
 ```
 - Update and restart for "Device Firmware" as necessary
 - In "Software & Updates", select `nvidia-driver-570 (propietary, tested)`
+- `nvidia-smi` reports Driver Version: 570.133.07, CUDA Version: 12.8
 - Run `nvidia-settings` and select "NVIDIA (Performance Mode)" under PRIME Profiles
 
 ## Host Computer Development Environment
@@ -71,8 +72,6 @@ sudo docker version # 28.3.0 at the time of writing
 
 ## Add NVIDIA Container Toolkit for GPU access within the container
 
-TODO: revise whether to use GPU passthrough or NVIDIA base images
-
 ```sh
 distribution=$(. /etc/os-release;echo $ID$VERSION_ID)  # e.g. ubuntu22.04
 curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
@@ -92,7 +91,7 @@ docker run --rm --gpus all nvidia/cuda:12.2.0-base-ubuntu22.04 nvidia-smi
 
 ```sh
 sudo docker ps -a # list containers
-sudo docker stop $(docker ps -q) # stop all containers
+sudo docker stop $(sudo docker ps -q) # stop all containers
 sudo docker container prune # remove all containers
 ```
 
@@ -100,6 +99,18 @@ sudo docker container prune # remove all containers
 sudo docker images # list images
 sudo docker rmi <image_name_or_id> # remove a specific image
 sudo docker image prune # remove untagged images
+```
+
+## Base images
+
+- Ubuntu images: https://hub.docker.com/_/ubuntu/tags
+- NVIDIA L4T containers: https://catalog.ngc.nvidia.com/orgs/nvidia/containers/l4t-jetpack/tags
+- NVIDIA Cuda containers: https://catalog.ngc.nvidia.com/orgs/nvidia/containers/cuda/tags
+
+```sh
+FROM ubuntu:22.04 # For every computer
+FROM nvcr.io/nvidia/cuda:12.8.1-cudnn-runtime-ubuntu22.04 # For host computers with NVIDIA GPU and installed 570 driver, run with --gpu all
+FROM nvcr.io/nvidia/l4t-jetpack:r36.4.0 # For NVIDIA Orin NX and JetPack 6
 ```
 
 ## Simulation Docker
@@ -111,13 +122,14 @@ sudo docker build -t simulation-image -f Dockerfile.simulation . # this takes ab
 ```sh
 xhost +local:docker
 
-sudo docker run --gpus all -it \
-  --net=host \
+sudo docker run -it \
   --env DISPLAY=$DISPLAY \
   --env QT_X11_NO_MITSHM=1 \
   --volume /tmp/.X11-unix:/tmp/.X11-unix:rw \
   --device /dev/dri \
+  --gpus all \
   --privileged \
+  --net=host \
   simulation-image
 
 # It starts $ tmuxinator start -p /git/resources/simulation_tmuxinator.yml
@@ -136,8 +148,6 @@ Ctrl + P  then  Ctrl + Q detaches you from the container and leaves it running i
 
 ## Aircraft Docker
 
-- NVIDIA Containers: https://catalog.ngc.nvidia.com/orgs/nvidia/containers/l4t-jetpack/tags
-
 ```sh
 sudo docker build -t aircraft-image -f Dockerfile.aircraft . # this takes about 15-20' from scratch
 ```
@@ -145,16 +155,15 @@ sudo docker build -t aircraft-image -f Dockerfile.aircraft . # this takes about 
 ```sh
 xhost +local:docker
 
-sudo docker run --gpus all -it \
-  --net=host \
+sudo docker run -it \
   --env DISPLAY=$DISPLAY \
   --env QT_X11_NO_MITSHM=1 \
   --volume /tmp/.X11-unix:/tmp/.X11-unix:rw \
+  --device /dev/dri \
+  --gpus all \
   --privileged \
+  --net=host \
   aircraft-image
-
-# CHECK
-  # --runtime nvidia \
 
 # It starts $ tmuxinator start -p /git/resources/aircraft_tmuxinator.yml
 # Move with Ctrl + b, then arrows

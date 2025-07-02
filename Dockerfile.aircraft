@@ -1,5 +1,6 @@
-FROM ubuntu:22.04
+FROM nvcr.io/nvidia/cuda:12.8.1-cudnn-runtime-ubuntu22.04
 # FROM nvcr.io/nvidia/l4t-jetpack:r36.4.0
+# FROM ubuntu:22.04
 
 # Tell apt (and other Debian tools) not to prompt for user input during package installs
 ENV DEBIAN_FRONTEND=noninteractive
@@ -82,12 +83,8 @@ RUN /yolo-env/bin/python3 -c "from ultralytics import YOLO; YOLO('yolov8n.pt').e
 
 # TEMP: YOLOv8 example
 RUN wget https://github.com/intel-iot-devkit/sample-videos/raw/master/car-detection.mp4 -O /sample.mp4
-COPY resources/inference.py /inference.py
-# TODO: bounding boxes are incorrect
-# TODO: CUDA acceleration is not used, improve pass through with --gpus all (not embedded in container but possible better for non NVIDIA users)
-# Check ONNX runtime for cuDNN version 8 or 9
-# or use NVIDIA base images (makes less sense for non NVIDIA)
-
+COPY resources/cpu-inference.py /cpu-inference.py
+COPY resources/gpu-inference.py /gpu-inference.py
 
 # Copy resources from this repository
 COPY resources/ /git/resources
