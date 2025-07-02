@@ -78,13 +78,9 @@ RUN /yolo-env/bin/pip3 install --upgrade pip
 RUN /yolo-env/bin/pip3 install ultralytics
 RUN /yolo-env/bin/pip3 install onnx
 RUN /yolo-env/bin/pip3 install onnxruntime-gpu
-# Save the model weights (ONNX, Opset 12)
+# Save the model weights (ONNX, Opset 12) and download a sample video
 RUN /yolo-env/bin/python3 -c "from ultralytics import YOLO; YOLO('yolov8n.pt').export(format='onnx', opset=12)"
-
-# TEMP: YOLOv8 example
 RUN wget https://github.com/intel-iot-devkit/sample-videos/raw/master/car-detection.mp4 -O /sample.mp4
-COPY resources/cpu-inference.py /cpu-inference.py
-COPY resources/gpu-inference.py /gpu-inference.py
 
 # Copy resources from this repository
 COPY resources/ /git/resources
