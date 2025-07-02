@@ -12,7 +12,8 @@ RUN mkdir -p /ros2_ws/src
 RUN apt update
 RUN apt upgrade -y
 RUN apt install -y \
-    wget gosu htop vim ruby tmux net-tools iproute2 python3-pip
+    wget gosu htop vim ruby tmux net-tools iproute2 python3-pip \
+    mesa-utils
 RUN gem install tmuxinator
 
 # Install ROS2 Humble

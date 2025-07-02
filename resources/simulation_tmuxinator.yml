@@ -1,16 +1,17 @@
 name: simulation_tmuxinator
 
 windows:
-  - hoursekeeping:
+  - simulation:
+      layout: even-horizontal
+      panes:
+        - /git/ardupilot/build/sitl/bin/arducopter --model quad
+        # TODO: CHECK GZ_SIM_RESOURCE_PATH - GZ_SIM_RESOURCE_PATH=$GZ_SIM_RESOURCE_PATH:/git/PX4-Autopilot/Tools/simulation/gz/models gz sim -v4 -r default.sdf
+        - source /opt/ros/humble/setup.bash && ros2 run ros_gz_bridge parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock
+        - sleep 3 && PX4_GZ_MODEL_POSE="0,0,0,0,0,0" PX4_SYS_AUTOSTART=4001 PX4_UXRCE_DDS_NS="Drone1" PX4_UXRCE_DDS_PORT=8888 /git/PX4-Autopilot/build/px4_sitl_default/bin/px4 -i 1
+        - sleep 9 && gosu qgcuser /squashfs-root/AppRun
+  - housekeeping:
       layout: even-horizontal
       panes:
         - htop
         - echo $ROS_DISTRO && echo $ROS_DOMAIN_ID
         - ip a && ss -tuln
-  - simulation:
-      layout: even-horizontal
-      panes:
-        - gosu qgcuser /squashfs-root/AppRun
-        - gz sim
-        - /git/PX4-Autopilot/build/px4_sitl_default/bin/px4
-        - /git/ardupilot/build/sitl/bin/arducopter --model quad

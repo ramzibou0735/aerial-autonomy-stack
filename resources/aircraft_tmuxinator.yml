@@ -1,12 +1,6 @@
 name: aircraft_tmuxinator
 
 windows:
-  - hoursekeeping:
-      layout: even-horizontal
-      panes:
-        - htop
-        - echo $ROS_DISTRO && echo $ROS_DOMAIN_ID
-        - ip a && ss -tuln
   - aircraft:
       layout: even-horizontal
       panes:
@@ -15,3 +9,9 @@ windows:
         - pkg-config --modversion mavsdk
         - /yolo-env/bin/python3 -c "import ultralytics; print(ultralytics.__version__)"
         - /yolo-env/bin/python3 /git/resources/yolo-cpu-inference.py
+  - housekeeping:
+      layout: even-horizontal
+      panes:
+        - htop
+        - echo $ROS_DISTRO && echo $ROS_DOMAIN_ID
+        - ip a && ss -tuln

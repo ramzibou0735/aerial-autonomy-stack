@@ -14,6 +14,10 @@ sudo snap refresh snap-store
 - `nvidia-smi` reports Driver Version: 570.133.07, CUDA Version: 12.8
 - Run `nvidia-settings` and select "NVIDIA (Performance Mode)" under PRIME Profiles
 
+```sh
+sudo apt install mesa-utils # check GPU OpenGL renderer with $ glxinfo | grep "OpenGL renderer", also installed in the container, for gz sim GUI
+```
+
 ## Host Computer Development Environment
 
 ```sh
@@ -31,7 +35,6 @@ cat ~/.ssh/id_rsa.pub
 mkdir ~/git
 cd ~/git/
 git clone git@github.com:JacopoPan/aerial-autonomy-stack.git
-
 ```
 - Docker Engine https://docs.docker.com/engine/install/ubuntu/, https://docs.docker.com/engine/install/linux-postinstall/ (skip Docker Compose for now)
 
@@ -128,6 +131,7 @@ sudo docker run -it \
   --volume /tmp/.X11-unix:/tmp/.X11-unix:rw \
   --device /dev/dri \
   --gpus all \
+  --env NVIDIA_DRIVER_CAPABILITIES=all \
   --privileged \
   --net=host \
   simulation-image
@@ -162,6 +166,7 @@ sudo docker run -it \
   --volume /tmp/.X11-unix:/tmp/.X11-unix:rw \
   --device /dev/dri \
   --gpus all \
+  --env NVIDIA_DRIVER_CAPABILITIES=all \
   --privileged \
   --net=host \
   aircraft-image
