@@ -180,3 +180,13 @@ xhost -local:docker
 `exit` or Ctrl+D will close the shell and stop the container if it was started interactively.
 Ctrl + P  then  Ctrl + Q detaches you from the container and leaves it running in the background. Re-attach with `docker attach <container_name_or_id>`
 
+## SITL Vehicles
+
+### PX4
+
+- https://docs.px4.io/main/en/sim_gazebo_gz/vehicles.html#x500-quadrotor-with-depth-camera-front-facing
+- https://docs.px4.io/main/en/sim_gazebo_gz/vehicles.html#x500-quadrotor-with-2d-lidar 
+
+### ArduPilot
+
+- https://ardupilot.org/dev/docs/sitl-with-gazebo.html Iris quadcopter and a Zephyr delta-wing.
