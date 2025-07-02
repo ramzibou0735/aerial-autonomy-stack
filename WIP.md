@@ -133,7 +133,8 @@ sudo docker run -it \
   simulation-image
 
 # It starts $ tmuxinator start -p /git/resources/simulation_tmuxinator.yml
-# Move with Ctrl + b, then arrows
+# Move between windows with Ctrl + b, then n, p
+# Move between panes with Ctrl + b, then arrows
 # Detach with Ctrl + b, then press d
 # Re-attach with $ tmux attach-session -t simulation_tmuxinator
 # Or kill with $ tmux kill-session -t simulation_tmuxinator
@@ -166,7 +167,8 @@ sudo docker run -it \
   aircraft-image
 
 # It starts $ tmuxinator start -p /git/resources/aircraft_tmuxinator.yml
-# Move with Ctrl + b, then arrows
+# Move between windows with Ctrl + b, then n, p
+# Move between panes with Ctrl + b, then arrows
 # Detach with Ctrl + b, then press d
 # Re-attach with $ tmux attach-session -t aircraft_tmuxinator
 # Or kill with $ tmux kill-session -t aircraft_tmuxinator

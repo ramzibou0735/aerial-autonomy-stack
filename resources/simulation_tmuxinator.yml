@@ -1,12 +1,15 @@
 name: simulation_tmuxinator
 
 windows:
-  - simulation:
+  - hoursekeeping:
       layout: even-horizontal
       panes:
         - htop
         - echo $ROS_DISTRO && echo $ROS_DOMAIN_ID
         - ip a && ss -tuln
+  - simulation:
+      layout: even-horizontal
+      panes:
         - gosu qgcuser /squashfs-root/AppRun
         - gz sim
         - /git/PX4-Autopilot/build/px4_sitl_default/bin/px4
