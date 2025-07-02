@@ -61,19 +61,21 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
 sudo docker run hello-world
 sudo docker version # 28.3.0 at the time of writing
 
-# To avoid having to sudo the docker command: (skip for now)
+# Optional steps
+
+# To avoid having to sudo the docker command:
 # sudo groupadd docker
 # sudo usermod -aG docker $USER
 # newgrp docker # or logout/login
 # docker run hello-world
 
-# To add docker compose: (skip for now)
+# To add docker compose:
 # sudo apt-get update
 # sudo apt-get install docker-compose-plugin
 # docker compose version
 ```
 
-## Add NVIDIA Container Toolkit for GPU access within the container
+## Add NVIDIA Container Toolkit for GPU use within the container
 
 ```sh
 distribution=$(. /etc/os-release;echo $ID$VERSION_ID)  # e.g. ubuntu22.04
@@ -87,7 +89,12 @@ sudo systemctl restart docker
 
 Test with
 ```sh
-docker run --rm --gpus all nvidia/cuda:12.2.0-base-ubuntu22.04 nvidia-smi
+sudo docker run --rm --gpus all nvidia/cuda:12.2.0-base-ubuntu22.04 nvidia-smi
+```
+
+Check `nvidia` runtime is available
+```sh
+sudo docker info | grep -i runtime
 ```
 
 ## Docker Hygiene
