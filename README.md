@@ -31,15 +31,19 @@ It leverages the following frameworks:
 - Support for FAST-LIO (Fast LiDAR-Inertial Odometry)
 - Custom inter-drone low-bandwith communication protocol for real-world deployment 
 
-## Host Computer Setup
+---
+
+## Host Computer Initial Setup
 
 - Startup disk based on `ubuntu-22.04.5-desktop-amd64.iso`
 - "Normal installation", "Download updates while installing Ubuntu", no "Install third-party software"
 - Run "Software Updater", restart, Update All in "Ubuntu Software"
+
 ```sh
 killall snap-store
 sudo snap refresh snap-store
 ```
+
 - Update and restart for "Device Firmware" as necessary
 - In "Software & Updates", select `nvidia-driver-570 (propietary, tested)`
 - `nvidia-smi` reports Driver Version: 570.133.07, CUDA Version: 12.8
@@ -67,9 +71,12 @@ mkdir ~/git
 cd ~/git/
 git clone git@github.com:JacopoPan/aerial-autonomy-stack.git
 ```
-- Docker Engine https://docs.docker.com/engine/install/ubuntu/, https://docs.docker.com/engine/install/linux-postinstall/ (skip Docker Compose for now)
+
+## Docker Setup
 
 ```sh
+# based on https://docs.docker.com/engine/install/ubuntu/, https://docs.docker.com/engine/install/linux-postinstall/
+
 for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo apt-get remove $pkg; done # none should be there
 
 # Add Docker's official GPG key:
@@ -108,10 +115,10 @@ sudo docker version # 28.3.0 at the time of writing
 # docker compose version
 ```
 
-## Add NVIDIA Container Toolkit for GPU use within the container
+## Add NVIDIA Container Toolkit for GPU Use Within Containers
 
 ```sh
-distribution=$(. /etc/os-release;echo $ID$VERSION_ID)  # e.g. ubuntu22.04
+distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
 curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
 curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
 sudo apt update
@@ -142,18 +149,6 @@ sudo docker container prune # remove all containers
 sudo docker images # list images
 sudo docker rmi <image_name_or_id> # remove a specific image
 sudo docker image prune # remove untagged images
-```
-
-## Base images
-
-- Ubuntu images: https://hub.docker.com/_/ubuntu/tags
-- NVIDIA L4T containers: https://catalog.ngc.nvidia.com/orgs/nvidia/containers/l4t-jetpack/tags
-- NVIDIA Cuda containers: https://catalog.ngc.nvidia.com/orgs/nvidia/containers/cuda/tags
-
-```sh
-FROM ubuntu:22.04 # For every computer
-FROM nvcr.io/nvidia/cuda:12.8.1-cudnn-runtime-ubuntu22.04 # For host computers with NVIDIA GPU and installed 570 driver, run with --gpu all
-FROM nvcr.io/nvidia/l4t-jetpack:r36.4.0 # For NVIDIA Orin NX and JetPack 6
 ```
 
 ## Simulation Docker
@@ -230,6 +225,18 @@ Ctrl + P  then  Ctrl + Q detaches you from the container and leaves it running i
 ------
 
 # Rolling Notes
+
+## Base images
+
+- Ubuntu images: https://hub.docker.com/_/ubuntu/tags
+- NVIDIA L4T containers: https://catalog.ngc.nvidia.com/orgs/nvidia/containers/l4t-jetpack/tags
+- NVIDIA Cuda containers: https://catalog.ngc.nvidia.com/orgs/nvidia/containers/cuda/tags
+
+```sh
+FROM ubuntu:22.04 # For every computer
+FROM nvcr.io/nvidia/cuda:12.8.1-cudnn-runtime-ubuntu22.04 # For host computers with NVIDIA GPU and installed 570 driver, run with --gpu all
+FROM nvcr.io/nvidia/l4t-jetpack:r36.4.0 # For NVIDIA Orin NX and JetPack 6
+```
 
 ## SITL Vehicles
 

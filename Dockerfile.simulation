@@ -70,7 +70,23 @@ RUN gosu arduuser git config --global --add safe.directory /git/ardupilot
 RUN chown -R arduuser:arduuser /git/ardupilot
 RUN USER=arduuser gosu arduuser bash ./Tools/environment_install/install-prereqs-ubuntu.sh -y
 RUN gosu arduuser bash -c "cd /git/ardupilot && ./waf configure --board sitl && ./waf build"
+RUN chown -R root:root /git/ardupilot
+RUN pip3 install --upgrade pip
+RUN pip3 install "numpy<2"
+RUN pip3 install mavproxy
 # run with $ /git/ardupilot/build/sitl/bin/arducopter --model quad
+
+# ArduPilot Gazebo Plugin
+# Based on https://ardupilot.org/dev/docs/sitl-with-gazebo.html
+RUN apt install -y  \
+    rapidjson-dev \
+    libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
+RUN git clone https://github.com/ArduPilot/ardupilot_gazebo /git/ardupilot_gazebo
+WORKDIR /git/ardupilot_gazebo
+ENV GZ_VERSION=harmonic
+RUN mkdir build && cd build && \
+    cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo && \
+    make -j4
 
 # QGroundControl (as qgcuser)
 # Based on https://docs.qgroundcontrol.com/master/en/qgc-user-guide/getting_started/download_and_install.html
