@@ -238,3 +238,15 @@ Ctrl + P  then  Ctrl + Q detaches you from the container and leaves it running i
 - https://docs.px4.io/main/en/sim_gazebo_gz/vehicles.html#x500-quadrotor-with-2d-lidar 
 - https://ardupilot.org/dev/docs/sitl-with-gazebo.html Iris quadcopter and a Zephyr delta-wing.
 - https://github.com/nathanbowness/UAV-Object-Tracking
+
+
+### Geospatial and photogrammetry resources
+- https://support.pix4d.com/hc/en-us/articles/360000235126#OPF2
+- https://github.com/softwareunderground/awesome-open-geoscience?tab=readme-ov-file
+- https://github.com/sacridini/Awesome-Geospatial
+- https://github.com/awesome-photogrammetry/awesome-photogrammetry?tab=readme-ov-file
+- https://app.gazebosim.org/fuel/worlds
+- https://aszabo.substack.com/p/zero-to-hero-creating-gazebo-worlds?utm_campaign=post&utm_medium=web
+- https://github.com/AndrejOrsula/space_robotics_gz_envs
+- https://github.com/domlysz/BlenderGIS
+- https://cesium.com/platform/cesiumjs/
