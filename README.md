@@ -6,7 +6,7 @@
 - **Deploy** in real drones based on NVIDIA Orin/
 JetPack
 
-The stack is developed and tested using a Ubuntu 22.04 host (penultimate LTS, ESM 4/2032) with `nvidia-driver-570` (latest as of 6/2025) and Docker Engine v28 (latest stable release as of 6/2025) on an i9-13 with RTX3500 and on an i9-11 with RTX3060
+The stack is developed and tested using a Ubuntu 22.04 host (penultimate LTS, ESM 4/2032) with `nvidia-driver-570` (latest as of 6/2025) and Docker Engine v28 (latest stable release as of 6/2025) on an i9-13 with RTX3500 and on an i7-11 with RTX3060
 
 It leverages the following frameworks:
 - ROS2 Humble (LTS, EOL 5/2027)
