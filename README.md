@@ -19,8 +19,8 @@ It leverages the following frameworks:
 - Support for **ROS2** with ROS2-based autopilot interfaces (*via* XRCE DDS and MAVSDK)
 - Support for **YOLOv8** and ONNX CPU, CUDA (on desktop/amd64), and TensorRT (on Orin/arm64) Runtime
 - Photorealistic **software-in-the-loop simulation**
-- Dockerized simulation based on `nvcr.io/nvidia/cuda:12.8.1-cudnn-runtime-ubuntu22.04`
-- **Dockerized deployment** based on `nvcr.io/nvidia/l4t-jetpack:r36.4.0`
+- Dockerized simulation based on [`nvcr.io/nvidia/cuda:12.8.1-cudnn-runtime-ubuntu22.04`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/cuda/tags)
+- **Dockerized deployment** based on [`nvcr.io/nvidia/l4t-jetpack:r36.4.0`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/l4t-jetpack/tags)
 
 ## Additional Features
 
@@ -152,9 +152,10 @@ sudo docker rmi <image_name_or_id> # remove a specific image
 ## Build and Run the Simulation Docker
 
 ```sh
-sudo docker build -t simulation-image -f Dockerfile.simulation . # this takes about 15-20' from scratch for a 21GB image
-# NOTE 1: the build requires a good internet connection, Ctrl+C and restart if it hangs
-# NOTE 2: this is a big, development friendly image with a lot of tools and build artifacts, trim as needed
+sudo docker build -t simulation-image -f Dockerfile.simulation . 
+# WARNING: this takes about 15-20' from scratch for a 21GB image
+# NOTE 1: the first build requires a good internet connection, Ctrl+C and restart if it hangs
+# NOTE 2: this is an all-purpose, development-friendly image with a lot of tools and build artifacts, trim if needed
 ```
 
 ```sh
@@ -190,9 +191,10 @@ Ctrl + P  then  Ctrl + Q detaches you from the container and leaves it running i
 ## Build and Run the Aircraft Docker
 
 ```sh
-sudo docker build -t aircraft-image -f Dockerfile.aircraft . # having built Dockerfile.simulation, this takes about 25' for a 20GB image
-# NOTE 1: the build requires a good internet connection, Ctrl+C and restart if it hangs
-# NOTE 2: this is a big, development friendly image with a lot of tools and build artifacts, trim as needed
+sudo docker build -t aircraft-image -f Dockerfile.aircraft . 
+# WARNING: having built Dockerfile.simulation, this takes about 25' for a 20GB image
+# NOTE 1: the first build requires a good internet connection, Ctrl+C and restart if it hangs
+# NOTE 2: this is an all-purpose, development-friendly image with a lot of tools and build artifacts, trim if needed
 ```
 
 ```sh
@@ -228,34 +230,10 @@ Ctrl + P  then  Ctrl + Q detaches you from the container and leaves it running i
 
 ------
 
-# Rolling Notes
+## WIP
 
-## Base images
-
-- Ubuntu images: https://hub.docker.com/_/ubuntu/tags
-- NVIDIA L4T containers: https://catalog.ngc.nvidia.com/orgs/nvidia/containers/l4t-jetpack/tags
-- NVIDIA Cuda containers: https://catalog.ngc.nvidia.com/orgs/nvidia/containers/cuda/tags
-
-```sh
-FROM ubuntu:22.04 # For every computer
-FROM nvcr.io/nvidia/cuda:12.8.1-cudnn-runtime-ubuntu22.04 # For host computers with NVIDIA GPU and installed 570 driver, run with --gpu all
-FROM nvcr.io/nvidia/l4t-jetpack:r36.4.0 # For NVIDIA Orin NX and JetPack 6
-```
-
-## SITL Vehicles
-
-TODO: tmuxinator start -p /git/resources/simulation_tmuxinator.yml might have AP/GZ/QGC issue when wifi is on on the host, revise --net=host
-
-### PX4
-
+- TODO: tmuxinator start -p /git/resources/simulation_tmuxinator.yml might have AP/GZ/QGC issue when wifi is on on the host, revise --net=host
 - https://docs.px4.io/main/en/sim_gazebo_gz/vehicles.html#x500-quadrotor-with-depth-camera-front-facing
 - https://docs.px4.io/main/en/sim_gazebo_gz/vehicles.html#x500-quadrotor-with-2d-lidar 
-
-### ArduPilot
-
 - https://ardupilot.org/dev/docs/sitl-with-gazebo.html Iris quadcopter and a Zephyr delta-wing.
-
-
-## Links
-
 - https://github.com/nathanbowness/UAV-Object-Tracking
