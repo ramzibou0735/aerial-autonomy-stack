@@ -233,6 +233,7 @@ Ctrl + P  then  Ctrl + Q detaches you from the container and leaves it running i
 ## WIP
 
 - TODO: tmuxinator start -p /git/resources/simulation_tmuxinator.yml might have AP/GZ/QGC issue when wifi is on on the host, revise --net=host
+- TODO: move ROS_DOMAIN_ID
 - https://docs.px4.io/main/en/sim_gazebo_gz/vehicles.html#x500-quadrotor-with-depth-camera-front-facing
 - https://docs.px4.io/main/en/sim_gazebo_gz/vehicles.html#x500-quadrotor-with-2d-lidar 
 - https://ardupilot.org/dev/docs/sitl-with-gazebo.html Iris quadcopter and a Zephyr delta-wing.
