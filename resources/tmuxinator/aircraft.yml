@@ -5,10 +5,8 @@ windows:
       layout: even-horizontal
       panes:
         - MicroXRCEAgent udp4 -p 8888
-        - python3 -c "import pymavlink; print(pymavlink.__version__)"
-        - pkg-config --modversion mavsdk
-        - /yolo-env/bin/python3 -c "import ultralytics; print(ultralytics.__version__)"
-        - /yolo-env/bin/python3 /git/resources/yolo-cpu-inference.py
+        - /git/MAVSDK/build/src/mavsdk_server/src/mavsdk_server udpin://127.0.0.1:14550
+        - /yolo-env/bin/python3 /git/resources/yolo/yolo-cpu-inference.py
   - housekeeping:
       layout: even-horizontal
       panes:

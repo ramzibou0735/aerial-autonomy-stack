@@ -56,21 +56,10 @@ RUN mkdir build && cd build && \
     make && \
     make install && \
     ldconfig
+WORKDIR /
 # run with $ MicroXRCEAgent udp4 -p 8888
 
-# pymavlink
-RUN pip3 install --upgrade pip
-RUN pip3 install pymavlink
-# check with $ python3 -c "import pymavlink; print(pymavlink.__version__)"
-
-# MAVSDK
-# Based on https://mavsdk.mavlink.io/main/en/cpp/guide/installation.html
-WORKDIR /
-RUN wget https://github.com/mavlink/MAVSDK/releases/download/v3.6.0/libmavsdk-dev_3.6.0_ubuntu22.04_amd64.deb
-RUN dpkg -i /libmavsdk-dev_3.6.0_ubuntu22.04_amd64.deb
-# check with $ pkg-config --modversion mavsdk
-
-# YOLOv8 (in virtual environment yolo-env) and ONNX runtime with GPU support
+# YOLOv8 (in virtual environment /yolo-env/) and ONNX runtime with GPU support
 # See also https://github.com/ultralytics/ultralytics/blob/main/README.md
 # And https://onnxruntime.ai/getting-started
 RUN apt install -y python3-venv
@@ -82,6 +71,28 @@ RUN /yolo-env/bin/pip3 install onnxruntime-gpu
 # Save the model weights (ONNX, Opset 12) and download a sample video
 RUN /yolo-env/bin/python3 -c "from ultralytics import YOLO; YOLO('yolov8n.pt').export(format='onnx', opset=12)"
 RUN wget https://github.com/intel-iot-devkit/sample-videos/raw/master/car-detection.mp4 -O /sample.mp4
+# check with /yolo-env/bin/python3 -c "import ultralytics; print(ultralytics.__version__)"
+# and /yolo-env/bin/python -c "import onnxruntime as ort; print(ort.__version__)"
+
+# pymavlink
+RUN pip3 install --upgrade pip
+RUN pip3 install pymavlink
+# check with $ python3 -c "import pymavlink; print(pymavlink.__version__)"
+
+# MAVSDK
+# Based on: https://mavsdk.mavlink.io/main/en/cpp/guide/build_linux.html
+RUN git clone https://github.com/mavlink/MAVSDK.git /git/MAVSDK
+WORKDIR /git/MAVSDK
+RUN git checkout v3.6.0
+RUN git submodule update --init --recursive
+RUN cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_MAVSDK_SERVER=ON -Bbuild -S.
+RUN cmake --build build -j8
+RUN cmake --build build --target install
+RUN ldconfig
+WORKDIR /
+# check with $ pkg-config --modversion mavsdk
+# and /git/MAVSDK/build/src/mavsdk_server/src/mavsdk_server udpin://127.0.0.1:14550
+
 
 # Copy resources from this repository
 COPY resources/ /git/resources
@@ -96,4 +107,4 @@ RUN bash -c "source /opt/ros/humble/setup.bash && colcon build --symlink-install
 # Final config
 WORKDIR /
 ENTRYPOINT ["/bin/bash"]
-# ENTRYPOINT ["tmuxinator", "start", "-p", "/git/resources/aircraft_tmuxinator.yml"]
+# ENTRYPOINT ["tmuxinator", "start", "-p", "/git/resources/tmuxinator/aircraft_tmuxinator.yml"]

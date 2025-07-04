@@ -3,8 +3,7 @@
 *Aerial autonomy stack* (AAS) is a software stack to:
 - **Develop** drone autonomy using on ROS2
 - **Simulate** perception and control in software-in-the-loop, using PX4/ArduPilot and YOLOv8
-- **Deploy** in real drones based on NVIDIA Orin/
-JetPack
+- **Deploy** in real drones based on NVIDIA Orin/JetPack
 
 It leverages the following frameworks:
 - ROS2 Humble (LTS, EOL 5/2027)
@@ -154,7 +153,8 @@ sudo docker rmi <image_name_or_id> # remove a specific image
 
 ```sh
 sudo docker build -t simulation-image -f Dockerfile.simulation . # this takes about 15-20' from scratch for a 21GB image
-# NOTE: the build requires a good internet connection Ctrl+C and restart if it hangs
+# NOTE 1: the build requires a good internet connection, Ctrl+C and restart if it hangs
+# NOTE 2: this is a big, development friendly image with a lot of tools and build artifacts, trim as needed
 ```
 
 ```sh
@@ -171,26 +171,28 @@ sudo docker run -it \
   --net=host \
   simulation-image
 
-# It starts $ tmuxinator start -p /git/resources/simulation_tmuxinator.yml
+# It starts $ tmuxinator start -p /git/resources/tmuxinator/simulation_px4_quad.yml
 # Move between windows with Ctrl + b, then n, p
 # Move between panes with Ctrl + b, then arrows
 # Detach with Ctrl + b, then press d
 # Re-attach with $ tmux attach-session -t simulation_tmuxinator
 # Or kill with $ tmux kill-session -t simulation_tmuxinator
 # List sessions with $ tmux list-sessions
+# Kill all with $ tmux kill-server
 
 xhost -local:docker
 ```
 
-`exit` or Ctrl+D will close the shell and stop the container if it was started interactively.
+`exit` or Ctrl+D will close the shell and stop the container (as it was started interactively).
 Ctrl + P  then  Ctrl + Q detaches you from the container and leaves it running in the background. Re-attach with `docker attach <container_name_or_id>`
 
 
 ## Build and Run the Aircraft Docker
 
 ```sh
-sudo docker build -t aircraft-image -f Dockerfile.aircraft . # having built Dockerfile.simulation, this takes about 15' for a 19GB image
-# NOTE: the build requires a good internet connection Ctrl+C and restart if it hangs
+sudo docker build -t aircraft-image -f Dockerfile.aircraft . # having built Dockerfile.simulation, this takes about 25' for a 20GB image
+# NOTE 1: the build requires a good internet connection, Ctrl+C and restart if it hangs
+# NOTE 2: this is a big, development friendly image with a lot of tools and build artifacts, trim as needed
 ```
 
 ```sh
@@ -207,18 +209,19 @@ sudo docker run -it \
   --net=host \
   aircraft-image
 
-# It starts $ tmuxinator start -p /git/resources/aircraft_tmuxinator.yml
+# It starts $ tmuxinator start -p /git/resources/tmuxinator/aircraft_tmuxinator.yml
 # Move between windows with Ctrl + b, then n, p
 # Move between panes with Ctrl + b, then arrows
 # Detach with Ctrl + b, then press d
 # Re-attach with $ tmux attach-session -t aircraft_tmuxinator
 # Or kill with $ tmux kill-session -t aircraft_tmuxinator
 # List sessions with $ tmux list-sessions
+# Kill all with $ tmux kill-server
 
 xhost -local:docker
 ```
 
-`exit` or Ctrl+D will close the shell and stop the container if it was started interactively.
+`exit` or Ctrl+D will close the shell and stop the container (as it was started interactively).
 Ctrl + P  then  Ctrl + Q detaches you from the container and leaves it running in the background. Re-attach with `docker attach <container_name_or_id>`
 
 
@@ -242,8 +245,6 @@ FROM nvcr.io/nvidia/l4t-jetpack:r36.4.0 # For NVIDIA Orin NX and JetPack 6
 ## SITL Vehicles
 
 TODO: tmuxinator start -p /git/resources/simulation_tmuxinator.yml might have AP/GZ/QGC issue when wifi is on on the host, revise --net=host
-
-aaa
 
 ### PX4
 

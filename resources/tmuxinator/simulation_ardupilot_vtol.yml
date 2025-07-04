@@ -1,0 +1,16 @@
+name: simulation_tmuxinator
+
+windows:
+  - ardupilot_simulation:
+      layout: even-horizontal
+      panes:
+        - GZ_SIM_SYSTEM_PLUGIN_PATH=/git/ardupilot_gazebo/build:$GZ_SIM_SYSTEM_PLUGIN_PATH GZ_SIM_RESOURCE_PATH=/git/ardupilot_gazebo/models:/git/ardupilot_gazebo/worlds:$GZ_SIM_RESOURCE_PATH gz sim -v4 -r zephyr_runway.sdf
+        - source /opt/ros/humble/setup.bash && ros2 run ros_gz_bridge parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock
+        - /git/ardupilot/Tools/autotest/sim_vehicle.py -v ArduPlane -f gazebo-zephyr --model JSON
+        - sleep 6 && gosu qgcuser /squashfs-root/AppRun
+  - housekeeping:
+      layout: even-horizontal
+      panes:
+        - htop
+        - echo $ROS_DISTRO && echo $ROS_DOMAIN_ID
+        - ip a && ss -tuln

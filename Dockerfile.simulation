@@ -58,7 +58,7 @@ RUN bash ./Tools/setup/ubuntu.sh --no-sim-tools
 RUN make px4_sitl
 # run with $ /git/PX4-Autopilot/build/px4_sitl_default/bin/px4
 
-# ArduPilot SITL (as arduuser)
+# ArduPilot SITL (temporarily, as arduuser, then re chown to root)
 # Based on https://ardupilot.org/dev/docs/building-setup-linux.html#building-setup-linux
 RUN git clone https://github.com/ArduPilot/ardupilot.git /git/ardupilot
 WORKDIR /git/ardupilot
@@ -76,7 +76,7 @@ RUN pip3 install "numpy<2"
 RUN pip3 install mavproxy
 # run with $ /git/ardupilot/build/sitl/bin/arducopter --model quad
 
-# ArduPilot Gazebo Plugin
+# ArduPilot Gazebo Plugin (as root)
 # Based on https://ardupilot.org/dev/docs/sitl-with-gazebo.html
 RUN apt install -y  \
     rapidjson-dev \
@@ -87,6 +87,7 @@ ENV GZ_VERSION=harmonic
 RUN mkdir build && cd build && \
     cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo && \
     make -j4
+WORKDIR /
 
 # QGroundControl (as qgcuser)
 # Based on https://docs.qgroundcontrol.com/master/en/qgc-user-guide/getting_started/download_and_install.html
@@ -115,5 +116,4 @@ RUN bash -c "source /opt/ros/humble/setup.bash && colcon build --symlink-install
 # Final config
 WORKDIR /
 ENTRYPOINT ["/bin/bash"]
-# ENTRYPOINT ["tmuxinator", "start", "-p", "/git/resources/simulation_tmuxinator.yml"]
-
+# ENTRYPOINT ["tmuxinator", "start", "-p", "/git/resources/tmuxinator/simulation_px4_quad.yml"]
