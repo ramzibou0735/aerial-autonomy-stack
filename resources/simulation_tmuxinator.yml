@@ -4,16 +4,16 @@ windows:
   # - px4_simulation:
   #     layout: even-horizontal
   #     panes:
-  #       # TODO: CHECK GZ_SIM_RESOURCE_PATH - GZ_SIM_RESOURCE_PATH=$GZ_SIM_RESOURCE_PATH:/git/PX4-Autopilot/Tools/simulation/gz/models gz sim -v4 -r default.sdf
+  #       - GZ_SIM_RESOURCE_PATH=$GZ_SIM_RESOURCE_PATH:/git/PX4-Autopilot/Tools/simulation/gz/models:/git/PX4-Autopilot/Tools/simulation/gz/worlds gz sim -v4 -r default.sdf
   #       - source /opt/ros/humble/setup.bash && ros2 run ros_gz_bridge parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock
   #       - sleep 3 && PX4_GZ_MODEL_POSE="0,0,0,0,0,0" PX4_SYS_AUTOSTART=4001 PX4_UXRCE_DDS_NS="Drone1" PX4_UXRCE_DDS_PORT=8888 /git/PX4-Autopilot/build/px4_sitl_default/bin/px4 -i 1
-  #       - sleep 9 && gosu qgcuser /squashfs-root/AppRun
+  #       - sleep 6 && gosu qgcuser /squashfs-root/AppRun
   - ardupilot_simulation:
       layout: even-horizontal
       panes:
         - GZ_SIM_SYSTEM_PLUGIN_PATH=/git/ardupilot_gazebo/build:$GZ_SIM_SYSTEM_PLUGIN_PATH GZ_SIM_RESOURCE_PATH=/git/ardupilot_gazebo/models:/git/ardupilot_gazebo/worlds:$GZ_SIM_RESOURCE_PATH gz sim -v4 -r iris_runway.sdf
         - /git/ardupilot/Tools/autotest/sim_vehicle.py -v ArduCopter -f gazebo-iris --model JSON --map --console
-        - sleep 9 && gosu qgcuser /squashfs-root/AppRun
+        - sleep 6 && gosu qgcuser /squashfs-root/AppRun
   - housekeeping:
       layout: even-horizontal
       panes:

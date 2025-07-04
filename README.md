@@ -6,8 +6,6 @@
 - **Deploy** in real drones based on NVIDIA Orin/
 JetPack
 
-The stack is developed and tested using a Ubuntu 22.04 host (penultimate LTS, ESM 4/2032) with `nvidia-driver-570` (latest as of 6/2025) and Docker Engine v28 (latest stable release as of 6/2025) on an i9-13 with RTX3500 and on an i7-11 with RTX3060
-
 It leverages the following frameworks:
 - ROS2 Humble (LTS, EOL 5/2027)
 - Gazebo Sim Harmonic (LTS, EOL 9/2028)
@@ -18,12 +16,12 @@ It leverages the following frameworks:
 
 ## Feature Highlights
 
-- Support for quadrotor and VTOL aircraft equipped with PX4 or ArduPilot
-- Support for ROS2 with ROS2-based autopilot interfaces (*via* XRCE DDS and MAVSDK)
-- Support for YOLOv8 and ONNX CPU, CUDA (on desktop/amd64), and TensorRT (on Orin/arm64) Runtime
-- Photorealistic software-in-the-loop simulation
-- Dockerized simulation containers based on `nvcr.io/nvidia/cuda:12.8.1-cudnn-runtime-ubuntu22.04` (or `ubuntu:22.04` for non-GPU setups)
-- Dockerized deployment container based on `nvcr.io/nvidia/l4t-jetpack:r36.4.0`
+- Support for **quadrotor and VTOL** aircraft equipped with **PX4 or ArduPilot**
+- Support for **ROS2** with ROS2-based autopilot interfaces (*via* XRCE DDS and MAVSDK)
+- Support for **YOLOv8** and ONNX CPU, CUDA (on desktop/amd64), and TensorRT (on Orin/arm64) Runtime
+- Photorealistic **software-in-the-loop simulation**
+- Dockerized simulation based on `nvcr.io/nvidia/cuda:12.8.1-cudnn-runtime-ubuntu22.04`
+- **Dockerized deployment** based on `nvcr.io/nvidia/l4t-jetpack:r36.4.0`
 
 ## Additional Features
 
@@ -33,49 +31,54 @@ It leverages the following frameworks:
 
 ---
 
-## Host Computer Initial Setup
+## Host Computer Setup
+
+> The stack is developed and tested using a Ubuntu 22.04 host (penultimate LTS, ESM 4/2032) with `nvidia-driver-570` (latest as of 6/2025) and Docker Engine v28 (latest stable release as of 6/2025) on an i9-13 with RTX3500 and on an i7-11 with RTX3060
 
 - Startup disk based on `ubuntu-22.04.5-desktop-amd64.iso`
 - "Normal installation", "Download updates while installing Ubuntu", no "Install third-party software"
 - Run "Software Updater", restart, Update All in "Ubuntu Software"
-
 ```sh
 killall snap-store
 sudo snap refresh snap-store
 ```
-
 - Update and restart for "Device Firmware" as necessary
 - In "Software & Updates", select `nvidia-driver-570 (propietary, tested)`
 - `nvidia-smi` reports Driver Version: 570.133.07, CUDA Version: 12.8
 - Run `nvidia-settings` and select "NVIDIA (Performance Mode)" under PRIME Profiles
 
 ```sh
-sudo apt install mesa-utils # check GPU OpenGL renderer with $ glxinfo | grep "OpenGL renderer", also installed in the container, for gz sim GUI
-```
+sudo apt install mesa-utils # also installed in the simulation container, for gz sim GUI
+# check GPU OpenGL renderer with $ glxinfo | grep "OpenGL renderer"
 
-## Host Computer Development Environment
-
-```sh
+# Install git
 sudo apt update
 sudo apt upgrade
 sudo apt install git
 
-sudo dpkg -i code_1.101.2-1750797935_amd64.deb
-chmod +x Anaconda3-2025.06-0-Linux-x86_64.sh 
-./Anaconda3-2025.06-0-Linux-x86_64.sh
-conda config --set auto_activate_base false
-
+# Create an ssh key
 ssh-keygen 
 cat ~/.ssh/id_rsa.pub 
+
+# Clone this repo
 mkdir ~/git
 cd ~/git/
 git clone git@github.com:JacopoPan/aerial-autonomy-stack.git
+
+# Optional steps
+
+# Install VSCode and Anaconda:
+
+# sudo dpkg -i code_1.101.2-1750797935_amd64.deb # https://code.visualstudio.com/download
+# chmod +x Anaconda3-2025.06-0-Linux-x86_64.sh # https://www.anaconda.com/download/success
+# ./Anaconda3-2025.06-0-Linux-x86_64.sh
+# conda config --set auto_activate_base false
 ```
 
 ## Docker Setup
 
 ```sh
-# based on https://docs.docker.com/engine/install/ubuntu/, https://docs.docker.com/engine/install/linux-postinstall/
+# Based on https://docs.docker.com/engine/install/ubuntu/ and https://docs.docker.com/engine/install/linux-postinstall/
 
 for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo apt-get remove $pkg; done # none should be there
 
@@ -95,6 +98,7 @@ sudo apt-get update
 ```
 
 ```sh
+# Install and test Docker Engine
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 sudo docker run hello-world
 sudo docker version # 28.3.0 at the time of writing
@@ -115,9 +119,8 @@ sudo docker version # 28.3.0 at the time of writing
 # docker compose version
 ```
 
-## Add NVIDIA Container Toolkit for GPU Use Within Containers
-
 ```sh
+# Add NVIDIA Container Toolkit for GPU Use Within Containers
 distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
 curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
 curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
@@ -125,19 +128,15 @@ sudo apt update
 sudo apt install -y nvidia-container-toolkit
 sudo nvidia-ctk runtime configure --runtime=docker
 sudo systemctl restart docker
-```
 
-Test with
-```sh
+# Test with
 sudo docker run --rm --gpus all nvidia/cuda:12.2.0-base-ubuntu22.04 nvidia-smi
-```
 
-Check `nvidia` runtime is available
-```sh
+# Check `nvidia` runtime is available
 sudo docker info | grep -i runtime
 ```
 
-## Docker Hygiene
+### Docker Hygiene
 
 ```sh
 sudo docker ps -a # list containers
@@ -147,14 +146,15 @@ sudo docker container prune # remove all containers
 
 ```sh
 sudo docker images # list images
-sudo docker rmi <image_name_or_id> # remove a specific image
 sudo docker image prune # remove untagged images
+sudo docker rmi <image_name_or_id> # remove a specific image
 ```
 
-## Simulation Docker
+## Build and Run the Simulation Docker
 
 ```sh
-sudo docker build -t simulation-image -f Dockerfile.simulation . # this takes about 15-20' from scratch
+sudo docker build -t simulation-image -f Dockerfile.simulation . # this takes about 15-20' from scratch for a 21GB image
+# NOTE: the build requires a good internet connection Ctrl+C and restart if it hangs
 ```
 
 ```sh
@@ -186,10 +186,11 @@ xhost -local:docker
 Ctrl + P  then  Ctrl + Q detaches you from the container and leaves it running in the background. Re-attach with `docker attach <container_name_or_id>`
 
 
-## Aircraft Docker
+## Build and Run the Aircraft Docker
 
 ```sh
-sudo docker build -t aircraft-image -f Dockerfile.aircraft . # this takes about 15-20' from scratch
+sudo docker build -t aircraft-image -f Dockerfile.aircraft . # having built Dockerfile.simulation, this takes about 15' for a 19GB image
+# NOTE: the build requires a good internet connection Ctrl+C and restart if it hangs
 ```
 
 ```sh
@@ -239,6 +240,8 @@ FROM nvcr.io/nvidia/l4t-jetpack:r36.4.0 # For NVIDIA Orin NX and JetPack 6
 ```
 
 ## SITL Vehicles
+
+TODO: tmuxinator start -p /git/resources/simulation_tmuxinator.yml might have AP/GZ/QGC issue when wifi is on on the host, revise --net=host
 
 ### PX4
 
