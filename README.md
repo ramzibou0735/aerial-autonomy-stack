@@ -221,7 +221,7 @@ xhost -local:docker # revoke local dockers access to the X display server for GU
 
 ### TODOs
 
-- TODO: fix colcon build syntax in Dockerfiles, add `ros-humble-ros-base` option
+- TODO: add `ros-humble-ros-base` option
 - TODO: use host tmuxinator, not docker compose
 - TODO: tmuxinator start -p /git/resources/simulation_tmuxinator.yml might have AP/GZ/QGC issue when wifi is on on the host, revise --net=host
 

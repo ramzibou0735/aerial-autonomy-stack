@@ -38,6 +38,7 @@ RUN git clone -b release/1.15 https://github.com/PX4/px4_msgs.git /ros2_ws/src/p
 WORKDIR /ros2_ws
 RUN rosdep update
 RUN rosdep install --from-paths src --ignore-src --rosdistro humble -y
+# Explicitly use bash, not sh, to source and build the workspace
 RUN bash -c "source /opt/ros/humble/setup.bash && colcon build --symlink-install"
 
 # XRCE-DDS
@@ -95,7 +96,8 @@ RUN mkdir -p /ros2_ws/src
 WORKDIR /ros2_ws
 RUN rosdep update
 RUN rosdep install --from-paths src --ignore-src --rosdistro humble -y
-RUN colcon build --symlink-install
+# Explicitly use bash, not sh, to source and build the workspace
+RUN bash -c "source /opt/ros/humble/setup.bash && colcon build --symlink-install"
 RUN echo "source /ros2_ws/install/setup.bash" >> /root/.bashrc
 # If needed (but already in .bashrc) $ source /opt/ros/humble/setup.bash && source /ros2_ws/install/setup.bash
 
