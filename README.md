@@ -30,12 +30,16 @@ AAS leverages the following frameworks:
 
 ---
 
-## Step -1: Host Computer Setup
+## Part 1: Installation of AAS
 
-> The stack is developed and tested using a Ubuntu 22.04 host (penultimate LTS, ESM 4/2032) with `nvidia-driver-570` (latest as of 6/2025) and Docker Engine v28 (latest stable release as of 6/2025) on an i9-13 with RTX3500 and an i7-11 with RTX3060 computers
+> This stack is developed and tested using a Ubuntu 22.04 host (penultimate LTS, ESM 4/2032) with `nvidia-driver-570` (latest as of 6/2025) and Docker Engine v28 (latest stable release as of 6/2025) on an i9-13 with RTX3500 and an i7-11 with RTX3060 computers
 
-- Startup disk based on `ubuntu-22.04.5-desktop-amd64.iso`
-- "Normal installation", "Download updates while installing Ubuntu", no "Install third-party software"
+### Installation Step 1 of 3: Host Computer Setup
+
+**SKIP THIS STEP IF YOU ARE *NOT* PREPARING A NEW COMPUTER**
+
+- Install the host OS from a startup disk based on `ubuntu-22.04.5-desktop-amd64.iso`
+- Choose "Normal installation", "Download updates while installing Ubuntu", no "Install third-party software"
 - Run "Software Updater", restart, Update All in "Ubuntu Software"
 ```sh
 killall snap-store
@@ -64,17 +68,16 @@ mkdir ~/git
 cd ~/git/
 git clone git@github.com:JacopoPan/aerial-autonomy-stack.git
 
-# Optional steps
-
-# Install VSCode and Anaconda:
-
+# # (optional) Install VSCode and Anaconda:
 # sudo dpkg -i code_1.101.2-1750797935_amd64.deb # https://code.visualstudio.com/download
 # chmod +x Anaconda3-2025.06-0-Linux-x86_64.sh # https://www.anaconda.com/download/success
 # ./Anaconda3-2025.06-0-Linux-x86_64.sh
 # conda config --set auto_activate_base false
 ```
 
-## Step 0: Docker Setup
+### Installation Step 2 of 3: Docker Setup
+
+**SKIP THIS STEP IF YOU ALREADY HAVE DOCKER ENGINE**
 
 ```sh
 # Based on https://docs.docker.com/engine/install/ubuntu/ and https://docs.docker.com/engine/install/linux-postinstall/
@@ -102,17 +105,12 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
 sudo docker run hello-world
 sudo docker version # 28.3.0 at the time of writing
 
-# Optional steps
-
-# To avoid having to sudo the docker command:
-
+# # (optional) Avoid having to sudo the docker command:
 # sudo groupadd docker
 # sudo usermod -aG docker $USER
 # newgrp docker # or logout/login
 # docker run hello-world
-
-# To add docker compose:
-
+# # (optional) Add docker compose:
 # sudo apt-get update
 # sudo apt-get install docker-compose-plugin
 # docker compose version
@@ -135,23 +133,7 @@ sudo docker run --rm --gpus all nvidia/cuda:12.2.0-base-ubuntu22.04 nvidia-smi
 sudo docker info | grep -i runtime
 ```
 
-### Docker Hygiene
-
-It is good practice to run these periodically
-
-```sh
-sudo docker ps -a # list containers
-sudo docker stop $(sudo docker ps -q) # stop all containers
-sudo docker container prune # remove all containers
-```
-
-```sh
-sudo docker images # list images
-sudo docker image prune # remove untagged images
-sudo docker rmi <image_name_or_id> # remove a specific image
-```
-
-## Step 1: Build the Simulation and Aircraft Docker Images
+### Installation Step 3 of 3: Build the Simulation and Aircraft Docker Images
 
 > NOTE 1: the first builds require a good internet connection, Ctrl+C and restart if they hang
 >
@@ -165,7 +147,11 @@ sudo docker build -t simulation-image -f Dockerfile.simulation .
 sudo docker build -t aircraft-image -f Dockerfile.aircraft . 
 ```
 
-## Step 2: Run the Simulation and Aircraft Docker Containers
+---
+
+## Part 2: Simulation with AAS
+
+### Simulation Step 1 of x: Run the Simulation and Aircraft Docker Containers
 
 ```sh
 xhost +local:docker # grant local dockers access to the X display server for GUI applications
@@ -199,7 +185,7 @@ sudo docker run -it \
 xhost -local:docker # revoke local dockers access to the X display server for GUI applications
 ```
 
-### Tmux shortcuts
+#### Tmux shortcuts
 
 - Move between windows with Ctrl + b, then n, p
 - Move between panes with Ctrl + b, then arrows
@@ -209,19 +195,49 @@ xhost -local:docker # revoke local dockers access to the X display server for GU
 - List sessions with `tmux list-sessions`
 - Kill all with `tmux kill-server`
 
-### Docker shortcuts
+#### Docker shortcuts
 
 - `exit` or Ctrl + d will close the shell and stop the container (as it was started interactively with `-it`).
 - Ctrl + p  then  Ctrl + q detaches you from the container and leaves it running in the background
 - Re-attach with `docker attach <container_name_or_id>`
 
+#### Docker Hygiene
+
+```sh
+# It is good practice to run these periodically
+sudo docker ps -a # list containers
+sudo docker stop $(sudo docker ps -q) # stop all containers
+sudo docker container prune # remove all containers
+
+sudo docker images # list images
+sudo docker image prune # remove untagged images
+sudo docker rmi <image_name_or_id> # remove a specific image
+```
+
+---
+
+## Part 3: Development with AAS
+
+### Development Step 1 of x: 
+
+TBD
+
+---
+
+## Part 4: Deployment of AAS
+
+### Deployment Step 1 of x: 
+
+TBD
+
+---
+---
 ---
 
 ## WIP
 
 ### TODOs
 
-- TODO: add `ros-humble-ros-base` option
 - TODO: use host tmuxinator, not docker compose
 - TODO: tmuxinator start -p /git/resources/simulation_tmuxinator.yml might have AP/GZ/QGC issue when wifi is on on the host, revise --net=host
 
