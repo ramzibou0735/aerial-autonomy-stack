@@ -5,10 +5,6 @@ FROM nvcr.io/nvidia/cuda:12.8.1-cudnn-runtime-ubuntu22.04
 # Tell apt (and other Debian tools) not to prompt for user input during package installs
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Create folders
-RUN mkdir -p /git/
-RUN mkdir -p /ros2_ws/src
-
 # Update the package list and install basic dependencies
 RUN apt update
 RUN apt upgrade -y
@@ -35,20 +31,18 @@ RUN apt install -y ros-dev-tools
 RUN apt install -y ros-humble-bondcpp ros-humble-ament-cmake-clang-format
 RUN echo "source /opt/ros/humble/setup.bash" >> /root/.bashrc
 RUN rosdep init
-# Set ROS_DOMAIN_ID to isolate ROS 2
-ENV ROS_DOMAIN_ID=1
 
-# Build PX4 messages (do it early to save time when rebuilding the image)
-WORKDIR /ros2_ws/src
-RUN git clone -b release/1.15 https://github.com/PX4/px4_msgs.git
+# Build PX4 messages
+RUN mkdir -p /ros2_ws/src
+RUN git clone -b release/1.15 https://github.com/PX4/px4_msgs.git /ros2_ws/src/px4_msgs
 WORKDIR /ros2_ws
 RUN rosdep update
 RUN rosdep install --from-paths src --ignore-src --rosdistro humble -y
 RUN bash -c "source /opt/ros/humble/setup.bash && colcon build --symlink-install"
-WORKDIR /
 
-# XRCE-DDS (do it early to save time when rebuilding the image)
+# XRCE-DDS
 # Based on https://micro-xrce-dds.docs.eprosima.com/en/latest/installation.html#installing-the-agent-standalone
+RUN mkdir -p /git/
 RUN git clone https://github.com/eProsima/Micro-XRCE-DDS-Agent.git /git/Micro-XRCE-DDS-Agent
 WORKDIR /git/Micro-XRCE-DDS-Agent
 RUN mkdir build && cd build && \
@@ -56,31 +50,27 @@ RUN mkdir build && cd build && \
     make && \
     make install && \
     ldconfig
-WORKDIR /
-# run with $ MicroXRCEAgent udp4 -p 8888
+# Run with $ MicroXRCEAgent udp4 -p 8888
 
 # YOLOv8 (in virtual environment /yolo-env/) and ONNX runtime with GPU support
-# See also https://github.com/ultralytics/ultralytics/blob/main/README.md
-# And https://onnxruntime.ai/getting-started
+# See https://github.com/ultralytics/ultralytics/blob/main/README.md and https://onnxruntime.ai/getting-started
 RUN apt install -y python3-venv
 RUN python3 -m venv /yolo-env
 RUN /yolo-env/bin/pip3 install --upgrade pip
 RUN /yolo-env/bin/pip3 install ultralytics
 RUN /yolo-env/bin/pip3 install onnx
 RUN /yolo-env/bin/pip3 install onnxruntime-gpu
+# Check YOLO with $ /yolo-env/bin/python3 -c "import ultralytics; print(ultralytics.__version__)"
+# Check ONNX Runtime with $ /yolo-env/bin/python -c "import onnxruntime as ort; print(ort.__version__)"
+
 # Save the model weights (ONNX, Opset 12) and download a sample video
+WORKDIR /
 RUN /yolo-env/bin/python3 -c "from ultralytics import YOLO; YOLO('yolov8n.pt').export(format='onnx', opset=12)"
 RUN wget https://github.com/intel-iot-devkit/sample-videos/raw/master/car-detection.mp4 -O /sample.mp4
-# check with /yolo-env/bin/python3 -c "import ultralytics; print(ultralytics.__version__)"
-# and /yolo-env/bin/python -c "import onnxruntime as ort; print(ort.__version__)"
-
-# pymavlink
-RUN pip3 install --upgrade pip
-RUN pip3 install pymavlink
-# check with $ python3 -c "import pymavlink; print(pymavlink.__version__)"
 
 # MAVSDK
 # Based on: https://mavsdk.mavlink.io/main/en/cpp/guide/build_linux.html
+RUN mkdir -p /git/
 RUN git clone https://github.com/mavlink/MAVSDK.git /git/MAVSDK
 WORKDIR /git/MAVSDK
 RUN git checkout v3.6.0
@@ -89,20 +79,28 @@ RUN cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_MAVSDK_SERVER=ON -Bbuild -S.
 RUN cmake --build build -j8
 RUN cmake --build build --target install
 RUN ldconfig
-WORKDIR /
-# check with $ pkg-config --modversion mavsdk
-# and /git/MAVSDK/build/src/mavsdk_server/src/mavsdk_server udpin://127.0.0.1:14550
+# Check with $ pkg-config --modversion mavsdk
+# Run with $ /git/MAVSDK/build/src/mavsdk_server/src/mavsdk_server
 
+# # pymavlink
+# RUN pip3 install --upgrade pip
+# RUN pip3 install pymavlink
+# # Check with $ python3 -c "import pymavlink; print(pymavlink.__version__)"
 
 # Copy resources from this repository
 COPY resources/ /git/resources
 
 # Build ROS 2 workspace
+RUN mkdir -p /ros2_ws/src
 WORKDIR /ros2_ws
 RUN rosdep update
 RUN rosdep install --from-paths src --ignore-src --rosdistro humble -y
-RUN bash -c "source /opt/ros/humble/setup.bash && colcon build --symlink-install"
-# source /opt/ros/humble/setup.bash && source /ros2_ws/install/setup.bash
+RUN colcon build --symlink-install
+RUN echo "source /ros2_ws/install/setup.bash" >> /root/.bashrc
+# If needed (but already in .bashrc) $ source /opt/ros/humble/setup.bash && source /ros2_ws/install/setup.bash
+
+# Set ROS_DOMAIN_ID to isolate ROS2
+ENV ROS_DOMAIN_ID=1
 
 # Final config
 WORKDIR /

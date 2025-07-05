@@ -5,7 +5,7 @@
 - **Simulate** perception and control in software-in-the-loop, using PX4/ArduPilot and YOLOv8
 - **Deploy** in real drones based on NVIDIA Orin/JetPack
 
-It leverages the following frameworks:
+AAS leverages the following frameworks:
 - ROS2 Humble (LTS, EOL 5/2027)
 - Gazebo Sim Harmonic (LTS, EOL 9/2028)
 - PX4 1.15 (latest stable release as of 6/2025) interfaced *via* XRCE DDS
@@ -30,9 +30,9 @@ It leverages the following frameworks:
 
 ---
 
-## Host Computer Setup
+## Step -1: Host Computer Setup
 
-> The stack is developed and tested using a Ubuntu 22.04 host (penultimate LTS, ESM 4/2032) with `nvidia-driver-570` (latest as of 6/2025) and Docker Engine v28 (latest stable release as of 6/2025) on an i9-13 with RTX3500 and on an i7-11 with RTX3060
+> The stack is developed and tested using a Ubuntu 22.04 host (penultimate LTS, ESM 4/2032) with `nvidia-driver-570` (latest as of 6/2025) and Docker Engine v28 (latest stable release as of 6/2025) on an i9-13 with RTX3500 and an i7-11 with RTX3060 computers
 
 - Startup disk based on `ubuntu-22.04.5-desktop-amd64.iso`
 - "Normal installation", "Download updates while installing Ubuntu", no "Install third-party software"
@@ -74,7 +74,7 @@ git clone git@github.com:JacopoPan/aerial-autonomy-stack.git
 # conda config --set auto_activate_base false
 ```
 
-## Docker Setup
+## Step 0: Docker Setup
 
 ```sh
 # Based on https://docs.docker.com/engine/install/ubuntu/ and https://docs.docker.com/engine/install/linux-postinstall/
@@ -137,6 +137,8 @@ sudo docker info | grep -i runtime
 
 ### Docker Hygiene
 
+It is good practice to run these periodically
+
 ```sh
 sudo docker ps -a # list containers
 sudo docker stop $(sudo docker ps -q) # stop all containers
@@ -149,11 +151,11 @@ sudo docker image prune # remove untagged images
 sudo docker rmi <image_name_or_id> # remove a specific image
 ```
 
-## Build and Run the Simulation Docker
+## Step 1: Build and Run the Simulation Docker
 
 ```sh
 sudo docker build -t simulation-image -f Dockerfile.simulation . 
-# WARNING: this takes about 15-20' from scratch for a 21GB image
+# WARNING: this takes about 15-20' from scratch and creates a 21GB image
 # NOTE 1: the first build requires a good internet connection, Ctrl+C and restart if it hangs
 # NOTE 2: this is an all-purpose, development-friendly image with a lot of tools and build artifacts, trim if needed
 ```
@@ -181,18 +183,17 @@ sudo docker run -it \
 # List sessions with $ tmux list-sessions
 # Kill all with $ tmux kill-server
 
+# `exit` or Ctrl+D will close the shell and stop the container (as it was started interactively).
+# Ctrl + P  then  Ctrl + Q detaches you from the container and leaves it running in the background. Re-attach with `docker attach <container_name_or_id>`
+
 xhost -local:docker
 ```
 
-`exit` or Ctrl+D will close the shell and stop the container (as it was started interactively).
-Ctrl + P  then  Ctrl + Q detaches you from the container and leaves it running in the background. Re-attach with `docker attach <container_name_or_id>`
-
-
-## Build and Run the Aircraft Docker
+## Step 2: Build and Run the Aircraft Docker
 
 ```sh
 sudo docker build -t aircraft-image -f Dockerfile.aircraft . 
-# WARNING: having built Dockerfile.simulation, this takes about 25' for a 20GB image
+# WARNING: having built Dockerfile.simulation, this takes about 20-25' and creates a 20GB image
 # NOTE 1: the first build requires a good internet connection, Ctrl+C and restart if it hangs
 # NOTE 2: this is an all-purpose, development-friendly image with a lot of tools and build artifacts, trim if needed
 ```
@@ -211,7 +212,7 @@ sudo docker run -it \
   --net=host \
   aircraft-image
 
-# It starts $ tmuxinator start -p /git/resources/tmuxinator/aircraft_tmuxinator.yml
+# It starts $ tmuxinator start -p /git/resources/tmuxinator/aircraft.yml
 # Move between windows with Ctrl + b, then n, p
 # Move between panes with Ctrl + b, then arrows
 # Detach with Ctrl + b, then press d
@@ -220,18 +221,22 @@ sudo docker run -it \
 # List sessions with $ tmux list-sessions
 # Kill all with $ tmux kill-server
 
+# `exit` or Ctrl+D will close the shell and stop the container (as it was started interactively).
+# Ctrl + P  then  Ctrl + Q detaches you from the container and leaves it running in the background. Re-attach with `docker attach <container_name_or_id>`
+
 xhost -local:docker
 ```
 
-`exit` or Ctrl+D will close the shell and stop the container (as it was started interactively).
-Ctrl + P  then  Ctrl + Q detaches you from the container and leaves it running in the background. Re-attach with `docker attach <container_name_or_id>`
 
 
 
-------
+
+
+---
 
 ## WIP
 
+- use host tmuxinator, not docker compose
 - TODO: tmuxinator start -p /git/resources/simulation_tmuxinator.yml might have AP/GZ/QGC issue when wifi is on on the host, revise --net=host
 - TODO: move ROS_DOMAIN_ID
 - https://docs.px4.io/main/en/sim_gazebo_gz/vehicles.html#x500-quadrotor-with-depth-camera-front-facing

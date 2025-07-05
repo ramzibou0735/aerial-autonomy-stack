@@ -4,10 +4,6 @@ FROM nvcr.io/nvidia/cuda:12.8.1-cudnn-runtime-ubuntu22.04
 # Tell apt (and other Debian tools) not to prompt for user input during package installs
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Create folders
-RUN mkdir -p /git/
-RUN mkdir -p /ros2_ws/src
-
 # Update the package list and install basic dependencies
 RUN apt update
 RUN apt upgrade -y
@@ -34,10 +30,8 @@ RUN apt install -y ros-dev-tools
 RUN apt install -y ros-humble-bondcpp ros-humble-ament-cmake-clang-format
 RUN echo "source /opt/ros/humble/setup.bash" >> /root/.bashrc
 RUN rosdep init
-# Set ROS_DOMAIN_ID to isolate ROS 2
-ENV ROS_DOMAIN_ID=99
 
-# Gazebo Harmonic (as root)
+# Gazebo Harmonic
 # Based on https://gazebosim.org/docs/harmonic/install_ubuntu/
 RUN apt-get update
 RUN apt-get install -y lsb-release gnupg
@@ -46,20 +40,22 @@ RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/p
 RUN apt-get update
 RUN apt-get install -y gz-harmonic
 RUN apt install -y ros-humble-ros-gzharmonic
-# run with $ gz sim
+# Run with $ gz sim
 
-# PX4 SITL (as root)
+# PX4 SITL
 # Based on https://docs.px4.io/main/en/dev_setup/dev_env_linux_ubuntu.html
+RUN mkdir -p /git/
 RUN git clone https://github.com/PX4/PX4-Autopilot.git /git/PX4-Autopilot
 WORKDIR /git/PX4-Autopilot
 RUN git checkout v1.15.4
 RUN git submodule update --init --recursive
 RUN bash ./Tools/setup/ubuntu.sh --no-sim-tools
 RUN make px4_sitl
-# run with $ /git/PX4-Autopilot/build/px4_sitl_default/bin/px4
+# Run with $ /git/PX4-Autopilot/build/px4_sitl_default/bin/px4
 
-# ArduPilot SITL (temporarily, as arduuser, then re chown to root)
+# ArduPilot SITL (temporarily as arduuser, then re chown to root)
 # Based on https://ardupilot.org/dev/docs/building-setup-linux.html#building-setup-linux
+RUN mkdir -p /git/
 RUN git clone https://github.com/ArduPilot/ardupilot.git /git/ardupilot
 WORKDIR /git/ardupilot
 RUN git checkout Copter-4.6.0
@@ -71,23 +67,23 @@ RUN chown -R arduuser:arduuser /git/ardupilot
 RUN USER=arduuser gosu arduuser bash ./Tools/environment_install/install-prereqs-ubuntu.sh -y
 RUN gosu arduuser bash -c "cd /git/ardupilot && ./waf configure --board sitl && ./waf build"
 RUN chown -R root:root /git/ardupilot
-RUN pip3 install --upgrade pip
-RUN pip3 install "numpy<2"
-RUN pip3 install mavproxy
-# run with $ /git/ardupilot/build/sitl/bin/arducopter --model quad
+# Run with $ /git/ardupilot/build/sitl/bin/arducopter
 
-# ArduPilot Gazebo Plugin (as root)
+# ArduPilot Gazebo Plugin
 # Based on https://ardupilot.org/dev/docs/sitl-with-gazebo.html
+RUN mkdir -p /git/
+RUN git clone https://github.com/ArduPilot/ardupilot_gazebo /git/ardupilot_gazebo
+WORKDIR /git/ardupilot_gazebo
 RUN apt install -y  \
     rapidjson-dev \
     libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
-RUN git clone https://github.com/ArduPilot/ardupilot_gazebo /git/ardupilot_gazebo
-WORKDIR /git/ardupilot_gazebo
+RUN pip3 install --upgrade pip
+RUN pip3 install "numpy<2"
+RUN pip3 install mavproxy
 ENV GZ_VERSION=harmonic
 RUN mkdir build && cd build && \
     cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo && \
     make -j4
-WORKDIR /
 
 # QGroundControl (as qgcuser)
 # Based on https://docs.qgroundcontrol.com/master/en/qgc-user-guide/getting_started/download_and_install.html
@@ -101,17 +97,22 @@ RUN apt install libxcb-xinerama0 libxkbcommon-x11-0 libxcb-cursor-dev -y
 RUN wget https://d176tv9ibo4jno.cloudfront.net/latest/QGroundControl-x86_64.AppImage
 RUN chmod +x /QGroundControl-x86_64.AppImage
 RUN /QGroundControl-x86_64.AppImage --appimage-extract
-# run with $ gosu qgcuser /squashfs-root/AppRun
+# Run with $ gosu qgcuser /squashfs-root/AppRun
 
 # Copy resources from this repository
 COPY resources/ /git/resources
 
-# Build ROS 2 workspace (unused)
-WORKDIR /ros2_ws
-RUN rosdep update
-RUN rosdep install --from-paths src --ignore-src --rosdistro humble -y
-RUN bash -c "source /opt/ros/humble/setup.bash && colcon build --symlink-install"
-# source /opt/ros/humble/setup.bash && source /ros2_ws/install/setup.bash
+# # Build ROS 2 workspace
+# RUN mkdir -p /ros2_ws/src
+# WORKDIR /ros2_ws
+# RUN rosdep update
+# RUN rosdep install --from-paths src --ignore-src --rosdistro humble -y
+# RUN colcon build --symlink-install
+# RUN echo "source /ros2_ws/install/setup.bash" >> /root/.bashrc
+# # If needed (but already in .bashrc) $ source /opt/ros/humble/setup.bash && source /ros2_ws/install/setup.bash
+
+# Set ROS_DOMAIN_ID to isolate ROS2
+ENV ROS_DOMAIN_ID=99
 
 # Final config
 WORKDIR /
