@@ -1,22 +1,22 @@
 # aerial-autonomy-stack
 
 *Aerial autonomy stack* (AAS) is a software stack to:
-- **Develop** drone autonomy using on ROS2
-- **Simulate** perception and control in software-in-the-loop, using PX4/ArduPilot and YOLOv8
-- **Deploy** in real drones based on NVIDIA Orin/JetPack
+- **Develop** drone autonomy with ROS2
+- **Simulate** vision and control in software-in-the-loop, with YOLOv8 and PX4/ArduPilot
+- **Deploy** in real drones with NVIDIA Orin/JetPack
 
 AAS leverages the following frameworks:
-- ROS2 Humble (LTS, EOL 5/2027)
-- Gazebo Sim Harmonic (LTS, EOL 9/2028)
-- PX4 1.15 (latest stable release as of 6/2025) interfaced *via* XRCE DDS
-- ArduPilot 4.6 (latest stable release as of 6/2025) interfaced *via* MAVSDK
-- YOLOv8 and ONNX Runtime 1.22
-- L4T 36 (Ubuntu 22-based)/JetPack 6 (as deployment target, latest major release as of 6/2025)
+- *ROS2 Humble* (LTS, EOL 5/2027)
+- *Gazebo Sim Harmonic* (LTS, EOL 9/2028)
+- *PX4 1.15* (latest stable release as of 6/2025) interfaced *via* XRCE-DDS
+- *ArduPilot 4.6* (latest stable release as of 6/2025) interfaced *via* MAVSDK
+- *YOLOv8* and *ONNX Runtime 1.22*
+- [for deployment only] *L4T 36* (Ubuntu 22-based)/*JetPack 6* (latest major release as of 6/2025)
 
 ## Feature Highlights
 
 - Support for **quadrotor and VTOL** aircraft equipped with **PX4 or ArduPilot**
-- Support for **ROS2** with ROS2-based autopilot interfaces (*via* XRCE DDS and MAVSDK)
+- Support for **ROS2** with ROS2-based autopilot interfaces (*via* XRCE-DDS and MAVSDK)
 - Support for **YOLOv8** and ONNX CPU, CUDA (on desktop/amd64), and TensorRT (on Orin/arm64) Runtime
 - Photorealistic **software-in-the-loop simulation**
 - Dockerized simulation based on [`nvcr.io/nvidia/cuda:12.8.1-cudnn-runtime-ubuntu22.04`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/cuda/tags)
@@ -24,9 +24,9 @@ AAS leverages the following frameworks:
 
 ## Additional Features
 
-- Support for PX4 Offboard mode in CTBR (`VehicleRatesSetpoint`) for agile, GNSS-denied control
+- Support for PX4 Offboard mode in CTBR (`VehicleRatesSetpoint`) for agile, GNSS-denied flight
 - Support for FAST-LIO (Fast LiDAR-Inertial Odometry)
-- Custom inter-drone low-bandwith communication protocol for real-world deployment 
+- Lightweight inter-drone serial communication for real-world deployment 
 
 ---
 
@@ -151,17 +151,24 @@ sudo docker image prune # remove untagged images
 sudo docker rmi <image_name_or_id> # remove a specific image
 ```
 
-## Step 1: Build and Run the Simulation Docker
+## Step 1: Build the Simulation and Aircraft Docker Images
+
+> NOTE 1: the first builds require a good internet connection, Ctrl+C and restart if they hang
+>
+> NOTE 2: these are all-purpose, development-friendly images with lots of tools and build artifacts, trim if needed
 
 ```sh
+# WARNING: this takes 15-20' from scratch and creates a 21GB image
 sudo docker build -t simulation-image -f Dockerfile.simulation . 
-# WARNING: this takes about 15-20' from scratch and creates a 21GB image
-# NOTE 1: the first build requires a good internet connection, Ctrl+C and restart if it hangs
-# NOTE 2: this is an all-purpose, development-friendly image with a lot of tools and build artifacts, trim if needed
+
+# WARNING: having built Dockerfile.simulation, this takes 20-25' and creates a 20GB image
+sudo docker build -t aircraft-image -f Dockerfile.aircraft . 
 ```
 
+## Step 2: Run the Simulation and Aircraft Docker Containers
+
 ```sh
-xhost +local:docker
+xhost +local:docker # grant local dockers access to the X display server for GUI applications
 
 sudo docker run -it \
   --env DISPLAY=$DISPLAY \
@@ -174,32 +181,7 @@ sudo docker run -it \
   --net=host \
   simulation-image
 
-# It starts $ tmuxinator start -p /git/resources/tmuxinator/simulation_px4_quad.yml
-# Move between windows with Ctrl + b, then n, p
-# Move between panes with Ctrl + b, then arrows
-# Detach with Ctrl + b, then press d
-# Re-attach with $ tmux attach-session -t simulation_tmuxinator
-# Or kill with $ tmux kill-session -t simulation_tmuxinator
-# List sessions with $ tmux list-sessions
-# Kill all with $ tmux kill-server
-
-# `exit` or Ctrl+D will close the shell and stop the container (as it was started interactively).
-# Ctrl + P  then  Ctrl + Q detaches you from the container and leaves it running in the background. Re-attach with `docker attach <container_name_or_id>`
-
-xhost -local:docker
-```
-
-## Step 2: Build and Run the Aircraft Docker
-
-```sh
-sudo docker build -t aircraft-image -f Dockerfile.aircraft . 
-# WARNING: having built Dockerfile.simulation, this takes about 20-25' and creates a 20GB image
-# NOTE 1: the first build requires a good internet connection, Ctrl+C and restart if it hangs
-# NOTE 2: this is an all-purpose, development-friendly image with a lot of tools and build artifacts, trim if needed
-```
-
-```sh
-xhost +local:docker
+# simulation-image starts $ tmuxinator start -p /git/resources/tmuxinator/simulation_px4_quad.yml
 
 sudo docker run -it \
   --env DISPLAY=$DISPLAY \
@@ -212,40 +194,151 @@ sudo docker run -it \
   --net=host \
   aircraft-image
 
-# It starts $ tmuxinator start -p /git/resources/tmuxinator/aircraft.yml
-# Move between windows with Ctrl + b, then n, p
-# Move between panes with Ctrl + b, then arrows
-# Detach with Ctrl + b, then press d
-# Re-attach with $ tmux attach-session -t aircraft_tmuxinator
-# Or kill with $ tmux kill-session -t aircraft_tmuxinator
-# List sessions with $ tmux list-sessions
-# Kill all with $ tmux kill-server
+# aircraft-image starts $ tmuxinator start -p /git/resources/tmuxinator/aircraft.yml
 
-# `exit` or Ctrl+D will close the shell and stop the container (as it was started interactively).
-# Ctrl + P  then  Ctrl + Q detaches you from the container and leaves it running in the background. Re-attach with `docker attach <container_name_or_id>`
-
-xhost -local:docker
+xhost -local:docker # revoke local dockers access to the X display server for GUI applications
 ```
 
+### Tmux shortcuts
 
+- Move between windows with Ctrl + b, then n, p
+- Move between panes with Ctrl + b, then arrows
+- Detach with Ctrl + b, then press d
+- Re-attach with `tmux attach-session -t simulation_tmuxinator`
+- Or kill with `tmux kill-session -t simulation_tmuxinator`
+- List sessions with `tmux list-sessions`
+- Kill all with `tmux kill-server`
 
+### Docker shortcuts
 
-
+- `exit` or Ctrl + d will close the shell and stop the container (as it was started interactively with `-it`).
+- Ctrl + p  then  Ctrl + q detaches you from the container and leaves it running in the background
+- Re-attach with `docker attach <container_name_or_id>`
 
 ---
 
 ## WIP
 
-- use host tmuxinator, not docker compose
+### TODOs
+
+- TODO: fix colcon build syntax in Dockerfiles, add `ros-humble-ros-base` option
+- TODO: use host tmuxinator, not docker compose
 - TODO: tmuxinator start -p /git/resources/simulation_tmuxinator.yml might have AP/GZ/QGC issue when wifi is on on the host, revise --net=host
-- TODO: move ROS_DOMAIN_ID
+
+### Networking
+
+- ArduPilot SITL architecture: https://ardupilot.org/dev/docs/sitl-simulator-software-in-the-loop.html#sitl-architecture
+- ArduPilot UARTs: https://ardupilot.org/dev/docs/learning-ardupilot-uarts-and-the-console.html
+```sh
+# on 192.168.1.30, add multiple outs for each SITL to use QGC (in the same container) and C++/ROS2 wrapped MAVSDK
+./Tools/autotest/sim_vehicle.py -v ArduCopter --map --console --out=udp:192.168.1.30:14550 --out=udp:192.168.1.20:14540
+# on 192.168.1.20, connect with
+/git/MAVSDK/build/src/mavsdk_server/src/mavsdk_server udpin://0.0.0.0:14540
+```
+- PX$ SITL architecture: https://docs.px4.io/main/en/simulation/#sitl-simulation-environment
+- PX4 XRCE-DDS architecture: https://docs.px4.io/main/en/middleware/uxrce_dds.html#architecture
+```sh
+# 42.42.42.xx, configure PX4 sitl with env variables
+PX4_GZ_MODEL_POSE="0,0,0,0,0,0" PX4_SYS_AUTOSTART=4001 PX4_UXRCE_DDS_NS="Drone1" PX4_UXRCE_DDS_AG_IP=42.42.42.20 PX4_UXRCE_DDS_PORT=8888 /git/PX4-Autopilot/build/px4_sitl_default/bin/px4 -i 1
+# on 42.42.42.20, connect with
+MicroXRCEAgent udp4 -p 8888
+```
+
+ArduPilot Docker networking
+```sh
+docker network create drone-net
+
+docker run -d --rm --network drone-net --name sitl-container \
+  your-ardupilot-image \
+  ./Tools/autotest/sim_vehicle.py -v ArduCopter --console \
+  --out=udp:host.docker.internal:14550 \
+  --out=udp:mavsdk-container:14540
+
+docker run -d --rm --network drone-net --name mavsdk-container \
+  your-mavsdk-image \
+  /path/to/mavsdk_server udpin://0.0.0.0:14540
+```
+
+PX4 Docker networking
+```sh
+docker network create drone-net
+
+docker run -d --rm --network drone-net --name xrce-agent \
+  your-xrce-agent-image \
+  MicroXRCEAgent udp4 -p 8888
+
+docker run -d --rm --network drone-net --name px4-sitl \
+  -e PX4_UXRCE_DDS_AG_IP=xrce-agent \
+  -e PX4_SYS_AUTOSTART=4008 \
+  -e PX4_UXRCE_DDS_NS="Drone1" \
+  your-px4-image \
+  /path/to/px4 -i 1
+```
+
+Inter drone serial communication (for Docker simulation and deployment)
+
+```sh
+# Create the IP network
+docker network create my-app-net
+
+# Create the virtual serial port pair using socat
+socat -d -d pty,raw,echo=0,link=/tmp/port-a pty,raw,echo=0,link=/tmp/port-b &
+
+docker run -d --rm \
+  --network my-app-net \
+  --name container-a \
+  --device=/tmp/port-a:/dev/ttyS0 \
+  your-app-image-a
+
+docker run -d --rm \
+  --network my-app-net \
+  --name container-b \
+  --device=/tmp/port-b:/dev/ttyS0 \
+  your-app-image-b
+```
+
+Image processing from simulation to containers
+
+```sh
+# In the drone .sdf
+<plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+  <ros>
+    <namespace>/demo</namespace>
+    <remapping>image_raw:=color/image_raw</remapping>
+  </ros>
+  </plugin>
+
+# In the simulation container
+gst-launch-1.0 ros2imagesrc topic-name="/demo/color/image_raw" ! \
+    videoconvert ! \
+    x264enc tune=zerolatency bitrate=500 speed-preset=superfast ! \
+    rtph264pay ! \
+    udpsink host=yolo-container port=5000
+```
+
+```py
+# In the YOLO container
+import gi
+gi.require_version('Gst', '1.0')
+from gi.repository import Gst
+# ... other imports for numpy, onnx, etc.
+
+# GStreamer pipeline to receive, decode, and send to the application
+pipeline_str = "udpsrc port=5000 ! application/x-rtp, encoding-name=H264, payload=96 ! rtph264depay ! avdec_h264 ! videoconvert ! appsink name=yolo_sink emit-signals=true"
+
+# ... Code to launch the pipeline and a callback function for the 'new-sample' signal from appsink
+# Inside the callback, you get the frame buffer and pass it to your YOLOv8 ONNX model.
+```
+
+### Simulation Resources
+
 - https://docs.px4.io/main/en/sim_gazebo_gz/vehicles.html#x500-quadrotor-with-depth-camera-front-facing
 - https://docs.px4.io/main/en/sim_gazebo_gz/vehicles.html#x500-quadrotor-with-2d-lidar 
 - https://ardupilot.org/dev/docs/sitl-with-gazebo.html Iris quadcopter and a Zephyr delta-wing.
 - https://github.com/nathanbowness/UAV-Object-Tracking
 
 
-### Geospatial and photogrammetry resources
+### Geospatial and Photogrammetry Resources
 - https://support.pix4d.com/hc/en-us/articles/360000235126#OPF2
 - https://github.com/softwareunderground/awesome-open-geoscience?tab=readme-ov-file
 - https://github.com/sacridini/Awesome-Geospatial
