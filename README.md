@@ -23,8 +23,9 @@
 - Support for [FAST-LIO](https://github.com/hku-mars/FAST_LIO) (Fast LiDAR-Inertial Odometry)
 - Lightweight inter-drone serial communication for real-world deployment 
 
-AAS leverages the following frameworks:
-
+> [!NOTE]
+> AAS leverages the following frameworks:
+>
 > [*ROS2 Humble*](https://docs.ros.org/en/rolling/Releases.html) (LTS, EOL 5/2027), [*Gazebo Sim Harmonic*](https://gazebosim.org/docs/latest/releases/) (LTS, EOL 9/2028), [*PX4 1.15*](https://github.com/PX4/PX4-Autopilot/releases) interfaced *via* [XRCE-DDS](https://github.com/eProsima/Micro-XRCE-DDS/releases), [*ArduPilot 4.6*](https://github.com/ArduPilot/ardupilot/releases) interfaced *via* [MAVSDK](https://github.com/mavlink/mavsdk/releases), [*YOLOv8*](https://github.com/ultralytics/ultralytics/releases) on [*ONNX Runtime 1.22*](https://onnxruntime.ai/getting-started) (latest stable releases as of 6/2025), [*L4T 36* (Ubuntu 22-based)/*JetPack 6*](https://developer.nvidia.com/embedded/jetpack-archive) (for deployment only, latest major release as of 6/2025)
 
 ---
@@ -37,7 +38,7 @@ AAS leverages the following frameworks:
 ### Installation Step 1 of 3: Host Computer Setup
 
 > [!NOTE]
-> SKIP THIS STEP IF YOU ALREADY HAVE AN UBUNTU 22 COMPUTER WITH NVIDIA DRIVER, GIT, ETC.
+> Skip this step if you already have an **Ubuntu 22 computer with NVIDIA Driver**, Git, etc.
 
 - Install the host OS from a startup disk based on `ubuntu-22.04.5-desktop-amd64.iso`
 - Choose "Normal installation", "Download updates while installing Ubuntu", no "Install third-party software"
@@ -74,7 +75,7 @@ git clone git@github.com:JacopoPan/aerial-autonomy-stack.git
 ### Installation Step 2 of 3: Docker Setup
 
 > [!NOTE]
-> SKIP THIS STEP IF YOU ALREADY INSTALLED DOCKER ENGINE AND NVIDIA CONTAINER TOOLKIT
+> Skip this step if you already installed **Docker Engine and NVIDIA Container Toolkit**
 
 ```sh
 # Based on https://docs.docker.com/engine/install/ubuntu/ and https://docs.docker.com/engine/install/linux-postinstall/
@@ -134,10 +135,10 @@ docker info | grep -i runtime
 > NOTE: these are all-purpose, development-friendly images with lots of tools and build artifacts, trim if needed
 
 ```sh
-# This takes 15-20' from scratch and creates a 21GB image
+# This takes 15-20' for the first built and creates a 21GB image
 docker build -t simulation-image -f Dockerfile.simulation . 
 
-# Having built Dockerfile.simulation, this takes 20-25' and creates a 20GB image
+# Having built Dockerfile.simulation, this takes 20-25' for the first built and creates a 20GB image
 docker build -t aircraft-image -f Dockerfile.aircraft . 
 ```
 
@@ -206,6 +207,14 @@ TBD
 ### TODOs
 
 - Move ROS_DOMAIN_ID to docker run command
+
+```diff
+- This text will be red.
++ This text will be green.
+```
+
+> [!CAUTION]
+> example
 
 ```sh
 # Grant local dockers access to the X display server for GUI applications after every reboot
