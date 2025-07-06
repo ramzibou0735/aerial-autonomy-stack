@@ -42,11 +42,7 @@
 
 - Install the host OS from a startup disk based on `ubuntu-22.04.5-desktop-amd64.iso`
 - Choose "Normal installation", "Download updates while installing Ubuntu", no "Install third-party software"
-- Run "Software Updater", restart, Update All in "Ubuntu Software"
-```sh
-killall snap-store
-sudo snap refresh snap-store
-```
+- Run "Software Updater", restart, Update All in "Ubuntu Software" (incl. `$ killall snap-store && sudo snap refresh snap-store`)
 - Update and restart for "Device Firmware" as necessary
 - In "Software & Updates", select `nvidia-driver-570 (propietary, tested)`
 - `nvidia-smi` reports Driver Version: 570.133.07, CUDA Version: 12.8
