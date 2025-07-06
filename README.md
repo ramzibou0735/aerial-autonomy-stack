@@ -5,7 +5,8 @@
 - **Simulate** vision and control in software-in-the-loop, with YOLOv8 and PX4/ArduPilot
 - **Deploy** in real drones with NVIDIA Orin/JetPack
 
-For the motivation behind AAS (and how it compares to similar projects), read [`RATIONALE.md`](RATIONALE.md)
+> [!NOTE]
+> For the motivation behind AAS (and how it compares to similar projects), read [`RATIONALE.md`](RATIONALE.md)
 
 ## Feature Highlights
 
@@ -30,11 +31,12 @@ AAS leverages the following frameworks:
 
 ## Part 1: Installation of AAS
 
+> [!IMPORTANT]
 > This stack is developed and tested using a [Ubuntu 22.04](https://ubuntu.com/about/release-cycle) host (penultimate LTS, ESM 4/2032) with [`nvidia-driver-570`](https://developer.nvidia.com/datacenter-driver-archive) (latest as of 6/2025) and Docker Engine v28 (latest stable release as of 6/2025) on an i9-13 with RTX3500 and an i7-11 with RTX3060 computers
 
 ### Installation Step 1 of 3: Host Computer Setup
 
-> [!TIP]
+> [!NOTE]
 > SKIP THIS STEP IF YOU ALREADY HAVE AN UBUNTU 22 COMPUTER WITH NVIDIA DRIVER, GIT, ETC.
 
 - Install the host OS from a startup disk based on `ubuntu-22.04.5-desktop-amd64.iso`
@@ -71,6 +73,7 @@ git clone git@github.com:JacopoPan/aerial-autonomy-stack.git
 
 ### Installation Step 2 of 3: Docker Setup
 
+> [!NOTE]
 > SKIP THIS STEP IF YOU ALREADY INSTALLED DOCKER ENGINE AND NVIDIA CONTAINER TOOLKIT
 
 ```sh
@@ -125,15 +128,16 @@ docker info | grep -i runtime
 
 ### Installation Step 3 of 3: Build the Simulation and Aircraft Docker Images
 
+> [!WARNING]
 > NOTE: the first builds require a good internet connection, Ctrl+C and restart if they hang
 >
 > NOTE: these are all-purpose, development-friendly images with lots of tools and build artifacts, trim if needed
 
 ```sh
-# WARNING: this takes 15-20' from scratch and creates a 21GB image
+# This takes 15-20' from scratch and creates a 21GB image
 docker build -t simulation-image -f Dockerfile.simulation . 
 
-# WARNING: having built Dockerfile.simulation, this takes 20-25' and creates a 20GB image
+# Having built Dockerfile.simulation, this takes 20-25' and creates a 20GB image
 docker build -t aircraft-image -f Dockerfile.aircraft . 
 ```
 
@@ -149,26 +153,25 @@ chmod +x ./main.sh
 ./main.sh
 ```
 
-#### Tmux shortcuts
+> [!TIP]
+> Tmux shortcuts
+> - Move between windows with `Ctrl + b`, then `n`, `p`
+> - Move between panes with `Ctrl + b`, then `arrows`
+> - Detach with `Ctrl + b`, then press `d`
+> - Re-attach with `tmux attach-session -t simulation_tmuxinator`
+> - Or kill with `tmux kill-session -t simulation_tmuxinator`
+> - List sessions with `tmux list-sessions`
+> - Kill all with `tmux kill-server`
 
-- Move between windows with `Ctrl + b`, then `n`, `p`
-- Move between panes with `Ctrl + b`, then `arrows`
-- Detach with `Ctrl + b`, then press `d`
-- Re-attach with `tmux attach-session -t simulation_tmuxinator`
-- Or kill with `tmux kill-session -t simulation_tmuxinator`
-- List sessions with `tmux list-sessions`
-- Kill all with `tmux kill-server`
+> [!TIP]
+> Docker shortcuts
+> - `exit` or `Ctrl + d` will close the shell and stop the container (as it was started interactively with `-it`).
+> - `Ctrl + p`  then  `Ctrl + q` detaches you from the container and leaves it running in the background
+> - Re-attach with `docker attach <container_name_or_id>`
 
-#### Docker shortcuts
-
-- `exit` or `Ctrl + d` will close the shell and stop the container (as it was started interactively with `-it`).
-- `Ctrl + p`  then  `Ctrl + q` detaches you from the container and leaves it running in the background
-- Re-attach with `docker attach <container_name_or_id>`
-
-#### Docker Hygiene
-
+> [!TIP]
+> Docker hygiene: it is good practice to run these periodically
 ```sh
-# It is good practice to run these periodically
 docker ps -a # list containers
 docker stop $(docker ps -q) # stop all containers
 docker container prune # remove all containers
