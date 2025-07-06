@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Set the number of aircraft containers to launch
-AIRCRAFT_COUNT=1
+AIRCRAFT_COUNT=3
 
 # Grant access to the X server
 xhost +local:docker
@@ -17,10 +17,11 @@ gnome-terminal -- bash -c "echo 'Launching Simulation Container...'; \
     --gpus all \
     --env DISPLAY=$DISPLAY \
     --env QT_X11_NO_MITSHM=1 \
+    --env NVIDIA_DRIVER_CAPABILITIES=all \
     simulation-image; \
   exec bash"
 
-# Launch aircraft containers
+Launch aircraft containers
 for i in $(seq 1 $AIRCRAFT_COUNT); do
   gnome-terminal -- bash -c "echo 'Launching Aircraft Container $i...'; \
     docker run -it --rm \
@@ -32,6 +33,7 @@ for i in $(seq 1 $AIRCRAFT_COUNT); do
       --gpus all \
       --env DISPLAY=$DISPLAY \
       --env QT_X11_NO_MITSHM=1 \
+      --env NVIDIA_DRIVER_CAPABILITIES=all \
       aircraft-image; \
     exec bash"
 done

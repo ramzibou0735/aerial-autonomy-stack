@@ -217,14 +217,14 @@ TBD
 # Grant local dockers access to the X display server for GUI applications after every reboot
 xhost +local:docker
 
-docker run -it \
+docker run -it --rm \
   --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --device /dev/dri --gpus all \
   --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all \
   --privileged --net=host \
   simulation-image
 # simulation-image starts $ tmuxinator start -p /git/resources/tmuxinator/simulation_px4_quad.yml
 
-docker run -it \
+docker run -it --rm \
   --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --device /dev/dri --gpus all \
   --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all \
   --privileged --net=host \

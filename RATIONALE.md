@@ -17,16 +17,23 @@ In particular, in the lack of end-to-end/full-stack integration among the many f
 
 ## Links to Similar and Related Work
 
-Frameworks
+Frameworks (from https://arxiv.org/pdf/2303.18237)
 
 - https://github.com/aerostack2/aerostack2
 - https://github.com/ctu-mrs/mrs_uav_system
 - https://github.com/IMRCLab/crazyswarm2
 
-Simulators
+Simulators (from https://arxiv.org/pdf/2311.02296)
 
 - https://github.com/ntnu-arl/aerial_gym_simulator
 - https://github.com/utiasDSL/gym-pybullet-drones
 - https://github.com/spencerfolk/rotorpy
 
 Also check out: https://github.com/ROS-Aerial/aerial_robotic_landscape
+
+## Desiderata
+
+Some additional features are highly desirable but were deemed to add unnecessary complexity for a minimum viable product (MVP), community contributions are obviously welcome
+
+- Support for [JSBSim](https://github.com/JSBSim-Team/jsbsim) flight dynamics
+- Support for [Betaflight SITL](https://betaflight.com/docs/development/SITL) interfaced *via* [MultiWii Serial Protocol (MSP)](https://github.com/betaflight/betaflight/tree/master/src/main/msp)
