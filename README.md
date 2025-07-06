@@ -33,7 +33,7 @@
 ## Part 1: Installation of AAS
 
 > [!IMPORTANT]
-> This stack is developed and tested using a [Ubuntu 22.04](https://ubuntu.com/about/release-cycle) host (penultimate LTS, ESM 4/2032) with [`nvidia-driver-570`](https://developer.nvidia.com/datacenter-driver-archive) (latest as of 6/2025) and Docker Engine v28 (latest stable release as of 6/2025) on an i9-13 with RTX3500 and an i7-11 with RTX3060 computers
+> This stack is developed and tested using a [Ubuntu 22.04](https://ubuntu.com/about/release-cycle) host (penultimate LTS, ESM 4/2032) with [`nvidia-driver-570`](https://developer.nvidia.com/datacenter-driver-archive) and Docker Engine v28 (latest stable releases as of 6/2025) on an i9-13 with RTX3500 and an i7-11 with RTX3060 computers
 
 ### Installation Step 1 of 3: Host Computer Setup
 
@@ -42,11 +42,12 @@
 
 - Install the host OS from a startup disk based on `ubuntu-22.04.5-desktop-amd64.iso`
 - Choose "Normal installation", "Download updates while installing Ubuntu", no "Install third-party software"
-- Run "Software Updater", restart, Update All in "Ubuntu Software" (incl. `$ killall snap-store && sudo snap refresh snap-store`)
+- Run "Software Updater", restart
+- "Update All" in "Ubuntu Software" (including `$ killall snap-store && sudo snap refresh snap-store`)
 - Update and restart for "Device Firmware" as necessary
 - In "Software & Updates", select `nvidia-driver-570 (propietary, tested)`
 - `nvidia-smi` reports Driver Version: 570.133.07, CUDA Version: 12.8
-- Run `nvidia-settings` and select "NVIDIA (Performance Mode)" under PRIME Profiles
+- Run `nvidia-settings` and select "NVIDIA (Performance Mode)" under "PRIME Profiles"
 
 ```sh
 sudo apt install mesa-utils # Also installed in the simulation container, for gz sim rendering
@@ -126,9 +127,9 @@ docker info | grep -i runtime
 ### Installation Step 3 of 3: Build the Simulation and Aircraft Docker Images
 
 > [!WARNING]
-> NOTE: the first builds require a good internet connection, Ctrl+C and restart if they hang
+> The first builds require a good internet connection, `Ctrl + c` and restart if they hang
 >
-> NOTE: these are all-purpose, development-friendly images with lots of tools and build artifacts, trim if needed
+> These are all-purpose, development-friendly images with lots of tools and build artifacts, trim if needed
 
 ```sh
 # This takes 15-20' for the first built and creates a 21GB image
@@ -155,27 +156,27 @@ chmod +x ./main.sh
 > - Move between windows with `Ctrl + b`, then `n`, `p`
 > - Move between panes with `Ctrl + b`, then `arrows`
 > - Detach with `Ctrl + b`, then press `d`
-> - Re-attach with `tmux attach-session -t simulation_tmuxinator`
-> - Or kill with `tmux kill-session -t simulation_tmuxinator`
-> - List sessions with `tmux list-sessions`
-> - Kill all with `tmux kill-server`
+> - Re-attach with `$ tmux attach-session -t simulation_tmuxinator`
+> - Or kill with `$ tmux kill-session -t simulation_tmuxinator`
+> - List sessions with `$ tmux list-sessions`
+> - Kill all with `$ tmux kill-server`
 
 > [!TIP]
 > Docker shortcuts
-> - `exit` or `Ctrl + d` will close the shell and stop the container (as it was started interactively with `-it`).
+> - `$ exit` or `Ctrl + d` will close the shell and stop the container (as it was started interactively with `-it`).
 > - `Ctrl + p`  then  `Ctrl + q` detaches you from the container and leaves it running in the background
-> - Re-attach with `docker attach <container_name_or_id>`
+> - Re-attach with `$ docker attach <container_name_or_id>`
 
 > [!TIP]
-> Docker hygiene: it is good practice to run these periodically
+> Docker hygiene
 ```sh
-docker ps -a # list containers
-docker stop $(docker ps -q) # stop all containers
-docker container prune # remove all containers
+docker ps -a # List containers
+docker stop $(docker ps -q) # Stop all containers
+docker container prune # Remove all stopped containers
 
-docker images # list images
-docker image prune # remove untagged images
-docker rmi <image_name_or_id> # remove a specific image
+docker images # List images
+docker image prune # Remove untagged images
+docker rmi <image_name_or_id> # Remove a specific image
 ```
 
 ---
