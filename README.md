@@ -5,6 +5,8 @@
 - **Simulate** vision and control in software-in-the-loop, with YOLOv8 and PX4/ArduPilot
 - **Deploy** in real drones with NVIDIA Orin/JetPack
 
+For the motivation behind AAS (and how it compares to similar projects), read [`RATIONALE.md`](RATIONALE.md)
+
 ## Feature Highlights
 
 - Support for **quadrotor and VTOL** aircraft based on **PX4 or ArduPilot**
