@@ -36,7 +36,7 @@ AAS leverages the following frameworks:
 
 ### Installation Step 1 of 3: Host Computer Setup
 
-**SKIP THIS STEP IF YOU ARE *NOT* PREPARING A NEW COMPUTER**
+> **SKIP THIS STEP IF YOU ALREADY HAVE AN UBUNTU 22 COMPUTER WITH NVIDIA DRIVER, GIT, ETC.**
 
 - Install the host OS from a startup disk based on `ubuntu-22.04.5-desktop-amd64.iso`
 - Choose "Normal installation", "Download updates while installing Ubuntu", no "Install third-party software"
@@ -54,10 +54,10 @@ sudo snap refresh snap-store
 sudo apt install mesa-utils # also installed in the simulation container, for gz sim GUI
 # check GPU OpenGL renderer with $ glxinfo | grep "OpenGL renderer"
 
-# Install git
+# Install git and htop
 sudo apt update
 sudo apt upgrade
-sudo apt install git
+sudo apt install git htop
 
 # Create an ssh key
 ssh-keygen 
@@ -67,17 +67,11 @@ cat ~/.ssh/id_rsa.pub
 mkdir ~/git
 cd ~/git/
 git clone git@github.com:JacopoPan/aerial-autonomy-stack.git
-
-# # (optional) Install VSCode and Anaconda:
-# sudo dpkg -i code_1.101.2-1750797935_amd64.deb # https://code.visualstudio.com/download
-# chmod +x Anaconda3-2025.06-0-Linux-x86_64.sh # https://www.anaconda.com/download/success
-# ./Anaconda3-2025.06-0-Linux-x86_64.sh
-# conda config --set auto_activate_base false
 ```
 
 ### Installation Step 2 of 3: Docker Setup
 
-**SKIP THIS STEP IF YOU ALREADY HAVE DOCKER ENGINE**
+> **SKIP THIS STEP IF YOU ALREADY INSTALLED DOCKER ENGINE AND NVIDIA CONTAINER TOOLKIT**
 
 ```sh
 # Based on https://docs.docker.com/engine/install/ubuntu/ and https://docs.docker.com/engine/install/linux-postinstall/
@@ -105,15 +99,11 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
 sudo docker run hello-world
 sudo docker version # 28.3.0 at the time of writing
 
-# # (optional) Avoid having to sudo the docker command:
-# sudo groupadd docker
-# sudo usermod -aG docker $USER
-# newgrp docker # or logout/login
-# docker run hello-world
-# # (optional) Add docker compose:
-# sudo apt-get update
-# sudo apt-get install docker-compose-plugin
-# docker compose version
+# Remove the need to sudo the docker command
+sudo groupadd docker
+sudo usermod -aG docker $USER
+newgrp docker # or logout/login or, preferably, reboot
+docker run hello-world
 ```
 
 ```sh
@@ -127,10 +117,10 @@ sudo nvidia-ctk runtime configure --runtime=docker
 sudo systemctl restart docker
 
 # Test with
-sudo docker run --rm --gpus all nvidia/cuda:12.2.0-base-ubuntu22.04 nvidia-smi
+docker run --rm --gpus all nvidia/cuda:12.2.0-base-ubuntu22.04 nvidia-smi
 
 # Check `nvidia` runtime is available
-sudo docker info | grep -i runtime
+docker info | grep -i runtime
 ```
 
 ### Installation Step 3 of 3: Build the Simulation and Aircraft Docker Images
@@ -141,10 +131,10 @@ sudo docker info | grep -i runtime
 
 ```sh
 # WARNING: this takes 15-20' from scratch and creates a 21GB image
-sudo docker build -t simulation-image -f Dockerfile.simulation . 
+docker build -t simulation-image -f Dockerfile.simulation . 
 
 # WARNING: having built Dockerfile.simulation, this takes 20-25' and creates a 20GB image
-sudo docker build -t aircraft-image -f Dockerfile.aircraft . 
+docker build -t aircraft-image -f Dockerfile.aircraft . 
 ```
 
 ---
@@ -154,35 +144,31 @@ sudo docker build -t aircraft-image -f Dockerfile.aircraft .
 ### Simulation Step 1 of x: Run the Simulation and Aircraft Docker Containers
 
 ```sh
-xhost +local:docker # grant local dockers access to the X display server for GUI applications
+cd ~/git/aerial-autonomy-stack/
+chmod +x ./main.sh
+./main.sh
+```
 
-sudo docker run -it \
-  --env DISPLAY=$DISPLAY \
-  --env QT_X11_NO_MITSHM=1 \
-  --volume /tmp/.X11-unix:/tmp/.X11-unix:rw \
-  --device /dev/dri \
-  --gpus all \
-  --env NVIDIA_DRIVER_CAPABILITIES=all \
-  --privileged \
-  --net=host \
+```sh
+# Grant local dockers access to the X display server for GUI applications after every reboot
+xhost +local:docker
+
+docker run -it \
+  --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --device /dev/dri --gpus all \
+  --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all \
+  --privileged --net=host \
   simulation-image
-
 # simulation-image starts $ tmuxinator start -p /git/resources/tmuxinator/simulation_px4_quad.yml
 
-sudo docker run -it \
-  --env DISPLAY=$DISPLAY \
-  --env QT_X11_NO_MITSHM=1 \
-  --volume /tmp/.X11-unix:/tmp/.X11-unix:rw \
-  --device /dev/dri \
-  --gpus all \
-  --env NVIDIA_DRIVER_CAPABILITIES=all \
-  --privileged \
-  --net=host \
+docker run -it \
+  --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --device /dev/dri --gpus all \
+  --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all \
+  --privileged --net=host \
   aircraft-image
-
 # aircraft-image starts $ tmuxinator start -p /git/resources/tmuxinator/aircraft.yml
 
-xhost -local:docker # revoke local dockers access to the X display server for GUI applications
+# # (optional) Revoke local dockers access to the X display server for GUI applications
+# xhost -local:docker
 ```
 
 #### Tmux shortcuts
@@ -205,13 +191,13 @@ xhost -local:docker # revoke local dockers access to the X display server for GU
 
 ```sh
 # It is good practice to run these periodically
-sudo docker ps -a # list containers
-sudo docker stop $(sudo docker ps -q) # stop all containers
-sudo docker container prune # remove all containers
+docker ps -a # list containers
+docker stop $(docker ps -q) # stop all containers
+docker container prune # remove all containers
 
-sudo docker images # list images
-sudo docker image prune # remove untagged images
-sudo docker rmi <image_name_or_id> # remove a specific image
+docker images # list images
+docker image prune # remove untagged images
+docker rmi <image_name_or_id> # remove a specific image
 ```
 
 ---
