@@ -24,7 +24,7 @@ For the motivation behind AAS (and how it compares to similar projects), read [`
 
 AAS leverages the following frameworks:
 
-> [*ROS2 Humble*](https://docs.ros.org/en/rolling/Releases.html) (LTS, EOL 5/2027), [*Gazebo Sim Harmonic*](https://gazebosim.org/docs/latest/releases/) (LTS, EOL 9/2028), [*PX4 1.15*](https://github.com/PX4/PX4-Autopilot/releases) (latest stable release as of 6/2025) interfaced *via* [XRCE-DDS](https://github.com/eProsima/Micro-XRCE-DDS/releases), [*ArduPilot 4.6*](https://github.com/ArduPilot/ardupilot/releases) (latest stable release as of 6/2025) interfaced *via* [MAVSDK](https://github.com/mavlink/mavsdk/releases), [*YOLOv8*](https://github.com/ultralytics/ultralytics/releases) and [*ONNX Runtime 1.22*](https://onnxruntime.ai/getting-started), [for deployment only] [*L4T 36* (Ubuntu 22-based)/*JetPack 6*](https://developer.nvidia.com/embedded/jetpack-archive) (latest major release as of 6/2025)
+> [*ROS2 Humble*](https://docs.ros.org/en/rolling/Releases.html) (LTS, EOL 5/2027), [*Gazebo Sim Harmonic*](https://gazebosim.org/docs/latest/releases/) (LTS, EOL 9/2028), [*PX4 1.15*](https://github.com/PX4/PX4-Autopilot/releases) interfaced *via* [XRCE-DDS](https://github.com/eProsima/Micro-XRCE-DDS/releases), [*ArduPilot 4.6*](https://github.com/ArduPilot/ardupilot/releases) interfaced *via* [MAVSDK](https://github.com/mavlink/mavsdk/releases), [*YOLOv8*](https://github.com/ultralytics/ultralytics/releases) on [*ONNX Runtime 1.22*](https://onnxruntime.ai/getting-started) (latest stable releases as of 6/2025), [*L4T 36* (Ubuntu 22-based)/*JetPack 6*](https://developer.nvidia.com/embedded/jetpack-archive) (for deployment only, latest major release as of 6/2025)
 
 ---
 
@@ -34,6 +34,7 @@ AAS leverages the following frameworks:
 
 ### Installation Step 1 of 3: Host Computer Setup
 
+> [!TIP]
 > SKIP THIS STEP IF YOU ALREADY HAVE AN UBUNTU 22 COMPUTER WITH NVIDIA DRIVER, GIT, ETC.
 
 - Install the host OS from a startup disk based on `ubuntu-22.04.5-desktop-amd64.iso`
@@ -49,8 +50,9 @@ sudo snap refresh snap-store
 - Run `nvidia-settings` and select "NVIDIA (Performance Mode)" under PRIME Profiles
 
 ```sh
-sudo apt install mesa-utils # also installed in the simulation container, for gz sim GUI
-# check GPU OpenGL renderer with $ glxinfo | grep "OpenGL renderer"
+sudo apt install mesa-utils # Also installed in the simulation container, for gz sim rendering
+# Check GPU OpenGL renderer
+glxinfo | grep "OpenGL renderer"
 
 # Install git and htop
 sudo apt update
@@ -100,12 +102,12 @@ sudo docker version # 28.3.0 at the time of writing
 # Remove the need to sudo the docker command
 sudo groupadd docker
 sudo usermod -aG docker $USER
-newgrp docker # or logout/login or, preferably, reboot
+newgrp docker # Reboot
 docker run hello-world
 ```
 
 ```sh
-# Add NVIDIA Container Toolkit for GPU Use Within Containers
+# Add NVIDIA Container Toolkit for GPU use within containers
 distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
 curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
 curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
@@ -147,33 +149,11 @@ chmod +x ./main.sh
 ./main.sh
 ```
 
-```sh
-# Grant local dockers access to the X display server for GUI applications after every reboot
-xhost +local:docker
-
-docker run -it \
-  --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --device /dev/dri --gpus all \
-  --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all \
-  --privileged --net=host \
-  simulation-image
-# simulation-image starts $ tmuxinator start -p /git/resources/tmuxinator/simulation_px4_quad.yml
-
-docker run -it \
-  --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --device /dev/dri --gpus all \
-  --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all \
-  --privileged --net=host \
-  aircraft-image
-# aircraft-image starts $ tmuxinator start -p /git/resources/tmuxinator/aircraft.yml
-
-# # (optional) Revoke local dockers access to the X display server for GUI applications
-# xhost -local:docker
-```
-
 #### Tmux shortcuts
 
-- Move between windows with Ctrl + b, then n, p
-- Move between panes with Ctrl + b, then arrows
-- Detach with Ctrl + b, then press d
+- Move between windows with `Ctrl + b`, then `n`, `p`
+- Move between panes with `Ctrl + b`, then `arrows`
+- Detach with `Ctrl + b`, then press `d`
 - Re-attach with `tmux attach-session -t simulation_tmuxinator`
 - Or kill with `tmux kill-session -t simulation_tmuxinator`
 - List sessions with `tmux list-sessions`
@@ -181,8 +161,8 @@ docker run -it \
 
 #### Docker shortcuts
 
-- `exit` or Ctrl + d will close the shell and stop the container (as it was started interactively with `-it`).
-- Ctrl + p  then  Ctrl + q detaches you from the container and leaves it running in the background
+- `exit` or `Ctrl + d` will close the shell and stop the container (as it was started interactively with `-it`).
+- `Ctrl + p`  then  `Ctrl + q` detaches you from the container and leaves it running in the background
 - Re-attach with `docker attach <container_name_or_id>`
 
 #### Docker Hygiene
@@ -222,7 +202,29 @@ TBD
 
 ### TODOs
 
-- ...
+- Move ROS_DOMAIN_ID to docker run command
+
+```sh
+# Grant local dockers access to the X display server for GUI applications after every reboot
+xhost +local:docker
+
+docker run -it \
+  --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --device /dev/dri --gpus all \
+  --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all \
+  --privileged --net=host \
+  simulation-image
+# simulation-image starts $ tmuxinator start -p /git/resources/tmuxinator/simulation_px4_quad.yml
+
+docker run -it \
+  --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --device /dev/dri --gpus all \
+  --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all \
+  --privileged --net=host \
+  aircraft-image
+# aircraft-image starts $ tmuxinator start -p /git/resources/tmuxinator/aircraft.yml
+
+# # (optional) Revoke local dockers access to the X display server for GUI applications
+# xhost -local:docker
+```
 
 ### Networking
 

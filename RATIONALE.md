@@ -13,7 +13,7 @@ In particular, in the lack of end-to-end/full-stack integration among the many f
 - simple (see https://peps.python.org/pep-0020/)
 - end-to-end (yolo bounding boxes to autopilot commands)
 - deployment focussed (clear split between simulation and drone software modules with Docker)
-- emulated intra- (ROS2, XRCE-DDS, MAVSDK, gstreamer) and inter- (serial, IP) robot comms with Docker
+- emulated intra- (ROS2, XRCE-DDS, MAVSDK, GStreamer) and inter- (serial, IP) robot comms with Docker
 
 ## Links to Similar and Related Work
 
