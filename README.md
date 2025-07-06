@@ -5,38 +5,34 @@
 - **Simulate** vision and control in software-in-the-loop, with YOLOv8 and PX4/ArduPilot
 - **Deploy** in real drones with NVIDIA Orin/JetPack
 
-AAS leverages the following frameworks:
-- *ROS2 Humble* (LTS, EOL 5/2027)
-- *Gazebo Sim Harmonic* (LTS, EOL 9/2028)
-- *PX4 1.15* (latest stable release as of 6/2025) interfaced *via* XRCE-DDS
-- *ArduPilot 4.6* (latest stable release as of 6/2025) interfaced *via* MAVSDK
-- *YOLOv8* and *ONNX Runtime 1.22*
-- [for deployment only] *L4T 36* (Ubuntu 22-based)/*JetPack 6* (latest major release as of 6/2025)
-
 ## Feature Highlights
 
-- Support for **quadrotor and VTOL** aircraft equipped with **PX4 or ArduPilot**
+- Support for **quadrotor and VTOL** aircraft based on **PX4 or ArduPilot**
 - Support for **ROS2** with ROS2-based autopilot interfaces (*via* XRCE-DDS and MAVSDK)
 - Support for **YOLOv8** and ONNX CPU, CUDA (on desktop/amd64), and TensorRT (on Orin/arm64) Runtime
 - Photorealistic **software-in-the-loop simulation**
 - Dockerized simulation based on [`nvcr.io/nvidia/cuda:12.8.1-cudnn-runtime-ubuntu22.04`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/cuda/tags)
 - **Dockerized deployment** based on [`nvcr.io/nvidia/l4t-jetpack:r36.4.0`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/l4t-jetpack/tags)
 
-## Additional Features
+**Additional Features**
 
-- Support for PX4 Offboard mode in CTBR (`VehicleRatesSetpoint`) for agile, GNSS-denied flight
-- Support for FAST-LIO (Fast LiDAR-Inertial Odometry)
+- Support for [PX4 Offboard](https://docs.px4.io/main/en/flight_modes/offboard.html) mode in CTBR (`VehicleRatesSetpoint`) for agile, GNSS-denied flight
+- Support for [FAST-LIO](https://github.com/hku-mars/FAST_LIO) (Fast LiDAR-Inertial Odometry)
 - Lightweight inter-drone serial communication for real-world deployment 
+
+AAS leverages the following frameworks:
+
+> [*ROS2 Humble*](https://docs.ros.org/en/rolling/Releases.html) (LTS, EOL 5/2027), [*Gazebo Sim Harmonic*](https://gazebosim.org/docs/latest/releases/) (LTS, EOL 9/2028), [*PX4 1.15*](https://github.com/PX4/PX4-Autopilot/releases) (latest stable release as of 6/2025) interfaced *via* [XRCE-DDS](https://github.com/eProsima/Micro-XRCE-DDS/releases), [*ArduPilot 4.6*](https://github.com/ArduPilot/ardupilot/releases) (latest stable release as of 6/2025) interfaced *via* [MAVSDK](https://github.com/mavlink/mavsdk/releases), [*YOLOv8*](https://github.com/ultralytics/ultralytics/releases) and [*ONNX Runtime 1.22*](https://onnxruntime.ai/getting-started), [for deployment only] [*L4T 36* (Ubuntu 22-based)/*JetPack 6*](https://developer.nvidia.com/embedded/jetpack-archive) (latest major release as of 6/2025)
 
 ---
 
 ## Part 1: Installation of AAS
 
-> This stack is developed and tested using a Ubuntu 22.04 host (penultimate LTS, ESM 4/2032) with `nvidia-driver-570` (latest as of 6/2025) and Docker Engine v28 (latest stable release as of 6/2025) on an i9-13 with RTX3500 and an i7-11 with RTX3060 computers
+> This stack is developed and tested using a [Ubuntu 22.04](https://ubuntu.com/about/release-cycle) host (penultimate LTS, ESM 4/2032) with [`nvidia-driver-570`](https://developer.nvidia.com/datacenter-driver-archive) (latest as of 6/2025) and Docker Engine v28 (latest stable release as of 6/2025) on an i9-13 with RTX3500 and an i7-11 with RTX3060 computers
 
 ### Installation Step 1 of 3: Host Computer Setup
 
-> **SKIP THIS STEP IF YOU ALREADY HAVE AN UBUNTU 22 COMPUTER WITH NVIDIA DRIVER, GIT, ETC.**
+> SKIP THIS STEP IF YOU ALREADY HAVE AN UBUNTU 22 COMPUTER WITH NVIDIA DRIVER, GIT, ETC.
 
 - Install the host OS from a startup disk based on `ubuntu-22.04.5-desktop-amd64.iso`
 - Choose "Normal installation", "Download updates while installing Ubuntu", no "Install third-party software"
@@ -71,7 +67,7 @@ git clone git@github.com:JacopoPan/aerial-autonomy-stack.git
 
 ### Installation Step 2 of 3: Docker Setup
 
-> **SKIP THIS STEP IF YOU ALREADY INSTALLED DOCKER ENGINE AND NVIDIA CONTAINER TOOLKIT**
+> SKIP THIS STEP IF YOU ALREADY INSTALLED DOCKER ENGINE AND NVIDIA CONTAINER TOOLKIT
 
 ```sh
 # Based on https://docs.docker.com/engine/install/ubuntu/ and https://docs.docker.com/engine/install/linux-postinstall/
@@ -125,9 +121,9 @@ docker info | grep -i runtime
 
 ### Installation Step 3 of 3: Build the Simulation and Aircraft Docker Images
 
-> NOTE 1: the first builds require a good internet connection, Ctrl+C and restart if they hang
+> NOTE: the first builds require a good internet connection, Ctrl+C and restart if they hang
 >
-> NOTE 2: these are all-purpose, development-friendly images with lots of tools and build artifacts, trim if needed
+> NOTE: these are all-purpose, development-friendly images with lots of tools and build artifacts, trim if needed
 
 ```sh
 # WARNING: this takes 15-20' from scratch and creates a 21GB image
@@ -224,10 +220,11 @@ TBD
 
 ### TODOs
 
-- TODO: use host tmuxinator, not docker compose
-- TODO: tmuxinator start -p /git/resources/simulation_tmuxinator.yml might have AP/GZ/QGC issue when wifi is on on the host, revise --net=host
+- ...
 
 ### Networking
+
+- NOTE: tmuxinator start -p /git/resources/simulation_tmuxinator.yml might have AP/GZ/QGC issue when wifi is on on the host, revise --net=host
 
 - ArduPilot SITL architecture: https://ardupilot.org/dev/docs/sitl-simulator-software-in-the-loop.html#sitl-architecture
 - ArduPilot UARTs: https://ardupilot.org/dev/docs/learning-ardupilot-uarts-and-the-console.html
