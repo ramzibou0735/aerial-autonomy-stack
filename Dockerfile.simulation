@@ -1,65 +1,113 @@
-FROM nvcr.io/nvidia/cuda:12.8.1-cudnn-runtime-ubuntu22.04
+################################################################################
+# Stage 1 - 8GB ################################################################
+################################################################################
+FROM nvcr.io/nvidia/cuda:12.8.1-cudnn-runtime-ubuntu22.04 AS ros2-image
 # FROM ubuntu:22.04
 
 # Tell apt (and other Debian tools) not to prompt for user input during package installs
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Update the package list and install basic dependencies
-RUN apt update
-RUN apt upgrade -y
-RUN apt install -y \
-    wget gosu htop vim ruby tmux net-tools iproute2 python3-pip \
-    mesa-utils
-RUN gem install tmuxinator
+RUN apt update \
+    && apt install -y --no-install-recommends \
+        wget gosu htop vim ruby tmux net-tools iproute2 python3-pip \
+        mesa-utils \
+    && gem install tmuxinator \
+    && apt clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install ROS2 Humble
 # Based on https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debs.html
-RUN apt update
-RUN apt install -y locales 
+RUN apt update \
+    && apt install -y --no-install-recommends \
+        locales \
+    && apt clean \
+    && rm -rf /var/lib/apt/lists/*
 RUN locale-gen en_US en_US.UTF-8
 RUN update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
 ENV LANG=en_US.UTF-8
-RUN apt install -y software-properties-common curl
+RUN apt update \
+    && apt install -y --no-install-recommends \
+        software-properties-common curl \
+    && apt clean \
+    && rm -rf /var/lib/apt/lists/*
 RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
 RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu \
     $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | tee /etc/apt/sources.list.d/ros2.list > /dev/null
-RUN apt update
-RUN apt upgrade -y
-RUN apt install -y ros-humble-desktop
-RUN apt install -y ros-dev-tools
-RUN apt install -y ros-humble-bondcpp ros-humble-ament-cmake-clang-format
+RUN apt update \
+    && apt install -y --no-install-recommends \
+        ros-humble-desktop ros-dev-tools \
+        ros-humble-bondcpp ros-humble-ament-cmake-clang-format \
+    && apt clean \
+    && rm -rf /var/lib/apt/lists/*
 RUN echo "source /opt/ros/humble/setup.bash" >> /root/.bashrc
 RUN rosdep init
 
+################################################################################
+# Stage 2 - 9GB ################################################################
+################################################################################
+FROM ros2-image AS ros2-gz-qgc-image
+
 # Gazebo Harmonic
 # Based on https://gazebosim.org/docs/harmonic/install_ubuntu/
-RUN apt-get update
-RUN apt-get install -y lsb-release gnupg
+RUN apt update \
+    && apt install -y --no-install-recommends \
+        lsb-release gnupg \
+    && apt clean \
+    && rm -rf /var/lib/apt/lists/*
 RUN curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg
 RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null
-RUN apt-get update
-RUN apt-get install -y gz-harmonic
-RUN apt install -y ros-humble-ros-gzharmonic
+RUN apt update \
+    && apt install -y --no-install-recommends \
+        gz-harmonic ros-humble-ros-gzharmonic \
+    && apt clean \
+    && rm -rf /var/lib/apt/lists/*
 # Run with $ gz sim
+
+# QGroundControl (as qgcuser)
+# Based on https://docs.qgroundcontrol.com/master/en/qgc-user-guide/getting_started/download_and_install.html
+WORKDIR /
+RUN useradd -m -s /bin/bash qgcuser
+RUN usermod -aG dialout qgcuser
+# RUN apt-get remove modemmanager -y
+RUN apt update \
+    && apt install -y --no-install-recommends \
+        gstreamer1.0-plugins-bad gstreamer1.0-libav gstreamer1.0-gl \
+        libfuse2 \
+        libxcb-xinerama0 libxkbcommon-x11-0 libxcb-cursor-dev \
+    && apt clean \
+    && rm -rf /var/lib/apt/lists/*
+RUN wget https://d176tv9ibo4jno.cloudfront.net/latest/QGroundControl-x86_64.AppImage
+RUN chmod +x /QGroundControl-x86_64.AppImage
+RUN /QGroundControl-x86_64.AppImage --appimage-extract
+# Run with $ gosu qgcuser /squashfs-root/AppRun
+
+################################################################################
+# Stage 3 - 13GB ###############################################################
+################################################################################
+FROM ros2-gz-qgc-image AS ros2-gz-qgc-px4-image
 
 # PX4 SITL
 # Based on https://docs.px4.io/main/en/dev_setup/dev_env_linux_ubuntu.html
 RUN mkdir -p /git/
-RUN git clone https://github.com/PX4/PX4-Autopilot.git /git/PX4-Autopilot
+RUN git clone --depth 1 --branch v1.15.4 https://github.com/PX4/PX4-Autopilot.git /git/PX4-Autopilot
 WORKDIR /git/PX4-Autopilot
-RUN git checkout v1.15.4
 RUN git submodule update --init --recursive
 RUN bash ./Tools/setup/ubuntu.sh --no-sim-tools
 RUN make px4_sitl
 # Run with $ /git/PX4-Autopilot/build/px4_sitl_default/bin/px4
 
+################################################################################
+# Stage 4 - 18GB ###############################################################
+################################################################################
+FROM ros2-gz-qgc-px4-image AS ros2-gz-qgc-px4-ardupilot-image
+
 # ArduPilot SITL (temporarily as arduuser, then re chown to root)
 # Based on https://ardupilot.org/dev/docs/building-setup-linux.html#building-setup-linux
 RUN mkdir -p /git/
-RUN git clone https://github.com/ArduPilot/ardupilot.git /git/ardupilot
+RUN git clone --depth 1 --branch Copter-4.6.0 https://github.com/ArduPilot/ardupilot.git /git/ardupilot
 WORKDIR /git/ardupilot
-RUN git checkout Copter-4.6.0
-RUN git submodule update --init --recursive
+RUN git submodule update --init --recursive --depth 1
 RUN useradd -m -s /bin/bash arduuser
 RUN echo "arduuser ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/arduuser && chmod 0440 /etc/sudoers.d/arduuser
 RUN gosu arduuser git config --global --add safe.directory /git/ardupilot
@@ -72,32 +120,25 @@ RUN chown -R root:root /git/ardupilot
 # ArduPilot Gazebo Plugin
 # Based on https://ardupilot.org/dev/docs/sitl-with-gazebo.html
 RUN mkdir -p /git/
-RUN git clone https://github.com/ArduPilot/ardupilot_gazebo /git/ardupilot_gazebo
+RUN git clone --depth 1 --branch main https://github.com/ArduPilot/ardupilot_gazebo /git/ardupilot_gazebo
 WORKDIR /git/ardupilot_gazebo
-RUN apt install -y  \
-    rapidjson-dev \
-    libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
-RUN pip3 install --upgrade pip
-RUN pip3 install "numpy<2"
-RUN pip3 install mavproxy
+RUN apt update \
+    && apt install -y --no-install-recommends \
+        rapidjson-dev \
+        libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
+    && apt clean \
+    && rm -rf /var/lib/apt/lists/*
+RUN pip3 install --no-cache-dir --upgrade pip \
+    && pip3 install --no-cache-dir "numpy<2" mavproxy
 ENV GZ_VERSION=harmonic
 RUN mkdir build && cd build && \
     cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo && \
     make -j4
 
-# QGroundControl (as qgcuser)
-# Based on https://docs.qgroundcontrol.com/master/en/qgc-user-guide/getting_started/download_and_install.html
-WORKDIR /
-RUN useradd -m -s /bin/bash qgcuser
-RUN usermod -aG dialout qgcuser
-RUN apt-get remove modemmanager -y
-RUN apt install gstreamer1.0-plugins-bad gstreamer1.0-libav gstreamer1.0-gl -y
-RUN apt install libfuse2 -y
-RUN apt install libxcb-xinerama0 libxkbcommon-x11-0 libxcb-cursor-dev -y
-RUN wget https://d176tv9ibo4jno.cloudfront.net/latest/QGroundControl-x86_64.AppImage
-RUN chmod +x /QGroundControl-x86_64.AppImage
-RUN /QGroundControl-x86_64.AppImage --appimage-extract
-# Run with $ gosu qgcuser /squashfs-root/AppRun
+################################################################################
+# Stage 5 - 18+GB ##############################################################
+################################################################################
+FROM ros2-gz-qgc-px4-ardupilot-image AS simulation-dev-image
 
 # Copy resources from this repository
 COPY resources/ /git/resources

@@ -40,24 +40,21 @@
 
 ### Option 1: Clone and Build the Docker Images
 
+> [!WARNING]
+> Building from scratch requires a stable internet connection, `Ctrl + c` and restart if needed
+
 ```sh
 # Clone this repo
-mkdir ~/git
-cd ~/git/
-git clone git@github.com:JacopoPan/aerial-autonomy-stack.git
-cd ~/git/aerial-autonomy-stack/
+mkdir -p ~/git
+git clone git@github.com:JacopoPan/aerial-autonomy-stack.git ~/git/aerial-autonomy-stack
+cd ~/git/aerial-autonomy-stack
 
-# This takes 15-20' for the first built and creates a 21GB image
+# This first built takes 15-20' and creates an 18GB image (8GB for ros-humble-desktop, 9GB for PX4 and ArduPilot SITL)
 docker build -t simulation-image -f Dockerfile.simulation . 
 
-# Having built Dockerfile.simulation, this takes 20-25' for the first built and creates a 20GB image
+# Having built Dockerfile.simulation, this first built takes 20-25' and creates a 16GB image (8GB for ros-humble-desktop, 7GB for YOLOv8, ONNX)
 docker build -t aircraft-image -f Dockerfile.aircraft . 
 ```
-
-> [!WARNING]
-> The first builds require a good internet connection, `Ctrl + c` and restart if they hang
->
-> These are all-purpose, development-friendly images with lots of tools and build artifacts, trim if needed
 
 ### Option 2: Pull the Pre-built Docker Images
 
