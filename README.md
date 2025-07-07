@@ -6,7 +6,7 @@
 - **Deploy** in real drones with NVIDIA Orin/JetPack
 
 > [!NOTE]
-> For the motivation behind AAS (and how it compares to similar projects), read [`RATIONALE.md`](RATIONALE.md)
+> For the motivation behind AAS (and how it compares to similar projects), read [`RATIONALE.md`](/docs/RATIONALE.md)
 
 ## Feature Highlights
 
@@ -35,103 +35,18 @@
 > [!IMPORTANT]
 > This stack is developed and tested using a [Ubuntu 22.04](https://ubuntu.com/about/release-cycle) host (penultimate LTS, ESM 4/2032) with [`nvidia-driver-570`](https://developer.nvidia.com/datacenter-driver-archive) and Docker Engine v28 (latest stable releases as of 6/2025) on an i9-13 with RTX3500 and an i7-11 with RTX3060 computers
 
-### Installation Step 1 of 3: Host Computer Setup
+> [!CAUTION]
+> To setup (i) Ubuntu 22, (ii) the NVIDIA driver, (iii) Docker Engine, and (iv) NVIDIA Container Toolkit, read [`PREINSTALL.md`](/docs/PREINSTALL.md)
 
-> [!NOTE]
-> Skip this step if you already have an **Ubuntu 22 computer with NVIDIA Driver**, Git, etc.
-
-- Install the host OS from a startup disk based on `ubuntu-22.04.5-desktop-amd64.iso`
-- Choose "Normal installation", "Download updates while installing Ubuntu", no "Install third-party software"
-- Run "Software Updater", restart
-- "Update All" in "Ubuntu Software" (including `$ killall snap-store && sudo snap refresh snap-store`)
-- Update and restart for "Device Firmware" as necessary
-- In "Software & Updates", select `nvidia-driver-570 (propietary, tested)`
-- `nvidia-smi` reports Driver Version: 570.133.07, CUDA Version: 12.8
-- Run `nvidia-settings` and select "NVIDIA (Performance Mode)" under "PRIME Profiles"
+### Option 1: Clone and Build the Docker Images
 
 ```sh
-sudo apt install mesa-utils # Also installed in the simulation container, for gz sim rendering
-# Check GPU OpenGL renderer
-glxinfo | grep "OpenGL renderer"
-
-# Install git and htop
-sudo apt update
-sudo apt upgrade
-sudo apt install git htop
-
-# Create an ssh key
-ssh-keygen 
-cat ~/.ssh/id_rsa.pub 
-
 # Clone this repo
 mkdir ~/git
 cd ~/git/
 git clone git@github.com:JacopoPan/aerial-autonomy-stack.git
-```
+cd ~/git/aerial-autonomy-stack/
 
-### Installation Step 2 of 3: Docker Setup
-
-> [!NOTE]
-> Skip this step if you already installed **Docker Engine and NVIDIA Container Toolkit**
-
-```sh
-# Based on https://docs.docker.com/engine/install/ubuntu/ and https://docs.docker.com/engine/install/linux-postinstall/
-
-for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo apt-get remove $pkg; done # none should be there
-
-# Add Docker's official GPG key:
-sudo apt-get update
-sudo apt-get install ca-certificates curl
-sudo install -m 0755 -d /etc/apt/keyrings
-sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-sudo chmod a+r /etc/apt/keyrings/docker.asc
-
-# Add the repository to Apt sources:
-echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-  $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | \
-  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-sudo apt-get update
-```
-
-```sh
-# Install and test Docker Engine
-sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-sudo docker run hello-world
-sudo docker version # 28.3.0 at the time of writing
-
-# Remove the need to sudo the docker command
-sudo groupadd docker
-sudo usermod -aG docker $USER
-newgrp docker # Reboot
-docker run hello-world
-```
-
-```sh
-# Add NVIDIA Container Toolkit for GPU use within containers
-distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
-curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
-curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
-sudo apt update
-sudo apt install -y nvidia-container-toolkit
-sudo nvidia-ctk runtime configure --runtime=docker
-sudo systemctl restart docker
-
-# Test with
-docker run --rm --gpus all nvidia/cuda:12.2.0-base-ubuntu22.04 nvidia-smi
-
-# Check `nvidia` runtime is available
-docker info | grep -i runtime
-```
-
-### Installation Step 3 of 3: Build the Simulation and Aircraft Docker Images
-
-> [!WARNING]
-> The first builds require a good internet connection, `Ctrl + c` and restart if they hang
->
-> These are all-purpose, development-friendly images with lots of tools and build artifacts, trim if needed
-
-```sh
 # This takes 15-20' for the first built and creates a 21GB image
 docker build -t simulation-image -f Dockerfile.simulation . 
 
@@ -139,11 +54,21 @@ docker build -t simulation-image -f Dockerfile.simulation .
 docker build -t aircraft-image -f Dockerfile.aircraft . 
 ```
 
+> [!WARNING]
+> The first builds require a good internet connection, `Ctrl + c` and restart if they hang
+>
+> These are all-purpose, development-friendly images with lots of tools and build artifacts, trim if needed
+
+### Option 2: Pull the Pre-built Docker Images
+
+```sh
+docker pull jacopopan/simulation-image:latest # TODO
+docker pull jacopopan/aircraft-image:latest # TODO
+```
+
 ---
 
 ## Part 2: Simulation with AAS
-
-### Simulation Step 1 of x: Run the Simulation and Aircraft Docker Containers
 
 ```sh
 cd ~/git/aerial-autonomy-stack/
@@ -183,15 +108,11 @@ docker rmi <image_name_or_id> # Remove a specific image
 
 ## Part 3: Development with AAS
 
-### Development Step 1 of x: 
-
 TBD
 
 ---
 
 ## Part 4: Deployment of AAS
-
-### Deployment Step 1 of x: 
 
 TBD
 
