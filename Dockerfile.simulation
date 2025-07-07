@@ -153,9 +153,6 @@ COPY resources/ /git/resources
 # RUN echo "source /ros2_ws/install/setup.bash" >> /root/.bashrc
 # # If needed (but already in .bashrc) $ source /opt/ros/humble/setup.bash && source /ros2_ws/install/setup.bash
 
-# Set ROS_DOMAIN_ID to isolate ROS2
-ENV ROS_DOMAIN_ID=99
-
 # Final config
 WORKDIR /
 ENTRYPOINT ["/bin/bash"]

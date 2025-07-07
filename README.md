@@ -34,27 +34,34 @@
 
 > [!IMPORTANT]
 > This stack is developed and tested using a [Ubuntu 22.04](https://ubuntu.com/about/release-cycle) host (penultimate LTS, ESM 4/2032) with [`nvidia-driver-570`](https://developer.nvidia.com/datacenter-driver-archive) and Docker Engine v28 (latest stable releases as of 6/2025) on an i9-13 with RTX3500 and an i7-11 with RTX3060 computers
-
-> [!CAUTION]
+> 
 > To setup (i) Ubuntu 22, (ii) the NVIDIA driver, (iii) Docker Engine, and (iv) NVIDIA Container Toolkit, read [`PREINSTALL.md`](/docs/PREINSTALL.md)
-
-### Option 1: Clone and Build the Docker Images
-
-> [!WARNING]
-> Building from scratch requires a stable internet connection, `Ctrl + c` and restart if needed
 
 ```sh
 # Clone this repo
 mkdir -p ~/git
 git clone git@github.com:JacopoPan/aerial-autonomy-stack.git ~/git/aerial-autonomy-stack
 cd ~/git/aerial-autonomy-stack
-
-# This first built takes 15-20' and creates an 18GB image (8GB for ros-humble-desktop, 9GB for PX4 and ArduPilot SITL)
-docker build -t simulation-image -f Dockerfile.simulation . 
-
-# Having built Dockerfile.simulation, this first built takes 20-25' and creates a 16GB image (8GB for ros-humble-desktop, 7GB for YOLOv8, ONNX)
-docker build -t aircraft-image -f Dockerfile.aircraft . 
 ```
+
+### Option 1:  Build the Docker Images
+
+> [!WARNING]
+> Building from scratch requires a stable internet connection, `Ctrl + c` and restart if needed
+
+```sh
+# This first built takes 15-20' and creates an 18GB image
+docker build -t simulation-image -f Dockerfile.simulation . # (8GB for ros-humble-desktop, 9GB for PX4 and ArduPilot SITL)
+
+# Having built Dockerfile.simulation, this first built takes 20-25' and creates a 16GB image
+docker build -t aircraft-image -f Dockerfile.aircraft . # (8GB for ros-humble-desktop, 7GB for YOLOv8, ONNX)
+```
+
+> [!TIP]
+> These are development-friendly images with lots of tools and artifacts, trim if needed
+> - Swapping `ros-humble-desktop` for `ros-humble-ros-base` saves ~TBDGB from both images
+> - Using only PX4 or ArduPilot saves ~4GB from `simulation-image`
+> - Removing YOLOv8 and ONNX saves ~7GB from `aircraft-image`
 
 ### Option 2: Pull the Pre-built Docker Images
 
@@ -122,15 +129,7 @@ TBD
 
 ### TODOs
 
-- Move ROS_DOMAIN_ID to docker run command
-
-```diff
-- This text will be red.
-+ This text will be green.
-```
-
-> [!CAUTION]
-> example
+- FIX MULTIDRONE ARDUPILOT SIMULATION
 
 ```sh
 # Grant local dockers access to the X display server for GUI applications after every reboot
@@ -141,14 +140,14 @@ docker run -it --rm \
   --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all \
   --privileged --net=host \
   simulation-image
-# simulation-image starts $ tmuxinator start -p /git/resources/tmuxinator/simulation_px4_quad.yml
+# simulation-image starts $ tmuxinator start -p /git/resources/tmuxinator/simulation.yml.erb
 
 docker run -it --rm \
   --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --device /dev/dri --gpus all \
   --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all \
   --privileged --net=host \
   aircraft-image
-# aircraft-image starts $ tmuxinator start -p /git/resources/tmuxinator/aircraft.yml
+# aircraft-image starts $ tmuxinator start -p /git/resources/tmuxinator/aircraft.yml.erb
 
 # # (optional) Revoke local dockers access to the X display server for GUI applications
 # xhost -local:docker

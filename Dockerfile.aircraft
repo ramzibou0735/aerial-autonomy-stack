@@ -139,10 +139,7 @@ RUN bash -c "source /opt/ros/humble/setup.bash && colcon build --symlink-install
 RUN echo "source /ros2_ws/install/setup.bash" >> /root/.bashrc
 # If needed (but already in .bashrc) $ source /opt/ros/humble/setup.bash && source /ros2_ws/install/setup.bash
 
-# Set ROS_DOMAIN_ID to isolate ROS2
-ENV ROS_DOMAIN_ID=1
-
 # Final config
 WORKDIR /
 ENTRYPOINT ["/bin/bash"]
-# ENTRYPOINT ["tmuxinator", "start", "-p", "/git/resources/tmuxinator/aircraft.yml"]
+# ENTRYPOINT ["tmuxinator", "start", "-p", "/git/resources/tmuxinator/aircraft.yml.erb"]

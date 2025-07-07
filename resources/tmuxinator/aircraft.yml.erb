@@ -1,15 +1,33 @@
+<% drone_type = ENV.fetch('DRONE_TYPE', 'quad') %>
+<% autopilot = ENV.fetch('AUTOPILOT', 'px4') %>
+<% drone_id = ENV.fetch('DRONE_ID', 1).to_i %>
+
 name: aircraft_tmuxinator
 
 windows:
-  - aircraft:
+
+  <% if autopilot == 'px4' %>
+  - px4_aircraft_<%= drone_id %>:
       layout: even-horizontal
       panes:
         - MicroXRCEAgent udp4 -p 8888
+
+  <% elsif autopilot == 'ardupilot' %>
+  - ardupilot_aircraft_<%= drone_id %>:
+      layout: even-horizontal
+      panes:
         - /git/MAVSDK/build/src/mavsdk_server/src/mavsdk_server udpin://127.0.0.1:14550
+  <% end %>
+
+  - yolo:
+      layout: even-horizontal
+      panes:
         - /yolo-env/bin/python3 /git/resources/yolo/yolo-gpu-inference.py
+
   - housekeeping:
       layout: even-horizontal
       panes:
+        - # Interactive pane
         - htop
         - echo $ROS_DISTRO && echo $ROS_DOMAIN_ID
         - ip a && ss -tuln
