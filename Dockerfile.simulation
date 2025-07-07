@@ -118,4 +118,4 @@ ENV ROS_DOMAIN_ID=99
 # Final config
 WORKDIR /
 ENTRYPOINT ["/bin/bash"]
-# ENTRYPOINT ["tmuxinator", "start", "-p", "/git/resources/tmuxinator/simulation_px4_quad.yml"]
+# ENTRYPOINT ["tmuxinator", "start", "-p", "/git/resources/tmuxinator/simulation.yml.erb"]

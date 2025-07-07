@@ -196,8 +196,9 @@ TBD
 TBD
 
 ---
----
----
+> You've done a man's job, sir. I guess you're through, huh? Finished.
+
+<!-- 
 
 ## WIP
 
@@ -359,4 +360,6 @@ pipeline_str = "udpsrc port=5000 ! application/x-rtp, encoding-name=H264, payloa
 - https://aszabo.substack.com/p/zero-to-hero-creating-gazebo-worlds?utm_campaign=post&utm_medium=web
 - https://github.com/AndrejOrsula/space_robotics_gz_envs
 - https://github.com/domlysz/BlenderGIS
-- https://cesium.com/platform/cesiumjs/
+- https://cesium.com/platform/cesiumjs/ 
+
+-->

@@ -1,0 +1,15 @@
+name: aircraft_tmuxinator
+
+windows:
+  - aircraft:
+      layout: even-horizontal
+      panes:
+        - MicroXRCEAgent udp4 -p 8888
+        - /git/MAVSDK/build/src/mavsdk_server/src/mavsdk_server udpin://127.0.0.1:14550
+        - /yolo-env/bin/python3 /git/resources/yolo/yolo-gpu-inference.py
+  - housekeeping:
+      layout: even-horizontal
+      panes:
+        - htop
+        - echo $ROS_DISTRO && echo $ROS_DOMAIN_ID
+        - ip a && ss -tuln
