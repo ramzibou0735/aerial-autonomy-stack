@@ -3,12 +3,12 @@
 # Set up the simulation
 DRONE_TYPE="quad" # Options: quad, vtol
 AUTOPILOT="px4" # Options: px4, ardupilot
-NUM_DRONES=2 # Number of aircraft to launch
+NUM_DRONES=2 # Number of aircraft
 
 # Grant access to the X server
 xhost +local:docker
 
-# Launch simulation container
+# Launch the simulation container
 gnome-terminal --geometry=120x36+10+10 -- bash -c "echo 'Launching Simulation Container...'; \
   docker run -it --rm \
     --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --device /dev/dri --gpus all \
@@ -20,7 +20,7 @@ gnome-terminal --geometry=120x36+10+10 -- bash -c "echo 'Launching Simulation Co
     simulation-image; \
   exec bash"
 
-# Launch aircraft containers
+# Launch the aircraft containers
 for i in $(seq 1 $NUM_DRONES); do
   X_POS=$(( 1060 + (i) * 50 ))
   Y_POS=$(( 10 + (i-1) * 200 ))
@@ -36,7 +36,7 @@ for i in $(seq 1 $NUM_DRONES); do
     exec bash"
 done
 
-# Launch htop in a new terminal
-gnome-terminal --geometry=120x24+10+710 --title="System Monitor" -- htop
+# Launch htop for monitoring the system resources
+gnome-terminal --geometry=120x24+10+710 -- htop
 
 echo "Fly, my pretties, fly!"
