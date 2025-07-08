@@ -155,5 +155,5 @@ COPY resources/ /git/resources
 
 # Final config
 WORKDIR /
-ENTRYPOINT ["/bin/bash"]
-# ENTRYPOINT ["tmuxinator", "start", "-p", "/git/resources/tmuxinator/simulation.yml.erb"]
+ENTRYPOINT ["tmuxinator", "start", "-p", "/git/resources/tmuxinator/simulation.yml.erb"]
+# ENTRYPOINT ["/bin/bash"]

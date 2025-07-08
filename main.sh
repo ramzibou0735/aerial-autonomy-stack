@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Set up the simulation
-DRONE_TYPE="quad" # Options: quad, vtol
-AUTOPILOT="px4" # Options: px4, ardupilot
-NUM_DRONES=2 # Number of aircraft
+DRONE_TYPE="${DRONE_TYPE:-quad}" # Options: quad (default), vtol
+AUTOPILOT="${AUTOPILOT:-px4}" # Options: px4 (default), ardupilot
+NUM_DRONES="${NUM_DRONES:-2}" # Number of aircraft (default = 2)
 
 # Grant access to the X server
 xhost +local:docker

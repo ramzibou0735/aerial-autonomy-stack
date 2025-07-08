@@ -67,6 +67,7 @@ docker build -t aircraft-image -f Dockerfile.aircraft . # (8GB for ros-humble-de
 ### Option 2: Pull the Pre-built Docker Images
 
 ```sh
+# TODO add .github workflow to build and push the images
 docker pull jacopopan/simulation-image:latest # TODO
 docker pull jacopopan/aircraft-image:latest # TODO
 ```
@@ -78,7 +79,7 @@ docker pull jacopopan/aircraft-image:latest # TODO
 ```sh
 cd ~/git/aerial-autonomy-stack/
 chmod +x ./main.sh
-./main.sh
+DRONE_TYPE=vtol AUTOPILOT=ardupilot NUM_DRONES=1 ./main.sh
 ```
 
 > [!TIP]
