@@ -70,7 +70,7 @@ RUN git clone --depth 1 --branch master https://github.com/eProsima/Micro-XRCE-D
 WORKDIR /git/Micro-XRCE-DDS-Agent
 RUN mkdir build && cd build && \
     cmake .. && \
-    make && \
+    make -j$(nproc) && \
     make install && \
     ldconfig
 # Run with $ MicroXRCEAgent udp4 -p 8888
@@ -110,7 +110,7 @@ RUN git clone --depth 1 --branch v3.6.0 https://github.com/mavlink/MAVSDK.git /g
 WORKDIR /git/MAVSDK
 RUN git submodule update --init --recursive --depth 1
 RUN cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_MAVSDK_SERVER=ON -Bbuild -S. && \
-    cmake --build build -j8 && \
+    cmake --build build -j$(nproc) && \
     cmake --build build --target install
 RUN ldconfig
 # Check with $ pkg-config --modversion mavsdk

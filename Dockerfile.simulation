@@ -133,7 +133,7 @@ RUN pip3 install --no-cache-dir --upgrade pip \
 ENV GZ_VERSION=harmonic
 RUN mkdir build && cd build && \
     cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo && \
-    make -j4
+    make -j$(nproc)
 
 ################################################################################
 # Stage 5 - 18+GB ##############################################################

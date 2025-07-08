@@ -50,18 +50,19 @@ cd ~/git/aerial-autonomy-stack
 > Building from scratch requires a stable internet connection, `Ctrl + c` and restart if needed
 
 ```sh
-# This first built takes 15-20' and creates an 18GB image
+# The first build takes ~15' and creates an 18GB image
 docker build -t simulation-image -f Dockerfile.simulation . # (8GB for ros-humble-desktop, 9GB for PX4 and ArduPilot SITL)
 
-# Having built Dockerfile.simulation, this first built takes 20-25' and creates a 16GB image
+# Having built Dockerfile.simulation, the first build takes ~15' and creates a 16GB image
 docker build -t aircraft-image -f Dockerfile.aircraft . # (8GB for ros-humble-desktop, 7GB for YOLOv8, ONNX)
 ```
 
 > [!TIP]
 > These are development-friendly images with lots of tools and artifacts, trim if needed
-> - Swapping `ros-humble-desktop` for `ros-humble-ros-base` saves ~TBDGB from both images
-> - Using only PX4 or ArduPilot saves ~4GB from `simulation-image`
-> - Removing YOLOv8 and ONNX saves ~7GB from `aircraft-image`
+> - Removing `ultralytics`, YOLOv8, and ONNX saves ~7GB from `aircraft-image`
+> - Using only one between PX4 and ArduPilot saves ~4GB from `simulation-image`
+> - Using `ros-humble-ros-base` instead of `ros-humble-desktop` saves ~1GB from from `simulation-image` and ~3GB from `aircraft-image`
+
 
 ### Option 2: Pull the Pre-built Docker Images
 
