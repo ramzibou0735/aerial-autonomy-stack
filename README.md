@@ -122,7 +122,7 @@ TBD
 TBD
 
 ---
-> You've done a man's job, sir. I guess you're through, huh? Finished.
+> You've done a man's job, sir. I guess you're through, huh?
 
 <!-- 
 
