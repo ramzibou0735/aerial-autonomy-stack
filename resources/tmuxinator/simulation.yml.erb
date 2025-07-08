@@ -41,7 +41,14 @@ windows:
   - ardupilot_sitl_<%= i + 1 %>:
       layout: even-horizontal
       panes:
-        - /git/ardupilot/Tools/autotest/sim_vehicle.py -v <%= drone_type == 'quad' ? 'ArduCopter' : 'ArduPlane' %> -I <%= i %> -f <%= drone_type == 'quad' ? 'gazebo-iris' : 'gazebo-zephyr' %> --model JSON
+        - >
+          /git/ardupilot/Tools/autotest/sim_vehicle.py 
+          -v <%= drone_type == 'quad' ? 'ArduCopter' : 'ArduPlane' %> 
+          -f <%= drone_type == 'quad' ? 'gazebo-iris' : 'gazebo-zephyr' %> 
+          --model JSON
+          -I <%= i %>
+          --out=udp:42.42.1.99:14540
+          --out=udp:42.42.1.<%= i + 1 %>:14550
   <% end %>
   <% end %>
 

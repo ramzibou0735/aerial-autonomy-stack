@@ -128,53 +128,21 @@ TBD
 
 ## TODOs
 
-- MULTIDRONE ARDUPILOT SIMULATION
+- PX4_UXRCE_DDS_AG_IP does not seem to be working for PX4 SITL, fix this line https://github.com/PX4/PX4-Autopilot/blob/99c40407ffd7ac184e2d7b4b293f36f10fe561ef/ROMFS/px4fmu_common/init.d-posix/rcS#L310-L311 but still no ros2 topic list (ROS_DOMAIN_ID or msg definition sourcing problems?) PX4_UXRCE_DDS_AG_IP=707395841 <%=# to do this, fix ROMFS/px4fmu_common/init.d-posix/rcS - 707395841 = 42.42.1.1, 707395842 = 42.42.1.2, etc.  %>
 
-- PX4_UXRCE_DDS_AG_IP does not seem to be working for PX4 SITL, fix this line https://github.com/PX4/PX4-Autopilot/blob/99c40407ffd7ac184e2d7b4b293f36f10fe561ef/ROMFS/px4fmu_common/init.d-posix/rcS#L310-L311 but still no ros2 topic list (ROS_DOMAIN_ID or msg definition sourcing problems?)
-- PX4_UXRCE_DDS_AG_IP=707395841 <%=# to do this, fix ROMFS/px4fmu_common/init.d-posix/rcS - 707395841 = 42.42.1.1, 707395842 = 42.42.1.2, etc.  %>
+- Multidrone ArduPilot simulation seems problematic https://github.com/ArduPilot/ardupilot_gazebo/issues/114, investigate -I <%= i %>
+
+
+## Models
+
+- https://docs.px4.io/main/en/sim_gazebo_gz/vehicles.html#x500-quadrotor-with-depth-camera-front-facing
+- https://docs.px4.io/main/en/sim_gazebo_gz/vehicles.html#x500-quadrotor-with-2d-lidar 
+- https://ardupilot.org/dev/docs/sitl-with-gazebo.html Iris quadcopter and a Zephyr delta-wing.
+- add ArduPilot deltawing from SITL_Models https://github.com/ArduPilot/SITL_Models/blob/master/Gazebo/docs/SkywalkerX8.md
 
 <!-- 
 
 ### Networking
-
-
-- PX$ SITL architecture: https://docs.px4.io/main/en/simulation/#sitl-simulation-environment
-- PX4 XRCE-DDS architecture: https://docs.px4.io/main/en/middleware/uxrce_dds.html#architecture
-
-```sh
-# 42.42.42.xx, configure PX4 sitl with env variables
-PX4_GZ_MODEL_POSE="0,0,0,0,0,0" PX4_SYS_AUTOSTART=4001 PX4_UXRCE_DDS_NS="Drone1" PX4_UXRCE_DDS_AG_IP=42.42.42.20 PX4_UXRCE_DDS_PORT=8888 /git/PX4-Autopilot/build/px4_sitl_default/bin/px4 -i 1
-# on 42.42.42.20, connect with
-MicroXRCEAgent udp4 -p 8888
-```
-
-
-- ArduPilot SITL architecture: https://ardupilot.org/dev/docs/sitl-simulator-software-in-the-loop.html#sitl-architecture
-- ArduPilot UARTs: https://ardupilot.org/dev/docs/learning-ardupilot-uarts-and-the-console.html
-
-```sh
-# on 192.168.1.30, add multiple outs for each SITL to use QGC (in the same container) and C++/ROS2 wrapped MAVSDK
-./Tools/autotest/sim_vehicle.py -v ArduCopter --map --console --out=udp:192.168.1.30:14550 --out=udp:192.168.1.20:14540
-# on 192.168.1.20, connect with
-/git/MAVSDK/build/src/mavsdk_server/src/mavsdk_server udpin://0.0.0.0:14540
-```
-
-
-ArduPilot Docker networking
-```sh
-docker network create drone-net
-
-docker run -d --rm --network drone-net --name sitl-container \
-  your-ardupilot-image \
-  ./Tools/autotest/sim_vehicle.py -v ArduCopter --console \
-  --out=udp:host.docker.internal:14550 \
-  --out=udp:mavsdk-container:14540
-
-docker run -d --rm --network drone-net --name mavsdk-container \
-  your-mavsdk-image \
-  /path/to/mavsdk_server udpin://0.0.0.0:14540
-```
-
 
 Inter drone serial communication (for Docker simulation and deployment)
 
@@ -195,6 +163,9 @@ docker run -d --rm \
 
 
 Image processing from simulation to containers
+
+Ardupilot GstCameraPlugin example
+https://github.com/ArduPilot/ardupilot_gazebo/blob/main/README.md
 
 ```sh
 # In the drone .sdf
@@ -227,14 +198,6 @@ pipeline_str = "udpsrc port=5000 ! application/x-rtp, encoding-name=H264, payloa
 # Inside the callback, you get the frame buffer and pass it to your YOLOv8 ONNX model.
 ```
 
-### Simulation Resources
-
-- https://docs.px4.io/main/en/sim_gazebo_gz/vehicles.html#x500-quadrotor-with-depth-camera-front-facing
-- https://docs.px4.io/main/en/sim_gazebo_gz/vehicles.html#x500-quadrotor-with-2d-lidar 
-- https://ardupilot.org/dev/docs/sitl-with-gazebo.html Iris quadcopter and a Zephyr delta-wing.
-- https://github.com/nathanbowness/UAV-Object-Tracking
-
-
 ### Geospatial and Photogrammetry Resources
 - https://support.pix4d.com/hc/en-us/articles/360000235126#OPF2
 - https://github.com/softwareunderground/awesome-open-geoscience?tab=readme-ov-file
@@ -245,5 +208,13 @@ pipeline_str = "udpsrc port=5000 ! application/x-rtp, encoding-name=H264, payloa
 - https://github.com/AndrejOrsula/space_robotics_gz_envs
 - https://github.com/domlysz/BlenderGIS
 - https://cesium.com/platform/cesiumjs/ 
+
+### Resources
+
+- PX$ SITL architecture: https://docs.px4.io/main/en/simulation/#sitl-simulation-environment
+- PX4 XRCE-DDS architecture: https://docs.px4.io/main/en/middleware/uxrce_dds.html#architecture
+
+- ArduPilot SITL architecture: https://ardupilot.org/dev/docs/sitl-simulator-software-in-the-loop.html#sitl-architecture
+- ArduPilot UARTs: https://ardupilot.org/dev/docs/learning-ardupilot-uarts-and-the-console.html
 
 -->
