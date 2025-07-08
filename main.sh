@@ -8,14 +8,18 @@ NUM_DRONES="${NUM_DRONES:-2}" # Number of aircraft (default = 2)
 # Grant access to the X server
 xhost +local:docker
 
+# Create network
+docker network create --subnet=42.42.0.0/16 aas-network
+
 # Launch the simulation container
 gnome-terminal --geometry=120x36+10+10 -- bash -c "echo 'Launching Simulation Container...'; \
   docker run -it --rm \
     --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --device /dev/dri --gpus all \
     --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all \
-      --env ROS_DOMAIN_ID=99 --env AUTOPILOT=$AUTOPILOT --env DRONE_TYPE=$DRONE_TYPE \
-      --env NUM_DRONES=$NUM_DRONES \
-    --privileged --net=host \
+    --env ROS_DOMAIN_ID=99 --env AUTOPILOT=$AUTOPILOT --env DRONE_TYPE=$DRONE_TYPE \
+    --env NUM_DRONES=$NUM_DRONES \
+    --net=aas-network --ip=42.42.1.99 \
+    --privileged \
     --name simulation-container \
     simulation-image; \
   exec bash"
@@ -30,7 +34,8 @@ for i in $(seq 1 $NUM_DRONES); do
       --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all \
       --env ROS_DOMAIN_ID=$i --env AUTOPILOT=$AUTOPILOT --env DRONE_TYPE=$DRONE_TYPE \
       --env DRONE_ID=$i \
-      --privileged --net=host \
+      --net=aas-network --ip=42.42.1.$i \
+      --privileged \
       --name aircraft-container_$i \
       aircraft-image; \
     exec bash"

@@ -141,5 +141,5 @@ RUN echo "source /ros2_ws/install/setup.bash" >> /root/.bashrc
 
 # Final config
 WORKDIR /
-# ENTRYPOINT ["tmuxinator", "start", "-p", "/git/resources/tmuxinator/aircraft.yml.erb"]
-ENTRYPOINT ["/bin/bash"]
+ENTRYPOINT ["tmuxinator", "start", "-p", "/git/resources/tmuxinator/aircraft.yml.erb"]
+# ENTRYPOINT ["/bin/bash"]

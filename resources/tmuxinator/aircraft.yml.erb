@@ -10,7 +10,7 @@ windows:
   - px4_aircraft_<%= drone_id %>:
       layout: even-horizontal
       panes:
-        - MicroXRCEAgent udp4 -p 8888
+        - MicroXRCEAgent udp4 -p <%= 8888 - 1 + drone_id %>
 
   <% elsif autopilot == 'ardupilot' %>
   - ardupilot_aircraft_<%= drone_id %>:
@@ -29,5 +29,3 @@ windows:
       panes:
         - # Interactive pane
         - htop
-        - echo $ROS_DISTRO && echo $ROS_DOMAIN_ID
-        - ip a && ss -tuln

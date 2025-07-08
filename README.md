@@ -125,56 +125,39 @@ TBD
 ---
 > You've done a man's job, sir. I guess you're through, huh?
 
+
+## TODOs
+
+- MULTIDRONE ARDUPILOT SIMULATION
+
+- PX4_UXRCE_DDS_AG_IP does not seem to be working for PX4 SITL, fix this line https://github.com/PX4/PX4-Autopilot/blob/99c40407ffd7ac184e2d7b4b293f36f10fe561ef/ROMFS/px4fmu_common/init.d-posix/rcS#L310-L311 but still no ros2 topic list (ROS_DOMAIN_ID or msg definition sourcing problems?)
+
 <!-- 
-
-## WIP
-
-### TODOs
-
-- FIX MULTIDRONE ARDUPILOT SIMULATION
-
-```sh
-# Grant local dockers access to the X display server for GUI applications after every reboot
-xhost +local:docker
-
-docker run -it --rm \
-  --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --device /dev/dri --gpus all \
-  --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all \
-  --privileged --net=host \
-  simulation-image
-# simulation-image starts $ tmuxinator start -p /git/resources/tmuxinator/simulation.yml.erb
-
-docker run -it --rm \
-  --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --device /dev/dri --gpus all \
-  --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all \
-  --privileged --net=host \
-  aircraft-image
-# aircraft-image starts $ tmuxinator start -p /git/resources/tmuxinator/aircraft.yml.erb
-
-# # (optional) Revoke local dockers access to the X display server for GUI applications
-# xhost -local:docker
-```
 
 ### Networking
 
-- NOTE: tmuxinator start -p /git/resources/simulation_tmuxinator.yml might have AP/GZ/QGC issue when wifi is on on the host, revise --net=host
 
-- ArduPilot SITL architecture: https://ardupilot.org/dev/docs/sitl-simulator-software-in-the-loop.html#sitl-architecture
-- ArduPilot UARTs: https://ardupilot.org/dev/docs/learning-ardupilot-uarts-and-the-console.html
-```sh
-# on 192.168.1.30, add multiple outs for each SITL to use QGC (in the same container) and C++/ROS2 wrapped MAVSDK
-./Tools/autotest/sim_vehicle.py -v ArduCopter --map --console --out=udp:192.168.1.30:14550 --out=udp:192.168.1.20:14540
-# on 192.168.1.20, connect with
-/git/MAVSDK/build/src/mavsdk_server/src/mavsdk_server udpin://0.0.0.0:14540
-```
 - PX$ SITL architecture: https://docs.px4.io/main/en/simulation/#sitl-simulation-environment
 - PX4 XRCE-DDS architecture: https://docs.px4.io/main/en/middleware/uxrce_dds.html#architecture
+
 ```sh
 # 42.42.42.xx, configure PX4 sitl with env variables
 PX4_GZ_MODEL_POSE="0,0,0,0,0,0" PX4_SYS_AUTOSTART=4001 PX4_UXRCE_DDS_NS="Drone1" PX4_UXRCE_DDS_AG_IP=42.42.42.20 PX4_UXRCE_DDS_PORT=8888 /git/PX4-Autopilot/build/px4_sitl_default/bin/px4 -i 1
 # on 42.42.42.20, connect with
 MicroXRCEAgent udp4 -p 8888
 ```
+
+
+- ArduPilot SITL architecture: https://ardupilot.org/dev/docs/sitl-simulator-software-in-the-loop.html#sitl-architecture
+- ArduPilot UARTs: https://ardupilot.org/dev/docs/learning-ardupilot-uarts-and-the-console.html
+
+```sh
+# on 192.168.1.30, add multiple outs for each SITL to use QGC (in the same container) and C++/ROS2 wrapped MAVSDK
+./Tools/autotest/sim_vehicle.py -v ArduCopter --map --console --out=udp:192.168.1.30:14550 --out=udp:192.168.1.20:14540
+# on 192.168.1.20, connect with
+/git/MAVSDK/build/src/mavsdk_server/src/mavsdk_server udpin://0.0.0.0:14540
+```
+
 
 ArduPilot Docker networking
 ```sh
@@ -191,43 +174,24 @@ docker run -d --rm --network drone-net --name mavsdk-container \
   /path/to/mavsdk_server udpin://0.0.0.0:14540
 ```
 
-PX4 Docker networking
-```sh
-docker network create drone-net
-
-docker run -d --rm --network drone-net --name xrce-agent \
-  your-xrce-agent-image \
-  MicroXRCEAgent udp4 -p 8888
-
-docker run -d --rm --network drone-net --name px4-sitl \
-  -e PX4_UXRCE_DDS_AG_IP=xrce-agent \
-  -e PX4_SYS_AUTOSTART=4008 \
-  -e PX4_UXRCE_DDS_NS="Drone1" \
-  your-px4-image \
-  /path/to/px4 -i 1
-```
 
 Inter drone serial communication (for Docker simulation and deployment)
 
 ```sh
-# Create the IP network
-docker network create my-app-net
-
 # Create the virtual serial port pair using socat
 socat -d -d pty,raw,echo=0,link=/tmp/port-a pty,raw,echo=0,link=/tmp/port-b &
 
 docker run -d --rm \
-  --network my-app-net \
   --name container-a \
   --device=/tmp/port-a:/dev/ttyS0 \
   your-app-image-a
 
 docker run -d --rm \
-  --network my-app-net \
   --name container-b \
   --device=/tmp/port-b:/dev/ttyS0 \
   your-app-image-b
 ```
+
 
 Image processing from simulation to containers
 
