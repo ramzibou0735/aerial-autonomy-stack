@@ -128,13 +128,6 @@ TBD
 
 ## TODOs
 
-- PX4_UXRCE_DDS_AG_IP does not seem to be working for PX4 SITL, fix this line https://github.com/PX4/PX4-Autopilot/blob/99c40407ffd7ac184e2d7b4b293f36f10fe561ef/ROMFS/px4fmu_common/init.d-posix/rcS#L310-L311 - 707395841 = 42.42.1.1, 707395842 = 42.42.1.2, etc.
-
-```sh
-git add .
-git diff --staged > ../px4-1.15.4.patch
-```
-
 - Multidrone ArduPilot simulation seems problematic https://github.com/ArduPilot/ardupilot_gazebo/issues/114, investigate -I <%= i %> in https://github.com/ArduPilot/ardupilot/blob/Copter-4.6.0/Tools/autotest/sim_vehicle.py
 
 
