@@ -23,8 +23,9 @@ windows:
           PX4_SYS_AUTOSTART=<%= drone_type == 'quad' ? '4001' : '4004' %>
           ROS_DOMAIN_ID=<%= i + 1 %>
           PX4_UXRCE_DDS_NS="Drone<%= i + 1 %>"
-          PX4_UXRCE_DDS_PORT=<%= 8888 + i %>
-          /git/PX4-Autopilot/build/px4_sitl_default/bin/px4 -i <%= i + 1 %>
+          PX4_UXRCE_DDS_AG_IP="42.42.1.<%= i + 1 %>"
+          PX4_UXRCE_DDS_PORT=8888
+          /git/PX4-Autopilot/build/px4_sitl_default/bin/px4 -i <%= i %>
         - "ROS_DOMAIN_ID=<%= i + 1 %> ros2 run ros_gz_bridge parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock"
   <% end %>
 

@@ -1,0 +1,13 @@
+diff --git a/ROMFS/px4fmu_common/init.d-posix/rcS b/ROMFS/px4fmu_common/init.d-posix/rcS
+index 0fd28a0f13..f633b0027f 100644
+--- a/ROMFS/px4fmu_common/init.d-posix/rcS
++++ b/ROMFS/px4fmu_common/init.d-posix/rcS
+@@ -307,7 +307,7 @@ then
+ 	uxrce_dds_port="$PX4_UXRCE_DDS_PORT"
+ fi
+ 
+-uxrce_dds_client start -t udp -h 127.0.0.1 -p $uxrce_dds_port $uxrce_dds_ns
++uxrce_dds_client start -t udp -h "${PX4_UXRCE_DDS_AG_IP:-127.0.0.1}" -p $uxrce_dds_port $uxrce_dds_ns
+ 
+ if param greater -s MNT_MODE_IN -1
+ then

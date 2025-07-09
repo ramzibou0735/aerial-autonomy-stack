@@ -95,7 +95,7 @@ RUN git clone --depth 1 --branch v1.15.4 https://github.com/PX4/PX4-Autopilot.gi
 WORKDIR /git/PX4-Autopilot
 RUN git submodule update --init --recursive
 RUN bash ./Tools/setup/ubuntu.sh --no-sim-tools
-# RUN git apply ../px4-1.15.4.patch
+RUN git apply ../px4-1.15.4.patch
 RUN make px4_sitl
 # Run with $ /git/PX4-Autopilot/build/px4_sitl_default/bin/px4
 

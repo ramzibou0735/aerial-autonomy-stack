@@ -79,7 +79,7 @@ docker pull jacopopan/aircraft-image:latest # TODO
 ```sh
 cd ~/git/aerial-autonomy-stack/
 chmod +x ./main.sh
-DRONE_TYPE=vtol AUTOPILOT=ardupilot NUM_DRONES=1 ./main.sh
+DRONE_TYPE=quad AUTOPILOT=px4 NUM_DRONES=2 ./main.sh
 ```
 
 > [!TIP]
