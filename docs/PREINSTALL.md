@@ -19,10 +19,10 @@ sudo apt install mesa-utils # Also installed in the simulation container, for gz
 # Check GPU OpenGL renderer
 glxinfo | grep "OpenGL renderer"
 
-# Install git and htop
+# Install git
 sudo apt update
 sudo apt upgrade
-sudo apt install git htop
+sudo apt install git
 
 # Create an ssh key
 ssh-keygen 

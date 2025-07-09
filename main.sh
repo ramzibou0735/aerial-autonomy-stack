@@ -41,7 +41,4 @@ for i in $(seq 1 $NUM_DRONES); do
     exec bash"
 done
 
-# Launch htop for monitoring the system resources
-gnome-terminal --geometry=120x24+10+710 -- htop
-
 echo "Fly, my pretties, fly!"
