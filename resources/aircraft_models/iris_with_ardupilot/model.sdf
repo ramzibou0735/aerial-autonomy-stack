@@ -2,7 +2,7 @@
 <sdf version="1.9">
   <model name="iris_with_ardupilot">
     <include>
-      <uri>model://iris_with_standoffs</uri>
+      <uri>model://iris</uri>
     </include>
 
     <!--
@@ -142,7 +142,7 @@
       </visual>
     </link>
     <joint name="rotor_0_blade_1_cp_joint" type="revolute">
-      <parent>iris_with_standoffs::rotor_0</parent>
+      <parent>iris::rotor_0</parent>
       <child>rotor_0_blade_1_cp</child>
       <axis>
         <limit>
@@ -153,7 +153,7 @@
       </axis>
     </joint>
     <joint name="rotor_0_blade_2_cp_joint" type="revolute">
-      <parent>iris_with_standoffs::rotor_0</parent>
+      <parent>iris::rotor_0</parent>
       <child>rotor_0_blade_2_cp</child>
       <axis>
         <limit>
@@ -293,7 +293,7 @@
       </visual>
     </link>
     <joint name="rotor_1_blade_1_cp_joint" type="revolute">
-      <parent>iris_with_standoffs::rotor_1</parent>
+      <parent>iris::rotor_1</parent>
       <child>rotor_1_blade_1_cp</child>
       <axis>
         <limit>
@@ -304,7 +304,7 @@
       </axis>
     </joint>
     <joint name="rotor_1_blade_2_cp_joint" type="revolute">
-      <parent>iris_with_standoffs::rotor_1</parent>
+      <parent>iris::rotor_1</parent>
       <child>rotor_1_blade_2_cp</child>
       <axis>
         <limit>
@@ -444,7 +444,7 @@
       </visual>
     </link>
     <joint name="rotor_2_blade_1_cp_joint" type="revolute">
-      <parent>iris_with_standoffs::rotor_2</parent>
+      <parent>iris::rotor_2</parent>
       <child>rotor_2_blade_1_cp</child>
       <axis>
         <limit>
@@ -455,7 +455,7 @@
       </axis>
     </joint>
     <joint name="rotor_2_blade_2_cp_joint" type="revolute">
-      <parent>iris_with_standoffs::rotor_2</parent>
+      <parent>iris::rotor_2</parent>
       <child>rotor_2_blade_2_cp</child>
       <axis>
         <limit>
@@ -595,7 +595,7 @@
       </visual>
     </link>
     <joint name="rotor_3_blade_1_cp_joint" type="revolute">
-      <parent>iris_with_standoffs::rotor_3</parent>
+      <parent>iris::rotor_3</parent>
       <child>rotor_3_blade_1_cp</child>
       <axis>
         <limit>
@@ -606,7 +606,7 @@
       </axis>
     </joint>
     <joint name="rotor_3_blade_2_cp_joint" type="revolute">
-      <parent>iris_with_standoffs::rotor_3</parent>
+      <parent>iris::rotor_3</parent>
       <child>rotor_3_blade_2_cp</child>
       <axis>
         <limit>
@@ -706,7 +706,7 @@
       <cp>0.084 0 0</cp>
       <forward>0 1 0</forward>
       <upward>0 0 1</upward>
-      <link_name>iris_with_standoffs::rotor_0</link_name>
+      <link_name>iris::rotor_0</link_name>
     </plugin>
     <plugin filename="gz-sim-lift-drag-system"
         name="gz::sim::systems::LiftDrag">
@@ -723,7 +723,7 @@
       <cp>-0.084 0 0</cp>
       <forward>0 -1 0</forward>
       <upward>0 0 1</upward>
-      <link_name>iris_with_standoffs::rotor_0</link_name>
+      <link_name>iris::rotor_0</link_name>
     </plugin>
 
     <plugin filename="gz-sim-lift-drag-system"
@@ -741,7 +741,7 @@
       <cp>0.084 0 0</cp>
       <forward>0 1 0</forward>
       <upward>0 0 1</upward>
-      <link_name>iris_with_standoffs::rotor_1</link_name>
+      <link_name>iris::rotor_1</link_name>
     </plugin>
     <plugin filename="gz-sim-lift-drag-system"
         name="gz::sim::systems::LiftDrag">
@@ -758,7 +758,7 @@
       <cp>-0.084 0 0</cp>
       <forward>0 -1 0</forward>
       <upward>0 0 1</upward>
-      <link_name>iris_with_standoffs::rotor_1</link_name>
+      <link_name>iris::rotor_1</link_name>
     </plugin>
 
     <plugin filename="gz-sim-lift-drag-system"
@@ -776,7 +776,7 @@
       <cp>0.084 0 0</cp>
       <forward>0 -1 0</forward>
       <upward>0 0 1</upward>
-      <link_name>iris_with_standoffs::rotor_2</link_name>
+      <link_name>iris::rotor_2</link_name>
     </plugin>
     <plugin filename="gz-sim-lift-drag-system"
         name="gz::sim::systems::LiftDrag">
@@ -793,7 +793,7 @@
       <cp>-0.084 0 0</cp>
       <forward>0 1 0</forward>
       <upward>0 0 1</upward>
-      <link_name>iris_with_standoffs::rotor_2</link_name>
+      <link_name>iris::rotor_2</link_name>
     </plugin>
 
     <plugin filename="gz-sim-lift-drag-system"
@@ -811,7 +811,7 @@
       <cp>0.084 0 0</cp>
       <forward>0 -1 0</forward>
       <upward>0 0 1</upward>
-      <link_name>iris_with_standoffs::rotor_3</link_name>
+      <link_name>iris::rotor_3</link_name>
     </plugin>
     <plugin filename="gz-sim-lift-drag-system"
         name="gz::sim::systems::LiftDrag">
@@ -828,24 +828,24 @@
       <cp>-0.084 0 0</cp>
       <forward>0 1 0</forward>
       <upward>0 0 1</upward>
-      <link_name>iris_with_standoffs::rotor_3</link_name>
+      <link_name>iris::rotor_3</link_name>
     </plugin>
 
     <plugin filename="gz-sim-apply-joint-force-system"
       name="gz::sim::systems::ApplyJointForce">
-      <joint_name>iris_with_standoffs::rotor_0_joint</joint_name>
+      <joint_name>iris::rotor_0_joint</joint_name>
     </plugin>
     <plugin filename="gz-sim-apply-joint-force-system"
       name="gz::sim::systems::ApplyJointForce">
-      <joint_name>iris_with_standoffs::rotor_1_joint</joint_name>
+      <joint_name>iris::rotor_1_joint</joint_name>
     </plugin>
     <plugin filename="gz-sim-apply-joint-force-system"
       name="gz::sim::systems::ApplyJointForce">
-      <joint_name>iris_with_standoffs::rotor_2_joint</joint_name>
+      <joint_name>iris::rotor_2_joint</joint_name>
     </plugin>
     <plugin filename="gz-sim-apply-joint-force-system"
       name="gz::sim::systems::ApplyJointForce">
-      <joint_name>iris_with_standoffs::rotor_3_joint</joint_name>
+      <joint_name>iris::rotor_3_joint</joint_name>
     </plugin>
 
     <plugin name="ArduPilotPlugin"
@@ -864,7 +864,7 @@
       <gazeboXYZToNED degrees="true">0 0 0 180 0 90</gazeboXYZToNED>
 
       <!-- Sensors -->
-      <imuName>iris_with_standoffs::imu_link::imu_sensor</imuName>
+      <imuName>iris::imu_link::imu_sensor</imuName>
 
       <!--
           incoming control command [0, 1]
@@ -874,7 +874,7 @@
           multiplier = 838 max rpm / 1 = 838
         -->
       <control channel="0">
-        <jointName>iris_with_standoffs::rotor_0_joint</jointName>
+        <jointName>iris::rotor_0_joint</jointName>
         <useForce>1</useForce>
         <multiplier>838</multiplier>
         <offset>0</offset>
@@ -892,7 +892,7 @@
       </control>
 
       <control channel="1">
-        <jointName>iris_with_standoffs::rotor_1_joint</jointName>
+        <jointName>iris::rotor_1_joint</jointName>
         <useForce>1</useForce>
         <multiplier>838</multiplier>
         <offset>0</offset>
@@ -910,7 +910,7 @@
       </control>
 
       <control channel="2">
-        <jointName>iris_with_standoffs::rotor_2_joint</jointName>
+        <jointName>iris::rotor_2_joint</jointName>
         <useForce>1</useForce>
         <multiplier>-838</multiplier>
         <offset>0</offset>
@@ -928,7 +928,7 @@
       </control>
 
       <control channel="3">
-        <jointName>iris_with_standoffs::rotor_3_joint</jointName>
+        <jointName>iris::rotor_3_joint</jointName>
         <useForce>1</useForce>
         <multiplier>-838</multiplier>
         <offset>0</offset>
