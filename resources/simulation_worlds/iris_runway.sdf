@@ -110,11 +110,6 @@
       </link>
     </model>
 
-    <include>
-      <uri>model://iris_with_ardupilot</uri>
-      <pose degrees="true">0 0 0.195 0 0 90</pose>
-    </include>
-
     <model name="ground_plane">
       <static>true</static>
       <link name="link">
@@ -164,6 +159,16 @@
       <pose>0 0 0 0 -0 0</pose>
       <self_collide>false</self_collide>
     </model>
+
+    <include>
+      <uri>model://iris_with_ardupilot</uri>
+      <pose degrees="true">0 0 0.195 0 0 90</pose>
+    </include>
+
+    <include>
+      <uri>model://unicorn</uri>
+      <pose degrees="true">10 2 0.195 0 0 30</pose>
+    </include>
 
   </world>
 </sdf>

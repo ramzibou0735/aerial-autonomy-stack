@@ -238,5 +238,11 @@
       <longitude_deg> 8.546163739800146</longitude_deg>
       <elevation>0</elevation>
     </spherical_coordinates>
+
+    <include>
+      <uri>model://unicorn</uri>
+      <pose degrees="true">10 2 0.195 0 0 30</pose>
+    </include>
+
   </world>
 </sdf>
