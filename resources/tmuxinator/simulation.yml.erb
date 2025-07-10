@@ -36,7 +36,7 @@ windows:
         - > 
           GZ_SIM_SYSTEM_PLUGIN_PATH=/git/ardupilot_gazebo/build:$GZ_SIM_SYSTEM_PLUGIN_PATH 
           GZ_SIM_RESOURCE_PATH=/git/resources/aircraft_models:/git/resources/simulation_worlds:$GZ_SIM_RESOURCE_PATH 
-          gz sim -v4 -r <%= drone_type == 'quad' ? 'iris_runway.sdf' : 'zephyr_runway.sdf' %>
+          gz sim -v4 -r <%= drone_type == 'quad' ? 'iris_world.sdf' : 'zephyr_world.sdf' %>
         - "ros2 run ros_gz_bridge parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock"
   <% num_drones.times do |i| %>
   - ardupilot_sitl_<%= i + 1 %>:
