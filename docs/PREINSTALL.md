@@ -1,6 +1,6 @@
 # Pre-installation Steps
 
-## Pre-installation Step 1 of 2: Host Computer Setup
+## Pre-installation Step 1 of 3: Host Computer Setup
 
 > [!NOTE]
 > Skip this step if you already have an **Ubuntu 22 computer with NVIDIA Driver**, Git, etc.
@@ -29,7 +29,7 @@ ssh-keygen
 cat ~/.ssh/id_rsa.pub
 ```
 
-## Pre-installation Step 2 of 2: Docker Setup
+## Pre-installation Step 2 of 3: Docker Setup
 
 > [!NOTE]
 > Skip this step if you already installed **Docker Engine and NVIDIA Container Toolkit**
@@ -82,4 +82,16 @@ docker run --rm --gpus all nvidia/cuda:12.2.0-base-ubuntu22.04 nvidia-smi
 
 # Check `nvidia` runtime is available
 docker info | grep -i runtime
+```
+
+## Pre-installation Step 3 of 3: Log In to the NVIDIA Registry
+
+- Go to https://ngc.nvidia.com and login/create an account.
+- Click on your account the top right, go to Setup -> Get API Key.
+- Click "Generate API Key" -> "+ Generate Personal Key" for the "NCG Catalog" service, confirm, and copy the key.
+
+```sh
+docker login nvcr.io
+Username: # type $oauthtoken
+Password: # copy and paste the API key and press enter
 ```

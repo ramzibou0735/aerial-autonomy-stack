@@ -11,7 +11,7 @@ windows:
       layout: even-horizontal
       panes:
         - >
-          GZ_SIM_RESOURCE_PATH=$GZ_SIM_RESOURCE_PATH:/git/PX4-Autopilot/Tools/simulation/gz/models:/git/PX4-Autopilot/Tools/simulation/gz/worlds
+          GZ_SIM_RESOURCE_PATH=$GZ_SIM_RESOURCE_PATH:/git/resources/aircraft_models:/git/resources/simulation_worlds
           gz sim -v4 -r default.sdf
   <% num_drones.times do |i| %>
   - px4_sitl_<%= i + 1 %>:
@@ -35,7 +35,7 @@ windows:
       panes:
         - > 
           GZ_SIM_SYSTEM_PLUGIN_PATH=/git/ardupilot_gazebo/build:$GZ_SIM_SYSTEM_PLUGIN_PATH 
-          GZ_SIM_RESOURCE_PATH=/git/ardupilot_gazebo/models:/git/ardupilot_gazebo/worlds:$GZ_SIM_RESOURCE_PATH 
+          GZ_SIM_RESOURCE_PATH=/git/resources/aircraft_models:/git/resources/simulation_worlds:$GZ_SIM_RESOURCE_PATH 
           gz sim -v4 -r <%= drone_type == 'quad' ? 'iris_runway.sdf' : 'zephyr_runway.sdf' %>
         - "ros2 run ros_gz_bridge parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock"
   <% num_drones.times do |i| %>
