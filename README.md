@@ -133,35 +133,21 @@ TBD
 - Multidrone ArduPilot simulation seems problematic https://github.com/ArduPilot/ardupilot_gazebo/issues/114, investigate -I <%= i %> in https://github.com/ArduPilot/ardupilot/blob/Copter-4.6.0/Tools/autotest/sim_vehicle.py
 - add https://github.com/ArduPilot/SITL_Models
 
+```sh
 
-## Models
+gz topic -l
+gz topic -i -t /camera
+gz topic -e -t /camera
 
-- https://docs.px4.io/main/en/sim_gazebo_gz/vehicles.html#x500-quadrotor-with-depth-camera-front-facing
-- https://docs.px4.io/main/en/sim_gazebo_gz/vehicles.html#x500-quadrotor-with-2d-lidar 
+```
 
 <!-- 
 
 ### Networking
 
-Inter drone serial communication (for Docker simulation and deployment)
-
-```sh
-# Create the virtual serial port pair using socat
-socat -d -d pty,raw,echo=0,link=/tmp/port-a pty,raw,echo=0,link=/tmp/port-b &
-
-docker run -d --rm \
-  --name container-a \
-  --device=/tmp/port-a:/dev/ttyS0 \
-  your-app-image-a
-
-docker run -d --rm \
-  --name container-b \
-  --device=/tmp/port-b:/dev/ttyS0 \
-  your-app-image-b
-```
-
-
 Image processing from simulation to containers
+
+ros2 run ros_gz_bridge parameter_bridge /camera/image@sensor_msgs/msg/Image@gz.msgs.Image/out:=/camera/image_raw
 
 Ardupilot GstCameraPlugin example
 https://github.com/ArduPilot/ardupilot_gazebo/blob/main/README.md
@@ -195,6 +181,23 @@ pipeline_str = "udpsrc port=5000 ! application/x-rtp, encoding-name=H264, payloa
 
 # ... Code to launch the pipeline and a callback function for the 'new-sample' signal from appsink
 # Inside the callback, you get the frame buffer and pass it to your YOLOv8 ONNX model.
+```
+
+Inter drone serial communication (for Docker simulation and deployment)
+
+```sh
+# Create the virtual serial port pair using socat
+socat -d -d pty,raw,echo=0,link=/tmp/port-a pty,raw,echo=0,link=/tmp/port-b &
+
+docker run -d --rm \
+  --name container-a \
+  --device=/tmp/port-a:/dev/ttyS0 \
+  your-app-image-a
+
+docker run -d --rm \
+  --name container-b \
+  --device=/tmp/port-b:/dev/ttyS0 \
+  your-app-image-b
 ```
 
 ### Geospatial and Photogrammetry Resources
