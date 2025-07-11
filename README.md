@@ -130,13 +130,11 @@ TBD
 
 ## TODOs
 
-- use opencv gstreamer plugin in yolo venv (figure out what is wrong with the dockerfiles installation)
-```sh
-python3 -c "import cv2; print(cv2.getBuildInformation())"
-```
-
 - Multidrone ArduPilot simulation seems problematic https://github.com/ArduPilot/ardupilot_gazebo/issues/114, investigate -I <%= i %> in https://github.com/ArduPilot/ardupilot/blob/Copter-4.6.0/Tools/autotest/sim_vehicle.py
-- add https://github.com/ArduPilot/SITL_Models
+
+- use opencv gstreamer plugin in yolo venv (figure out what is wrong with the dockerfiles installation)
+
+- cleanup dockerfiles
 
 <!-- 
 
@@ -177,5 +175,6 @@ docker run -d --rm \
 
 - ArduPilot SITL architecture: https://ardupilot.org/dev/docs/sitl-simulator-software-in-the-loop.html#sitl-architecture
 - ArduPilot UARTs: https://ardupilot.org/dev/docs/learning-ardupilot-uarts-and-the-console.html
+- ArduPilot SITL models: https://github.com/ArduPilot/SITL_Models
 
 -->
