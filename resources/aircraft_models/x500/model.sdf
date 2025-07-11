@@ -674,7 +674,7 @@
         <always_on>1</always_on>
         <update_rate>30</update_rate>
         <visualize>true</visualize>
-        <topic>camera_1</topic>
+        <!-- <topic>camera_1</topic> -->
       </sensor>
       <gravity>true</gravity>
       <velocity_decay/>
