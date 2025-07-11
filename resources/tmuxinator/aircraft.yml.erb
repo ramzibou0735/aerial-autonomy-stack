@@ -29,7 +29,11 @@ windows:
       panes:
         - >
           socat PTY,link=/dev/tty_drone_mcat,raw,echo=0,wait-slave TCP:42.42.1.99:54321 & 
-          sleep <%= 3 + drone_id %> && echo 'message from aircraft <%= drone_id %>' > /dev/tty_drone_mcat
+          sleep <%= 3 + drone_id %> &&
+          while true; do
+            echo 'message from aircraft <%= drone_id %>' > /dev/tty_drone_mcat;
+            sleep 2;
+          done
         - sleep 2 && cat /dev/tty_drone_mcat
 
   - housekeeping:
