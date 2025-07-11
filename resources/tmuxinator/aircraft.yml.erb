@@ -29,9 +29,9 @@ windows:
       layout: even-horizontal
       panes:
         - >
-          socat PTY,link=/dev/ttyS0,raw,echo=0,wait-slave TCP:42.42.1.99:54321 & 
-          sleep 3 && echo 'hello from aircraft <%= drone_id %>' > /dev/ttyS0
-        - sleep 2 && cat /dev/ttyS0
+          socat PTY,link=/dev/tty_drone_mcat,raw,echo=0,wait-slave TCP:42.42.1.99:54321 & 
+          sleep <%= 3 + drone_id %> && echo 'message from aircraft <%= drone_id %>' > /dev/tty_drone_mcat
+        - sleep 2 && cat /dev/tty_drone_mcat
 
   - housekeeping:
       layout: even-horizontal

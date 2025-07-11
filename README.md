@@ -128,6 +128,24 @@ TBD
 > You've done a man's job, sir. I guess you're through, huh?
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## TODOs
 
 - Multidrone ArduPilot simulation seems problematic https://github.com/ArduPilot/ardupilot_gazebo/issues/114, investigate -I <%= i %> in https://github.com/ArduPilot/ardupilot/blob/Copter-4.6.0/Tools/autotest/sim_vehicle.py
@@ -135,27 +153,6 @@ TBD
 - use opencv gstreamer plugin in yolo venv (figure out what is wrong with the dockerfiles installation)
 
 - cleanup dockerfiles
-
-<!-- 
-
-### Networking
-
-Inter drone serial communication (for Docker simulation and deployment)
-
-```sh
-# Create the virtual serial port pair using socat
-socat -d -d pty,raw,echo=0,link=/tmp/port-a pty,raw,echo=0,link=/tmp/port-b &
-
-docker run -d --rm \
-  --name container-a \
-  --device=/tmp/port-a:/dev/ttyS0 \
-  your-app-image-a
-
-docker run -d --rm \
-  --name container-b \
-  --device=/tmp/port-b:/dev/ttyS0 \
-  your-app-image-b
-```
 
 ### Geospatial and Photogrammetry Resources
 - https://support.pix4d.com/hc/en-us/articles/360000235126#OPF2
@@ -177,4 +174,3 @@ docker run -d --rm \
 - ArduPilot UARTs: https://ardupilot.org/dev/docs/learning-ardupilot-uarts-and-the-console.html
 - ArduPilot SITL models: https://github.com/ArduPilot/SITL_Models
 
--->
