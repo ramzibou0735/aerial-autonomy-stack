@@ -17,8 +17,20 @@ input_name = session.get_inputs()[0].name
 # Confirm execution providers
 print("Execution providers in use:", session.get_providers())
 
-# Load video
-cap = cv2.VideoCapture("sample.mp4")
+# gst_pipeline_string = (
+#     "udpsrc port=5600 ! "
+#     "application/x-rtp, media=(string)video, encoding-name=(string)H264 ! "
+#     "rtph264depay ! avdec_h264 ! videoconvert ! "
+#     "video/x-raw, format=BGR ! appsink"
+# )
+# cap = cv2.VideoCapture(gst_pipeline_string, cv2.CAP_GSTREAMER)
+#
+# Needs
+# sudo apt-get update
+# sudo apt-get install -y python3-opencv gstreamer1.0-tools gstreamer1.0-plugins-good gstreamer1.0-plugins-ugly gstreamer1.0-libav
+# python3 -m venv yolo-env --system-site-packages
+
+cap = cv2.VideoCapture("sample.mp4") # Load example video
 assert cap.isOpened(), "Failed to open video"
 
 def xywh2xyxy(box):

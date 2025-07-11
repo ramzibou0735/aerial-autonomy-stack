@@ -53,6 +53,13 @@ windows:
   <% end %>
   <% end %>
 
+  <% num_drones.times do |i| %>
+  - gz_to_gst_<%= i + 1 %>:
+      layout: even-horizontal
+      panes:
+        - python3 /git/resources/yolo/gz_to_gst_bridge.py --gz_topic /camera --ip 42.42.1.1 --port 5600
+  <% end %>
+
   - qgc:
       layout: even-horizontal
       panes:
