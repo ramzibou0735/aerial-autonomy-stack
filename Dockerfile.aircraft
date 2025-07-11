@@ -91,7 +91,7 @@ RUN python3 -m venv /yolo-env
 RUN /yolo-env/bin/pip3 install --no-cache-dir --upgrade pip && \
     /yolo-env/bin/pip3 install --no-cache-dir --resume-retries 5 ultralytics onnx onnxruntime-gpu
 # Check YOLO with $ /yolo-env/bin/python3 -c "import ultralytics; print(ultralytics.__version__)"
-# Check ONNX Runtime with $ /yolo-env/bin/python -c "import onnxruntime as ort; print(ort.__version__)"
+# Check ONNX Runtime with $ /yolo-env/bin/python3 -c "import onnxruntime as ort; print(ort.__version__)"
 
 # Save the model weights (ONNX, Opset 12) and download a sample video
 WORKDIR /
@@ -147,6 +147,17 @@ RUN apt update \
         socat
 #     && apt clean \
 #     && rm -rf /var/lib/apt/lists/*
+
+# add system yolo
+RUN pip3 install --no-cache-dir --resume-retries 5 \
+    # First, install the necessary dependencies, but NOT opencv-python # we are sticking with the system one which is 4.5.4 and not the 4.6 required by ultralytics
+    torch torchvision numpy pandas Pillow tqdm requests py-cpuinfo ultralytics-thop \
+    onnx \
+    onnxruntime-gpu && \
+    # Now, install ultralytics itself, ignoring its dependency list
+    pip3 install --no-cache-dir --no-deps ultralytics
+WORKDIR /
+RUN python3 -c "from ultralytics import YOLO; YOLO('yolov8n.pt').export(format='onnx', opset=12)"
 
 # Copy resources from this repository
 COPY resources/ /git/resources

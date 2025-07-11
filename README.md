@@ -148,11 +148,9 @@ TBD
 
 ## TODOs
 
+- cleanup dockerfiles (move gstreamer to the end in simulation and use ultralytics with system python in aircraft, after mavsdk)
+
 - Multidrone ArduPilot simulation seems problematic https://github.com/ArduPilot/ardupilot_gazebo/issues/114, investigate -I <%= i %> in https://github.com/ArduPilot/ardupilot/blob/Copter-4.6.0/Tools/autotest/sim_vehicle.py
-
-- use opencv gstreamer plugin in yolo venv (figure out what is wrong with the dockerfiles installation)
-
-- cleanup dockerfiles
 
 ### Geospatial and Photogrammetry Resources
 - https://support.pix4d.com/hc/en-us/articles/360000235126#OPF2

@@ -22,8 +22,7 @@ windows:
   - yolo:
       layout: even-horizontal
       panes:
-        - /yolo-env/bin/python3 /git/resources/yolo/yolo-inference.py
-        - gst-launch-1.0 udpsrc port=5600 ! application/x-rtp, media=video, encoding-name=H264 ! rtph264depay ! avdec_h264 ! videoconvert ! autovideosink
+        - python3 /git/resources/yolo/yolo-inference.py
 
   - serial_over_tcp:
       layout: even-horizontal
