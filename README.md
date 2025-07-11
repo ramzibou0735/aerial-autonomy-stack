@@ -130,63 +130,17 @@ TBD
 
 ## TODOs
 
+- use opencv gstreamer plugin in yolo venv (figure out what is wrong with the dockerfiles installation)
+```sh
+python3 -c "import cv2; print(cv2.getBuildInformation())"
+```
+
 - Multidrone ArduPilot simulation seems problematic https://github.com/ArduPilot/ardupilot_gazebo/issues/114, investigate -I <%= i %> in https://github.com/ArduPilot/ardupilot/blob/Copter-4.6.0/Tools/autotest/sim_vehicle.py
 - add https://github.com/ArduPilot/SITL_Models
-
-```sh
-
-gz topic -l
-gz topic -i -t /camera
-gz topic -e -t /camera
-
-python3 /git/resources/gz_to_gst_bridge.py
-gst-launch-1.0 udpsrc port=5600 ! application/x-rtp, media=video, encoding-name=H264 ! rtph264depay ! avdec_h264 ! videoconvert ! autovideosink
-
-python3 -c "import cv2; print(cv2.getBuildInformation())"
-
-```
 
 <!-- 
 
 ### Networking
-
-Image processing from simulation to containers
-
-ros2 run ros_gz_bridge parameter_bridge /camera/image@sensor_msgs/msg/Image@gz.msgs.Image/out:=/camera/image_raw
-
-Ardupilot GstCameraPlugin example
-https://github.com/ArduPilot/ardupilot_gazebo/blob/main/README.md
-
-```sh
-# In the drone .sdf
-<plugin name="camera_controller" filename="libgazebo_ros_camera.so">
-  <ros>
-    <namespace>/demo</namespace>
-    <remapping>image_raw:=color/image_raw</remapping>
-  </ros>
-  </plugin>
-
-# In the simulation container
-gst-launch-1.0 ros2imagesrc topic-name="/demo/color/image_raw" ! \
-    videoconvert ! \
-    x264enc tune=zerolatency bitrate=500 speed-preset=superfast ! \
-    rtph264pay ! \
-    udpsink host=yolo-container port=5000
-```
-
-```py
-# In the YOLO container
-import gi
-gi.require_version('Gst', '1.0')
-from gi.repository import Gst
-# ... other imports for numpy, onnx, etc.
-
-# GStreamer pipeline to receive, decode, and send to the application
-pipeline_str = "udpsrc port=5000 ! application/x-rtp, encoding-name=H264, payload=96 ! rtph264depay ! avdec_h264 ! videoconvert ! appsink name=yolo_sink emit-signals=true"
-
-# ... Code to launch the pipeline and a callback function for the 'new-sample' signal from appsink
-# Inside the callback, you get the frame buffer and pass it to your YOLOv8 ONNX model.
-```
 
 Inter drone serial communication (for Docker simulation and deployment)
 
