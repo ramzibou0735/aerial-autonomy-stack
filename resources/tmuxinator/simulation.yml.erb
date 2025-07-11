@@ -57,7 +57,7 @@ windows:
   - gz_to_gst_<%= i + 1 %>:
       layout: even-horizontal
       panes:
-        - python3 /git/resources/yolo/gz_to_gst_bridge.py --gz_topic /camera --ip 42.42.1.1 --port 5600
+        - python3 /git/resources/yolo/gz_to_gst_bridge.py --gz_topic /camera_<%= i + 1 %> --ip 42.42.1.<%= i + 1 %> --port 5600
   <% end %>
 
   - qgc:

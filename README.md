@@ -142,6 +142,8 @@ gz topic -e -t /camera
 python3 /git/resources/gz_to_gst_bridge.py
 gst-launch-1.0 udpsrc port=5600 ! application/x-rtp, media=video, encoding-name=H264 ! rtph264depay ! avdec_h264 ! videoconvert ! autovideosink
 
+python3 -c "import cv2; print(cv2.getBuildInformation())"
+
 ```
 
 <!-- 

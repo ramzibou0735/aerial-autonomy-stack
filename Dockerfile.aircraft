@@ -128,7 +128,11 @@ FROM ros2-px4msgs-dds-yolo-mavsdk-image AS aircraft-dev-image
 
 RUN apt-get update && apt-get install -y wget gnupg lsb-release \
     && apt-get update && \
-    apt-get install -y gstreamer1.0-tools gstreamer1.0-plugins-good gstreamer1.0-plugins-ugly gstreamer1.0-libav
+    apt-get install -y gstreamer1.0-tools gstreamer1.0-plugins-good gstreamer1.0-plugins-ugly gstreamer1.0-libav python3-opencv
+
+# THIS LET GSTREAMER WORK WITH SYSTEM PYTHON I NEED IT IN THE VENV
+RUN pip3 install --no-cache-dir --upgrade pip \
+    && pip3 install --no-cache-dir "numpy<2"
 
 # Copy resources from this repository
 COPY resources/ /git/resources
