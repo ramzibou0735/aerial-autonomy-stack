@@ -1,3 +1,4 @@
+import os
 import cv2
 import numpy as np
 import onnxruntime as ort
@@ -32,6 +33,12 @@ print("Execution providers in use:", session.get_providers())
 
 cap = cv2.VideoCapture("sample.mp4") # Load example video
 assert cap.isOpened(), "Failed to open video"
+
+drone_id = os.getenv('DRONE_ID', '0')
+WINDOW_NAME = f"YOLOv8 (Aircraft {drone_id})"
+cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_NORMAL)
+cv2.moveWindow(WINDOW_NAME, 1500-(int(drone_id)-1)*50, 5+(int(drone_id)-1)*150)
+# cv2.resizeWindow(WINDOW_NAME, 400, 200)
 
 def xywh2xyxy(box):
     """Convert [x, y, w, h] to [x1, y1, x2, y2]"""
@@ -91,7 +98,7 @@ while True:
         cv2.putText(frame, f"{class_name} {conf:.2f}", (x1, y1 - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 1)
 
     # Display
-    cv2.imshow("YOLOv8 Detection", frame)
+    cv2.imshow(WINDOW_NAME, frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 

@@ -6,19 +6,34 @@ AUTOPILOT="${AUTOPILOT:-px4}" # Options: px4 (default), ardupilot
 NUM_DRONES="${NUM_DRONES:-2}" # Number of aircraft (default = 2)
 DEBUG="${DEBUG:-false}" # Whehther to launch the simulation or a simple shell (default = false)
 
+ENTRYPOINT_FLAG=""
+if [ "$DEBUG" = "true" ]; then
+  ENTRYPOINT_FLAG="--entrypoint /bin/bash"
+fi
+
 # Grant access to the X server
 xhost +local:docker
 
 # Create network
 docker network create --subnet=42.42.0.0/16 aas-network
 
-ENTRYPOINT_FLAG=""
-if [ "$DEBUG" = "true" ]; then
-  ENTRYPOINT_FLAG="--entrypoint /bin/bash"
-fi
+# Helper to place the terminals on-screen
+CHAR_WIDTH=10
+CHAR_HEIGHT=21
+SCREEN_GEOMETRY=$(xdpyinfo | grep dimensions | sed -r 's/^[^0-9]*([0-9]+x[0-9]+).*$/\1/')
+SCREEN_WIDTH=$(echo $SCREEN_GEOMETRY | cut -d'x' -f1)
+SCREEN_HEIGHT=$(echo $SCREEN_GEOMETRY | cut -d'x' -f2)
+get_quadrant_geometry() {
+    local index=$1
+    local width_chars=$(( (SCREEN_WIDTH / 2) / CHAR_WIDTH ))
+    local height_chars=$(( (SCREEN_HEIGHT / 2) / CHAR_HEIGHT ))
+    local x_pos=$(( (index == 1 || index == 2) * (SCREEN_WIDTH / 2) ))
+    local y_pos=$(( (index == 2 || index == 3) * (SCREEN_HEIGHT / 2) ))
+    echo "${width_chars}x${height_chars}+${x_pos}+${y_pos}"
+}
 
 # Launch the simulation container
-gnome-terminal --geometry=120x36+10+10 -- bash -c "echo 'Launching Simulation Container...'; \
+gnome-terminal --geometry=$(get_quadrant_geometry 0) -- bash -c "echo 'Launching Simulation Container...'; \
   docker run -it --rm \
     --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --device /dev/dri --gpus all \
     --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all \
@@ -33,9 +48,7 @@ gnome-terminal --geometry=120x36+10+10 -- bash -c "echo 'Launching Simulation Co
 
 # Launch the aircraft containers
 for i in $(seq 1 $NUM_DRONES); do
-  X_POS=$(( 1060 + (i) * 50 ))
-  Y_POS=$(( 10 + (i-1) * 200 ))
-  gnome-terminal --geometry=120x36+${X_POS}+${Y_POS} -- bash -c "echo 'Launching Aircraft Container $i...'; \
+  gnome-terminal --geometry=$(get_quadrant_geometry $(( i % 4 ))) -- bash -c "echo 'Launching Aircraft Container $i...'; \
     docker run -it --rm \
       --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --device /dev/dri --gpus all \
       --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all \

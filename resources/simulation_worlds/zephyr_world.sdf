@@ -171,24 +171,16 @@
     </include>
 
     <model name="simple_cylinder">
-      <pose>0 0 3 0 0 0</pose>
+      <pose>0 0 10 0 0 0</pose>
       <link name="cylinder_link">
         <visual name="visual">
           <geometry>
             <cylinder>
-              <radius>0.5</radius>
-              <length>1</length>
+              <radius>0.25</radius>
+              <length>0.5</length>
             </cylinder>
           </geometry>
         </visual>
-        <collision name="collision">
-          <geometry>
-            <cylinder>
-              <radius>0.5</radius>
-              <length>1</length>
-            </cylinder>
-          </geometry>
-        </collision>
         <inertial>
           <pose>0 0 0 0 0 0</pose>
           <mass>0</mass>
