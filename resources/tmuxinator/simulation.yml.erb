@@ -72,6 +72,11 @@ windows:
       panes:
         - "gosu qgcuser /squashfs-root/AppRun"
 
+  - tcp_repeater:
+      layout: even-horizontal
+      panes:
+        - python3 /git/resources/comms/emulate_serial_over_tcp.py
+
   - housekeeping:
       layout: even-horizontal
       panes:

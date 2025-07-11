@@ -25,6 +25,14 @@ windows:
         - /yolo-env/bin/python3 /git/resources/yolo/yolo-inference.py
         - gst-launch-1.0 udpsrc port=5600 ! application/x-rtp, media=video, encoding-name=H264 ! rtph264depay ! avdec_h264 ! videoconvert ! autovideosink
 
+  - serial_over_tcp:
+      layout: even-horizontal
+      panes:
+        - >
+          socat PTY,link=/dev/ttyS0,raw,echo=0,wait-slave TCP:42.42.1.99:54321 & 
+          sleep 3 && echo 'hello from aircraft <%= drone_id %>' > /dev/ttyS0
+        - sleep 2 && cat /dev/ttyS0
+
   - housekeeping:
       layout: even-horizontal
       panes:
