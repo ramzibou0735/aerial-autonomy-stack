@@ -18,8 +18,8 @@ xhost +local:docker
 docker network create --subnet=42.42.0.0/16 aas-network
 
 # Helper to place the terminals on-screen
-CHAR_WIDTH=10
-CHAR_HEIGHT=21
+CHAR_WIDTH=20 # Adjust to your terminal size
+CHAR_HEIGHT=40 # Adjust to your terminal size
 SCREEN_GEOMETRY=$(xdpyinfo | grep dimensions | sed -r 's/^[^0-9]*([0-9]+x[0-9]+).*$/\1/')
 SCREEN_WIDTH=$(echo $SCREEN_GEOMETRY | cut -d'x' -f1)
 SCREEN_HEIGHT=$(echo $SCREEN_GEOMETRY | cut -d'x' -f2)

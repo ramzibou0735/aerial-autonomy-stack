@@ -10,7 +10,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Update the package list and install basic dependencies
 RUN apt update \
     && apt install -y --no-install-recommends \
-        wget gosu htop vim ruby tmux net-tools iproute2 iputils-ping python3-pip \
+        wget gosu htop vim ruby tmux net-tools iproute2 iputils-ping \
+        python3-pip python3-venv \
         mesa-utils \
     && gem install tmuxinator \
     && apt clean \
@@ -92,14 +93,10 @@ FROM ros2-gz-qgc-image AS ros2-gz-qgc-px4-image
 # PX4 SITL
 # Based on https://docs.px4.io/main/en/dev_setup/dev_env_linux_ubuntu.html
 RUN mkdir -p /git/
-COPY patches/px4-1.15.4.patch /git
 RUN git clone --depth 1 --branch v1.15.4 https://github.com/PX4/PX4-Autopilot.git /git/PX4-Autopilot
 WORKDIR /git/PX4-Autopilot
 RUN git submodule update --init --recursive
 RUN bash ./Tools/setup/ubuntu.sh --no-sim-tools
-RUN git apply ../px4-1.15.4.patch
-RUN make px4_sitl
-# Run with $ /git/PX4-Autopilot/build/px4_sitl_default/bin/px4
 
 ################################################################################
 # Stage 4 - 18GB ###############################################################
@@ -143,6 +140,13 @@ RUN mkdir build && cd build && \
 # Stage 5 - 18+GB ##############################################################
 ################################################################################
 FROM ros2-gz-qgc-px4-ardupilot-image AS simulation-dev-image
+
+# Build PX4 with custom patches
+COPY patches/px4-1.15.4.patch /git
+WORKDIR /git/PX4-Autopilot
+RUN git apply ../px4-1.15.4.patch
+RUN make px4_sitl
+# Run with $ /git/PX4-Autopilot/build/px4_sitl_default/bin/px4
 
 # GStreamer packages
 RUN apt update \
