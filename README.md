@@ -153,15 +153,18 @@ TBD
 - Multidrone ArduPilot simulation seems problematic https://github.com/ArduPilot/ardupilot_gazebo/issues/114, investigate -I <%= i %> in https://github.com/ArduPilot/ardupilot/blob/Copter-4.6.0/Tools/autotest/sim_vehicle.py
 
 ### Geospatial and Photogrammetry Resources
+
 - https://support.pix4d.com/hc/en-us/articles/360000235126#OPF2
-- https://github.com/softwareunderground/awesome-open-geoscience?tab=readme-ov-file
-- https://github.com/sacridini/Awesome-Geospatial
-- https://github.com/awesome-photogrammetry/awesome-photogrammetry?tab=readme-ov-file
+- https://visicomdata.com/samples
+- https://github.com/domlysz/BlenderGIS
+- https://cesium.com/platform/cesiumjs/ 
 - https://app.gazebosim.org/fuel/worlds
 - https://aszabo.substack.com/p/zero-to-hero-creating-gazebo-worlds?utm_campaign=post&utm_medium=web
 - https://github.com/AndrejOrsula/space_robotics_gz_envs
-- https://github.com/domlysz/BlenderGIS
-- https://cesium.com/platform/cesiumjs/ 
+
+- https://github.com/softwareunderground/awesome-open-geoscience?tab=readme-ov-file
+- https://github.com/sacridini/Awesome-Geospatial
+- https://github.com/awesome-photogrammetry/awesome-photogrammetry?tab=readme-ov-file
 
 ### Resources
 

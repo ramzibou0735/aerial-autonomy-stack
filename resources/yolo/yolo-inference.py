@@ -1,14 +1,18 @@
 import os
 import cv2
+import json
 import numpy as np
 import onnxruntime as ort
-from ultralytics import YOLO
 
 # Load classes
-model = YOLO("yolov8n.pt")
-classes = model.names
+names_file = "coco.json"
+with open(names_file, "r") as f:
+    # Load the dictionary from the JSON file
+    classes_str_keys = json.load(f)
+    # Convert the string keys back to integers
+    classes = {int(k): v for k, v in classes_str_keys.items()}
 
-# Load runtime
+# Load model runtime
 model_path = "yolov8n.onnx"
 session = ort.InferenceSession(model_path, providers=["CUDAExecutionProvider"])
 # session = ort.InferenceSession(model_path, providers=["CPUExecutionProvider"])
@@ -18,14 +22,14 @@ input_name = session.get_inputs()[0].name
 # Confirm execution providers
 print("Execution providers in use:", session.get_providers())
 
+# Acquire video stream
 gst_pipeline_string = (
     "udpsrc port=5600 ! "
     "application/x-rtp, media=(string)video, encoding-name=(string)H264 ! "
     "rtph264depay ! avdec_h264 ! videoconvert ! "
     "video/x-raw, format=BGR ! appsink"
 )
-cap = cv2.VideoCapture(gst_pipeline_string, cv2.CAP_GSTREAMER)
-# From command line $ gst-launch-1.0 udpsrc port=5600 ! application/x-rtp, media=video, encoding-name=H264 ! rtph264depay ! avdec_h264 ! videoconvert ! autovideosink
+cap = cv2.VideoCapture(gst_pipeline_string, cv2.CAP_GSTREAMER) # From command line $ gst-launch-1.0 udpsrc port=5600 ! application/x-rtp, media=video, encoding-name=H264 ! rtph264depay ! avdec_h264 ! videoconvert ! autovideosink
 # cap = cv2.VideoCapture("sample.mp4") # Load example video
 assert cap.isOpened(), "Failed to open video"
 

@@ -110,7 +110,7 @@ FROM ros2-px4msgs-dds-mavsdk-image AS ros2-px4msgs-dds-mavsdk-yolo-image
 # See https://github.com/ultralytics/ultralytics/blob/main/README.md and https://onnxruntime.ai/getting-started
 RUN python3 -m venv /yolo-env
 RUN /yolo-env/bin/pip3 install --no-cache-dir --upgrade pip && \
-    /yolo-env/bin/pip3 install --no-cache-dir --resume-retries 5 ultralytics onnx onnxruntime-gpu
+    /yolo-env/bin/pip3 install --no-cache-dir --resume-retries 5 ultralytics onnx
 # Check YOLO with $ /yolo-env/bin/python3 -c "import ultralytics; print(ultralytics.__version__)"
 # Check ONNX Runtime with $ /yolo-env/bin/python3 -c "import onnxruntime as ort; print(ort.__version__)"
 
@@ -118,6 +118,9 @@ RUN /yolo-env/bin/pip3 install --no-cache-dir --upgrade pip && \
 WORKDIR /
 RUN /yolo-env/bin/python3 -c "from ultralytics import YOLO; YOLO('yolov8n.pt').export(format='onnx', opset=12)"
 RUN wget https://github.com/intel-iot-devkit/sample-videos/raw/master/person-bicycle-car-detection.mp4 -O /sample.mp4
+
+# RUN /yolo-env/bin/python3 -c "from ultralytics import YOLO; print('\n'.join(YOLO('yolov8n.pt').names.values()))" > coco.names
+RUN yolo-env/bin/python3 -c "import json; from ultralytics import YOLO; print(json.dumps(YOLO('yolov8n.pt').names))" | grep '{' > coco.json
 
 # Add GStreamer, Python OpenCV, socat packages
 RUN apt update \
@@ -135,16 +138,19 @@ RUN pip3 install --no-cache-dir --upgrade pip \
     && pip3 install --no-cache-dir "numpy<2"
 
 # add system yolo
-RUN pip3 install --no-cache-dir --resume-retries 5 \
-    # First, install the necessary dependencies, but NOT opencv-python # we are sticking with the system one which is 4.5.4 
-    # and not the 4.6 required by ultralytics
-    torch torchvision numpy pandas Pillow tqdm requests py-cpuinfo ultralytics-thop \
-    onnx \
-    onnxruntime-gpu && \
-    # Now, install ultralytics itself, ignoring its dependency list
-    pip3 install --no-cache-dir --no-deps ultralytics
-WORKDIR /
-RUN python3 -c "from ultralytics import YOLO; YOLO('yolov8n.pt').export(format='onnx', opset=12)"
+# RUN pip3 install --no-cache-dir --resume-retries 5 \
+#     # First, install the necessary dependencies, but NOT opencv-python # we are sticking with the system one which is 4.5.4 
+#     # and not the 4.6 required by ultralytics
+#     torch torchvision numpy pandas Pillow tqdm requests py-cpuinfo ultralytics-thop \
+#     onnx \
+#     onnxruntime-gpu && \
+#     # Now, install ultralytics itself, ignoring its dependency list
+#     pip3 install --no-cache-dir --no-deps ultralytics
+# WORKDIR /
+# RUN python3 -c "from ultralytics import YOLO; YOLO('yolov8n.pt').export(format='onnx', opset=12)"
+
+RUN pip3 install --no-cache-dir --upgrade pip \
+    && pip3 install --no-cache-dir --resume-retries 5 onnxruntime-gpu
 
 ################################################################################
 # Stage 6 - 16+GB ##############################################################
