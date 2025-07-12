@@ -77,17 +77,37 @@ RUN mkdir build && cd build && \
 # Run with $ MicroXRCEAgent udp4 -p 8888
 
 ################################################################################
-# Stage 4 - 15GB ###############################################################
+# Stage 4 - 9GB ################################################################
 ################################################################################
-FROM ros2-px4msgs-dds-image AS ros2-px4msgs-dds-yolo-image
+FROM ros2-px4msgs-dds-image AS ros2-px4msgs-dds-mavsdk-image
+
+# MAVSDK
+# Based on: https://mavsdk.mavlink.io/main/en/cpp/guide/build_linux.html
+RUN mkdir -p /git/
+RUN git clone --depth 1 --branch v3.6.0 https://github.com/mavlink/MAVSDK.git /git/MAVSDK
+WORKDIR /git/MAVSDK
+RUN git submodule update --init --recursive --depth 1
+RUN cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_MAVSDK_SERVER=ON -Bbuild -S. && \
+    cmake --build build -j$(nproc) && \
+    cmake --build build --target install
+RUN ldconfig
+# Check with $ pkg-config --modversion mavsdk
+# Run with $ /git/MAVSDK/build/src/mavsdk_server/src/mavsdk_server
+
+# # pymavlink
+# RUN pip3 install --no-cache-dir --upgrade pip \
+#     && pip3 install --no-cache-dir pymavlink
+# # Check with $ python3 -c "import pymavlink; print(pymavlink.__version__)"
+
+################################################################################
+# Stage 5 - 16GB ###############################################################
+################################################################################
+FROM ros2-px4msgs-dds-mavsdk-image AS ros2-px4msgs-dds-mavsdk-yolo-image
+
+# TODO: install ultralytics in venv and onnx, onnxruntime-gpu with system python
 
 # YOLOv8 (in virtual environment /yolo-env/) and ONNX runtime with GPU support
 # See https://github.com/ultralytics/ultralytics/blob/main/README.md and https://onnxruntime.ai/getting-started
-RUN apt update \
-    && apt install -y --no-install-recommends \
-        python3-venv \
-    && apt clean \
-    && rm -rf /var/lib/apt/lists/*
 RUN python3 -m venv /yolo-env
 RUN /yolo-env/bin/pip3 install --no-cache-dir --upgrade pip && \
     /yolo-env/bin/pip3 install --no-cache-dir --resume-retries 5 ultralytics onnx onnxruntime-gpu
@@ -127,32 +147,9 @@ WORKDIR /
 RUN python3 -c "from ultralytics import YOLO; YOLO('yolov8n.pt').export(format='onnx', opset=12)"
 
 ################################################################################
-# Stage 5 - 16GB ###############################################################
-################################################################################
-FROM ros2-px4msgs-dds-yolo-image AS ros2-px4msgs-dds-yolo-mavsdk-image
-
-# MAVSDK
-# Based on: https://mavsdk.mavlink.io/main/en/cpp/guide/build_linux.html
-RUN mkdir -p /git/
-RUN git clone --depth 1 --branch v3.6.0 https://github.com/mavlink/MAVSDK.git /git/MAVSDK
-WORKDIR /git/MAVSDK
-RUN git submodule update --init --recursive --depth 1
-RUN cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_MAVSDK_SERVER=ON -Bbuild -S. && \
-    cmake --build build -j$(nproc) && \
-    cmake --build build --target install
-RUN ldconfig
-# Check with $ pkg-config --modversion mavsdk
-# Run with $ /git/MAVSDK/build/src/mavsdk_server/src/mavsdk_server
-
-# # pymavlink
-# RUN pip3 install --no-cache-dir --upgrade pip \
-#     && pip3 install --no-cache-dir pymavlink
-# # Check with $ python3 -c "import pymavlink; print(pymavlink.__version__)"
-
-################################################################################
 # Stage 6 - 16+GB ##############################################################
 ################################################################################
-FROM ros2-px4msgs-dds-yolo-mavsdk-image AS aircraft-dev-image
+FROM ros2-px4msgs-dds-mavsdk-yolo-image AS aircraft-dev-image
 
 # Copy resources from this repository
 COPY resources/ /git/resources
