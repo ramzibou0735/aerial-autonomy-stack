@@ -4,12 +4,21 @@
 DRONE_TYPE="${DRONE_TYPE:-quad}" # Options: quad (default), vtol
 AUTOPILOT="${AUTOPILOT:-px4}" # Options: px4 (default), ardupilot
 NUM_DRONES="${NUM_DRONES:-2}" # Number of aircraft (default = 2)
-DEBUG="${DEBUG:-false}" # Whehther to launch the simulation or a simple shell (default = false)
+MODE="${MODE:-}" # Options: empty (default), debug, ...
 
-ENTRYPOINT_FLAG=""
-if [ "$DEBUG" = "true" ]; then
-  ENTRYPOINT_FLAG="--entrypoint /bin/bash"
-fi
+# Initialize an empty variable for the flags
+MODE_OPTS=""
+case "$MODE" in
+  debug)
+    MODE_OPTS="--entrypoint /bin/bash"
+    ;;
+  example_mode)
+    MODE_OPTS="--example-flag"
+    ;;
+  *)
+    MODE_OPTS=""
+    ;;
+esac
 
 # Grant access to the X server
 xhost +local:docker
@@ -42,7 +51,7 @@ gnome-terminal --geometry=$(get_quadrant_geometry 0) -- bash -c "echo 'Launching
     --net=aas-network --ip=42.42.1.99 \
     --privileged \
     --name simulation-container \
-    ${ENTRYPOINT_FLAG} \
+    ${MODE_OPTS} \
     simulation-image; \
   exec bash"
 
@@ -57,7 +66,7 @@ for i in $(seq 1 $NUM_DRONES); do
       --net=aas-network --ip=42.42.1.$i \
       --privileged \
       --name aircraft-container_$i \
-      ${ENTRYPOINT_FLAG} \
+      ${MODE_OPTS} \
       aircraft-image; \
     exec bash"
 done

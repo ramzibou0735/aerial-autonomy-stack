@@ -7,9 +7,7 @@ import onnxruntime as ort
 # Load classes
 names_file = "coco.json"
 with open(names_file, "r") as f:
-    # Load the dictionary from the JSON file
     classes_str_keys = json.load(f)
-    # Convert the string keys back to integers
     classes = {int(k): v for k, v in classes_str_keys.items()}
 
 # Load model runtime

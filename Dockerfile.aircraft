@@ -104,23 +104,18 @@ RUN ldconfig
 ################################################################################
 FROM ros2-px4msgs-dds-mavsdk-image AS ros2-px4msgs-dds-mavsdk-yolo-image
 
-# TODO: install ultralytics in venv and onnx, onnxruntime-gpu with system python
-
-# YOLOv8 (in virtual environment /yolo-env/) and ONNX runtime with GPU support
+# Install YOLOv8 and ONNX in virtual environment /yolo-env/
 # See https://github.com/ultralytics/ultralytics/blob/main/README.md and https://onnxruntime.ai/getting-started
 RUN python3 -m venv /yolo-env
 RUN /yolo-env/bin/pip3 install --no-cache-dir --upgrade pip && \
     /yolo-env/bin/pip3 install --no-cache-dir --resume-retries 5 ultralytics onnx
 # Check YOLO with $ /yolo-env/bin/python3 -c "import ultralytics; print(ultralytics.__version__)"
-# Check ONNX Runtime with $ /yolo-env/bin/python3 -c "import onnxruntime as ort; print(ort.__version__)"
 
-# Save the model weights (ONNX, Opset 12) and download a sample video
+# Save the model weights (ONNX, Opset 12), class names, and download a sample video
 WORKDIR /
 RUN /yolo-env/bin/python3 -c "from ultralytics import YOLO; YOLO('yolov8n.pt').export(format='onnx', opset=12)"
-RUN wget https://github.com/intel-iot-devkit/sample-videos/raw/master/person-bicycle-car-detection.mp4 -O /sample.mp4
-
-# RUN /yolo-env/bin/python3 -c "from ultralytics import YOLO; print('\n'.join(YOLO('yolov8n.pt').names.values()))" > coco.names
 RUN yolo-env/bin/python3 -c "import json; from ultralytics import YOLO; print(json.dumps(YOLO('yolov8n.pt').names))" | grep '{' > coco.json
+RUN wget https://github.com/intel-iot-devkit/sample-videos/raw/master/person-bicycle-car-detection.mp4 -O /sample.mp4
 
 # Add GStreamer, Python OpenCV, socat packages
 RUN apt update \
@@ -131,26 +126,16 @@ RUN apt update \
     && apt clean \
     && rm -rf /var/lib/apt/lists/*
 
-# THIS LET GSTREAMER WORK WITH SYSTEM PYTHON, NOT IN THE VENV
-# python3 -c "import cv2; print(cv2.getBuildInformation())"
-# /yolo-env/bin/python3 -c "import cv2; print(cv2.getBuildInformation())"
+# NOTE: system Python's OpenCV should have GStreamer support
 RUN pip3 install --no-cache-dir --upgrade pip \
     && pip3 install --no-cache-dir "numpy<2"
+# Check with $ python3 -c "import cv2; print(cv2.getBuildInformation())"
+# Versus $ /yolo-env/bin/python3 -c "import cv2; print(cv2.getBuildInformation())"
 
-# add system yolo
-# RUN pip3 install --no-cache-dir --resume-retries 5 \
-#     # First, install the necessary dependencies, but NOT opencv-python # we are sticking with the system one which is 4.5.4 
-#     # and not the 4.6 required by ultralytics
-#     torch torchvision numpy pandas Pillow tqdm requests py-cpuinfo ultralytics-thop \
-#     onnx \
-#     onnxruntime-gpu && \
-#     # Now, install ultralytics itself, ignoring its dependency list
-#     pip3 install --no-cache-dir --no-deps ultralytics
-# WORKDIR /
-# RUN python3 -c "from ultralytics import YOLO; YOLO('yolov8n.pt').export(format='onnx', opset=12)"
-
+# Add ONNX Runtime with GPU support for system Python
 RUN pip3 install --no-cache-dir --upgrade pip \
     && pip3 install --no-cache-dir --resume-retries 5 onnxruntime-gpu
+# Check with $ python3 -c "import onnxruntime as ort; print(ort.__version__)"
 
 ################################################################################
 # Stage 6 - 16+GB ##############################################################

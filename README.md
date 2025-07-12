@@ -116,7 +116,11 @@ docker rmi <image_name_or_id> # Remove a specific image
 
 ## Part 3: Development with AAS
 
-TBD
+```sh
+cd ~/git/aerial-autonomy-stack/
+chmod +x ./main.sh
+MODE=debug ./main.sh
+```
 
 ---
 
@@ -147,8 +151,6 @@ TBD
 
 
 ## TODOs
-
-- cleanup dockerfiles (move gstreamer to the end in simulation and use ultralytics with system python in aircraft, after mavsdk)
 
 - Multidrone ArduPilot simulation seems problematic https://github.com/ArduPilot/ardupilot_gazebo/issues/114, investigate -I <%= i %> in https://github.com/ArduPilot/ardupilot/blob/Copter-4.6.0/Tools/autotest/sim_vehicle.py
 
