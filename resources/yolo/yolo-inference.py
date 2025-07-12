@@ -59,7 +59,6 @@ def xywh2xyxy(box):
 
 while True:
     ret, frame = cap.read()
-    print(f"Frame shape: {frame.shape}")  # Debugging line
     if not ret:
         break
     h0, w0 = frame.shape[:2]
