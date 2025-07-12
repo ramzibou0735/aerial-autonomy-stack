@@ -177,3 +177,7 @@ TBD
 - ArduPilot UARTs: https://ardupilot.org/dev/docs/learning-ardupilot-uarts-and-the-console.html
 - ArduPilot SITL models: https://github.com/ArduPilot/SITL_Models
 
+```sh
+find . -path ./.git -prune -o -type f -not -name "*.dae" -not -name "*.png" -not -name "*.stl" | xargs wc -l
+```
+

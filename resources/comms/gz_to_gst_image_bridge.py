@@ -40,9 +40,14 @@ def main():
 
     Gst.init(None)
 
-    pipeline = Gst.parse_launch(
-        f"appsrc name=py_source ! videoconvert ! x264enc tune=zerolatency ! rtph264pay ! udpsink host={args.ip} port={args.port}"
-        )
+    pipeline_str = (
+        "appsrc name=py_source ! "
+        "videoconvert ! "
+        "x264enc speed-preset=ultrafast tune=zerolatency bitrate=500 ! "
+        "rtph264pay ! "
+        f"udpsink host={args.ip} port={args.port}"
+    )
+    pipeline = Gst.parse_launch(pipeline_str)
     appsrc = pipeline.get_by_name('py_source')
 
     node = Node()
