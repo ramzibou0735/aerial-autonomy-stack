@@ -127,31 +127,25 @@ RUN ldconfig
 ################################################################################
 FROM ros2-px4msgs-dds-yolo-mavsdk-image AS aircraft-dev-image
 
-RUN apt-get update && apt-get install -y wget gnupg lsb-release \
-    && apt-get update && \
-    apt-get install -y gstreamer1.0-tools gstreamer1.0-plugins-good gstreamer1.0-plugins-ugly gstreamer1.0-libav \
-    python3-opencv
+# Add GStreamer, Python OpenCV, socat packages
+RUN apt update \
+    && apt install -y --no-install-recommends \
+        gstreamer1.0-tools gstreamer1.0-plugins-good gstreamer1.0-plugins-ugly gstreamer1.0-libav \
+        python3-opencv \
+        socat \
+    && apt clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# THIS LET GSTREAMER WORK WITH SYSTEM PYTHON I NEED IT IN THE VENV
+# THIS LET GSTREAMER WORK WITH SYSTEM PYTHON, NOT IN THE VENV
 # python3 -c "import cv2; print(cv2.getBuildInformation())"
 # /yolo-env/bin/python3 -c "import cv2; print(cv2.getBuildInformation())"
 RUN pip3 install --no-cache-dir --upgrade pip \
     && pip3 install --no-cache-dir "numpy<2"
 
-# Adding this in the ros2 base image for some reason breaks the gstreamer visualization
-        # gstreamer1.0-tools gstreamer1.0-plugins-good gstreamer1.0-plugins-ugly gstreamer1.0-libav \
-        # python3-gi gir1.2-gst-plugins-base-1.0 gir1.2-gstreamer-1.0 \
-
-# Adding this also breaks the gstreamer visualization...the problem might be with the clean and rm -rf?
-RUN apt update \
-    && apt install -y --no-install-recommends \
-        socat
-#     && apt clean \
-#     && rm -rf /var/lib/apt/lists/*
-
 # add system yolo
 RUN pip3 install --no-cache-dir --resume-retries 5 \
-    # First, install the necessary dependencies, but NOT opencv-python # we are sticking with the system one which is 4.5.4 and not the 4.6 required by ultralytics
+    # First, install the necessary dependencies, but NOT opencv-python # we are sticking with the system one which is 4.5.4 
+    # and not the 4.6 required by ultralytics
     torch torchvision numpy pandas Pillow tqdm requests py-cpuinfo ultralytics-thop \
     onnx \
     onnxruntime-gpu && \

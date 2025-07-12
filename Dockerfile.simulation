@@ -148,7 +148,7 @@ RUN git apply ../px4-1.15.4.patch
 RUN make px4_sitl
 # Run with $ /git/PX4-Autopilot/build/px4_sitl_default/bin/px4
 
-# GStreamer packages
+# Add GStreamer packages
 RUN apt update \
     && apt install -y --no-install-recommends \
         gstreamer1.0-tools gstreamer1.0-plugins-good gstreamer1.0-plugins-ugly gstreamer1.0-libav \
