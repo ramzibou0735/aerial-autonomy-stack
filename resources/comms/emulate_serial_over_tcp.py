@@ -45,17 +45,20 @@ def handle_client_data(key, sel, clients):
             # print(f"Relaying from {key.data.addr}: {data.decode().strip()}")
             broadcast_message(key, data, sel, clients)
             # noisy_broadcast_message(key, data, sel, clients)
+            return len(data)
         else:
             # No data means the client has closed the connection
             print(f"Client closed connection: {key.data.addr}")
             sel.unregister(sock)
             sock.close()
             del clients[key.data.addr]
+            return 0
     except (ConnectionResetError, BrokenPipeError):
         print(f"Client disconnected abruptly: {key.data.addr}")
         sel.unregister(sock)
         sock.close()
         del clients[key.data.addr]
+        return 0
 
 def main():
     host = '0.0.0.0'
@@ -72,15 +75,28 @@ def main():
     clients = {}
     print(f"Repeater listening on port {port}...")
 
+    bytes_received_interval = 0
+    last_summary_time = time.time()
+    summary_interval = 5  # In seconds
+
     try:
         while True:
             # Wait for an event (connection or data)
-            events = sel.select(timeout=None)
+            events = sel.select(timeout=1.0) # Timeout so the loop runs even with no activity
             for key, mask in events:
                 if key.data is None:
                     accept_connection(key.fileobj, sel, clients)
                 else:
-                    handle_client_data(key, sel, clients)
+                    num_bytes = handle_client_data(key, sel, clients)
+                    bytes_received_interval += num_bytes
+
+            current_time = time.time()
+            if current_time - last_summary_time > summary_interval:
+                rate_kbps = (bytes_received_interval * 8) / (summary_interval * 1024)
+                print(f"Traffic Summary - Clients: {len(clients)}, Rate: {rate_kbps:.2f} Kbps")
+                bytes_received_interval = 0
+                last_summary_time = current_time
+
     except KeyboardInterrupt:
         print("\nShutting down hub.")
     finally:
