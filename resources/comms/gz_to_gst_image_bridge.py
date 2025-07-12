@@ -40,10 +40,17 @@ def main():
 
     Gst.init(None)
 
+    # pipeline_str = (
+    #     "appsrc name=py_source ! "
+    #     "videoconvert ! "
+    #     "x264enc speed-preset=ultrafast tune=zerolatency bitrate=500 ! " # Optimize CPU use
+    #     "rtph264pay ! "
+    #     f"udpsink host={args.ip} port={args.port}"
+    # )
     pipeline_str = (
         "appsrc name=py_source ! "
         "videoconvert ! "
-        "x264enc speed-preset=ultrafast tune=zerolatency bitrate=500 ! "
+        "nvh264enc preset=low-latency-hq ! " # Use the NVIDIA H.264 encoder
         "rtph264pay ! "
         f"udpsink host={args.ip} port={args.port}"
     )

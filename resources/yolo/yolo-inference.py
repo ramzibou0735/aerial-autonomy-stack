@@ -24,19 +24,21 @@ print("Execution providers in use:", session.get_providers())
 gst_pipeline_string = (
     "udpsrc port=5600 ! "
     "application/x-rtp, media=(string)video, encoding-name=(string)H264 ! "
-    "rtph264depay ! avdec_h264 ! videoconvert ! "
+    "rtph264depay ! "
+    "avdec_h264 ! "
+    "videoconvert ! "
     "video/x-raw, format=BGR ! appsink"
 )
 # gst_pipeline_string = (
 #     "udpsrc port=5600 ! "
-#     "application/x-rtp, media=(string)video, encoding-name=(string)H264 ! "
-#     "rtph264depay ! nvh264dec ! "
-#     "cudadownload ! "  # Use nvvidconv instead of videoconvert
-#     # "video/x-raw, format=BGRx ! " # Use BGRx format, then convert
+#     "'application/x-rtp, media=(string)video, encoding-name=(string)H264' ! "
+#     "rtph264depay ! "
+#     "nvh264dec ! "       # Use the NVIDIA hardware decoder
+#     "cudadownload ! "    # Copy the frame from GPU to CPU memory
 #     "videoconvert ! "
 #     "video/x-raw, format=BGR ! appsink"
-# ) # gst-launch-1.0 udpsrc port=5600 ! 'application/x-rtp, media=(string)video, encoding-name=(string)H264' ! rtph264depay ! nvh264dec ! cudadownload ! videoconvert ! autovideosink
-cap = cv2.VideoCapture(gst_pipeline_string, cv2.CAP_GSTREAMER) # From command line $ gst-launch-1.0 udpsrc port=5600 ! application/x-rtp, media=video, encoding-name=H264 ! rtph264depay ! avdec_h264 ! videoconvert ! autovideosink
+# )
+cap = cv2.VideoCapture(gst_pipeline_string, cv2.CAP_GSTREAMER)
 # cap = cv2.VideoCapture("sample.mp4") # Load example video
 assert cap.isOpened(), "Failed to open video"
 
@@ -57,6 +59,7 @@ def xywh2xyxy(box):
 
 while True:
     ret, frame = cap.read()
+    print(f"Frame shape: {frame.shape}")  # Debugging line
     if not ret:
         break
     h0, w0 = frame.shape[:2]
