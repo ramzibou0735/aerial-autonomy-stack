@@ -152,6 +152,9 @@ COPY simulation_resources/patches/px4-1.15.4.patch /git
 WORKDIR /git/PX4-Autopilot
 RUN git apply ../px4-1.15.4.patch
 
+# Replace dds_topics.yaml with custom topics
+COPY simulation_resources/patches/dds_topics.yaml /git/PX4-Autopilot/src/modules/uxrce_dds_client/
+
 # Add PX4 Airframes ROMFS
 COPY --from=airframe_filter_stage /airframes/ /git/PX4-Autopilot/ROMFS/px4fmu_common/init.d-posix/airframes/
 WORKDIR /git/PX4-Autopilot/ROMFS/px4fmu_common/init.d-posix/airframes
