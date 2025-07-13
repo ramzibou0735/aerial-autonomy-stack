@@ -56,7 +56,7 @@ windows:
           -f <%= drone_type == 'quad' ? 'gazebo-iris' : 'gazebo-zephyr' %> 
           --model JSON
           -I <%= i %>
-          --out=udp:42.42.1.99:1454<%= i %>
+          --out=udp:127.0.0.1:1455<%= i %>
           --out=udp:42.42.1.<%= i + 1 %>:14550
           --add-param-file=/git/resources/aircraft_models/<%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'zephyr_with_ardupilot' %>_<%= i + 1 %>/ardupilot-4.6.params
         - "ROS_DOMAIN_ID=<%= i + 1 %> ros2 run ros_gz_bridge parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock"

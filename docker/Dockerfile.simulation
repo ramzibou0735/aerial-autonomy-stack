@@ -82,7 +82,6 @@ RUN apt update \
 RUN wget https://d176tv9ibo4jno.cloudfront.net/latest/QGroundControl-x86_64.AppImage
 RUN chmod +x /QGroundControl-x86_64.AppImage
 RUN /QGroundControl-x86_64.AppImage --appimage-extract
-COPY patches/QGroundControl.ini /home/qgcuser/.config/QGroundControl/
 # Run with $ gosu qgcuser /squashfs-root/AppRun
 
 ################################################################################
@@ -155,6 +154,9 @@ RUN apt update \
         python3-gi gir1.2-gst-plugins-base-1.0 gir1.2-gstreamer-1.0 \
     && apt clean \
     && rm -rf /var/lib/apt/lists/*
+
+# Configure QGC
+COPY patches/QGroundControl.ini /home/qgcuser/.config/QGroundControl/
 
 # Copy resources from this repository
 COPY resources/ /git/resources
