@@ -17,11 +17,9 @@
 - Dockerized simulation based on [`nvcr.io/nvidia/cuda:12.8.1-cudnn-runtime-ubuntu22.04`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/cuda/tags)
 - **Dockerized deployment** based on [`nvcr.io/nvidia/l4t-jetpack:r36.4.0`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/l4t-jetpack/tags)
 
-**Additional Features**
-
-- Support for [PX4 Offboard](https://docs.px4.io/main/en/flight_modes/offboard.html) mode in CTBR (`VehicleRatesSetpoint`) for agile, GNSS-denied flight
 - Support for [FAST-LIO](https://github.com/hku-mars/FAST_LIO) (Fast LiDAR-Inertial Odometry)
-- Lightweight inter-drone serial communication for real-world deployment 
+- Support for [PX4 Offboard](https://docs.px4.io/main/en/flight_modes/offboard.html) mode in CTBR (`VehicleRatesSetpoint`) for agile, GNSS-denied flight
+- Lightweight inter-drone communication for real-world deployment 
 
 > [!NOTE]
 > AAS leverages the following frameworks:
@@ -35,7 +33,7 @@
 > [!IMPORTANT]
 > This stack is developed and tested using a [Ubuntu 22.04](https://ubuntu.com/about/release-cycle) host (penultimate LTS, ESM 4/2032) with [`nvidia-driver-570`](https://developer.nvidia.com/datacenter-driver-archive) and Docker Engine v28 (latest stable releases as of 6/2025) on an i9-13 with RTX3500 and an i7-11 with RTX3060 computers
 > 
-> To setup (i) Ubuntu 22, (ii) the NVIDIA driver, (iii) Docker Engine, (iv) NVIDIA Container Toolkit, and (v) NVIDIA NGC API Key read [`PREINSTALL.md`](/docs/PREINSTALL.md)
+> **To setup (i) Ubuntu 22, (ii) NVIDIA driver, (iii) Docker Engine, (iv) NVIDIA Container Toolkit, and (v) NVIDIA NGC API Key read [`PREINSTALL.md`](/docs/PREINSTALL.md)**
 
 ```sh
 # Clone this repo
@@ -47,24 +45,15 @@ cd ~/git/aerial-autonomy-stack
 ### Option 1:  Build the Docker Images
 
 > [!WARNING]
-> Building from scratch requires a stable internet connection, `Ctrl + c` and restart if needed
-> 
-> Read [`PREINSTALL.md`](/docs/PREINSTALL.md) to log in to the NVIDIA Registry, if necessary
+> Building from scratch requires a stable internet connection, `Ctrl + c` and restart if needed 
 
 ```sh
 # The first build takes ~15' and creates an 18GB image
-docker build -t simulation-image -f docker/Dockerfile.simulation . # (8GB for ros-humble-desktop, 9GB for PX4 and ArduPilot SITL)
-
+docker build -t simulation-image -f docker/Dockerfile.simulation . # (6GB for ros-humble-desktop, 9GB for PX4 and ArduPilot SITL)
 # Having built Dockerfile.simulation, the first build takes ~15' and creates a 16GB image
-docker build -t aircraft-image -f docker/Dockerfile.aircraft . # (8GB for ros-humble-desktop, 7GB for YOLOv8, ONNX)
+docker build -t aircraft-image -f docker/Dockerfile.aircraft . # (6GB for ros-humble-desktop, 7GB for YOLOv8, ONNX)
+# These are development-friendly images with lots of tools and artifacts, trim if needed
 ```
-
-> [!TIP]
-> These are development-friendly images with lots of tools and artifacts, trim if needed
-> - Removing `ultralytics`, YOLOv8, and ONNX saves ~7GB from `aircraft-image`
-> - Using only one between PX4 and ArduPilot saves ~4GB from `simulation-image`
-> - Using `ros-humble-ros-base` instead of `ros-humble-desktop` saves ~1GB from from `simulation-image` and ~3GB from `aircraft-image`
-
 
 ### Option 2: Pull the Pre-built Docker Images
 
@@ -85,7 +74,7 @@ DRONE_TYPE=quad AUTOPILOT=px4 NUM_DRONES=2 ./main.sh
 ```
 
 > [!TIP]
-> Tmux shortcuts
+> Tmux shortcuts:
 > - Move between windows with `Ctrl + b`, then `n`, `p`
 > - Move between panes with `Ctrl + b`, then `arrows`
 > - Detach with `Ctrl + b`, then press `d`
@@ -93,15 +82,8 @@ DRONE_TYPE=quad AUTOPILOT=px4 NUM_DRONES=2 ./main.sh
 > - Or kill with `$ tmux kill-session -t simulation_tmuxinator`
 > - List sessions with `$ tmux list-sessions`
 > - Kill all with `$ tmux kill-server`
-
-> [!TIP]
-> Docker shortcuts
-> - `$ exit` or `Ctrl + d` will close the shell and stop the container (as it was started interactively with `-it`).
-> - `Ctrl + p`  then  `Ctrl + q` detaches you from the container and leaves it running in the background
-> - Re-attach with `$ docker attach <container_name_or_id>`
-
-> [!TIP]
-> Docker hygiene
+> 
+> Docker hygiene:
 ```sh
 docker ps -a # List containers
 docker stop $(docker ps -q) # Stop all containers

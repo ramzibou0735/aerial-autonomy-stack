@@ -11,8 +11,8 @@
 - "Update All" in "Ubuntu Software" (including `$ killall snap-store && sudo snap refresh snap-store`)
 - Update and restart for "Device Firmware" as necessary
 - In "Software & Updates", select `nvidia-driver-570 (propietary, tested)`
-- `nvidia-smi` reports Driver Version: 570.133.07, CUDA Version: 12.8
-- Run `nvidia-settings` and select "NVIDIA (Performance Mode)" under "PRIME Profiles"
+- Running `$ nvidia-smi` will report Driver Version: 570.133.07, CUDA Version: 12.8
+- Run `$ nvidia-settings` and select "NVIDIA (Performance Mode)" under "PRIME Profiles"
 
 ```sh
 sudo apt install mesa-utils # Also installed in the simulation container, for gz sim rendering
@@ -93,5 +93,5 @@ docker info | grep -i runtime
 ```sh
 docker login nvcr.io
 Username: # type $oauthtoken
-Password: # copy and paste the API key and press enter
+Password: # copy and paste the API key and press enter to pull base images from nvcr.io/
 ```
