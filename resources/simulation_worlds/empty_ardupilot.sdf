@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <sdf version="1.9">
-  <world name="iris_runway">
+  <world name="ardupilot_world">
     <physics name="1ms" type="ignore">
       <max_step_size>0.001</max_step_size>
       <real_time_factor>1.0</real_time_factor>
@@ -161,14 +161,27 @@
     </model>
 
     <include>
-      <uri>model://iris_with_ardupilot</uri>
-      <pose degrees="true">0 0 0.195 0 0 0</pose>
-    </include>
-
-    <include>
       <uri>model://unicorn</uri>
       <pose degrees="true">10 2 0.195 0 0 30</pose>
     </include>
+
+    <model name="simple_cylinder">
+      <pose>0 0 10 0 0 0</pose>
+      <link name="cylinder_link">
+        <visual name="visual">
+          <geometry>
+            <cylinder>
+              <radius>0.25</radius>
+              <length>0.5</length>
+            </cylinder>
+          </geometry>
+        </visual>
+        <inertial>
+          <pose>0 0 0 0 0 0</pose>
+          <mass>0</mass>
+        </inertial>
+      </link>
+    </model>
 
   </world>
 </sdf>
