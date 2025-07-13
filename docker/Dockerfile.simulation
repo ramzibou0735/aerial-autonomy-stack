@@ -141,7 +141,7 @@ RUN mkdir build && cd build && \
 FROM ros2-gz-qgc-px4-ardupilot-image AS simulation-dev-image
 
 # Build PX4 with custom patches
-COPY patches/px4-1.15.4.patch /git
+COPY simulation_resources/patches/px4-1.15.4.patch /git
 WORKDIR /git/PX4-Autopilot
 RUN git apply ../px4-1.15.4.patch
 RUN make px4_sitl
@@ -156,10 +156,10 @@ RUN apt update \
     && rm -rf /var/lib/apt/lists/*
 
 # Configure QGC
-COPY patches/QGroundControl.ini /home/qgcuser/.config/QGroundControl/
+COPY simulation_resources/patches/QGroundControl.ini /home/qgcuser/.config/QGroundControl/
 
 # Copy resources from this repository
-COPY resources/ /git/resources
+COPY simulation_resources/ /git/simulation_resources
 
 # # Build ROS 2 workspace
 # RUN mkdir -p /ros2_ws/src
@@ -173,5 +173,5 @@ COPY resources/ /git/resources
 
 # Final config
 WORKDIR /
-ENTRYPOINT ["tmuxinator", "start", "-p", "/git/resources/tmuxinator/simulation.yml.erb"]
+ENTRYPOINT ["tmuxinator", "start", "-p", "/git/simulation_resources/simulation.yml.erb"]
 # ENTRYPOINT ["/bin/bash"]

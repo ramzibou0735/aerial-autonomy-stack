@@ -143,7 +143,7 @@ RUN pip3 install --no-cache-dir --upgrade pip \
 FROM ros2-px4msgs-dds-mavsdk-yolo-image AS aircraft-dev-image
 
 # Copy resources from this repository
-COPY resources/ /git/resources
+COPY aircraft_resources/ /git/aircraft_resources
 
 # # Build ROS 2 workspace
 # RUN mkdir -p /ros2_ws/src
@@ -157,5 +157,5 @@ COPY resources/ /git/resources
 
 # Final config
 WORKDIR /
-ENTRYPOINT ["tmuxinator", "start", "-p", "/git/resources/tmuxinator/aircraft.yml.erb"]
+ENTRYPOINT ["tmuxinator", "start", "-p", "/git/aircraft_resources/aircraft.yml.erb"]
 # ENTRYPOINT ["/bin/bash"]
