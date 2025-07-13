@@ -10,10 +10,10 @@
 
 ## Feature Highlights
 
-- Support for **quadrotor and VTOL** aircraft based on **PX4 or ArduPilot**
+- Support for **multiple quadrotor and VTOL** aircraft based on **PX4 or ArduPilot**
 - Support for **ROS2** with ROS2-based autopilot interfaces (*via* XRCE-DDS and MAVSDK)
 - Support for **YOLOv8** and ONNX CPU, CUDA (on desktop/amd64), and TensorRT (on Orin/arm64) Runtime
-- Photorealistic **software-in-the-loop simulation**
+- Photogrammetry worlds for **software-in-the-loop simulation**
 - Dockerized simulation based on [`nvcr.io/nvidia/cuda:12.8.1-cudnn-runtime-ubuntu22.04`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/cuda/tags)
 - **Dockerized deployment** based on [`nvcr.io/nvidia/l4t-jetpack:r36.4.0`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/l4t-jetpack/tags)
 
@@ -152,7 +152,12 @@ TBD
 
 ## TODOs
 
-- Multidrone ArduPilot simulation seems problematic https://github.com/ArduPilot/ardupilot_gazebo/issues/114, investigate -I <%= i %> in https://github.com/ArduPilot/ardupilot/blob/Copter-4.6.0/Tools/autotest/sim_vehicle.py
+steps for multi-ardupilot sim
+- create copies of X_with_ardupilot_N
+- change <fdm_port_in>9012</fdm_port_in> and <model name="iris_with_ardupilot_2"
+- add <uri>model://iris_with_ardupilot_2</uri> with new pose in world.sdf
+- figure out how to let QGC connect (via UDP? or serial) to various ports --out=udp:42.42.1.99:1454<%= i %> (disabling automatic connection?)
+- figure out why the second sim_vehicle.py needs to be re-launched (add a sleep maybe)
 
 ### Geospatial and Photogrammetry Resources
 
