@@ -53,10 +53,10 @@ cd ~/git/aerial-autonomy-stack
 
 ```sh
 # The first build takes ~15' and creates an 18GB image
-docker build -t simulation-image -f Dockerfile.simulation . # (8GB for ros-humble-desktop, 9GB for PX4 and ArduPilot SITL)
+docker build -t simulation-image -f docker/Dockerfile.simulation . # (8GB for ros-humble-desktop, 9GB for PX4 and ArduPilot SITL)
 
 # Having built Dockerfile.simulation, the first build takes ~15' and creates a 16GB image
-docker build -t aircraft-image -f Dockerfile.aircraft . # (8GB for ros-humble-desktop, 7GB for YOLOv8, ONNX)
+docker build -t aircraft-image -f docker/Dockerfile.aircraft . # (8GB for ros-humble-desktop, 7GB for YOLOv8, ONNX)
 ```
 
 > [!TIP]
