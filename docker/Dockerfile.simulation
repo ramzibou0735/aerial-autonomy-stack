@@ -138,12 +138,30 @@ RUN mkdir build && cd build && \
 ################################################################################
 # Stage 5 - 18+GB ##############################################################
 ################################################################################
+# Temporary stage to filter airframes
+FROM ubuntu:22.04 AS airframe_filter_stage
+COPY simulation_resources/aircraft_models/ /temp_folder
+RUN mkdir /airframes
+RUN find /temp_folder -type f -regex '.*/[0-9]+_.*' -exec cp {} /airframes/ \;
+
+# Actual start of stage 5
 FROM ros2-gz-qgc-px4-ardupilot-image AS simulation-dev-image
 
-# Build PX4 with custom patches
+# Apply PX4 patches (DDS Agent on custom IP, ...)
 COPY simulation_resources/patches/px4-1.15.4.patch /git
 WORKDIR /git/PX4-Autopilot
 RUN git apply ../px4-1.15.4.patch
+
+# Add PX4 Airframes ROMFS
+COPY --from=airframe_filter_stage /airframes/ /git/PX4-Autopilot/ROMFS/px4fmu_common/init.d-posix/airframes/
+WORKDIR /git/PX4-Autopilot/ROMFS/px4fmu_common/init.d-posix/airframes
+RUN rm -f CMakeLists.txt && \
+    echo "px4_add_romfs_files(" >> CMakeLists.txt && \
+    find ./ -type f -printf '%f\n' | sed 's/^/  /' >> CMakeLists.txt && \
+    echo ")" >> CMakeLists.txt
+
+# Build PX4 SITL
+WORKDIR /git/PX4-Autopilot
 RUN make px4_sitl
 # Run with $ /git/PX4-Autopilot/build/px4_sitl_default/bin/px4
 

@@ -76,7 +76,8 @@ DRONE_TYPE=quad AUTOPILOT=px4 NUM_DRONES=2 ./main.sh
 > [!TIP]
 > Tmux shortcuts:
 > - Move between windows with `Ctrl + b`, then `n`, `p`
-> - Move between panes with `Ctrl + b`, then `arrows`
+> - Move between panes with `Ctrl + b`, then `arrow keys`
+> - Enter copy mode to scroll back with `Ctrl + [`, then `arrow keys`, exit with `q`
 > - Detach with `Ctrl + b`, then press `d`
 > - Re-attach with `$ tmux attach-session -t simulation_tmuxinator`
 > - Or kill with `$ tmux kill-session -t simulation_tmuxinator`
