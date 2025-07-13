@@ -29,7 +29,7 @@ windows:
         - "ROS_DOMAIN_ID=<%= i + 1 %> ros2 run ros_gz_bridge parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock"
         - >
           python3 /git/simulation_resources/comms/gz_to_gst_image_bridge.py 
-          --gz_topic /world/px4_world/model/x500_<%= i %>/link/mono_cam/base_link/sensor/imager/image
+          --gz_topic /world/px4_world/model/<%= drone_type == 'quad' ? 'x500' : 'standard_vtol' %>_<%= i %>/link/mono_cam/base_link/sensor/imager/image
           --ip 42.42.1.<%= i + 1 %> --port 5600
   <% end %>
 
