@@ -30,7 +30,7 @@ gst_pipeline_string = (
     "video/x-raw, format=BGR ! appsink"
 )
 # NOT WORKING: system Python's OpenCV has GStreamer but no CUDA support
-# TODO: build OpenCV from source to support both
+# TODO: build OpenCV from source to support both or use python3-gi gir1.2-gst-plugins-base-1.0 gir1.2-gstreamer-1.0
 # gst_pipeline_string = (
 #     "udpsrc port=5600 ! "
 #     "'application/x-rtp, media=(string)video, encoding-name=(string)H264' ! "
