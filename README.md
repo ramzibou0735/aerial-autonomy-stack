@@ -156,6 +156,8 @@ steps for multi-ardupilot sim
 - create copies of X_with_ardupilot_N
 - change <fdm_port_in>9012</fdm_port_in> and <model name="iris_with_ardupilot_2"
 - add <uri>model://iris_with_ardupilot_2</uri> with new pose in world.sdf
+- add param files to change SYSID_THISMAV
+- keep in mind the model name for the topic path for gz_to_gst_image_bridge
 - figure out how to let QGC connect (via UDP? or serial) to various ports --out=udp:42.42.1.99:1454<%= i %> (disabling automatic connection?)
 - figure out why the second sim_vehicle.py needs to be re-launched (add a sleep maybe)
 
