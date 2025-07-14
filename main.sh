@@ -4,6 +4,7 @@
 DRONE_TYPE="${DRONE_TYPE:-quad}" # Options: quad (default), vtol
 AUTOPILOT="${AUTOPILOT:-px4}" # Options: px4 (default), ardupilot
 NUM_DRONES="${NUM_DRONES:-2}" # Number of aircraft (default = 2)
+WORLD="${WORLD:-orchard}" # Options: orchard (default), ...
 MODE="${MODE:-}" # Options: empty (default), debug, ...
 
 # Initialize an empty variable for the flags
@@ -47,7 +48,7 @@ gnome-terminal --geometry=$(get_quadrant_geometry 0) -- bash -c "echo 'Launching
     --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --device /dev/dri --gpus all \
     --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR \
     --env ROS_DOMAIN_ID=99 --env AUTOPILOT=$AUTOPILOT --env DRONE_TYPE=$DRONE_TYPE \
-    --env NUM_DRONES=$NUM_DRONES \
+    --env NUM_DRONES=$NUM_DRONES --env WORLD=$WORLD \
     --net=aas-network --ip=42.42.1.99 \
     --privileged \
     --name simulation-container \

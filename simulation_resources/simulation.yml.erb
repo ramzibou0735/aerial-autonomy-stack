@@ -1,6 +1,7 @@
 <% drone_type = ENV.fetch('DRONE_TYPE', 'quad') %>
 <% autopilot = ENV.fetch('AUTOPILOT', 'px4') %>
 <% num_drones = ENV.fetch('NUM_DRONES', 1).to_i %>
+<% world = ENV.fetch('WORLD', 'orchard') %>
 
 name: simulation_tmuxinator
 
@@ -12,7 +13,7 @@ windows:
       panes:
         - >
           GZ_SIM_RESOURCE_PATH=$GZ_SIM_RESOURCE_PATH:/git/simulation_resources/aircraft_models:/git/simulation_resources/simulation_worlds
-          gz sim -v4 -r orchard.sdf
+          gz sim -v4 -r <%= world %>.sdf
   <% num_drones.times do |i| %>
   - px4_sitl_<%= i + 1 %>:
       layout: even-horizontal
@@ -29,7 +30,7 @@ windows:
         - "ROS_DOMAIN_ID=<%= i + 1 %> ros2 run ros_gz_bridge parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock"
         - >
           python3 /git/simulation_resources/comms/gz_to_gst_image_bridge.py 
-          --gz_topic /world/orchard/model/<%= drone_type == 'quad' ? 'x500' : 'standard_vtol' %>_<%= i %>/link/mono_cam/base_link/sensor/imager/image
+          --gz_topic /world/<%= world %>/model/<%= drone_type == 'quad' ? 'x500' : 'standard_vtol' %>_<%= i %>/link/mono_cam/base_link/sensor/imager/image
           --ip 42.42.1.<%= i + 1 %> --port 5600
   <% end %>
 
@@ -41,7 +42,7 @@ windows:
           chmod +x /git/simulation_resources/aircraft_models/create_ardupilot_models.sh &&
           /git/simulation_resources/aircraft_models/create_ardupilot_models.sh <%= num_drones %> /git/simulation_resources/aircraft_models/<%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'zephyr_with_ardupilot' %> &&
           chmod +x /git/simulation_resources/simulation_worlds/create_ardupilot_world.sh &&
-          /git/simulation_resources/simulation_worlds/create_ardupilot_world.sh <%= num_drones %> <%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'zephyr_with_ardupilot' %> /git/simulation_resources/simulation_worlds/orchard.sdf &&
+          /git/simulation_resources/simulation_worlds/create_ardupilot_world.sh <%= num_drones %> <%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'zephyr_with_ardupilot' %> /git/simulation_resources/simulation_worlds/<%= world %>.sdf &&
           GZ_SIM_SYSTEM_PLUGIN_PATH=/git/ardupilot_gazebo/build:$GZ_SIM_SYSTEM_PLUGIN_PATH 
           GZ_SIM_RESOURCE_PATH=/git/simulation_resources/aircraft_models:/git/simulation_resources/simulation_worlds:$GZ_SIM_RESOURCE_PATH 
           gz sim -v4 -r populated_ardupilot.sdf
@@ -62,7 +63,7 @@ windows:
         - "ROS_DOMAIN_ID=<%= i + 1 %> ros2 run ros_gz_bridge parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock"
         - >
           python3 /git/simulation_resources/comms/gz_to_gst_image_bridge.py 
-          --gz_topic /world/orchard/model/<%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'zephyr_with_ardupilot' %>_<%= i + 1 %>/model/<%= drone_type == 'quad' ? 'iris' : 'zephyr' %>/link/mono_cam/base_link/sensor/imager/image
+          --gz_topic /world/<%= world %>/model/<%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'zephyr_with_ardupilot' %>_<%= i + 1 %>/model/<%= drone_type == 'quad' ? 'iris' : 'zephyr' %>/link/mono_cam/base_link/sensor/imager/image
           --ip 42.42.1.<%= i + 1 %> --port 5600
   <% end %>
   <% end %>
