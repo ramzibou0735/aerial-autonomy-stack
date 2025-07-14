@@ -2,6 +2,7 @@ import os
 import cv2
 import json
 import numpy as np
+import matplotlib.pyplot as plt
 import onnxruntime as ort
 
 # Load classes
@@ -9,6 +10,8 @@ names_file = "coco.json"
 with open(names_file, "r") as f:
     classes_str_keys = json.load(f)
     classes = {int(k): v for k, v in classes_str_keys.items()}
+colors_rgba = plt.cm.hsv(np.linspace(0, 1, len(classes)))
+colors = (colors_rgba[:, [2, 1, 0]] * 255).astype(np.uint8) # From RGBA (0-1 float) to BGR (0-255 int)
 
 # Load model runtime
 model_path = "yolov8n.onnx"
@@ -104,8 +107,9 @@ while True:
         x1, y1, x2, y2 = boxes[i].astype(int)
         conf = confidences[i]
         class_name = classes[class_ids[i]]
-        cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-        cv2.putText(frame, f"{class_name} {conf:.2f}", (x1, y1 - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 1)
+        color = tuple(colors[class_ids[i]].tolist())
+        cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
+        cv2.putText(frame, f"{class_name} {conf:.2f}", (x1, y1 - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 1)
 
     # Display
     cv2.imshow(WINDOW_NAME, frame)
