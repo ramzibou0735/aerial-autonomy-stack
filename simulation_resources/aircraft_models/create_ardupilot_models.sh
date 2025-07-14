@@ -29,6 +29,18 @@ for i in $(seq 1 $NUM_DRONES); do
     mkdir "$NEW_MODEL_DIR"
     cp "$BASE_MODEL_PATH"/*.sdf "$BASE_MODEL_PATH"/*.config "$NEW_MODEL_DIR"/
 
+    # Create .config file to let gz sim include the model
+    CONFIG_FILE="${NEW_MODEL_DIR}/model.config"
+    echo "<?xml version='1.0'?>" > "$CONFIG_FILE"
+    echo "<model>" >> "$CONFIG_FILE"
+    echo "  <name>${NEW_MODEL_NAME}</name>" >> "$CONFIG_FILE"
+    echo "  <version>1.0</version>" >> "$CONFIG_FILE"
+    echo "  <sdf version='1.9'>model.sdf</sdf>" >> "$CONFIG_FILE"
+    echo "  <description>" >> "$CONFIG_FILE"
+    echo "    A dynamically generated model of ${NEW_MODEL_NAME}." >> "$CONFIG_FILE"
+    echo "  </description>" >> "$CONFIG_FILE"
+    echo "</model>" >> "$CONFIG_FILE"
+
     # Update the model name and fdm_port_in in the copied SDF file
     sed -i "s/<model name=\"${BASE_MODEL_NAME}\">/<model name=\"${NEW_MODEL_NAME}\">/g" "${AIRCRAFT_MODELS_PATH}/${NEW_MODEL_NAME}/model.sdf"
     sed -i "s/<fdm_port_in>${BASE_PORT}<\/fdm_port_in>/<fdm_port_in>$(($BASE_PORT + (i-1) * 10))<\/fdm_port_in>/g" "${AIRCRAFT_MODELS_PATH}/${NEW_MODEL_NAME}/model.sdf"

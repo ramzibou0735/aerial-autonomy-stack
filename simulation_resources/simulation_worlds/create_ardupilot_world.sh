@@ -28,6 +28,11 @@ BASE_WORLD_DIR=$(dirname "$BASE_WORLD_WITH_PATH")
 OUTPUT_FILE="${BASE_WORLD_DIR}/populated_ardupilot.sdf"
 cp "$BASE_WORLD_WITH_PATH" "$OUTPUT_FILE"
 
+# IMPORTANT: this replaces the whole <physics> block with Ardupilot's
+ARDUPILOT_PHYSICS="    <physics name=\"1ms\" type=\"ignore\">\n      <max_step_size>0.001<\/max_step_size>\n      <real_time_factor>1.0<\/real_time_factor>\n    <\/physics>"
+sed -i -e "/<physics/,/<\/physics>/c\\
+${ARDUPILOT_PHYSICS}" "$OUTPUT_FILE"
+
 # This loop builds a single string containing all the <include> blocks
 ALL_MODELS_XML=""
 for i in $(seq 1 $NUM_DRONES); do
