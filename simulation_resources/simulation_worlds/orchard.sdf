@@ -311,12 +311,12 @@
 
     <include>
       <uri>model://unicorn</uri>
-      <pose degrees="true">10 2 0.195 0 0 30</pose>
+      <pose degrees="true">10 -5 0.195 0 0 -30</pose>
     </include>
 
     <include>
-      <uri>model://tree</uri>
-      <pose degrees="true">5 2 0 0 0 0</pose>
+      <uri>model://orchard_trees</uri>
+      <pose degrees="true">37 35 -0.5 0 0 100</pose>
     </include>
 
     <model name="simple_cylinder">

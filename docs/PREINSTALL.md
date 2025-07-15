@@ -24,6 +24,11 @@ sudo apt update
 sudo apt upgrade
 sudo apt install git
 
+# Install git-lfs
+sudo apt update
+sudo apt install git-lfs
+git lfs install
+
 # Create an ssh key
 ssh-keygen 
 cat ~/.ssh/id_rsa.pub
