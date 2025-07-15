@@ -4,9 +4,9 @@
 
 The *sim2real gap* is an euphemism for robotic projects that work well on a developer's laptop but not so much in the field.
 In aerial robotics, sim2real research often focusses on improving modelling and simulation of complex aerodynamics effects.
-Nonetheless, in practice, an equally important source of *sim2real gap* can be found in software engineering.
+Nonetheless, in practice, an equally important component of *sim2real gap* is software engineering.
 
-In particular, in the lack of end-to-end/full-stack integration among the many frameworks that go into drone autonomy (i.e., a physics engine to simulate the drone movements, a rendering engine to simulate realistic imagery, a machine learning library for perception, one or more inter-process and inter-thread communication middleware, the autopilot software performing state-estimation and low-level control, the SDK of the deployed embedded system, etc.) and thoughtfully emulated inter-robot communication (in the field, this is heavily affected by flight plans and available RF hardware).
+That is, the challenge of *end-to-end/full-stack integration* among the many frameworks that go into drone autonomy (i.e., a physics engine to simulate the drone dynamics, a rendering engine to generate realistic imagery, a GPU-accelerated machine learning runtime for perception, one or more inter-process and inter-thread communication middleware, the interface to the microcontroller with the autopilot software performing state-estimation and low-level control, the SDK of the deployed embedded system(s), etc.) and reasonably emulated inter-robot communication (in aerial systems, this is heavily affected by the actual flight plans and available RF hardware).
 
 ## Why AAS?
 
@@ -31,9 +31,9 @@ Simulators (from https://arxiv.org/pdf/2311.02296)
 
 Also check out: https://github.com/ROS-Aerial/aerial_robotic_landscape
 
-## Desiderata
+## Desiderata/Future Work
 
-Some additional features are highly desirable but were deemed to add unnecessary complexity for a minimum viable product (MVP), community contributions are obviously welcome
+Some additional features are highly desirable but were deemed unnecessary for a minimum viable product (MVP):
 
 - Support for [JSBSim](https://github.com/JSBSim-Team/jsbsim) flight dynamics
 - Support for [Betaflight SITL](https://betaflight.com/docs/development/SITL) interfaced *via* [MultiWii Serial Protocol (MSP)](https://github.com/betaflight/betaflight/tree/master/src/main/msp)
