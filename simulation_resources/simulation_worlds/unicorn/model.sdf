@@ -8,34 +8,36 @@
         <pose>0 0 0 0 0 0</pose>
         <mass>100</mass>
         <inertia>
-          <ixx>0.9</ixx>
-          <ixy>0</ixy>
-          <ixz>0</ixz>
-          <iyy>0.9</iyy>
-          <iyz>0</iyz>
-          <izz>0.9</izz>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
         </inertia>
       </inertial>
       <collision name='base_link_collision'>
-        <pose>0 0 0 0 0 0</pose>
+        <pose degrees="true">0 0 0 90 0 0</pose>
         <geometry>
-          <mesh>
-            <scale>.5 .5 .5</scale>
-            <uri>model://unicorn/meshes/unicorn.dae</uri>
-          </mesh>
+          <!-- <mesh>
+            <scale>.01 .01 .01</scale>
+            <uri>model://unicorn/meshes/unicorn.fbx</uri>
+          </mesh> -->
+            <box>
+              <size>3.0 7.0 7.0</size>
+            </box>
         </geometry>
       </collision>
       <visual name='base_link_visual'>
-        <pose>0 0 0 0 0 0</pose>
+        <pose degrees="true">0 1.5 -3.5 90 0 0</pose>
         <geometry>
           <mesh>
-            <scale>.5 .5 .5</scale>
-            <uri>model://unicorn/meshes/unicorn.dae</uri>
+            <scale>.01 .01 .01</scale>
+            <uri>model://unicorn/meshes/unicorn.fbx</uri>
           </mesh>
         </geometry>
         <material>
-          <ambient>1.0 0.08 0.58 1.0</ambient>
-          <diffuse>1.0 0.08 0.58 1.0</diffuse>
+          <ambient>1 1 1 1.0</ambient>
+          <diffuse>1 1 1 1.0</diffuse>
+          <specular>0.8 0.8 0.8 1.0</specular>
+          <emissive>0.3 0.3 0.3 1.0</emissive>
         </material>
       </visual>
     </link>

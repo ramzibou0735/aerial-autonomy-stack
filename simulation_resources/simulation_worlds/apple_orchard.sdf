@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <sdf version="1.9">
-  <world name="orchard">
+  <world name="apple_orchard">
     <!-- Gazebo/PX4 pyhsics, it is overridden when using Ardupilot -->
     <physics type="ode">
       <max_step_size>0.004</max_step_size>
@@ -304,22 +304,11 @@
         </inertial>
         <enable_wind>false</enable_wind>
       </link>
-      <!-- scale 0.03 <pose degrees="true">-205 1060 -128.75 90 -0 0</pose> -->
       <pose degrees="true">-48 247.5 -30.15 90 -0 0</pose>
       <self_collide>false</self_collide>
     </model>
 
-    <include>
-      <uri>model://unicorn</uri>
-      <pose degrees="true">10 -5 0.195 0 0 -30</pose>
-    </include>
-
-    <include>
-      <uri>model://orchard_trees</uri>
-      <pose degrees="true">37 35 -0.5 0 0 100</pose>
-    </include>
-
-    <model name="simple_cylinder">
+    <model name="look_up_cylinder">
       <pose>0 0 10 0 0 0</pose>
       <link name="cylinder_link">
         <visual name="visual">
@@ -329,6 +318,12 @@
               <length>0.5</length>
             </cylinder>
           </geometry>
+          <material>
+            <ambient>0.96 0.64 0.01 1.0</ambient>
+            <diffuse>0.96 0.64 0.01 1.0</diffuse>
+            <specular>0.96 0.64 0.01 1.0</specular>
+            <emissive>0.96 0.64 0.01 1.0</emissive>
+          </material>
         </visual>
         <inertial>
           <pose>0 0 0 0 0 0</pose>
@@ -336,6 +331,21 @@
         </inertial>
       </link>
     </model>
+
+    <include>
+      <uri>model://orchard_trees_near</uri>
+      <pose degrees="true">37 35 -0.5 0 0 100</pose>
+    </include>
+
+    <!-- <include>
+      <uri>model://orchard_trees_far</uri>
+      <pose degrees="true">37 35 -0.5 0 0 100</pose>
+    </include> -->
+
+    <include>
+      <uri>model://unicorn</uri>
+      <pose degrees="true">-50 240 4.5 0 0 -30</pose>
+    </include>
 
   </world>
 </sdf>

@@ -1,0 +1,3660 @@
+<?xml version="1.0"?>
+<sdf version="1.10">
+  <model name="forest_near">
+    <static>true</static>
+    <link name='tree_r0_c0'>
+      <pose>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r1_c0'>
+      <pose>0 6 0 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r2_c0'>
+      <pose>0 12 0 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r3_c0'>
+      <pose>0 18 0 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r4_c0'>
+      <pose>0 24 0 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r5_c0'>
+      <pose>0 30 0 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r6_c0'>
+      <pose>0 36 0 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r7_c0'>
+      <pose>0 42 0 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r8_c0'>
+      <pose>0 48 0 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r9_c0'>
+      <pose>0 54 0 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r10_c0'>
+      <pose>0 60 0 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r11_c0'>
+      <pose>0 66 0 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r12_c0'>
+      <pose>0 72 0 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r13_c0'>
+      <pose>0 78 0 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r0_c1'>
+      <pose>11.9600 0 -.1794 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r1_c1'>
+      <pose>11.9600 6 -.1794 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r2_c1'>
+      <pose>11.9600 12 -.1794 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r3_c1'>
+      <pose>11.9600 18 -.1794 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r4_c1'>
+      <pose>11.9600 24 -.1794 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r5_c1'>
+      <pose>11.9600 30 -.1794 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r6_c1'>
+      <pose>11.9600 36 -.1794 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r7_c1'>
+      <pose>11.9600 42 -.1794 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r8_c1'>
+      <pose>11.9600 48 -.1794 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r9_c1'>
+      <pose>11.9600 54 -.1794 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r10_c1'>
+      <pose>11.9600 60 -.1794 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r11_c1'>
+      <pose>11.9600 66 -.1794 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r12_c1'>
+      <pose>11.9600 72 -.1794 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r13_c1'>
+      <pose>11.9600 78 -.1794 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r0_c2'>
+      <pose>24.2800 0 -.3642 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r1_c2'>
+      <pose>24.2800 6 -.3642 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r2_c2'>
+      <pose>24.2800 12 -.3642 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r3_c2'>
+      <pose>24.2800 18 -.3642 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r4_c2'>
+      <pose>24.2800 24 -.3642 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r5_c2'>
+      <pose>24.2800 30 -.3642 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r6_c2'>
+      <pose>24.2800 36 -.3642 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r7_c2'>
+      <pose>24.2800 42 -.3642 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r8_c2'>
+      <pose>24.2800 48 -.3642 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r9_c2'>
+      <pose>24.2800 54 -.3642 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r10_c2'>
+      <pose>24.2800 60 -.3642 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r11_c2'>
+      <pose>24.2800 66 -.3642 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r12_c2'>
+      <pose>24.2800 72 -.3642 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r13_c2'>
+      <pose>24.2800 78 -.3642 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r0_c3'>
+      <pose>37.0000 0 -.5550 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r1_c3'>
+      <pose>37.0000 6 -.5550 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r2_c3'>
+      <pose>37.0000 12 -.5550 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r3_c3'>
+      <pose>37.0000 18 -.5550 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r4_c3'>
+      <pose>37.0000 24 -.5550 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r5_c3'>
+      <pose>37.0000 30 -.5550 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r6_c3'>
+      <pose>37.0000 36 -.5550 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r7_c3'>
+      <pose>37.0000 42 -.5550 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r8_c3'>
+      <pose>37.0000 48 -.5550 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r9_c3'>
+      <pose>37.0000 54 -.5550 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r10_c3'>
+      <pose>37.0000 60 -.5550 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r11_c3'>
+      <pose>37.0000 66 -.5550 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r12_c3'>
+      <pose>37.0000 72 -.5550 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r13_c3'>
+      <pose>37.0000 78 -.5550 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r0_c4'>
+      <pose>50.2000 0 -.7530 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r1_c4'>
+      <pose>50.2000 6 -.7530 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r2_c4'>
+      <pose>50.2000 12 -.7530 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r3_c4'>
+      <pose>50.2000 18 -.7530 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r4_c4'>
+      <pose>50.2000 24 -.7530 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r5_c4'>
+      <pose>50.2000 30 -.7530 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r6_c4'>
+      <pose>50.2000 36 -.7530 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r7_c4'>
+      <pose>50.2000 42 -.7530 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r8_c4'>
+      <pose>50.2000 48 -.7530 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r9_c4'>
+      <pose>50.2000 54 -.7530 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r10_c4'>
+      <pose>50.2000 60 -.7530 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r11_c4'>
+      <pose>50.2000 66 -.7530 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r12_c4'>
+      <pose>50.2000 72 -.7530 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r13_c4'>
+      <pose>50.2000 78 -.7530 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r0_c5'>
+      <pose>63.9600 0 -.9594 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r1_c5'>
+      <pose>63.9600 6 -.9594 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r2_c5'>
+      <pose>63.9600 12 -.9594 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r3_c5'>
+      <pose>63.9600 18 -.9594 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r4_c5'>
+      <pose>63.9600 24 -.9594 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r5_c5'>
+      <pose>63.9600 30 -.9594 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r6_c5'>
+      <pose>63.9600 36 -.9594 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r7_c5'>
+      <pose>63.9600 42 -.9594 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r8_c5'>
+      <pose>63.9600 48 -.9594 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r9_c5'>
+      <pose>63.9600 54 -.9594 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r10_c5'>
+      <pose>63.9600 60 -.9594 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r11_c5'>
+      <pose>63.9600 66 -.9594 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r12_c5'>
+      <pose>63.9600 72 -.9594 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r13_c5'>
+      <pose>63.9600 78 -.9594 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r0_c6'>
+      <pose>78.2400 0 -1.1736 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r1_c6'>
+      <pose>78.2400 6 -1.1736 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r2_c6'>
+      <pose>78.2400 12 -1.1736 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r3_c6'>
+      <pose>78.2400 18 -1.1736 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r4_c6'>
+      <pose>78.2400 24 -1.1736 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r5_c6'>
+      <pose>78.2400 30 -1.1736 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r6_c6'>
+      <pose>78.2400 36 -1.1736 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r7_c6'>
+      <pose>78.2400 42 -1.1736 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r8_c6'>
+      <pose>78.2400 48 -1.1736 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r9_c6'>
+      <pose>78.2400 54 -1.1736 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r10_c6'>
+      <pose>78.2400 60 -1.1736 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r11_c6'>
+      <pose>78.2400 66 -1.1736 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r12_c6'>
+      <pose>78.2400 72 -1.1736 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r13_c6'>
+      <pose>78.2400 78 -1.1736 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r0_c7'>
+      <pose>93.2000 0 -1.3980 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r1_c7'>
+      <pose>93.2000 6 -1.3980 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r2_c7'>
+      <pose>93.2000 12 -1.3980 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r3_c7'>
+      <pose>93.2000 18 -1.3980 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r4_c7'>
+      <pose>93.2000 24 -1.3980 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r5_c7'>
+      <pose>93.2000 30 -1.3980 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r6_c7'>
+      <pose>93.2000 36 -1.3980 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r7_c7'>
+      <pose>93.2000 42 -1.3980 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r8_c7'>
+      <pose>93.2000 48 -1.3980 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r9_c7'>
+      <pose>93.2000 54 -1.3980 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r10_c7'>
+      <pose>93.2000 60 -1.3980 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r11_c7'>
+      <pose>93.2000 66 -1.3980 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r12_c7'>
+      <pose>93.2000 72 -1.3980 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r13_c7'>
+      <pose>93.2000 78 -1.3980 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r0_c8'>
+      <pose>108.9600 0 -1.6344 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r1_c8'>
+      <pose>108.9600 6 -1.6344 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r2_c8'>
+      <pose>108.9600 12 -1.6344 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r3_c8'>
+      <pose>108.9600 18 -1.6344 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r4_c8'>
+      <pose>108.9600 24 -1.6344 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r5_c8'>
+      <pose>108.9600 30 -1.6344 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r6_c8'>
+      <pose>108.9600 36 -1.6344 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r7_c8'>
+      <pose>108.9600 42 -1.6344 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r8_c8'>
+      <pose>108.9600 48 -1.6344 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r9_c8'>
+      <pose>108.9600 54 -1.6344 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r10_c8'>
+      <pose>108.9600 60 -1.6344 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r11_c8'>
+      <pose>108.9600 66 -1.6344 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r12_c8'>
+      <pose>108.9600 72 -1.6344 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name='tree_r13_c8'>
+      <pose>108.9600 78 -1.6344 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>100</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
+        <geometry>
+            <box>
+              <size>0.5 0.5 3.0</size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <pose degrees="true">0 0 0 90 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>.025 .025 .025</scale>
+            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+  </model>
+</sdf>
