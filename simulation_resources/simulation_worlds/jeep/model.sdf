@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <sdf version='1.10'>
-  <model name='unicorn'>
-    <pose>0 0 0 0 0 0</pose>
+  <model name='jeep'>
+  <pose>0 0 0 0 0 0</pose>
     <link name='base_link'>
       <pose>0 0 0 0 0 0</pose>
       <inertial>
@@ -14,32 +14,27 @@
         </inertia>
       </inertial>
       <collision name='base_link_collision'>
-        <pose degrees="true">0 0 0 90 0 0</pose>
+        <pose degrees="true">0 0 0 0 0 0</pose>
         <geometry>
           <!-- <mesh>
-            <scale>.01 .01 .01</scale>
-            <uri>model://unicorn/meshes/unicorn.fbx</uri>
+            <scale>1.75 1.75 1.75</scale>
+            <uri>model://jeep/meshes/jeep.dae</uri>
           </mesh> -->
           <box>
-            <size>3.0 7.0 7.0</size>
+            <size>3.0 6.75 3.0</size>
           </box>
         </geometry>
       </collision>
       <visual name='base_link_visual'>
-        <pose degrees="true">0 1.5 -3.5 90 0 0</pose>
+        <pose degrees="true">0 -0.2 -1.5 0 0 0</pose>
         <geometry>
           <mesh>
-            <scale>.01 .01 .01</scale>
-            <uri>model://unicorn/meshes/unicorn.fbx</uri>
+            <scale>1.75 1.75 1.75</scale>
+            <uri>model://jeep/meshes/jeep.dae</uri>
           </mesh>
         </geometry>
-        <material>
-          <ambient>1 1 1 1.0</ambient>
-          <diffuse>1 1 1 1.0</diffuse>
-          <specular>0.8 0.8 0.8 1.0</specular>
-          <emissive>0.3 0.3 0.3 1.0</emissive>
-        </material>
       </visual>
     </link>
   </model>
 </sdf>
+

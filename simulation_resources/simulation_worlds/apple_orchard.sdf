@@ -343,8 +343,21 @@
     </include> -->
 
     <include>
-      <uri>model://unicorn</uri>
-      <pose degrees="true">-50 240 4.5 0 0 -30</pose>
+      <uri>model://jeep</uri>
+      <name>jeep_1</name>
+      <pose degrees="true">10 2 2.5 0 0 30</pose>
+    </include>
+
+    <include>
+      <uri>model://jeep</uri>
+      <name>jeep_2</name>
+      <pose degrees="true">-20 -2 2.5 0 0 -80</pose>
+    </include>
+
+    <include>
+      <uri>model://jeep</uri>
+      <name>jeep_3</name>
+      <pose degrees="true">-20 5 2.5 0 0 -90</pose>
     </include>
 
   </world>

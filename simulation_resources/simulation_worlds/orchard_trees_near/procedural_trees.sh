@@ -20,7 +20,7 @@ SLOPE_PER_METER=$(echo "scale=4; $SLOPE_DROP / $ROW_LENGTH" | bc)
 cat <<EOF > "$OUTPUT_FILE"
 <?xml version="1.0"?>
 <sdf version="1.10">
-  <model name="forest">
+  <model name="orchard">
     <static>true</static>
 EOF
 

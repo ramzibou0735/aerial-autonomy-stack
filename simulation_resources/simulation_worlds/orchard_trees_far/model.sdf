@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <sdf version="1.10">
-  <model name="forest_far">
+  <model name="orchard_far">
     <static>true</static>
     <link name='tree_r0_c9'>
       <pose>125.6000 0 -1.8840 0 0 0</pose>
