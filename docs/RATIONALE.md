@@ -3,10 +3,14 @@
 ## The 2 Facets of the Sim2real Gap
 
 The *sim2real gap* is an euphemism for robotic projects that work well on a developer's laptop but not so much in the field.
-In aerial robotics, sim2real research often focusses on improving modelling and simulation of complex aerodynamics effects.
-Nonetheless, in practice, an equally important component of *sim2real gap* is software engineering.
+Aerial sim2real research often focusses on modelling and simulation of complex aerodynamics effects.
 
-That is, the challenge of *end-to-end/full-stack integration* among the many frameworks that go into drone autonomy (i.e., a physics engine to simulate the drone dynamics, a rendering engine to generate realistic imagery, a GPU-accelerated machine learning runtime for perception, one or more inter-process and inter-thread communication middleware, the interface to the microcontroller with the autopilot software performing state-estimation and low-level control, the SDK of the deployed embedded system(s), etc.) and reasonably emulated inter-robot communication (in aerial systems, this is heavily affected by the actual flight plans and available RF hardware).
+Nonetheless, in robotics, an equally important component of *sim2real gap* is software engineering.
+
+That is, the challenge of **end-to-end/full-stack integration** among:
+
+- the **many frameworks** that go into drone autonomy (a physics engine to simulate drone dynamics, a rendering engine to generate realistic imagery, a GPU-accelerated machine learning runtime for perception, one or more inter-process and inter-thread communication middleware, the interface to the microcontroller and autopilot software performing state-estimation and low-level control, the SDKs of the deployed embedded systems);
+- and reasonably emulated **inter-robot communication** (in aerial systems, this is heavily affected by the actual flight plans and available RF hardware).
 
 ## Why AAS?
 
