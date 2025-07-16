@@ -32,7 +32,6 @@ A summary of existing multi-drone flight stacks can be found in [Table II of thi
 - Technische Universität (TU) Berlin's [`crazyswarmw`](https://github.com/IMRCLab/crazyswarm2) (crazyflie-only, indoor)
 - Peking University's [`XTDrone`](https://github.com/robin-shaun/XTDrone) (ROS1, PX4-only)
 
-
 A summary of aerial robotics simulators can be found in [Table IV of this paper](https://arxiv.org/pdf/2311.02296), including:
 
 - Norwegian University of Science and Technology (NTNU)'s [`aerial_gym_simulator`](https://github.com/ntnu-arl/aerial_gym_simulator) (high-performance simulator for RL)

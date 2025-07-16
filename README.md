@@ -127,22 +127,7 @@ TBD
 ---
 > You've done a man's job, sir. I guess you're through, huh?
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+<!-- 
 
 
 
@@ -169,4 +154,7 @@ TBD
 ```sh
 find . -path ./.git -prune -o -type f -not -name "*.dae" -not -name "*.png" -not -name "*.stl" | xargs wc -l
 find . -path ./.git -prune -o -type f -not -name "*.dae" -not -name "*.png" -not -name "*.stl" -not -name "*.sdf" | xargs wc -l
-```
+``` 
+
+
+-->
