@@ -16,10 +16,6 @@
       <collision name='base_link_collision'>
         <pose degrees="true">0 0 0 90 0 0</pose>
         <geometry>
-          <!-- <mesh>
-            <scale>.01 .01 .01</scale>
-            <uri>model://rabbit/meshes/rabbit.fbx</uri>
-          </mesh> -->
           <box>
             <size>1.0 2.0 2.0</size>
           </box>

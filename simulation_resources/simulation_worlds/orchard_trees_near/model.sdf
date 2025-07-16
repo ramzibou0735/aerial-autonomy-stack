@@ -26,7 +26,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -55,7 +55,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -84,7 +84,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -113,7 +113,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -142,7 +142,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -171,7 +171,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -200,7 +200,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -229,7 +229,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -258,7 +258,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -287,7 +287,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -316,7 +316,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -345,7 +345,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -374,7 +374,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -403,7 +403,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -432,7 +432,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -461,7 +461,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -490,7 +490,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -519,7 +519,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -548,7 +548,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -577,7 +577,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -606,7 +606,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -635,7 +635,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -664,7 +664,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -693,7 +693,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -722,7 +722,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -751,7 +751,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -780,7 +780,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -809,7 +809,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -838,7 +838,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -867,7 +867,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -896,7 +896,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -925,7 +925,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -954,7 +954,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -983,7 +983,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -1012,7 +1012,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -1041,7 +1041,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -1070,7 +1070,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -1099,7 +1099,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -1128,7 +1128,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -1157,7 +1157,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -1186,7 +1186,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -1215,7 +1215,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -1244,7 +1244,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -1273,7 +1273,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -1302,7 +1302,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -1331,7 +1331,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -1360,7 +1360,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -1389,7 +1389,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -1418,7 +1418,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -1447,7 +1447,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -1476,7 +1476,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -1505,7 +1505,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -1534,7 +1534,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -1563,7 +1563,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -1592,7 +1592,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -1621,7 +1621,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -1650,7 +1650,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -1679,7 +1679,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -1708,7 +1708,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -1737,7 +1737,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -1766,7 +1766,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -1795,7 +1795,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -1824,7 +1824,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -1853,7 +1853,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -1882,7 +1882,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -1911,7 +1911,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -1940,7 +1940,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -1969,7 +1969,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -1998,7 +1998,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -2027,7 +2027,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -2056,7 +2056,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -2085,7 +2085,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -2114,7 +2114,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -2143,7 +2143,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -2172,7 +2172,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -2201,7 +2201,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -2230,7 +2230,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -2259,7 +2259,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -2288,7 +2288,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -2317,7 +2317,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -2346,7 +2346,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -2375,7 +2375,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -2404,7 +2404,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -2433,7 +2433,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -2462,7 +2462,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -2491,7 +2491,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -2520,7 +2520,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -2549,7 +2549,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -2578,7 +2578,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -2607,7 +2607,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -2636,7 +2636,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -2665,7 +2665,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -2694,7 +2694,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -2723,7 +2723,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -2752,7 +2752,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -2781,7 +2781,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -2810,7 +2810,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -2839,7 +2839,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -2868,7 +2868,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -2897,7 +2897,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -2926,7 +2926,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -2955,7 +2955,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -2984,7 +2984,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -3013,7 +3013,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -3042,7 +3042,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -3071,7 +3071,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -3100,7 +3100,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -3129,7 +3129,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -3158,7 +3158,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -3187,7 +3187,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -3216,7 +3216,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -3245,7 +3245,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -3274,7 +3274,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -3303,7 +3303,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -3332,7 +3332,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -3361,7 +3361,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -3390,7 +3390,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -3419,7 +3419,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -3448,7 +3448,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -3477,7 +3477,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -3506,7 +3506,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -3535,7 +3535,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -3564,7 +3564,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -3593,7 +3593,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -3622,7 +3622,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>
@@ -3651,7 +3651,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
+            <uri>model://orchard_trees_near/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>

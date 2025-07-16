@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <sdf version='1.10'>
-  <model name='jeep'>
+  <model name='subaru'>
   <pose>0 0 0 0 0 0</pose>
     <link name='base_link'>
       <pose>0 0 0 0 0 0</pose>
@@ -17,16 +17,16 @@
         <pose degrees="true">0 0 0 0 0 0</pose>
         <geometry>
           <box>
-            <size>3.0 6.75 3.0</size>
+            <size>2.5 6.5 2.0</size>
           </box>
         </geometry>
       </collision>
       <visual name='base_link_visual'>
-        <pose degrees="true">0 -0.2 -1.5 0 0 0</pose>
+        <pose degrees="true">0 -0.2 -1.0 90 0 0</pose>
         <geometry>
           <mesh>
             <scale>1.75 1.75 1.75</scale>
-            <uri>model://jeep/meshes/jeep.dae</uri>
+            <uri>model://subaru/meshes/subaru.obj</uri>
           </mesh>
         </geometry>
       </visual>
