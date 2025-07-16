@@ -14,7 +14,7 @@
 - Support for **multiple quadrotor and VTOL** aircraft based on **PX4 or ArduPilot**
 - Support for **ROS2** with ROS2-based autopilot interfaces (*via* XRCE-DDS and MAVSDK)
 - Support for **YOLOv8** and ONNX CPU, CUDA (on desktop/amd64), and TensorRT (on Orin/arm64) Runtime
-- Photogrammetry worlds for **software-in-the-loop simulation**
+- Photogrammetry and 3D worlds for [PX4](https://docs.px4.io/main/en/simulation/#sitl-simulation-environment)/[ArduPilot](https://ardupilot.org/dev/docs/sitl-simulator-software-in-the-loop.html#sitl-architecture) **software-in-the-loop simulation**
 - Dockerized simulation based on [`nvcr.io/nvidia/cuda:12.8.1-cudnn-runtime-ubuntu22.04`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/cuda/tags)
 - **Dockerized deployment** based on [`nvcr.io/nvidia/l4t-jetpack:r36.4.0`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/l4t-jetpack/tags)
 
@@ -26,6 +26,8 @@
 > AAS leverages the following frameworks:
 >
 > [*ROS2 Humble*](https://docs.ros.org/en/rolling/Releases.html) (LTS, EOL 5/2027), [*Gazebo Sim Harmonic*](https://gazebosim.org/docs/latest/releases/) (LTS, EOL 9/2028), [*PX4 1.15*](https://github.com/PX4/PX4-Autopilot/releases) interfaced *via* [XRCE-DDS](https://github.com/eProsima/Micro-XRCE-DDS/releases), [*ArduPilot 4.6*](https://github.com/ArduPilot/ardupilot/releases) interfaced *via* [MAVSDK](https://github.com/mavlink/mavsdk/releases), [*YOLOv8*](https://github.com/ultralytics/ultralytics/releases) on [*ONNX Runtime 1.22*](https://onnxruntime.ai/getting-started) (latest stable releases as of 6/2025), [*L4T 36* (Ubuntu 22-based)/*JetPack 6*](https://developer.nvidia.com/embedded/jetpack-archive) (for deployment only, latest major release as of 6/2025)
+
+[![Teaser](docs/assets/video.jpg)](https://www.youtube.com/watch?v=VIDEO_ID)
 
 ---
 
@@ -71,8 +73,18 @@ docker pull jacopopan/aircraft-image:latest # TODO
 ```sh
 cd ~/git/aerial-autonomy-stack/
 chmod +x ./main.sh
-DRONE_TYPE=quad AUTOPILOT=px4 NUM_DRONES=2 ./main.sh
+DRONE_TYPE=quad AUTOPILOT=px4 NUM_DRONES=2 WORLD=apple_orchard ./main.sh # Read main.sh for more options
 ```
+
+Once "Ready to Fly", one can takeoff and control from QGroundControl's ["Fly View"](https://docs.qgroundcontrol.com/master/en/qgc-user-guide/fly_view/fly_view.html). E.g., for PX4 VTOL, takeoff -> change altitude -> transition to FW, then take manual control; for ArduPilot VTOL, change mode to FBW A -> arm -> throttle all the way up -> then change mode to Loiter.
+
+![Worlds](docs/assets/worlds.jpg)
+
+Available `WORLD`s:
+- `impalpable_greyness` (default), an empty world with simple shapes
+- `apple_orchard`, a GIS world created using [BlenderGIS](https://github.com/domlysz/BlenderGIS)
+- `alpine_village`, a photogrammetry world courtesy of [Pix4D / pix4d.com](https://support.pix4d.com/hc/en-us/articles/360000235126#OPF2)
+- `downtown_tbd`, a 3D world from [Visicom](https://visicomdata.com/samples)
 
 > [!TIP]
 > Tmux shortcuts:
@@ -150,13 +162,8 @@ TBD
 - https://github.com/sacridini/Awesome-Geospatial
 - https://github.com/awesome-photogrammetry/awesome-photogrammetry?tab=readme-ov-file
 
-### Resources
+### Model Resources
 
-- PX$ SITL architecture: https://docs.px4.io/main/en/simulation/#sitl-simulation-environment
-- PX4 XRCE-DDS architecture: https://docs.px4.io/main/en/middleware/uxrce_dds.html#architecture
-
-- ArduPilot SITL architecture: https://ardupilot.org/dev/docs/sitl-simulator-software-in-the-loop.html#sitl-architecture
-- ArduPilot UARTs: https://ardupilot.org/dev/docs/learning-ardupilot-uarts-and-the-console.html
 - ArduPilot SITL models: https://github.com/ArduPilot/SITL_Models
 
 ```sh
