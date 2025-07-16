@@ -36,7 +36,7 @@ A summary of existing multi-drone flight stacks can be found in [Table II of thi
 A summary of aerial robotics simulators can be found in [Table IV of this paper](https://arxiv.org/pdf/2311.02296), including:
 
 - Norwegian University of Science and Technology (NTNU)'s [`aerial_gym_simulator`](https://github.com/ntnu-arl/aerial_gym_simulator) (high-performance simulator for RL)
-- University of Pennsylvania (UPenn)'s [`rotorpy`](https://github.com/spencerfolk/rotorpy) (high-fidelity simulator for control)
+- University of Pennsylvania (UPenn)'s [`RotorPy`](https://github.com/spencerfolk/rotorpy) (high-fidelity simulator for control)
 - University of Toronto (UofT)'s [`gym-pybullet-drones`](https://github.com/utiasDSL/gym-pybullet-drones) (simple simulator for education, control, and RL)
 - UZH's [`flightmare`](https://github.com/uzh-rpg/flightmare), ETH's [`RotorS`](https://github.com/ethz-asl/rotors_simulator), NYU's [`RotorTM`](https://github.com/arplaboratory/RotorTM), Microsoft's [`AirSim`](https://github.com/microsoft/AirSim), etc.
 
