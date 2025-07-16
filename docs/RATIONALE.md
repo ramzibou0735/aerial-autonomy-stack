@@ -12,10 +12,10 @@ That is, the challenge of **end-to-end/full-stack integration** among:
 - the **many frameworks** that go into drone autonomy (a physics engine to simulate drone dynamics, a rendering engine to generate realistic imagery, a GPU-accelerated machine learning runtime for perception, one or more inter-process and inter-thread communication middleware, the interface to the microcontroller and autopilot software performing state-estimation and low-level control, the SDKs of the deployed embedded systems)
 - reasonably emulated **inter-robot communication** (in aerial systems, this is heavily affected by the actual flight plans and available RF hardware)
 
-## Design Philosophy
+## Design Manifesto
 
 - **Simplicity** (less is more, ["simple is better than complex"](https://peps.python.org/pep-0020/), and ["worse is better"](https://www.dreamsongs.com/RiseOfWorseIsBetter.html))
-- **End-to-end**ness (from camera frames with YOLO bounding boxes to MAVLink and uORB messages for the autopilot)
+- [おまかせ](https://dhh.dk/2012/rails-is-omakase.html) **end-to-end**ness (from camera frames with YOLO bounding boxes to MAVLink and uORB messages for the autopilot)
 - **Deployment** focussed
     - Clear, Dockerized split between simulation and aircraft software
     - ROS2 intra-companion board messaging
