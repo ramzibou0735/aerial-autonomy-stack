@@ -11,17 +11,16 @@ ROW_SEPARATION=$2
 ROW_LENGTH=$3
 NUM_TREES_PER_ROW=$4
 SLOPE_DROP=$5
-OUTPUT_FILE="model.sdf"
+OUTPUT_FILE="output.sdf"
 
 # Slope Calculation
 SLOPE_PER_METER=$(echo "scale=4; $SLOPE_DROP / $ROW_LENGTH" | bc)
 
 # Header
 cat <<EOF > "$OUTPUT_FILE"
-<?xml version="1.0"?>
-<sdf version="1.10">
-  <model name="orchard">
-    <static>true</static>
+    <model name="orchard_trees">
+      <pose degrees="true">37 35 -0.5 0 0 100</pose>
+      <static>true</static>
 EOF
 
 # Main Loop
@@ -33,7 +32,9 @@ for c in $(seq 0 $(($NUM_TREES_PER_ROW - 1))); do
     # Normalize the tree's position from 0 to 1
     NORM_POS=$(echo "scale=4; $c / ($NUM_TREES_PER_ROW - 1)" | bc)
     # Apply a quadratic function (x^2) to create progressive spacing
-    SPACING_FACTOR=$(echo "scale=4; 1 - sqrt(1 - $NORM_POS)" | bc -l)
+    # SPACING_FACTOR=$(echo "scale=4; 1 - sqrt(1 - $NORM_POS)" | bc -l)
+    # Linear spacing
+    SPACING_FACTOR=$NORM_POS
     # Calculate the final X position
     POS_X=$(echo "scale=4; $SPACING_FACTOR * $ROW_LENGTH" | bc)
     
@@ -43,43 +44,18 @@ for c in $(seq 0 $(($NUM_TREES_PER_ROW - 1))); do
 
     # Append the link block for each tree
     cat <<EOF >> "$OUTPUT_FILE"
-    <link name='tree_r${r}_c${c}'>
-      <pose>${POS_X} ${POS_Y} ${POS_Z} 0 0 0</pose>
-      <inertial>
-        <pose>0 0 0 0 0 0</pose>
-        <mass>100</mass>
-        <inertia>
-          <ixx>1</ixx>
-          <iyy>1</iyy>
-          <izz>1</izz>
-        </inertia>
-      </inertial>
-      <collision name='collision'>
-        <pose degrees="true">-0.25 0 1.5 0 0 0</pose>
-        <geometry>
-            <box>
-              <size>0.5 0.5 3.0</size>
-            </box>
-        </geometry>
-      </collision>
-      <visual name='visual'>
-        <pose degrees="true">0 0 0 90 0 0</pose>
-        <geometry>
-          <mesh>
-            <scale>.025 .025 .025</scale>
-            <uri>model://orchard_trees_near/meshes/tree.fbx</uri>
-          </mesh>
-        </geometry>
-      </visual>
-    </link>
+      <include>
+        <name>apple_tree_r${r}_c${c}</name>
+        <uri>model://apple_tree</uri>
+        <pose>${POS_X} ${POS_Y} ${POS_Z} 0 0 0</pose>
+      </include>
 EOF
   done
 done
 
 # SDF Footer
 cat <<EOF >> "$OUTPUT_FILE"
-  </model>
-</sdf>
+    </model>
 EOF
 
-echo "Done. World created at ${OUTPUT_FILE}"
+echo "Done. Output created at ${OUTPUT_FILE}"
