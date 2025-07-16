@@ -23,21 +23,21 @@ That is, the challenge of **end-to-end/full-stack integration** among:
     - XRCE-DDS, MAVSDK autopilot-to-companion board messaging
     - GStreamer camera-to-companion board acquisition
 
-## Links to Similar and Related Work
+## Related Work
 
 A summary of existing multi-drone flight stacks can be found in [Table II of this paper](https://arxiv.org/pdf/2303.18237). Notable ones include:
 
-- Universidad Politécnica de Madrid (UPM)'s [`aerostack2`](https://github.com/aerostack2/aerostack2) (multicopter-only)
-- Czech Technical University in Prague (CTU)'s [`mrs_uav_system`](https://github.com/ctu-mrs/mrs_uav_system) (ROS1, multicopter-only)
-- Technische Universität (TU) Berlin's [`crazyswarmw`](https://github.com/IMRCLab/crazyswarm2) (crazyflie-only, indoor)
-- Peking University's [`XTDrone`](https://github.com/robin-shaun/XTDrone) (ROS1, PX4-only)
+- *Universidad Politécnica de Madrid (UPM)*'s [`aerostack2`](https://github.com/aerostack2/aerostack2) (multicopter-only)
+- *Czech Technical University in Prague (CTU)*'s [`mrs_uav_system`](https://github.com/ctu-mrs/mrs_uav_system) (ROS1, multicopter-only)
+- *Technische Universität (TU) Berlin*'s [`crazyswarm2`](https://github.com/IMRCLab/crazyswarm2) (crazyflie-only, indoor)
+- *Peking University*'s [`XTDrone`](https://github.com/robin-shaun/XTDrone) (ROS1, PX4-only)
 
 A summary of aerial robotics simulators can be found in [Table IV of this paper](https://arxiv.org/pdf/2311.02296), including:
 
-- Norwegian University of Science and Technology (NTNU)'s [`aerial_gym_simulator`](https://github.com/ntnu-arl/aerial_gym_simulator) (high-performance simulator for RL)
-- University of Pennsylvania (UPenn)'s [`RotorPy`](https://github.com/spencerfolk/rotorpy) (high-fidelity simulator for control)
-- University of Toronto (UofT)'s [`gym-pybullet-drones`](https://github.com/utiasDSL/gym-pybullet-drones) (simple simulator for education, control, and RL)
-- UZH's [`flightmare`](https://github.com/uzh-rpg/flightmare), ETH's [`RotorS`](https://github.com/ethz-asl/rotors_simulator), NYU's [`RotorTM`](https://github.com/arplaboratory/RotorTM), Microsoft's [`AirSim`](https://github.com/microsoft/AirSim), etc.
+- *Norwegian University of Science and Technology (NTNU)*'s [`aerial_gym_simulator`](https://github.com/ntnu-arl/aerial_gym_simulator) (high-performance simulator for RL)
+- *University of Pennsylvania (UPenn)*'s [`RotorPy`](https://github.com/spencerfolk/rotorpy) (high-fidelity simulator for control)
+- *University of Toronto (UofT)*'s [`gym-pybullet-drones`](https://github.com/utiasDSL/gym-pybullet-drones) (simple simulator for education, control, and RL)
+- *UZH*'s [`flightmare`](https://github.com/uzh-rpg/flightmare), *ETH*'s [`RotorS`](https://github.com/ethz-asl/rotors_simulator), *NYU*'s [`RotorTM`](https://github.com/arplaboratory/RotorTM), *Microsoft*'s [`AirSim`](https://github.com/microsoft/AirSim), etc.
 
 For even more resources, also check out [`aerial_robotic_landscape`](https://github.com/ROS-Aerial/aerial_robotic_landscape).
 
