@@ -3,7 +3,7 @@
 ## Pre-installation Step 1 of 3: Host Computer Setup
 
 > [!NOTE]
-> Skip this step if you already have an **Ubuntu 22 computer with NVIDIA Driver**, Git, etc.
+> Skip this step if you already have an **Ubuntu 22 computer with NVIDIA Driver**, Git, **Git LFS** etc.
 
 - Install the host OS from a startup disk based on `ubuntu-22.04.5-desktop-amd64.iso`
 - Choose "Normal installation", "Download updates while installing Ubuntu", no "Install third-party software"
@@ -24,7 +24,7 @@ sudo apt update
 sudo apt upgrade
 sudo apt install git
 
-# Install git-lfs
+# Install git-lfs (for the large files in simulation_resources/)
 sudo apt update
 sudo apt install git-lfs
 git lfs install
