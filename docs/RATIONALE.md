@@ -1,4 +1,4 @@
-# Rationale and Related Word
+# Rationale
 
 ## The 2 Facets of the Sim2real Gap
 
