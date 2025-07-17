@@ -6,9 +6,6 @@
 - **Simulate** vision and control in software-in-the-loop, with YOLOv8 and PX4/ArduPilot
 - **Deploy** in real drones with NVIDIA Orin/JetPack
 
-> [!NOTE]
-> For the motivation behind AAS (and how it compares to similar projects), read [`RATIONALE.md`](/docs/RATIONALE.md)
-
 ## Feature Highlights
 
 - Support for **multiple quadrotor and VTOL** aircraft based on **PX4 or ArduPilot**
@@ -26,6 +23,8 @@
 > AAS leverages the following frameworks:
 >
 > [*ROS2 Humble*](https://docs.ros.org/en/rolling/Releases.html) (LTS, EOL 5/2027), [*Gazebo Sim Harmonic*](https://gazebosim.org/docs/latest/releases/) (LTS, EOL 9/2028), [*PX4 1.15*](https://github.com/PX4/PX4-Autopilot/releases) interfaced *via* [XRCE-DDS](https://github.com/eProsima/Micro-XRCE-DDS/releases), [*ArduPilot 4.6*](https://github.com/ArduPilot/ardupilot/releases) interfaced *via* [MAVSDK](https://github.com/mavlink/mavsdk/releases), [*YOLOv8*](https://github.com/ultralytics/ultralytics/releases) on [*ONNX Runtime 1.22*](https://onnxruntime.ai/getting-started) (latest stable releases as of 6/2025), [*L4T 36* (Ubuntu 22-based)/*JetPack 6*](https://developer.nvidia.com/embedded/jetpack-archive) (for deployment only, latest major release as of 6/2025)
+> 
+> For the motivation behind AAS and how it compares to similar projects, read [`RATIONALE.md`](/docs/RATIONALE.md)
 
 [![Teaser](docs/assets/video.jpg)](https://www.youtube.com/watch?v=VIDEO_ID)
 
@@ -36,7 +35,7 @@
 > [!IMPORTANT]
 > This stack is developed and tested using a [Ubuntu 22.04](https://ubuntu.com/about/release-cycle) host (penultimate LTS, ESM 4/2032) with [`nvidia-driver-570`](https://developer.nvidia.com/datacenter-driver-archive) and Docker Engine v28 (latest stable releases as of 6/2025) on an i9-13 with RTX3500 and an i7-11 with RTX3060 computers
 > 
-> **To setup (i) Ubuntu 22, (ii) NVIDIA driver, (iii) Docker Engine, (iv) NVIDIA Container Toolkit, and (v) NVIDIA NGC API Key read [`PREINSTALL.md`](/docs/PREINSTALL.md)**
+> **To setup (i) Ubuntu 22, Git LFS, (ii) NVIDIA driver, (iii) Docker Engine, (iv) NVIDIA Container Toolkit, and (v) NVIDIA NGC API Key read [`PREINSTALL.md`](/docs/PREINSTALL.md)**
 
 ```sh
 # Clone this repo
