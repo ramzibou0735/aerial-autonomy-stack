@@ -46,7 +46,7 @@ for c in $(seq 0 $(($NUM_TREES_PER_ROW - 1))); do
     cat <<EOF >> "$OUTPUT_FILE"
       <include>
         <name>apple_tree_r${r}_c${c}</name>
-        <uri>model://apple_tree</uri>
+        <uri>model://apple</uri>
         <pose>${POS_X} ${POS_Y} ${POS_Z} 0 0 0</pose>
       </include>
 EOF

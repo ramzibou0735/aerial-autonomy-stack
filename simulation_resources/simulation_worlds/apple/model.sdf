@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <sdf version="1.10">
-  <model name="apple_tree">
+  <model name="apple">
     <static>true</static>
     <link name='base_link'>
       <pose>0 0 0 0 0 0</pose>
@@ -26,7 +26,7 @@
         <geometry>
           <mesh>
             <scale>.025 .025 .025</scale>
-            <uri>model://apple_tree/meshes/simpler_tree.fbx</uri>
+            <uri>model://apple/meshes/simpler_tree.fbx</uri>
           </mesh>
         </geometry>
       </visual>

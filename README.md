@@ -14,7 +14,7 @@
 - Support for **multiple quadrotor and VTOL** aircraft based on **PX4 or ArduPilot**
 - Support for **ROS2** with ROS2-based autopilot interfaces (*via* XRCE-DDS and MAVSDK)
 - Support for **YOLOv8** and ONNX CPU, CUDA (on desktop/amd64), and TensorRT (on Orin/arm64) Runtime
-- Photogrammetry and 3D worlds for [PX4](https://docs.px4.io/main/en/simulation/#sitl-simulation-environment)/[ArduPilot](https://ardupilot.org/dev/docs/sitl-simulator-software-in-the-loop.html#sitl-architecture) **software-in-the-loop simulation**
+- 3D worlds for [PX4](https://docs.px4.io/main/en/simulation/#sitl-simulation-environment)/[ArduPilot](https://ardupilot.org/dev/docs/sitl-simulator-software-in-the-loop.html#sitl-architecture) **software-in-the-loop simulation**
 - Dockerized simulation based on [`nvcr.io/nvidia/cuda:12.8.1-cudnn-runtime-ubuntu22.04`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/cuda/tags)
 - **Dockerized deployment** based on [`nvcr.io/nvidia/l4t-jetpack:r36.4.0`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/l4t-jetpack/tags)
 
@@ -80,10 +80,10 @@ Once "Ready to Fly", one can takeoff and control from QGroundControl's ["Fly Vie
 
 ![Worlds](docs/assets/worlds.jpg)
 
-Available `WORLD` s:
+Available `WORLD`s:
 - `impalpable_greyness`, an empty world with simple shapes (default)
 - `apple_orchard`, a GIS world created using [BlenderGIS](https://github.com/domlysz/BlenderGIS)
-- `alpine_village`, a photogrammetry world courtesy of [Pix4D / pix4d.com](https://support.pix4d.com/hc/en-us/articles/360000235126#OPF2)
+- `swiss_town`, a photogrammetry world courtesy of [Pix4D / pix4d.com](https://support.pix4d.com/hc/en-us/articles/360000235126)
 - `downtown_tbd`, a 3D world from [Visicom](https://visicomdata.com/samples)
 
 > [!TIP]

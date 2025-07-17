@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <sdf version="1.9">
-  <world name="impalpable_greyness">
+  <world name="swiss_town">
     <!-- Gazebo/PX4 pyhsics, it is overridden when using Ardupilot -->
     <physics type="ode">
       <max_step_size>0.004</max_step_size>
@@ -163,7 +163,7 @@
       <ambient>0.4 0.4 0.4 1</ambient>
       <background>0.7 0.7 0.7 1</background>
       <shadows>true</shadows>
-      <!-- <sky></sky> -->
+      <sky></sky>
     </scene>
     <model name="axes">
       <static>1</static>
@@ -241,20 +241,26 @@
     <spherical_coordinates>
       <surface_model>EARTH_WGS84</surface_model>
       <world_frame_orientation>ENU</world_frame_orientation>
-      <latitude_deg>45.547731543301055</latitude_deg>
-      <longitude_deg>8.938851933598375</longitude_deg>
-      <elevation>51</elevation>
+      <latitude_deg>46.474726625501674</latitude_deg>
+      <longitude_deg>6.777808569484822</longitude_deg>
+      <elevation>445</elevation>
     </spherical_coordinates>
 
     <model name="ground_plane">
       <static>true</static>
       <link name="link">
         <collision name="collision">
-          <geometry>
+          <!-- <geometry>
             <plane>
               <normal>0 0 1</normal>
               <size>1 1</size>
             </plane>
+          </geometry> -->
+          <geometry>
+            <mesh>
+              <scale>.7 .7 .7</scale>
+              <uri>model://town_photogrammetry/meshes/town.fbx</uri>
+            </mesh>
           </geometry>
           <surface>
             <friction>
@@ -265,17 +271,18 @@
           </surface>
         </collision>
         <visual name="visual">
-          <geometry>
+          <!-- <geometry>
             <plane>
               <normal>0 0 1</normal>
               <size>100 100</size>
             </plane>
+          </geometry> -->
+          <geometry>
+            <mesh>
+              <scale>.7 .7 .7</scale>
+              <uri>model://town_photogrammetry/meshes/town.fbx</uri>
+            </mesh>
           </geometry>
-          <material>
-            <ambient>0.8 0.8 0.8 1</ambient>
-            <diffuse>0.8 0.8 0.8 1</diffuse>
-            <specular>0.8 0.8 0.8 1</specular>
-          </material>
         </visual>
         <pose>0 0 0 0 -0 0</pose>
         <inertial>
@@ -292,7 +299,7 @@
         </inertial>
         <enable_wind>false</enable_wind>
       </link>
-      <pose degrees="true">0 0 0 0 -0 0</pose>
+      <pose degrees="true">0 0 -20 0 -0 0</pose>
       <self_collide>false</self_collide>
     </model>
 
@@ -319,136 +326,6 @@
         </inertial>
       </link>
     </model>
-
-    <model name="cylinder">
-      <pose>10 10 10 0 0 0</pose>
-      <link name="link">
-        <inertial>
-          <pose>0 0 0 0 0 0</pose>
-          <mass>10</mass>
-          <inertia>
-            <ixx>1</ixx>
-            <iyy>1</iyy>
-            <izz>1</izz>
-          </inertia>
-        </inertial>
-        <collision name='collision'>
-          <pose>0 0 0 0 0 0</pose>
-          <geometry>
-            <cylinder>
-              <radius>1</radius>
-              <length>3</length>
-            </cylinder>
-          </geometry>
-        </collision>
-        <visual name="visual">
-          <geometry>
-            <cylinder>
-              <radius>1</radius>
-              <length>3</length>
-            </cylinder>
-          </geometry>
-          <material>
-            <ambient>1 0 0 1.0</ambient>
-            <diffuse>1 0 0 1.0</diffuse>
-            <!-- <specular>1 0 0 1.0</specular> -->
-            <!-- <emissive>1 0 0 1.0</emissive> -->
-          </material>
-        </visual>
-      </link>
-    </model>
-
-    <model name="sphere">
-      <pose>20 0 10 0 0 0</pose>
-      <link name="link">
-        <inertial>
-          <pose>0 0 0 0 0 0</pose>
-          <mass>10</mass>
-          <inertia>
-            <ixx>1</ixx>
-            <iyy>1</iyy>
-            <izz>1</izz>
-          </inertia>
-        </inertial>
-        <collision name='collision'>
-          <pose>0 0 0 0 0 0</pose>
-          <geometry>
-            <sphere>
-              <radius>2</radius>
-            </sphere>
-          </geometry>
-        </collision>
-        <visual name="visual">
-          <geometry>
-            <sphere>
-              <radius>2</radius>
-            </sphere>
-          </geometry>
-          <material>
-            <ambient>0 1 0 1.0</ambient>
-            <diffuse>0 1 0 1.0</diffuse>
-            <!-- <specular>0 1 0 1.0</specular> -->
-            <!-- <emissive>0 1 0 1.0</emissive> -->
-          </material>
-        </visual>
-      </link>
-    </model>
-
-    <model name="cube">
-      <pose>10 -10 10 0 0 0</pose>
-      <link name="link">
-        <inertial>
-          <pose>0 0 0 0 0 0</pose>
-          <mass>10</mass>
-          <inertia>
-            <ixx>1</ixx>
-            <iyy>1</iyy>
-            <izz>1</izz>
-          </inertia>
-        </inertial>
-        <collision name='collision'>
-          <pose>0 0 0 0 0 0</pose>
-          <geometry>
-            <box>
-              <size>3.0 3.0 3.0</size>
-            </box>
-          </geometry>
-        </collision>
-        <visual name="visual">
-          <geometry>
-            <box>
-              <size>3.0 3.0 3.0</size>
-            </box>
-          </geometry>
-          <material>
-            <ambient>0 0 1 1.0</ambient>
-            <diffuse>0 0 1 1.0</diffuse>
-            <!-- <specular>0 0 1 1.0</specular> -->
-            <!-- <emissive>0 0 1 1.0</emissive> -->
-          </material>
-        </visual>
-      </link>
-    </model>
-
-    <include>
-      <uri>model://unicorn</uri>
-      <pose degrees="true">20 -10 4.5 0 0 -30</pose>
-    </include>
-
-    <include>
-      <uri>model://rabbit</uri>
-      <pose degrees="true">20 20 2 0 0 30</pose>
-    </include>
-
-    <!-- <include>
-      <uri>model://subaru</uri>
-      <pose degrees="true">-5 30 4 0 0 0</pose>
-    </include> -->
-
-    <!-- <include>
-      <uri>model://crash</uri>
-      <pose degrees="true">5 40 3.75 0 0 0</pose>
-    </include> -->
 
   </world>
 </sdf>
