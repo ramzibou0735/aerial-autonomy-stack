@@ -308,14 +308,15 @@
       <self_collide>false</self_collide>
     </model>
 
-    <model name="look_up_cylinder">
-      <pose>0 0 10 0 0 0</pose>
+    <model name="mario_coin">
+      <pose degrees="true">0 0 15 30 90 0</pose>
+      <static>true</static>
       <link name="cylinder_link">
         <visual name="visual">
           <geometry>
             <cylinder>
-              <radius>0.25</radius>
-              <length>0.5</length>
+              <radius>1.25</radius>
+              <length>0.2</length>
             </cylinder>
           </geometry>
           <material>
@@ -325,10 +326,6 @@
             <emissive>0.96 0.64 0.01 1.0</emissive>
           </material>
         </visual>
-        <inertial>
-          <pose>0 0 0 0 0 0</pose>
-          <mass>0</mass>
-        </inertial>
       </link>
     </model>
 

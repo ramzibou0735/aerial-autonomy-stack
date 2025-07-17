@@ -13,13 +13,13 @@
 
 - Support for **multiple quadrotor and VTOL** aircraft based on **PX4 or ArduPilot**
 - Support for **ROS2** with ROS2-based autopilot interfaces (*via* XRCE-DDS and MAVSDK)
-- Support for **YOLOv8** and ONNX CPU, CUDA (on desktop/amd64), and TensorRT (on Orin/arm64) Runtime
-- 3D worlds for [PX4](https://docs.px4.io/main/en/simulation/#sitl-simulation-environment)/[ArduPilot](https://ardupilot.org/dev/docs/sitl-simulator-software-in-the-loop.html#sitl-architecture) **software-in-the-loop simulation**
+- Support for **YOLOv8** and ONNX CPU, CUDA (on desktop/amd64), and TensorRT (on Orin/arm64) Runtimes
+- 3D worlds for [PX4](https://docs.px4.io/main/en/simulation/#sitl-simulation-environment)/[ArduPilot](https://ardupilot.org/dev/docs/sitl-simulator-software-in-the-loop.html#sitl-architecture) **software-in-the-loop (SITL) simulation**
 - Dockerized simulation based on [`nvcr.io/nvidia/cuda:12.8.1-cudnn-runtime-ubuntu22.04`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/cuda/tags)
 - **Dockerized deployment** based on [`nvcr.io/nvidia/l4t-jetpack:r36.4.0`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/l4t-jetpack/tags)
 
-- Support for [FAST-LIO](https://github.com/hku-mars/FAST_LIO) (Fast LiDAR-Inertial Odometry)
-- Support for [PX4 Offboard](https://docs.px4.io/main/en/flight_modes/offboard.html) mode in CTBR (`VehicleRatesSetpoint`) for agile, GNSS-denied flight
+- Support for [FAST-LIO](https://github.com/hku-mars/FAST_LIO) (Fast **LiDAR-Inertial Odometry**)
+<!-- - Support for [PX4 Offboard](https://docs.px4.io/main/en/flight_modes/offboard.html) mode in CTBR (`VehicleRatesSetpoint`) for agile, GNSS-denied flight -->
 - Lightweight inter-drone communication for real-world deployment 
 
 > [!NOTE]
@@ -92,21 +92,22 @@ Available `WORLD`s:
 > - Move between panes with `Ctrl + b`, then `arrow keys`
 > - Enter copy mode to scroll back with `Ctrl + [`, then `arrow keys`, exit with `q`
 > - Detach with `Ctrl + b`, then press `d`
-> - Re-attach with `$ tmux attach-session -t simulation_tmuxinator`
-> - Or kill with `$ tmux kill-session -t simulation_tmuxinator`
-> - List sessions with `$ tmux list-sessions`
-> - Kill all with `$ tmux kill-server`
-> 
+> ```sh
+> tmux list-sessions # List all sessions
+> tmux attach-session -t [session_name] # Reattach a session
+> tmux kill-session -t [session_name] # Kill a session
+> tmux kill-server # Kill all sessions
+> ```
 > Docker hygiene:
-```sh
-docker ps -a # List containers
-docker stop $(docker ps -q) # Stop all containers
-docker container prune # Remove all stopped containers
-
-docker images # List images
-docker image prune # Remove untagged images
-docker rmi <image_name_or_id> # Remove a specific image
-```
+> ```sh
+> docker ps -a # List containers
+> docker stop $(docker ps -q) # Stop all containers
+> docker container prune # Remove all stopped containers
+> 
+> docker images # List images
+> docker image prune # Remove untagged images
+> docker rmi <image_name_or_id> # Remove a specific image
+> ```
 
 ---
 

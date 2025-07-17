@@ -19,10 +19,10 @@ windows:
       layout: even-horizontal
       panes:
         - > 
-          chmod +x /git/simulation_resources/aircraft_models/create_ardupilot_models.sh &&
-          /git/simulation_resources/aircraft_models/create_ardupilot_models.sh <%= num_drones %> /git/simulation_resources/aircraft_models/<%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'zephyr_with_ardupilot' %> &&
-          chmod +x /git/simulation_resources/simulation_worlds/create_ardupilot_world.sh &&
-          /git/simulation_resources/simulation_worlds/create_ardupilot_world.sh <%= num_drones %> <%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'zephyr_with_ardupilot' %> /git/simulation_resources/simulation_worlds/<%= world %>.sdf &&
+          chmod +x /git/simulation_resources/aircraft_models/_create_ardupilot_models.sh &&
+          /git/simulation_resources/aircraft_models/_create_ardupilot_models.sh <%= num_drones %> /git/simulation_resources/aircraft_models/<%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'zephyr_with_ardupilot' %> &&
+          chmod +x /git/simulation_resources/simulation_worlds/_create_ardupilot_world.sh &&
+          /git/simulation_resources/simulation_worlds/_create_ardupilot_world.sh <%= num_drones %> <%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'zephyr_with_ardupilot' %> /git/simulation_resources/simulation_worlds/<%= world %>.sdf &&
           GZ_SIM_SYSTEM_PLUGIN_PATH=/git/ardupilot_gazebo/build:$GZ_SIM_SYSTEM_PLUGIN_PATH 
           GZ_SIM_RESOURCE_PATH=/git/simulation_resources/aircraft_models:/git/simulation_resources/simulation_worlds:$GZ_SIM_RESOURCE_PATH 
           gz sim -v4 -r populated_ardupilot.sdf
