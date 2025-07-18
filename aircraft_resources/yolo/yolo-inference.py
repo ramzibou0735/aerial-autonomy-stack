@@ -89,7 +89,7 @@ while True:
     confidences = np.max(class_scores, axis=1)
 
     # Filter with confidence threshold
-    CONF_THRESH = 0.6
+    CONF_THRESH = 0.5
     mask = (confidences > CONF_THRESH)
     boxes = boxes[mask]
     confidences = confidences[mask]

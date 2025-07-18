@@ -18,7 +18,7 @@
         <pose degrees="true">0 0 0 90 0 0</pose>
         <geometry>
           <mesh>
-            <scale>0.014 0.014 0.014</scale>
+            <scale>0.063 0.063 0.063</scale>
             <uri>model://suburb/meshes/suburb.fbx</uri>
           </mesh>
         </geometry>
@@ -27,7 +27,7 @@
         <pose degrees="true">0 0 0 90 0 0</pose>
         <geometry>
           <mesh>
-            <scale>0.014 0.014 0.014</scale>
+            <scale>0.063 0.063 0.063</scale>
             <uri>model://suburb/meshes/suburb.fbx</uri>
           </mesh>
         </geometry>

@@ -342,7 +342,7 @@
           <geometry>
             <cylinder>
               <radius>1</radius>
-              <length>3</length>
+              <length>5</length>
             </cylinder>
           </geometry>
           <material>
@@ -407,14 +407,14 @@
           <pose>0 0 0 0 0 0</pose>
           <geometry>
             <box>
-              <size>3.0 3.0 3.0</size>
+              <size>4.0 4.0 4.0</size>
             </box>
           </geometry>
         </collision>
         <visual name="visual">
           <geometry>
             <box>
-              <size>3.0 3.0 3.0</size>
+              <size>4.0 4.0 4.0</size>
             </box>
           </geometry>
           <material>
@@ -429,7 +429,7 @@
 
     <include>
       <uri>model://unicorn</uri>
-      <pose degrees="true">20 -10 4.5 0 0 -30</pose>
+      <pose degrees="true">40 -20 4.5 0 0 -30</pose>
     </include>
 
     <include>
@@ -447,10 +447,10 @@
       <pose degrees="true">5 40 3.75 0 0 0</pose>
     </include> -->
 
-    <!-- <include>
+    <include>
       <uri>model://suburb</uri>
-      <pose degrees="true">5 -40 3.75 0 0 0</pose>
-    </include> -->
+      <pose degrees="true">25 -205 -0.6 0 0 180</pose>
+    </include>
 
     <!-- <model name="test">
       <static>true</static>
