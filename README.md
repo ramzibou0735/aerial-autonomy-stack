@@ -80,10 +80,10 @@ Once "Ready to Fly", one can takeoff and control from QGroundControl's ["Fly Vie
 ![Worlds](docs/assets/worlds.jpg)
 
 Available `WORLD`s:
-- `impalpable_greyness`, an empty world with simple shapes (default)
+- `impalpable_greyness`, (default) an empty world with simple shapes (uncomment `crash` or `suburb` in the SDF for more)
 - `apple_orchard`, a GIS world created using [BlenderGIS](https://github.com/domlysz/BlenderGIS)
 - `swiss_town`, a photogrammetry world courtesy of [Pix4D / pix4d.com](https://support.pix4d.com/hc/en-us/articles/360000235126)
-- `downtown_tbd`, a 3D world from [Visicom](https://visicomdata.com/samples)
+- `shibuya_crossing`, a 3D world adapted from [cgtrader](https://www.cgtrader.com/)
 
 > [!TIP]
 > Tmux shortcuts:

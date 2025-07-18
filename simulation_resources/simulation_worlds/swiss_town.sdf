@@ -276,7 +276,12 @@
               <normal>0 0 1</normal>
               <size>100 100</size>
             </plane>
-          </geometry> -->
+          </geometry>
+          <material>
+            <ambient>0.8 0.8 0.8 1</ambient>
+            <diffuse>0.8 0.8 0.8 1</diffuse>
+            <specular>0.8 0.8 0.8 1</specular>
+          </material> -->
           <geometry>
             <mesh>
               <scale>1.005 1.005 1.005</scale>
