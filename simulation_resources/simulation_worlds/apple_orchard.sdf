@@ -366,10 +366,22 @@
     </include> -->
 
     <include>
-      <name>apple_grid</name>
+      <name>apple_grid_1</name>
       <uri>model://apple_grid</uri>
-       <pose degrees="true">37 35 -0.5 0 0 100</pose>
+       <pose degrees="true">37 35 -0.0 0 0 100</pose>
     </include>
+
+    <!-- <include>
+      <name>apple_grid_2</name>
+      <uri>model://apple_grid</uri>
+       <pose degrees="true">15 135 -2.5 0 0 100</pose>
+    </include> -->
+
+    <!-- <include>
+      <name>apple_grid_3</name>
+      <uri>model://apple_grid</uri>
+       <pose degrees="true">-7 240 -4 0 0 100</pose>
+    </include> -->
 
     <include>
       <uri>model://jeep</uri>
