@@ -438,13 +438,12 @@
     </include>
 
     <!-- <include>
-      <uri>model://subaru</uri>
-      <pose degrees="true">-5 30 4 0 0 0</pose>
-    </include> -->
-
-    <!-- <include>
       <uri>model://crash</uri>
       <pose degrees="true">5 40 3.75 0 0 0</pose>
+    </include>
+    <include>
+      <uri>model://subaru</uri>
+      <pose degrees="true">-5 30 4 0 0 0</pose>
     </include> -->
 
     <!-- <include>
