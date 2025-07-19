@@ -14,7 +14,7 @@ colors_rgba = plt.cm.hsv(np.linspace(0, 1, len(classes)))
 colors = (colors_rgba[:, [2, 1, 0]] * 255).astype(np.uint8) # From RGBA (0-1 float) to BGR (0-255 int)
 
 # Load model runtime
-model_path = "yolov8n.onnx"
+model_path = "yolov8s.onnx" # Model options (from fastest to most accurate, <10MB to >100MB): yolov8s, yolov8s, yolov8m, yolov8l, yolov8x
 session = ort.InferenceSession(model_path, providers=["CUDAExecutionProvider"])
 # session = ort.InferenceSession(model_path, providers=["CPUExecutionProvider"])
 # session = ort.InferenceSession(model_path, providers=["TensorRTExecutionProvider"])
