@@ -243,7 +243,7 @@
       <world_frame_orientation>ENU</world_frame_orientation>
       <latitude_deg>46.474726625501674</latitude_deg>
       <longitude_deg>6.777808569484822</longitude_deg>
-      <elevation>387.7</elevation>
+      <elevation>388</elevation>
     </spherical_coordinates>
 
     <model name="ground_plane">
@@ -304,8 +304,32 @@
         </inertial>
         <enable_wind>false</enable_wind>
       </link>
-      <pose degrees="true">40.2 84.8 134.5 0 -0 0</pose>
+      <pose degrees="true">40.2 84.8 134.0 0 -0 0</pose>
       <self_collide>false</self_collide>
+    </model>
+
+    <model name="landing_pad">
+      <pose>0 0 -0.5 0 0 0</pose>
+      <static>true</static>
+      <link name="link">
+        <inertial>
+          <pose>0 0 0 0 0 0</pose>
+          <mass>10</mass>
+          <inertia>
+            <ixx>1</ixx>
+            <iyy>1</iyy>
+            <izz>1</izz>
+          </inertia>
+        </inertial>
+        <collision name='collision'>
+          <pose>0 0 0 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>20.0 20.0 1.0</size>
+            </box>
+          </geometry>
+        </collision>
+      </link>
     </model>
 
     <model name="mario_coin">

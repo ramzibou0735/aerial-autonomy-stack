@@ -11,16 +11,17 @@ ROW_SEPARATION=$2
 ROW_LENGTH=$3
 NUM_TREES_PER_ROW=$4
 SLOPE_DROP=$5
-OUTPUT_FILE="output.sdf"
+OUTPUT_FILE="model_from_script.sdf"
 
 # Slope Calculation
 SLOPE_PER_METER=$(echo "scale=4; $SLOPE_DROP / $ROW_LENGTH" | bc)
 
 # Header
 cat <<EOF > "$OUTPUT_FILE"
-    <model name="orchard_trees">
-      <pose degrees="true">37 35 -0.5 0 0 100</pose>
-      <static>true</static>
+<?xml version="1.0"?>
+<sdf version='1.10'>
+  <model name="apple_grid">
+    <static>true</static>
 EOF
 
 # Main Loop
@@ -44,18 +45,19 @@ for c in $(seq 0 $(($NUM_TREES_PER_ROW - 1))); do
 
     # Append the link block for each tree
     cat <<EOF >> "$OUTPUT_FILE"
-      <include>
-        <name>apple_tree_r${r}_c${c}</name>
-        <uri>model://apple</uri>
-        <pose>${POS_X} ${POS_Y} ${POS_Z} 0 0 0</pose>
-      </include>
+    <include>
+      <name>apple_tree_r${r}_c${c}</name>
+      <uri>model://apple</uri>
+      <pose>${POS_X} ${POS_Y} ${POS_Z} 0 0 0</pose>
+    </include>
 EOF
   done
 done
 
 # SDF Footer
 cat <<EOF >> "$OUTPUT_FILE"
-    </model>
+  </model>
+</sdf>
 EOF
 
 echo "Done. Output created at ${OUTPUT_FILE}"

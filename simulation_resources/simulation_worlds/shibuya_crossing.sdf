@@ -308,6 +308,30 @@
       <self_collide>false</self_collide>
     </model>
 
+    <model name="landing_pad">
+      <pose>0 0 -0.5 0 0 0</pose>
+      <static>true</static>
+      <link name="link">
+        <inertial>
+          <pose>0 0 0 0 0 0</pose>
+          <mass>10</mass>
+          <inertia>
+            <ixx>1</ixx>
+            <iyy>1</iyy>
+            <izz>1</izz>
+          </inertia>
+        </inertial>
+        <collision name='collision'>
+          <pose>0 0 0 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>20.0 20.0 1.0</size>
+            </box>
+          </geometry>
+        </collision>
+      </link>
+    </model>
+
     <model name="mario_coin">
       <pose degrees="true">0 0 15 30 90 0</pose>
       <static>true</static>
