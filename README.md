@@ -133,6 +133,12 @@ TBD
 
 ## TODOs
 
+### FAST-LIO
+
+- https://github.com/hku-mars/FAST_LIO
+- https://github.com/Ericsii/FAST_LIO_ROS2
+- https://github.com/Taeyoung96/FAST_LIO_ROS2
+
 ### Geospatial and Photogrammetry Resources
 
 - https://support.pix4d.com/hc/en-us/articles/360000235126#OPF2
