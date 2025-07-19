@@ -8,16 +8,17 @@
 
 ## Feature Highlights
 
-- Support for **multiple quadrotor and VTOL** aircraft based on **PX4 or ArduPilot**
-- Support for **ROS2** with ROS2-based autopilot interfaces (*via* XRCE-DDS and MAVSDK)
-- Support for **YOLOv8** and ONNX CPU, CUDA (on desktop/amd64), and TensorRT (on Orin/arm64) Runtimes
+- Support for **multiple quadrotors and VTOLs** based on **PX4 or ArduPilot**
+- **ROS2**-based autopilot interfaces (*via* XRCE-DDS and MAVSDK)
+- Support for **YOLOv8** and ONNX GPU Runtimes
+- Support for **Fast LiDAR-Inertial Odometry** ([FAST-LIO](https://github.com/hku-mars/FAST_LIO))
+- **Dockerized simulation and deployment** based on [`nvcr.io/nvidia/cuda:12.8.1-cudnn-runtime-ubuntu22.04`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/cuda/tags), [`nvcr.io/nvidia/l4t-jetpack:r36.4.0`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/l4t-jetpack/tags)
+<!-- 
 - 3D worlds for [PX4](https://docs.px4.io/main/en/simulation/#sitl-simulation-environment)/[ArduPilot](https://ardupilot.org/dev/docs/sitl-simulator-software-in-the-loop.html#sitl-architecture) **software-in-the-loop (SITL) simulation**
-- Dockerized simulation based on [`nvcr.io/nvidia/cuda:12.8.1-cudnn-runtime-ubuntu22.04`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/cuda/tags)
-- **Dockerized deployment** based on [`nvcr.io/nvidia/l4t-jetpack:r36.4.0`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/l4t-jetpack/tags)
-
-- Support for [FAST-LIO](https://github.com/hku-mars/FAST_LIO) (Fast **LiDAR-Inertial Odometry**)
-<!-- - Support for [PX4 Offboard](https://docs.px4.io/main/en/flight_modes/offboard.html) mode in CTBR (`VehicleRatesSetpoint`) for agile, GNSS-denied flight -->
+- Support for [PX4 Offboard](https://docs.px4.io/main/en/flight_modes/offboard.html) mode in CTBR (`VehicleRatesSetpoint`) for agile, GNSS-denied flight 
+- Steppable RL interface
 - Lightweight inter-drone communication for real-world deployment 
+-->
 
 > [!NOTE]
 > AAS leverages the following frameworks:
@@ -109,6 +110,18 @@ Available `WORLD`s:
 > docker rmi <image_name_or_id> # Remove a specific image
 > ```
 
+### Headless Simulation
+
+TBD
+
+### Steppable Simulation
+
+TBD
+
+```sh
+gz service -s /world/impalpable_greyness/control --reqtype gz.msgs.WorldControl --reptype gz.msgs.Boolean --req 'multi_step: 250, pause: true'
+```
+
 ---
 
 ## Part 3: Development with AAS
@@ -139,14 +152,6 @@ TBD
 - https://github.com/hku-mars/FAST_LIO
 - https://github.com/Ericsii/FAST_LIO_ROS2
 - https://github.com/Taeyoung96/FAST_LIO_ROS2
-
-### Stepping gz sim
-
-- https://gazebosim.org/api/sim/8/pause_run_simulation.html
-- https://gazebosim.org/api/sim/8/classgz_1_1sim_1_1Server.html#abf20a9b198865a3d0662c275a80aa526
-```
-gz service -s /world/impalpable_greyness/control --reqtype gz.msgs.WorldControl --reptype gz.msgs.Boolean --req 'multi_step: 250, pause: true'
-```
 
 ### Model Resources
 
