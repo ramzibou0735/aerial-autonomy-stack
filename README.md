@@ -81,7 +81,8 @@ Once "Ready to Fly", one can takeoff and control from QGroundControl's ["Fly Vie
 
 Available `WORLD`s:
 - `apple_orchard`, a GIS world created using [BlenderGIS](https://github.com/domlysz/BlenderGIS)
-- `impalpable_greyness`, (default) an empty world with simple shapes (tip: uncomment `crash` or `suburb` in the SDF)
+- `impalpable_greyness`, (default) an empty world with simple shapes
+    - optional, uncomment `crash` or `suburb` in the SDF
 - `shibuya_crossing`, a 3D world adapted from [cgtrader](https://www.cgtrader.com/)
 - `swiss_town`, a photogrammetry world courtesy of [Pix4D / pix4d.com](https://support.pix4d.com/hc/en-us/articles/360000235126)
 
@@ -139,19 +140,13 @@ TBD
 - https://github.com/Ericsii/FAST_LIO_ROS2
 - https://github.com/Taeyoung96/FAST_LIO_ROS2
 
-### Geospatial and Photogrammetry Resources
+### Stepping gz sim
 
-- https://support.pix4d.com/hc/en-us/articles/360000235126#OPF2
-- https://visicomdata.com/samples
-- https://github.com/domlysz/BlenderGIS
-- https://cesium.com/platform/cesiumjs/ 
-- https://app.gazebosim.org/fuel/worlds
-- https://aszabo.substack.com/p/zero-to-hero-creating-gazebo-worlds?utm_campaign=post&utm_medium=web
-- https://github.com/AndrejOrsula/space_robotics_gz_envs
-
-- https://github.com/softwareunderground/awesome-open-geoscience?tab=readme-ov-file
-- https://github.com/sacridini/Awesome-Geospatial
-- https://github.com/awesome-photogrammetry/awesome-photogrammetry?tab=readme-ov-file
+- https://gazebosim.org/api/sim/8/pause_run_simulation.html
+- https://gazebosim.org/api/sim/8/classgz_1_1sim_1_1Server.html#abf20a9b198865a3d0662c275a80aa526
+```
+gz service -s /world/impalpable_greyness/control --reqtype gz.msgs.WorldControl --reptype gz.msgs.Boolean --req 'multi_step: 250, pause: true'
+```
 
 ### Model Resources
 
