@@ -26,7 +26,7 @@
 > 
 > For the motivation behind AAS and how it compares to similar projects, read [`RATIONALE.md`](/docs/RATIONALE.md)
 
-[![Teaser](docs/assets/video.jpg)](https://www.youtube.com/watch?v=VIDEO_ID)
+<!-- [![Teaser](docs/assets/video.jpg)](https://www.youtube.com/watch?v=VIDEO_ID) -->
 
 ---
 

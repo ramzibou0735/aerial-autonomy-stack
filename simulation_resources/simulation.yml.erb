@@ -12,7 +12,8 @@ windows:
       layout: even-horizontal
       panes:
         - >
-          GZ_SIM_RESOURCE_PATH=$GZ_SIM_RESOURCE_PATH:/git/simulation_resources/aircraft_models:/git/simulation_resources/simulation_worlds
+          GZ_SIM_RESOURCE_PATH=$GZ_SIM_RESOURCE_PATH:/git/simulation_resources/aircraft_models:/git/simulation_resources/simulation_worlds 
+          GZ_SIM_PHYSICS_ENGINE_PATH=$GZ_SIM_PHYSICS_ENGINE_PATH:/usr/lib/x86_64-linux-gnu/gz-physics-7/engine-plugins/
           gz sim -v4 -r <%= world %>.sdf
   <% elsif autopilot == 'ardupilot' %>
   - gz_sim:
@@ -25,6 +26,7 @@ windows:
           /git/simulation_resources/simulation_worlds/_create_ardupilot_world.sh <%= num_drones %> <%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'zephyr_with_ardupilot' %> /git/simulation_resources/simulation_worlds/<%= world %>.sdf &&
           GZ_SIM_SYSTEM_PLUGIN_PATH=/git/ardupilot_gazebo/build:$GZ_SIM_SYSTEM_PLUGIN_PATH 
           GZ_SIM_RESOURCE_PATH=/git/simulation_resources/aircraft_models:/git/simulation_resources/simulation_worlds:$GZ_SIM_RESOURCE_PATH 
+          GZ_SIM_PHYSICS_ENGINE_PATH=$GZ_SIM_PHYSICS_ENGINE_PATH:/usr/lib/x86_64-linux-gnu/gz-physics-7/engine-plugins/
           gz sim -v4 -r populated_ardupilot.sdf
   <% end %>
 
