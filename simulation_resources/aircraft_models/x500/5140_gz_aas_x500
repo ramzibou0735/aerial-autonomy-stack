@@ -31,6 +31,13 @@ param set-default RTL_DESCEND_ALT 10
 param set-default GPS_UBX_DYNMODEL 6
 
 ################################################################################
+
+# AAS Custom
+
+param set-default COM_RCL_EXCEPT 7 # Disable RC loss action
+
+# Original airframe
+
 PX4_SIMULATOR=${PX4_SIMULATOR:=gz}
 PX4_GZ_WORLD=${PX4_GZ_WORLD:=default}
 PX4_SIM_MODEL=${PX4_SIM_MODEL:=x500}

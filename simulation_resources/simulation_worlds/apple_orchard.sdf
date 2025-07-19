@@ -243,7 +243,7 @@
       <world_frame_orientation>ENU</world_frame_orientation>
       <latitude_deg>45.65357595258639</latitude_deg>
       <longitude_deg>-73.71894867811949</longitude_deg>
-      <elevation>202</elevation>
+      <elevation>47.5</elevation>
     </spherical_coordinates>
 
     <model name="ground_plane">

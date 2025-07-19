@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <sdf version="1.9">
-  <world name="swiss_town">
+  <world name="shibuya_crossing">
     <!-- Gazebo/PX4 pyhsics, it is overridden when using Ardupilot -->
     <physics type="ode">
       <max_step_size>0.004</max_step_size>
@@ -241,9 +241,9 @@
     <spherical_coordinates>
       <surface_model>EARTH_WGS84</surface_model>
       <world_frame_orientation>ENU</world_frame_orientation>
-      <latitude_deg>46.474726625501674</latitude_deg>
-      <longitude_deg>6.777808569484822</longitude_deg>
-      <elevation>387.7</elevation>
+      <latitude_deg>35.65860534311455</latitude_deg>
+      <longitude_deg>139.70219212309263</longitude_deg>
+      <elevation>37.8</elevation>
     </spherical_coordinates>
 
     <model name="ground_plane">
@@ -258,8 +258,8 @@
           </geometry> -->
           <geometry>
             <mesh>
-              <scale>1.005 1.005 1.005</scale>
-              <uri>model://town_photogrammetry/meshes/town.fbx</uri>
+              <scale>1.56 1.56 1.56</scale>
+              <uri>model://shibuya_3d/meshes/shibuya_3d.fbx</uri>
             </mesh>
           </geometry>
           <surface>
@@ -284,8 +284,8 @@
           </material> -->
           <geometry>
             <mesh>
-              <scale>1.005 1.005 1.005</scale>
-              <uri>model://town_photogrammetry/meshes/town.fbx</uri>
+              <scale>1.56 1.56 1.56</scale>
+              <uri>model://shibuya_3d/meshes/shibuya_3d.fbx</uri>
             </mesh>
           </geometry>
         </visual>
@@ -304,7 +304,7 @@
         </inertial>
         <enable_wind>false</enable_wind>
       </link>
-      <pose degrees="true">40.2 84.8 134.5 0 -0 0</pose>
+      <pose degrees="true">-20.9 -236.5 -197 90 0 270</pose>
       <self_collide>false</self_collide>
     </model>
 

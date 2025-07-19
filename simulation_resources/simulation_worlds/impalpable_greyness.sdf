@@ -243,7 +243,7 @@
       <world_frame_orientation>ENU</world_frame_orientation>
       <latitude_deg>45.547731543301055</latitude_deg>
       <longitude_deg>8.938851933598375</longitude_deg>
-      <elevation>51</elevation>
+      <elevation>179</elevation>
     </spherical_coordinates>
 
     <model name="ground_plane">
@@ -447,26 +447,10 @@
       <pose degrees="true">5 40 3.75 0 0 0</pose>
     </include> -->
 
-    <include>
+    <!-- <include>
       <uri>model://suburb</uri>
       <pose degrees="true">25 -205 -0.6 0 0 180</pose>
-    </include>
-
-    <!-- <model name="test">
-      <static>true</static>
-      <link name="link">
-        <visual name="visual">
-          <geometry>
-            <mesh>
-              <scale>.007 .007 .007</scale>
-              <uri>model://shibuya_3d/meshes/shibuya_3d.fbx</uri>
-            </mesh>
-          </geometry>
-        </visual>
-      </link>
-      <pose degrees="true">5 0 5 90 0 0</pose>
-      <self_collide>false</self_collide>
-    </model> -->
+    </include> -->
 
   </world>
 </sdf>

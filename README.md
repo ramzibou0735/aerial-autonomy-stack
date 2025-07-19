@@ -33,7 +33,7 @@
 ## Part 1: Installation of AAS
 
 > [!IMPORTANT]
-> This stack is developed and tested using a [Ubuntu 22.04](https://ubuntu.com/about/release-cycle) host (penultimate LTS, ESM 4/2032) with [`nvidia-driver-570`](https://developer.nvidia.com/datacenter-driver-archive) and Docker Engine v28 (latest stable releases as of 6/2025) on an i9-13 with RTX3500 and an i7-11 with RTX3060 computers
+> This stack is developed and tested using a [Ubuntu 22.04](https://ubuntu.com/about/release-cycle) host (penultimate LTS, ESM 4/2032) with [`nvidia-driver-575`](https://developer.nvidia.com/datacenter-driver-archive) and Docker Engine v28 (latest stable releases as of 7/2025) on an i9-13 with RTX3500 and an i7-11 with RTX3060 computers
 > 
 > **To setup (i) Ubuntu 22, Git LFS, (ii) NVIDIA driver, (iii) Docker Engine, (iv) NVIDIA Container Toolkit, and (v) NVIDIA NGC API Key read [`PREINSTALL.md`](/docs/PREINSTALL.md)**
 
@@ -80,10 +80,10 @@ Once "Ready to Fly", one can takeoff and control from QGroundControl's ["Fly Vie
 ![Worlds](docs/assets/worlds.jpg)
 
 Available `WORLD`s:
-- `impalpable_greyness`, (default) an empty world with simple shapes (uncomment `crash` or `suburb` in the SDF for more)
 - `apple_orchard`, a GIS world created using [BlenderGIS](https://github.com/domlysz/BlenderGIS)
-- `swiss_town`, a photogrammetry world courtesy of [Pix4D / pix4d.com](https://support.pix4d.com/hc/en-us/articles/360000235126)
+- `impalpable_greyness`, (default) an empty world with simple shapes (uncomment `crash` or `suburb` in the SDF for more)
 - `shibuya_crossing`, a 3D world adapted from [cgtrader](https://www.cgtrader.com/)
+- `swiss_town`, a photogrammetry world courtesy of [Pix4D / pix4d.com](https://support.pix4d.com/hc/en-us/articles/360000235126)
 
 > [!TIP]
 > Tmux shortcuts:
