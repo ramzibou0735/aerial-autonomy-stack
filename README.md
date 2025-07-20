@@ -11,20 +11,29 @@
 - Support for **multiple quadrotors and VTOLs** based on **PX4 or ArduPilot**
 - **ROS2**-based autopilot interfaces (*via* XRCE-DDS and MAVSDK)
 - Support for **YOLOv8** and ONNX GPU Runtimes
-- Support for **Fast LiDAR-Inertial Odometry** ([FAST-LIO](https://github.com/hku-mars/FAST_LIO))
+- Support for **LiDAR-Inertial Odometry** ([TBD](https://github.com/))
 - **Dockerized simulation and deployment** based on [`nvcr.io/nvidia/cuda:12.8.1-cudnn-runtime-ubuntu22.04`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/cuda/tags), [`nvcr.io/nvidia/l4t-jetpack:r36.4.0`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/l4t-jetpack/tags)
-<!-- 
+
+<details>
+<summary>(expand) Additional Features</summary>
+
 - 3D worlds for [PX4](https://docs.px4.io/main/en/simulation/#sitl-simulation-environment)/[ArduPilot](https://ardupilot.org/dev/docs/sitl-simulator-software-in-the-loop.html#sitl-architecture) **software-in-the-loop (SITL) simulation**
 - Support for [PX4 Offboard](https://docs.px4.io/main/en/flight_modes/offboard.html) mode in CTBR (`VehicleRatesSetpoint`) for agile, GNSS-denied flight 
-- Steppable RL interface
+- Steppable simulation interface for reinfrocement learning 
 - Lightweight inter-drone communication for real-world deployment 
--->
+
+</details>
+
+<details>
+<summary>(expand) Leveraged Frameworks</summary>
 
 > [!NOTE]
 > AAS leverages the following frameworks:
 >
 > [*ROS2 Humble*](https://docs.ros.org/en/rolling/Releases.html) (LTS, EOL 5/2027), [*Gazebo Sim Harmonic*](https://gazebosim.org/docs/latest/releases/) (LTS, EOL 9/2028), [*PX4 1.15*](https://github.com/PX4/PX4-Autopilot/releases) interfaced *via* [XRCE-DDS](https://github.com/eProsima/Micro-XRCE-DDS/releases), [*ArduPilot 4.6*](https://github.com/ArduPilot/ardupilot/releases) interfaced *via* [MAVSDK](https://github.com/mavlink/mavsdk/releases), [*YOLOv8*](https://github.com/ultralytics/ultralytics/releases) on [*ONNX Runtime 1.22*](https://onnxruntime.ai/getting-started) (latest stable releases as of 6/2025), [*L4T 36* (Ubuntu 22-based)/*JetPack 6*](https://developer.nvidia.com/embedded/jetpack-archive) (for deployment only, latest major release as of 6/2025)
-> 
+
+</details>
+
 > For the motivation behind AAS and how it compares to similar projects, read [`RATIONALE.md`](/docs/RATIONALE.md)
 
 <!-- [![Teaser](docs/assets/video.jpg)](https://www.youtube.com/watch?v=VIDEO_ID) -->
@@ -82,10 +91,12 @@ Once "Ready to Fly", one can takeoff and control from QGroundControl's ["Fly Vie
 
 Available `WORLD`s:
 - `apple_orchard`, a GIS world created using [BlenderGIS](https://github.com/domlysz/BlenderGIS)
-- `impalpable_greyness`, (default) an empty world with simple shapes
-    - optional, uncomment `crash` or `suburb` in the SDF
+- `impalpable_greyness`, (default) an empty world with simple shapes (if req'd, uncomment `crash` or `suburb` in the SDF)
 - `shibuya_crossing`, a 3D world adapted from [cgtrader](https://www.cgtrader.com/)
 - `swiss_town`, a photogrammetry world courtesy of [Pix4D / pix4d.com](https://support.pix4d.com/hc/en-us/articles/360000235126)
+
+<details>
+<summary>(expand) Tmux and Docker Shortcuts</summary>
 
 > [!TIP]
 > Tmux shortcuts:
@@ -110,6 +121,8 @@ Available `WORLD`s:
 > docker rmi <image_name_or_id> # Remove a specific image
 > ```
 
+</details>
+
 ### Headless Simulation
 
 TBD
@@ -126,10 +139,19 @@ gz service -s /world/impalpable_greyness/control --reqtype gz.msgs.WorldControl 
 
 ## Part 3: Development with AAS
 
+TBD: mount, edit, build, push back to git
+
 ```sh
 cd ~/git/aerial-autonomy-stack/
 chmod +x ./main.sh
 MODE=debug ./main.sh
+```
+
+### Run an Example
+
+```sh
+# on vehicle 1
+./skibidi.sh
 ```
 
 ---
@@ -137,6 +159,39 @@ MODE=debug ./main.sh
 ## Part 4: Deployment of AAS
 
 TBD
+
+<details>
+<summary>(expand) Configure PX4's Network and DDS Client</summary>
+
+Access QGroundControl -> Analyze Tools -> MAVLink console
+```sh
+mkdir /fs/microsd/etc
+echo "uxrce_dds_client stop" > /fs/microsd/etc/extras.txt
+echo "sleep 3" >> /fs/microsd/etc/extras.txt
+# With the NX on 10.10.1.5
+echo "uxrce_dds_client start -p 8888 -h 10.10.1.5 -n Drone1" >> /fs/microsd/etc/extras.txt
+
+echo DEVICE=eth0 > /fs/microsd/net.cfg
+echo BOOTPROTO=static >> /fs/microsd/net.cfg
+echo IPADDR=10.10.1.10 >> /fs/microsd/net.cfg
+echo NETMASK=255.255.255.0 >> /fs/microsd/net.cfg
+echo ROUTER=10.10.1.254 >> /fs/microsd/net.cfg
+echo DNS=10.10.1.254 >> /fs/microsd/net.cfg
+
+#check files
+cat /fs/microsd/etc/extras.txt
+cat /fs/microsd/net.cfg
+
+netman update
+```
+
+</details>
+
+```sh
+# run on vehicle with
+docker run -d -t --name 
+docker exec -it <container_name_or_id> tmux attach
+```
 
 ---
 > You've done a man's job, sir. I guess you're through, huh?
@@ -147,7 +202,9 @@ TBD
 
 ## TODOs
 
-### FAST-LIO
+### LIO
+
+- https://github.com/PRBonn/kiss-icp
 
 - https://github.com/hku-mars/FAST_LIO
 - https://github.com/Ericsii/FAST_LIO_ROS2
@@ -157,10 +214,15 @@ TBD
 
 - ArduPilot SITL models: https://github.com/ArduPilot/SITL_Models
 
-```sh
-find . -path ./.git -prune -o -type f -not -name "*.dae" -not -name "*.png" -not -name "*.stl" | xargs wc -l
-find . -path ./.git -prune -o -type f -not -name "*.dae" -not -name "*.png" -not -name "*.stl" -not -name "*.sdf" | xargs wc -l
-``` 
+### Dependencies Issues
+
+- In yolo.py, cannot open GPU accelerated (nvh264dec) GStreamer pipeline with cv2.VideoCapture, might need to recompile OpenCV to have both CUDA and GStreamer support (or use python3-gi gir1.2-gst-plugins-base-1.0 gir1.2-gstreamer-1.0 and circumbent OpenCV)
+- Gazebo Sim versioning is a disaster, but consider Jetty (new 2025-2030 LTS)
+
+### Testing
+
+- Make sure that for all maps, all vehicles, a simple takeoff example works with up to 3 vehicles
+
 
 
 -->
