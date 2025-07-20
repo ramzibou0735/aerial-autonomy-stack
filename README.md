@@ -42,7 +42,7 @@
 > [!IMPORTANT]
 > This stack is developed and tested using a [Ubuntu 22.04](https://ubuntu.com/about/release-cycle) host (penultimate LTS, ESM 4/2032) with [`nvidia-driver-575`](https://developer.nvidia.com/datacenter-driver-archive) and Docker Engine v28 (latest stable releases as of 7/2025) on an i9-13 with RTX3500 and an i7-11 with RTX3060 computers
 > 
-> **To setup (i) Ubuntu 22, Git LFS, (ii) NVIDIA driver, (iii) Docker Engine, (iv) NVIDIA Container Toolkit, and (v) NVIDIA NGC API Key read [`PREINSTALL.md`](/docs/PREINSTALL.md)**
+> **To setup (i) Ubuntu 22, Git LFS, (ii) NVIDIA driver, (iii) Docker Engine, (iv) NVIDIA Container Toolkit, and (v) NVIDIA NGC API Key, read [`PREINSTALL.md`](/docs/PREINSTALL.md)**
 
 ```sh
 # Clone this repo
@@ -82,13 +82,13 @@ chmod +x ./main.sh
 DRONE_TYPE=quad AUTOPILOT=px4 NUM_DRONES=2 WORLD=apple_orchard ./main.sh # Read main.sh for more options
 ```
 
-Once "Ready to Fly", one can takeoff and control from QGroundControl's ["Fly View"](https://docs.qgroundcontrol.com/master/en/qgc-user-guide/fly_view/fly_view.html). E.g., for PX4 VTOL, takeoff -> change altitude -> transition to FW, then take manual control; for ArduPilot VTOL, change mode to FBW A -> arm -> throttle all the way up -> then change mode to Loiter.
+> Once "Ready to Fly", one can takeoff and control from QGroundControl's ["Fly View"](https://docs.qgroundcontrol.com/master/en/qgc-user-guide/fly_view/fly_view.html). E.g., for PX4 VTOL, takeoff -> change altitude -> transition to FW, then take manual control; for ArduPilot VTOL, change mode to FBW A -> arm -> throttle all the way up -> then change mode to Loiter.
 
 ![Worlds](docs/assets/worlds.jpg)
 
 Available `WORLD`s:
 - `apple_orchard`, a GIS world created using [BlenderGIS](https://github.com/domlysz/BlenderGIS)
-- `impalpable_greyness`, (default) an empty world with simple shapes (if req'd, uncomment `crash` or `suburb` in the SDF)
+- `impalpable_greyness`, (default) an empty world with simple shapes
 - `shibuya_crossing`, a 3D world adapted from [cgtrader](https://www.cgtrader.com/)
 - `swiss_town`, a photogrammetry world courtesy of [Pix4D / pix4d.com](https://support.pix4d.com/hc/en-us/articles/360000235126)
 
@@ -156,32 +156,8 @@ MODE=debug ./main.sh
 
 TBD
 
-<details>
-<summary>(expand) Configure PX4's Network and DDS Client</summary>
-
-Access QGroundControl -> Analyze Tools -> MAVLink console
-```sh
-mkdir /fs/microsd/etc
-echo "uxrce_dds_client stop" > /fs/microsd/etc/extras.txt
-echo "sleep 3" >> /fs/microsd/etc/extras.txt
-# With the NX on 10.10.1.5
-echo "uxrce_dds_client start -p 8888 -h 10.10.1.5 -n Drone1" >> /fs/microsd/etc/extras.txt
-
-echo DEVICE=eth0 > /fs/microsd/net.cfg
-echo BOOTPROTO=static >> /fs/microsd/net.cfg
-echo IPADDR=10.10.1.10 >> /fs/microsd/net.cfg
-echo NETMASK=255.255.255.0 >> /fs/microsd/net.cfg
-echo ROUTER=10.10.1.254 >> /fs/microsd/net.cfg
-echo DNS=10.10.1.254 >> /fs/microsd/net.cfg
-
-#check files
-cat /fs/microsd/etc/extras.txt
-cat /fs/microsd/net.cfg
-
-netman update
-```
-
-</details>
+> [!IMPORTANT]
+> **To setup PX4 parameters and DDS client, read [`PX4_SETUP.md`](/docs/PX4_SETUP.md)**
 
 ```sh
 # run on vehicle with
