@@ -19,7 +19,7 @@
 
 - 3D worlds for [PX4](https://docs.px4.io/main/en/simulation/#sitl-simulation-environment)/[ArduPilot](https://ardupilot.org/dev/docs/sitl-simulator-software-in-the-loop.html#sitl-architecture) **software-in-the-loop (SITL) simulation**
 - Support for [PX4 Offboard](https://docs.px4.io/main/en/flight_modes/offboard.html) mode in CTBR (`VehicleRatesSetpoint`) for agile, GNSS-denied flight 
-- Steppable simulation interface for reinfrocement learning 
+- Steppable simulation interface for reinforcement learning 
 - Lightweight inter-drone communication for real-world deployment 
 
 </details>
