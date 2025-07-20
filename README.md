@@ -15,7 +15,7 @@
 - **Dockerized simulation and deployment** based on [`nvcr.io/nvidia/cuda:12.8.1-cudnn-runtime-ubuntu22.04`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/cuda/tags), [`nvcr.io/nvidia/l4t-jetpack:r36.4.0`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/l4t-jetpack/tags)
 
 <details>
-<summary>(expand) Additional Features</summary>
+<summary>(expand) <b>Additional Features</b></summary>
 
 - 3D worlds for [PX4](https://docs.px4.io/main/en/simulation/#sitl-simulation-environment)/[ArduPilot](https://ardupilot.org/dev/docs/sitl-simulator-software-in-the-loop.html#sitl-architecture) **software-in-the-loop (SITL) simulation**
 - Support for [PX4 Offboard](https://docs.px4.io/main/en/flight_modes/offboard.html) mode in CTBR (`VehicleRatesSetpoint`) for agile, GNSS-denied flight 
@@ -24,16 +24,14 @@
 
 </details>
 
-<details>
-<summary>(expand) Leveraged Frameworks</summary>
-
 > [!NOTE]
 > AAS leverages the following frameworks:
->
+> <details>
+> <summary>(expand)</summary>
+> 
 > [*ROS2 Humble*](https://docs.ros.org/en/rolling/Releases.html) (LTS, EOL 5/2027), [*Gazebo Sim Harmonic*](https://gazebosim.org/docs/latest/releases/) (LTS, EOL 9/2028), [*PX4 1.15*](https://github.com/PX4/PX4-Autopilot/releases) interfaced *via* [XRCE-DDS](https://github.com/eProsima/Micro-XRCE-DDS/releases), [*ArduPilot 4.6*](https://github.com/ArduPilot/ardupilot/releases) interfaced *via* [MAVSDK](https://github.com/mavlink/mavsdk/releases), [*YOLOv8*](https://github.com/ultralytics/ultralytics/releases) on [*ONNX Runtime 1.22*](https://onnxruntime.ai/getting-started) (latest stable releases as of 6/2025), [*L4T 36* (Ubuntu 22-based)/*JetPack 6*](https://developer.nvidia.com/embedded/jetpack-archive) (for deployment only, latest major release as of 6/2025)
-
-</details>
-
+> </details>
+> 
 > For the motivation behind AAS and how it compares to similar projects, read [`RATIONALE.md`](/docs/RATIONALE.md)
 
 <!-- [![Teaser](docs/assets/video.jpg)](https://www.youtube.com/watch?v=VIDEO_ID) -->
@@ -95,15 +93,14 @@ Available `WORLD`s:
 - `shibuya_crossing`, a 3D world adapted from [cgtrader](https://www.cgtrader.com/)
 - `swiss_town`, a photogrammetry world courtesy of [Pix4D / pix4d.com](https://support.pix4d.com/hc/en-us/articles/360000235126)
 
-<details>
-<summary>(expand) Tmux and Docker Shortcuts</summary>
-
 > [!TIP]
-> Tmux shortcuts:
-> - Move between windows with `Ctrl + b`, then `n`, `p`
-> - Move between panes with `Ctrl + b`, then `arrow keys`
+> <details>
+> <summary>(expand) Tmux and Docker Shortcuts</summary>
+> 
+> - Move between Tmux windows with `Ctrl + b`, then `n`, `p`
+> - Move between Tmux panes with `Ctrl + b`, then `arrow keys`
 > - Enter copy mode to scroll back with `Ctrl + [`, then `arrow keys`, exit with `q`
-> - Detach with `Ctrl + b`, then press `d`
+> - Detach Tmux with `Ctrl + b`, then press `d`
 > ```sh
 > tmux list-sessions # List all sessions
 > tmux attach-session -t [session_name] # Reattach a session
@@ -120,8 +117,8 @@ Available `WORLD`s:
 > docker image prune # Remove untagged images
 > docker rmi <image_name_or_id> # Remove a specific image
 > ```
-
-</details>
+> 
+> </details>
 
 ### Headless Simulation
 
