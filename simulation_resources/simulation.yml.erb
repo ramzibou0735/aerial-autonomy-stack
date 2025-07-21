@@ -46,6 +46,7 @@ windows:
           PX4_UXRCE_DDS_PORT=8888
           /git/PX4-Autopilot/build/px4_sitl_default/bin/px4 -i <%= i %>
         - "ROS_DOMAIN_ID=<%= i + 1 %> ros2 run ros_gz_bridge parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock"
+        - "ROS_DOMAIN_ID=<%= i + 1 %> ros2 run ros_gz_bridge parameter_bridge /world/<%= world %>/model/<%= drone_type == 'quad' ? 'x500' : 'standard_vtol' %>_<%= i %>/link/lidar/base_link/sensor/lidar3d/scan/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked --ros-args -r /world/<%= world %>/model/<%= drone_type == 'quad' ? 'x500' : 'standard_vtol' %>_<%= i %>/link/lidar/base_link/sensor/lidar3d/scan/points:=/lidar_points"
         - >
           python3 /git/simulation_resources/comms/gz_to_gst_image_bridge.py 
           --gz_topic /world/<%= world %>/model/<%= drone_type == 'quad' ? 'x500' : 'standard_vtol' %>_<%= i %>/link/mono_cam/base_link/sensor/imager/image
@@ -66,6 +67,7 @@ windows:
           --out=udp:42.42.1.<%= i + 1 %>:14550
           --add-param-file=/git/simulation_resources/aircraft_models/<%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'zephyr_with_ardupilot' %>_<%= i + 1 %>/ardupilot-4.6.params
         - "ROS_DOMAIN_ID=<%= i + 1 %> ros2 run ros_gz_bridge parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock"
+        - "ROS_DOMAIN_ID=<%= i + 1 %> ros2 run ros_gz_bridge parameter_bridge /world/<%= world %>/model/<%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'zephyr_with_ardupilot' %>_<%= i + 1 %>/model/<%= drone_type == 'quad' ? 'iris' : 'zephyr' %>/link/lidar/base_link/sensor/lidar3d/scan/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked --ros-args -r /world/<%= world %>/model/<%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'zephyr_with_ardupilot' %>_<%= i + 1 %>/model/<%= drone_type == 'quad' ? 'iris' : 'zephyr' %>/link/lidar/base_link/sensor/lidar3d/scan/points:=/lidar_points"
         - >
           python3 /git/simulation_resources/comms/gz_to_gst_image_bridge.py 
           --gz_topic /world/<%= world %>/model/<%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'zephyr_with_ardupilot' %>_<%= i + 1 %>/model/<%= drone_type == 'quad' ? 'iris' : 'zephyr' %>/link/mono_cam/base_link/sensor/imager/image

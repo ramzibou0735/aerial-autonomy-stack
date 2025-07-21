@@ -136,15 +136,16 @@ RUN mkdir build && cd build && \
     make -j$(nproc)
 
 ################################################################################
-# Stage 5 - 18+GB ##############################################################
+# Temporary stage to filter airframes ##########################################
 ################################################################################
-# Temporary stage to filter airframes
 FROM ubuntu:22.04 AS airframe_filter_stage
 COPY simulation_resources/aircraft_models/ /temp_folder
 RUN mkdir /airframes
 RUN find /temp_folder -type f -regex '.*/[0-9]+_.*' -exec cp {} /airframes/ \;
 
-# Actual start of stage 5
+################################################################################
+# Stage 5 - 18+GB ##############################################################
+################################################################################
 FROM ros2-gz-qgc-px4-ardupilot-image AS simulation-dev-image
 
 # Apply PX4 patches (DDS Agent on custom IP, ...)
@@ -168,7 +169,7 @@ WORKDIR /git/PX4-Autopilot
 RUN make px4_sitl
 # Run with $ /git/PX4-Autopilot/build/px4_sitl_default/bin/px4
 
-# Add GStreamer packages
+# Add GStreamer packages to stream the cameras to the aircraft containers
 RUN apt update \
     && apt install -y --no-install-recommends \
         gstreamer1.0-tools gstreamer1.0-plugins-good gstreamer1.0-plugins-ugly gstreamer1.0-libav \
@@ -186,11 +187,13 @@ COPY simulation_resources/ /git/simulation_resources
 # RUN mkdir -p /ros2_ws/src
 # WORKDIR /ros2_ws
 # RUN rosdep update
-# RUN rosdep install --from-paths src --ignore-src --rosdistro humble -y
+# RUN rosdep install --from-paths src/NEW_PACKAGE --ignore-src --rosdistro humble -y
 # # Explicitly use bash, not sh, to source and build the workspace
 # RUN bash -c "source /opt/ros/humble/setup.bash && colcon build --symlink-install"
-# RUN echo "source /ros2_ws/install/setup.bash" >> /root/.bashrc
-# # If needed (but already in .bashrc) $ source /opt/ros/humble/setup.bash && source /ros2_ws/install/setup.bash
+
+# Source the workspace
+RUN echo "source /ros2_ws/install/setup.bash" >> /root/.bashrc
+# If needed (but already in .bashrc) $ source /opt/ros/humble/setup.bash && source /ros2_ws/install/setup.bash
 
 # Final config
 WORKDIR /

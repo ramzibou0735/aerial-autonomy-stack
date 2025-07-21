@@ -13,7 +13,7 @@
 - Support for **multiple quadrotors and VTOLs** based on **PX4 or ArduPilot**
 - **ROS2**-based autopilot interfaces (*via* XRCE-DDS and MAVSDK)
 - Support for **YOLOv8** and ONNX GPU Runtimes
-- Support for **LiDAR-Inertial Odometry** ([TBD](https://github.com/))
+- Support for **Lidar Odometry** ([KISS-ICP](https://github.com/PRBonn/kiss-icp))
 - **Dockerized simulation and deployment** based on [`nvcr.io/nvidia/cuda:12.8.1-cudnn-runtime-ubuntu22.04`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/cuda/tags), [`nvcr.io/nvidia/l4t-jetpack:r36.4.0`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/l4t-jetpack/tags)
 
 <details>
@@ -59,8 +59,8 @@ cd ~/git/aerial-autonomy-stack
 > Building from scratch requires a stable internet connection, `Ctrl + c` and restart if needed 
 
 ```sh
-docker build -t simulation-image -f docker/Dockerfile.simulation . # The first build takes ~15' and creates an 18GB image (6GB for ros-humble-desktop, 9GB for PX4 and ArduPilot SITL)
-docker build -t aircraft-image -f docker/Dockerfile.aircraft . # Having built Dockerfile.simulation, the first build takes ~15' and creates a 16GB image (6GB for ros-humble-desktop, 7GB for YOLOv8, ONNX)
+docker build -t simulation-image -f docker/Dockerfile.simulation . # The first build takes ~15' and creates a 19GB image (6GB for ros-humble-desktop, 9GB for PX4 and ArduPilot SITL)
+docker build -t aircraft-image -f docker/Dockerfile.aircraft . # Having built Dockerfile.simulation, the first build takes ~15' and creates a 17GB image (6GB for ros-humble-desktop, 7GB for YOLOv8, ONNX)
 ```
 
 > These are development-friendly images with lots of tools and artifacts, trim if needed
@@ -169,17 +169,13 @@ docker exec -it <container_name_or_id> tmux attach
 
 ## TODOs
 
-### LIO
-
-- https://github.com/PRBonn/kiss-icp
-
-- https://github.com/hku-mars/FAST_LIO
-- https://github.com/Ericsii/FAST_LIO_ROS2
-- https://github.com/Taeyoung96/FAST_LIO_ROS2
-
 ### Model Resources
 
 - ArduPilot SITL models: https://github.com/ArduPilot/SITL_Models
+
+### Known Issues
+
+- Revise orientation of the lidar and frame of the lidar odometry for VTOLs
 
 ### Dependencies Issues
 

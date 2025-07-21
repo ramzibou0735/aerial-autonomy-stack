@@ -25,6 +25,11 @@ windows:
       panes:
         - python3 /git/aircraft_resources/yolo/yolo-inference.py <% if headless == 'true' %> --headless<% end %>
 
+  - kiss-icp:
+      layout: even-horizontal
+      panes:
+        - ros2 launch kiss_icp odometry.launch.py topic:=/lidar_points <% if headless == 'true' %> visualize:=false<% end %>
+
   - serial_over_tcp:
       layout: even-horizontal
       panes:
