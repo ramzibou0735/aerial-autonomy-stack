@@ -119,12 +119,10 @@ Available `WORLD`s:
 > 
 > </details>
 
-### Steppable Simulation
-
-TBD
+To advance the simulation in **discrete time steps**, from a terminal on the host, use:
 
 ```sh
-gz service -s /world/impalpable_greyness/control --reqtype gz.msgs.WorldControl --reptype gz.msgs.Boolean --req 'multi_step: 250, pause: true'
+docker exec simulation-container bash -c "gz service -s /world/\$WORLD/control --reqtype gz.msgs.WorldControl --reptype gz.msgs.Boolean --req 'multi_step: 250, pause: true'" # Adjust multi_step based on the value of max_step_size in the world's .sdf 
 ```
 
 ---
