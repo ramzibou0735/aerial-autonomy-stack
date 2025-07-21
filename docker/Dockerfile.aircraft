@@ -96,7 +96,7 @@ RUN ldconfig
 
 # # pymavlink
 # RUN pip3 install --no-cache-dir --upgrade pip \
-#     && pip3 install --no-cache-dir pymavlink
+#     && pip3 install --no-cache-dir --resume-retries 5 pymavlink
 # # Check with $ python3 -c "import pymavlink; print(pymavlink.__version__)"
 
 ################################################################################
@@ -129,7 +129,7 @@ RUN apt update \
 
 # NOTE: system Python's OpenCV should have GStreamer support
 RUN pip3 install --no-cache-dir --upgrade pip \
-    && pip3 install --no-cache-dir "numpy<2"
+    && pip3 install --no-cache-dir --resume-retries 5 "numpy<2"
 # Check with $ python3 -c "import cv2; print(cv2.getBuildInformation())"
 # Versus $ /yolo-env/bin/python3 -c "import cv2; print(cv2.getBuildInformation())"
 

@@ -79,7 +79,7 @@ docker pull jacopopan/aircraft-image:latest # TODO
 ```sh
 cd ~/git/aerial-autonomy-stack/
 chmod +x ./main.sh
-DRONE_TYPE=quad AUTOPILOT=px4 NUM_DRONES=2 WORLD=apple_orchard ./main.sh # Read main.sh for more options
+DRONE_TYPE=quad AUTOPILOT=px4 NUM_DRONES=2 WORLD=swiss_town HEADLESS=false ./main.sh # Read main.sh for more options
 ```
 
 > Once "Ready to Fly", one can takeoff and control from QGroundControl's ["Fly View"](https://docs.qgroundcontrol.com/master/en/qgc-user-guide/fly_view/fly_view.html). E.g., for PX4 VTOL, takeoff -> change altitude -> transition to FW, then take manual control; for ArduPilot VTOL, change mode to FBW A -> arm -> throttle all the way up -> then change mode to Loiter.
@@ -118,10 +118,6 @@ Available `WORLD`s:
 > ```
 > 
 > </details>
-
-### Headless Simulation
-
-TBD
 
 ### Steppable Simulation
 

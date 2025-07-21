@@ -2,6 +2,7 @@
 <% autopilot = ENV.fetch('AUTOPILOT', 'px4') %>
 <% num_drones = ENV.fetch('NUM_DRONES', 1).to_i %>
 <% world = ENV.fetch('WORLD', 'impalpable_greyness') %>
+<% headless = ENV.fetch('HEADLESS', 'false') %>
 
 name: simulation_tmuxinator
 
@@ -14,7 +15,7 @@ windows:
         - >
           GZ_SIM_RESOURCE_PATH=$GZ_SIM_RESOURCE_PATH:/git/simulation_resources/aircraft_models:/git/simulation_resources/simulation_worlds 
           GZ_SIM_PHYSICS_ENGINE_PATH=$GZ_SIM_PHYSICS_ENGINE_PATH:/usr/lib/x86_64-linux-gnu/gz-physics-7/engine-plugins/
-          gz sim -v4 -r <%= world %>.sdf
+          gz sim -v4 -r <% if headless == 'true' %> -s <% end %> <%= world %>.sdf
   <% elsif autopilot == 'ardupilot' %>
   - gz_sim:
       layout: even-horizontal
@@ -27,7 +28,7 @@ windows:
           GZ_SIM_SYSTEM_PLUGIN_PATH=/git/ardupilot_gazebo/build:$GZ_SIM_SYSTEM_PLUGIN_PATH 
           GZ_SIM_RESOURCE_PATH=/git/simulation_resources/aircraft_models:/git/simulation_resources/simulation_worlds:$GZ_SIM_RESOURCE_PATH 
           GZ_SIM_PHYSICS_ENGINE_PATH=$GZ_SIM_PHYSICS_ENGINE_PATH:/usr/lib/x86_64-linux-gnu/gz-physics-7/engine-plugins/
-          gz sim -v4 -r populated_ardupilot.sdf
+          gz sim -v4 -r <% if headless == 'true' %> -s <% end %> populated_ardupilot.sdf
   <% end %>
 
   <% num_drones.times do |i| %>
@@ -85,4 +86,8 @@ windows:
   - qgc:
       layout: even-horizontal
       panes:
-        - "gosu qgcuser /squashfs-root/AppRun -geometry 800x600+960+540"
+        <% if headless == 'true' %>
+        - echo "Headless mode, not launching QGroundControl."
+        <% else %>
+        - gosu qgcuser /squashfs-root/AppRun -geometry 800x600+960+540
+        <% end %>

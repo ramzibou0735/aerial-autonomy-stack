@@ -129,7 +129,7 @@ RUN apt update \
     && apt clean \
     && rm -rf /var/lib/apt/lists/*
 RUN pip3 install --no-cache-dir --upgrade pip \
-    && pip3 install --no-cache-dir "numpy<2" mavproxy
+    && pip3 install --no-cache-dir --resume-retries 5 "numpy<2" mavproxy
 ENV GZ_VERSION=harmonic
 RUN mkdir build && cd build && \
     cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo && \

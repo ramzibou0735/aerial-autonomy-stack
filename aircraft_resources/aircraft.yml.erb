@@ -1,6 +1,7 @@
 <% drone_type = ENV.fetch('DRONE_TYPE', 'quad') %>
 <% autopilot = ENV.fetch('AUTOPILOT', 'px4') %>
 <% drone_id = ENV.fetch('DRONE_ID', 1).to_i %>
+<% headless = ENV.fetch('HEADLESS', 'false') %>
 
 name: aircraft_tmuxinator
 
@@ -22,7 +23,7 @@ windows:
   - yolo:
       layout: even-horizontal
       panes:
-        - python3 /git/aircraft_resources/yolo/yolo-inference.py
+        - python3 /git/aircraft_resources/yolo/yolo-inference.py <% if headless == 'true' %> --headless<% end %>
 
   - serial_over_tcp:
       layout: even-horizontal
