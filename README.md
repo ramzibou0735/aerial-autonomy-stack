@@ -13,7 +13,7 @@
 - Support for **multiple quadrotors and VTOLs** based on **PX4 or ArduPilot**
 - **ROS2**-based autopilot interfaces (*via* XRCE-DDS and MAVSDK)
 - Support for **YOLOv8** and ONNX GPU Runtimes
-- Support for **Lidar Odometry** ([KISS-ICP](https://github.com/PRBonn/kiss-icp))
+- Support for [KISS-ICP](https://github.com/PRBonn/kiss-icp) **Lidar Odometry**
 - **Dockerized simulation and deployment** based on [`nvcr.io/nvidia/cuda:12.8.1-cudnn-runtime-ubuntu22.04`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/cuda/tags), [`nvcr.io/nvidia/l4t-jetpack:r36.4.0`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/l4t-jetpack/tags)
 
 <details>
