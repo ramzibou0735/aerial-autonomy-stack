@@ -2,9 +2,11 @@
 
 *Aerial autonomy stack* (AAS) is a software stack to:
 
-- **Develop** drone autonomy with ROS2
-- **Simulate** vision and control in software-in-the-loop, with YOLOv8 and PX4/ArduPilot
-- **Deploy** in real drones with NVIDIA Orin/JetPack
+1. **Develop** drone autonomy with ROS2
+2. **Simulate** vision and control in software-in-the-loop, with YOLOv8 and PX4/ArduPilot
+3. **Deploy** in real drones with NVIDIA Orin/JetPack
+
+> For the motivation behind AAS and how it compares to similar projects, read [`RATIONALE.md`](/docs/RATIONALE.md)
 
 ## Feature Highlights
 
@@ -17,21 +19,21 @@
 <details>
 <summary><b>Additional Features:</b> <i>(expand)</i></summary>
 
-- 3D worlds for [PX4](https://docs.px4.io/main/en/simulation/#sitl-simulation-environment)/[ArduPilot](https://ardupilot.org/dev/docs/sitl-simulator-software-in-the-loop.html#sitl-architecture) **software-in-the-loop (SITL) simulation**
-- Support for [PX4 Offboard](https://docs.px4.io/main/en/flight_modes/offboard.html) mode in CTBR (`VehicleRatesSetpoint`) for agile, GNSS-denied flight 
-- Steppable simulation interface for reinforcement learning 
-- Lightweight inter-drone communication for real-world deployment 
+> - 3D worlds for [PX4](https://docs.px4.io/main/en/simulation/#sitl-simulation-environment)/[ArduPilot](https://ardupilot.org/dev/docs/sitl-simulator-software-in-the-loop.html#sitl-architecture) **software-in-the-loop (SITL) simulation**
+> - Support for [PX4 Offboard](https://docs.px4.io/main/en/flight_modes/offboard.html) mode in CTBR (`VehicleRatesSetpoint`) for agile, GNSS-denied flight 
+> - Steppable simulation interface for reinforcement learning 
+> - Lightweight inter-drone communication for real-world deployment 
 
 </details>
 
-> [!NOTE]
-> <details>
-> <summary>AAS leverages the following frameworks: <i>(expand)</i></summary>
-> 
+<details>
+<summary>AAS leverages the following frameworks: <i>(expand)</i></summary>
+
 > [*ROS2 Humble*](https://docs.ros.org/en/rolling/Releases.html) (LTS, EOL 5/2027), [*Gazebo Sim Harmonic*](https://gazebosim.org/docs/latest/releases/) (LTS, EOL 9/2028), [*PX4 1.15*](https://github.com/PX4/PX4-Autopilot/releases) interfaced *via* [XRCE-DDS](https://github.com/eProsima/Micro-XRCE-DDS/releases), [*ArduPilot 4.6*](https://github.com/ArduPilot/ardupilot/releases) interfaced *via* [MAVSDK](https://github.com/mavlink/mavsdk/releases), [*YOLOv8*](https://github.com/ultralytics/ultralytics/releases) on [*ONNX Runtime 1.22*](https://onnxruntime.ai/getting-started) (latest stable releases as of 6/2025), [*L4T 36* (Ubuntu 22-based)/*JetPack 6*](https://developer.nvidia.com/embedded/jetpack-archive) (for deployment only, latest major release as of 6/2025)
-> </details>
-> 
-> For the motivation behind AAS and how it compares to similar projects, read [`RATIONALE.md`](/docs/RATIONALE.md)
+
+</details>
+
+
 
 <!-- [![Teaser](docs/assets/video.jpg)](https://www.youtube.com/watch?v=VIDEO_ID) -->
 
@@ -58,11 +60,10 @@ cd ~/git/aerial-autonomy-stack
 
 ```sh
 docker build -t simulation-image -f docker/Dockerfile.simulation . # The first build takes ~15' and creates an 18GB image (6GB for ros-humble-desktop, 9GB for PX4 and ArduPilot SITL)
-
 docker build -t aircraft-image -f docker/Dockerfile.aircraft . # Having built Dockerfile.simulation, the first build takes ~15' and creates a 16GB image (6GB for ros-humble-desktop, 7GB for YOLOv8, ONNX)
 ```
 
-These are development-friendly images with lots of tools and artifacts, trim if needed
+> These are development-friendly images with lots of tools and artifacts, trim if needed
 
 ### Option 2: Pull the Pre-built Docker Images
 
@@ -92,6 +93,12 @@ Available `WORLD`s:
 - `shibuya_crossing`, a 3D world adapted from [cgtrader](https://www.cgtrader.com/)
 - `swiss_town`, a photogrammetry world courtesy of [Pix4D / pix4d.com](https://support.pix4d.com/hc/en-us/articles/360000235126)
 
+To advance the simulation in **discrete time steps**, from a terminal on the host, run:
+
+```sh
+docker exec simulation-container bash -c "gz service -s /world/\$WORLD/control --reqtype gz.msgs.WorldControl --reptype gz.msgs.Boolean --req 'multi_step: 250, pause: true'" # Adjust multi_step based on the value of max_step_size in the world's .sdf 
+```
+
 > [!TIP]
 > <details>
 > <summary>Tmux and Docker Shortcuts <i>(expand)</i></summary>
@@ -118,12 +125,6 @@ Available `WORLD`s:
 > ```
 > 
 > </details>
-
-To advance the simulation in **discrete time steps**, from a terminal on the host, use:
-
-```sh
-docker exec simulation-container bash -c "gz service -s /world/\$WORLD/control --reqtype gz.msgs.WorldControl --reptype gz.msgs.Boolean --req 'multi_step: 250, pause: true'" # Adjust multi_step based on the value of max_step_size in the world's .sdf 
-```
 
 ---
 
