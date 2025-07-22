@@ -1,0 +1,7 @@
+uint8 id
+float64 latitude_deg
+float64 longitude_deg
+float32 altitude_m
+float32 velocity_n_m_s
+float32 velocity_e_m_s
+float32 velocity_d_m_s

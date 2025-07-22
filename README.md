@@ -33,8 +33,6 @@
 
 </details>
 
-
-
 <!-- [![Teaser](docs/assets/video.jpg)](https://www.youtube.com/watch?v=VIDEO_ID) -->
 
 ---

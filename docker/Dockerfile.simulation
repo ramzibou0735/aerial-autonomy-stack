@@ -177,19 +177,25 @@ RUN apt update \
     && apt clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Add pymavlink to emulate the ground system using telemetry data
+RUN pip3 install --no-cache-dir --upgrade pip \
+    && pip3 install --no-cache-dir --resume-retries 5 pymavlink
+# Check with $ python3 -c "import pymavlink; print(pymavlink.__version__)"
+
 # Configure QGC
 COPY simulation_resources/patches/QGroundControl.ini /home/qgcuser/.config/QGroundControl/
 
+# Build ROS 2 workspace
+RUN mkdir -p /ros2_ws/src
+COPY simulation_ws/src /ros2_ws/src
+WORKDIR /ros2_ws
+RUN rosdep update
+RUN rosdep install --from-paths src/ground_system_msgs src/ground_system --ignore-src --rosdistro humble -y
+# Explicitly use bash, not sh, to source and build the workspace
+RUN bash -c "source /opt/ros/humble/setup.bash && colcon build --symlink-install"
+
 # Copy resources from this repository
 COPY simulation_resources/ /git/simulation_resources
-
-# # Build ROS 2 workspace
-# RUN mkdir -p /ros2_ws/src
-# WORKDIR /ros2_ws
-# RUN rosdep update
-# RUN rosdep install --from-paths src/NEW_PACKAGE --ignore-src --rosdistro humble -y
-# # Explicitly use bash, not sh, to source and build the workspace
-# RUN bash -c "source /opt/ros/humble/setup.bash && colcon build --symlink-install"
 
 # Source the workspace
 RUN echo "source /ros2_ws/install/setup.bash" >> /root/.bashrc
