@@ -15,7 +15,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'oracle = ground_system.oracle:main'
+            'oracle = ground_system.oracle:main',
+            'repeater = ground_system.repeater:main',
         ],
     },
 )

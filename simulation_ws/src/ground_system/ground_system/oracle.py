@@ -1,8 +1,8 @@
 import rclpy
 from rclpy.node import Node
-import socket
 import threading
 import argparse
+import time
 
 from pymavlink import mavutil
 
@@ -35,7 +35,7 @@ class OracleNode(Node):
         while rclpy.ok():
             try:
                 # Wait for a new message with position and velocity
-                msg = master.recv_match(type='GLOBAL_POSITION_INT', blocking=True, timeout=3.0)
+                msg = master.recv_match(type='GLOBAL_POSITION_INT', blocking=False)
                 if not msg:
                     continue
 
@@ -51,6 +51,8 @@ class OracleNode(Node):
                 
                 with self.lock:
                     self.drone_obs[drone_id] = obs
+
+                time.sleep(0.02) # Sleep for 20ms to limit CPU usage
                     
             except Exception as e:
                 self.get_logger().error(f"MAVLink listener error for drone {drone_id}: {e}")
