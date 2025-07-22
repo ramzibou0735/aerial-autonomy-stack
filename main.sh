@@ -43,8 +43,6 @@ get_quadrant_geometry() {
     echo "${width_chars}x${height_chars}+${x_pos}+${y_pos}"
 }
 
-echo "DEBUG: Script sees HEADLESS as [${HEADLESS}]"
-
 # Launch the simulation container
 gnome-terminal --geometry=$(get_quadrant_geometry 0) -- bash -c "echo 'Launching Simulation Container...'; \
   docker run -it --rm \
