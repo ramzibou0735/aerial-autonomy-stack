@@ -30,6 +30,11 @@ windows:
       panes:
         - ros2 launch kiss_icp odometry.launch.py topic:=/lidar_points <% if headless == 'true' %> visualize:=false<% end %>
 
+  - zenoh:
+      layout: even-horizontal
+      panes:
+        - zenoh-bridge-ros2dds -e tcp/42.42.1.99:7447 -c /git/aircraft_resources/comms/zenoh_config_air.json5
+
   - serial_over_tcp:
       layout: even-horizontal
       panes:

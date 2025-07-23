@@ -152,7 +152,14 @@ COPY aircraft_resources/patches/kiss_icp.rviz src/kiss-icp/ros/rviz/kiss_icp.rvi
 # Explicitly use bash, not sh, to source and build the workspace
 RUN bash -c "source /opt/ros/humble/setup.bash && colcon build --symlink-install"
 
-# Build ROS 2 workspace
+# Install Zenoh
+RUN echo "deb [trusted=yes] https://download.eclipse.org/zenoh/debian-repo/ /" | sudo tee -a /etc/apt/sources.list > /dev/null
+RUN apt-get update && \
+    apt-get install -y zenoh-bridge-ros2dds \
+    && apt clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Build round_system_msgs in the ROS 2 workspace
 RUN mkdir -p /ros2_ws/src
 COPY simulation_ws/src/ground_system_msgs /ros2_ws/src/ground_system_msgs
 WORKDIR /ros2_ws

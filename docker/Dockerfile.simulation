@@ -182,10 +182,17 @@ RUN pip3 install --no-cache-dir --upgrade pip \
     && pip3 install --no-cache-dir --resume-retries 5 pymavlink
 # Check with $ python3 -c "import pymavlink; print(pymavlink.__version__)"
 
+# Install Zenoh
+RUN echo "deb [trusted=yes] https://download.eclipse.org/zenoh/debian-repo/ /" | sudo tee -a /etc/apt/sources.list > /dev/null
+RUN apt-get update && \
+    apt-get install -y zenoh-bridge-ros2dds \
+    && apt clean \
+    && rm -rf /var/lib/apt/lists/*
+
 # Configure QGC
 COPY simulation_resources/patches/QGroundControl.ini /home/qgcuser/.config/QGroundControl/
 
-# Build ROS 2 workspace
+# Build ground_system and ground_system_msgs in the ROS 2 workspace
 RUN mkdir -p /ros2_ws/src
 COPY simulation_ws/src /ros2_ws/src
 WORKDIR /ros2_ws

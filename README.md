@@ -22,7 +22,7 @@
 > - 3D worlds for [PX4](https://docs.px4.io/main/en/simulation/#sitl-simulation-environment)/[ArduPilot](https://ardupilot.org/dev/docs/sitl-simulator-software-in-the-loop.html#sitl-architecture) **software-in-the-loop (SITL) simulation**
 > - Support for [PX4 Offboard](https://docs.px4.io/main/en/flight_modes/offboard.html) mode in CTBR (`VehicleRatesSetpoint`) for agile, GNSS-denied flight 
 > - Steppable simulation interface for reinforcement learning 
-> - Lightweight inter-drone communication for real-world deployment 
+> - [Zenoh](https://github.com/eclipse-zenoh/zenoh-plugin-ros2dds) ground-to-drone ROS2 bridge and serial inter-drone communication for real-world deployment 
 
 </details>
 
@@ -167,22 +167,18 @@ docker exec -it <container_name_or_id> tmux attach
 
 ## TODOs
 
-### Model Resources
-
-- ArduPilot SITL models: https://github.com/ArduPilot/SITL_Models
-
 ### Known Issues
 
 - Revise orientation of the lidar and frame of the lidar odometry for VTOLs
-
-### Dependencies Issues
-
 - In yolo.py, cannot open GPU accelerated (nvh264dec) GStreamer pipeline with cv2.VideoCapture, might need to recompile OpenCV to have both CUDA and GStreamer support (or use python3-gi gir1.2-gst-plugins-base-1.0 gir1.2-gstreamer-1.0 and circumbent OpenCV)
-- Gazebo Sim versioning is a disaster, but consider Jetty (new 2025-2030 LTS)
 
 ### Testing
 
 - Make sure that for all maps, all vehicles, a simple takeoff example works with up to 3 vehicles
+
+### Model Resources
+
+- ArduPilot SITL models: https://github.com/ArduPilot/SITL_Models
 
 
 

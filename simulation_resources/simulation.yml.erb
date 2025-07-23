@@ -76,16 +76,21 @@ windows:
   <% end %>
   <% end %>
 
-  - tcp_repeater:
-      layout: even-horizontal
-      panes:
-        - python3 /git/simulation_resources/comms/emulate_serial_over_tcp.py
-
   - ground_system:
       layout: even-horizontal
       panes:
         - "ros2 run ros_gz_bridge parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock"
         - sleep 3 && ros2 run ground_system oracle --num-drones <%=  num_drones %> --base-port 14540 --rate 1.0 --ros-args -p use_sim_time:=True
+
+  - zenoh:
+      layout: even-horizontal
+      panes:
+        - zenoh-bridge-ros2dds -c /git/simulation_resources/comms/zenoh_config_ground.json5
+
+  - tcp_repeater:
+      layout: even-horizontal
+      panes:
+        - python3 /git/simulation_resources/comms/emulate_serial_over_tcp.py
 
   - debug:
       layout: even-horizontal

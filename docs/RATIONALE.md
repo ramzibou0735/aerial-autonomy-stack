@@ -19,6 +19,7 @@ That is, the challenge of **full-stack integration** among:
 - **Deployment** focus
     - Clear, Dockerized split between simulation and aircraft software
     - ROS2 intra-companion board messaging
+    - Zenoh inter-vehicle ROS2 bridge
     - IP and serial inter-vehicle communication emulated with `docker network`
     - XRCE-DDS, MAVSDK autopilot-to-companion board messaging
     - GStreamer camera-to-companion board acquisition
