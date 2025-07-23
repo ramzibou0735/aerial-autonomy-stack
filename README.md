@@ -79,6 +79,7 @@ docker pull jacopopan/aircraft-image:latest # TODO
 cd ~/git/aerial-autonomy-stack/
 chmod +x ./main.sh
 DRONE_TYPE=quad AUTOPILOT=px4 NUM_DRONES=2 WORLD=swiss_town HEADLESS=false ./main.sh # Read main.sh for more options
+# `Ctrl + b`, then `d` in each terminal one done
 ```
 
 > Once "Ready to Fly", one can takeoff and control from QGroundControl's ["Fly View"](https://docs.qgroundcontrol.com/master/en/qgc-user-guide/fly_view/fly_view.html). E.g., for PX4 VTOL, takeoff -> change altitude -> transition to FW, then take manual control; for ArduPilot VTOL, change mode to FBW A -> arm -> throttle all the way up -> then change mode to Loiter.
@@ -91,7 +92,7 @@ Available `WORLD`s:
 - `shibuya_crossing`, a 3D world adapted from [cgtrader](https://www.cgtrader.com/)
 - `swiss_town`, a photogrammetry world courtesy of [Pix4D / pix4d.com](https://support.pix4d.com/hc/en-us/articles/360000235126)
 
-To advance the simulation in **discrete time steps**, from a terminal on the host, run:
+To advance the simulation in **discrete time steps**, e.g. 1s, from a terminal on the host, run:
 
 ```sh
 docker exec simulation-container bash -c "gz service -s /world/\$WORLD/control --reqtype gz.msgs.WorldControl --reptype gz.msgs.Boolean --req 'multi_step: 250, pause: true'" # Adjust multi_step based on the value of max_step_size in the world's .sdf 

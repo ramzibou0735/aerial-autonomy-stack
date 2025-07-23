@@ -7,14 +7,19 @@ name: aircraft_tmuxinator
 
 windows:
 
+  - debug:
+      layout: even-horizontal
+      panes:
+        - clear && echo "So nice to have you with us, this is the aircraft <%= drone_id %> container."
+
   <% if autopilot == 'px4' %>
-  - px4_aircraft_<%= drone_id %>:
+  - uxrce_dds_aircraft_<%= drone_id %>:
       layout: even-horizontal
       panes:
         - MicroXRCEAgent udp4 -p 8888
 
   <% elsif autopilot == 'ardupilot' %>
-  - ardupilot_aircraft_<%= drone_id %>:
+  - mavsdk_aircraft_<%= drone_id %>:
       layout: even-horizontal
       panes:
         - /git/MAVSDK/build/src/mavsdk_server/src/mavsdk_server udpin://0.0.0.0:14550
@@ -46,8 +51,3 @@ windows:
             sleep 2;
           done
         - sleep 2 && cat /dev/tty_drone_mcat
-
-  - debug:
-      layout: even-horizontal
-      panes:
-        - # Interactive pane

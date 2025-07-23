@@ -67,6 +67,7 @@ class OracleNode(Node):
         for drone_id, track in current_obs.items():
             drone_curr_obs = DroneObs()
             drone_curr_obs.id = drone_id
+            drone_curr_obs.label = 48 if drone_id == 2 else 0 # Hardcode drone 2 as the talking dead
             drone_curr_obs.latitude_deg = track.get('lat', 0.0)
             drone_curr_obs.longitude_deg = track.get('lon', 0.0)
             drone_curr_obs.altitude_m = track.get('alt', 0.0)
