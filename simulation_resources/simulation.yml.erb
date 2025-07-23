@@ -85,12 +85,7 @@ windows:
       layout: even-horizontal
       panes:
         - "ros2 run ros_gz_bridge parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock"
-        - sleep 3 && ros2 run ground_system oracle --num-drones <%=  num_drones %> --base-port 14540 --rate 10.0 --ros-args -p use_sim_time:=True
-
-  - test:
-      layout: even-horizontal
-      panes:
-        - ros2 run ground_system repeater --sub-domain 99 --pub-domain 1
+        - sleep 3 && ros2 run ground_system oracle --num-drones <%=  num_drones %> --base-port 14540 --rate 1.0 --ros-args -p use_sim_time:=True
 
   - debug:
       layout: even-horizontal

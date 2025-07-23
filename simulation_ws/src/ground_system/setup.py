@@ -16,7 +16,6 @@ setup(
     entry_points={
         'console_scripts': [
             'oracle = ground_system.oracle:main',
-            'repeater = ground_system.repeater:main',
         ],
     },
 )
