@@ -2,6 +2,8 @@
 <% autopilot = ENV.fetch('AUTOPILOT', 'px4') %>
 <% drone_id = ENV.fetch('DRONE_ID', 1).to_i %>
 <% headless = ENV.fetch('HEADLESS', 'false') %>
+<% camera = ENV.fetch('CAMERA', 'true') %>
+<% lidar = ENV.fetch('LIDAR', 'true') %>
 
 name: aircraft_tmuxinator
 
@@ -25,15 +27,19 @@ windows:
         - /git/MAVSDK/build/src/mavsdk_server/src/mavsdk_server udpin://0.0.0.0:14550
   <% end %>
 
+  <% if camera == 'true' %>
   - yolo:
       layout: even-horizontal
       panes:
         - python3 /git/aircraft_resources/yolo/yolo-inference.py <% if headless == 'true' %> --headless<% end %>
+  <% end %>
 
+  <% if lidar == 'true' %>
   - kiss-icp:
       layout: even-horizontal
       panes:
         - ros2 launch kiss_icp odometry.launch.py topic:=/lidar_points <% if headless == 'true' %> visualize:=false<% end %>
+  <% end %>
 
   - zenoh:
       layout: even-horizontal
