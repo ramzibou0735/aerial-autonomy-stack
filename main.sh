@@ -8,13 +8,20 @@ WORLD="${WORLD:-impalpable_greyness}" # Options: impalpable_greyness (default), 
 HEADLESS="${HEADLESS:-false}" # Options: true, false (default)
 CAMERA="${CAMERA:-true}" # Options: true (default), false
 LIDAR="${LIDAR:-true}" # Options: true (default), false 
-MODE="${MODE:-}" # Options: empty (default), debug, ...
+MODE="${MODE:-}" # Options: empty (default), dev, ...
 
 # Initialize an empty variable for the flags
 MODE_OPTS=""
 case "$MODE" in
-  debug)
-    MODE_OPTS="--entrypoint /bin/bash"
+  dev)
+    SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+    MODE_SIM_OPTS="--entrypoint /bin/bash"
+    MODE_SIM_OPTS+=" -v ${SCRIPT_DIR}/simulation_resources/:/git/simulation_resources"
+    MODE_SIM_OPTS+=" -v ${SCRIPT_DIR}/simulation_ws/src:/ros2_ws/src"
+    MODE_AIR_OPTS="--entrypoint /bin/bash"
+    MODE_SIM_OPTS+=" -v ${SCRIPT_DIR}/aircraft_resources/:/git/aircraft_resources"
+    MODE_AIR_OPTS+=" -v ${SCRIPT_DIR}/aircraft_ws/src:/ros2_ws/src"
+    MODE_AIR_OPTS+=" -v ${SCRIPT_DIR}/simulation_ws/src/ground_system_msgs:/ros2_ws/src/ground_system_msgs"
     ;;
   *)
     MODE_OPTS=""
@@ -52,7 +59,7 @@ gnome-terminal --geometry=$(get_quadrant_geometry 0) -- bash -c "echo 'Launching
     --net=aas-network --ip=42.42.1.99 \
     --privileged \
     --name simulation-container \
-    ${MODE_OPTS} \
+    ${MODE_SIM_OPTS} \
     simulation-image; \
   exec bash"
 
@@ -67,7 +74,7 @@ for i in $(seq 1 $NUM_DRONES); do
       --net=aas-network --ip=42.42.1.$i \
       --privileged \
       --name aircraft-container_$i \
-      ${MODE_OPTS} \
+      ${MODE_AIR_OPTS} \
       aircraft-image; \
     exec bash"
 done

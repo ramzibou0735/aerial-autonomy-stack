@@ -82,7 +82,7 @@ DRONE_TYPE=quad AUTOPILOT=px4 NUM_DRONES=2 WORLD=swiss_town HEADLESS=false ./mai
 # `Ctrl + b`, then `d` in each terminal once done
 ```
 
-> Once "Ready to Fly", one can takeoff and control from QGroundControl's ["Fly View"](https://docs.qgroundcontrol.com/master/en/qgc-user-guide/fly_view/fly_view.html). E.g., for PX4 VTOL, takeoff -> change altitude -> transition to FW, then take manual control; for ArduPilot VTOL, change mode to FBW A -> arm -> throttle all the way up -> then change mode to Loiter.
+> Once "Ready to Fly", one can takeoff and control from QGroundControl's ["Fly View"](https://docs.qgroundcontrol.com/master/en/qgc-user-guide/fly_view/fly_view.html). E.g., for PX4 VTOL, takeoff -> change altitude -> transition to FW, then take manual control; for ArduPilot VTOL, change mode to FBW A -> arm -> throttle all the way up -> then change mode to Loiter
 
 ![Worlds](docs/assets/worlds.jpg)
 
@@ -129,13 +129,48 @@ docker exec simulation-container bash -c "gz service -s /world/\$WORLD/control -
 
 ## Part 3: Development with AAS
 
-TBD: mount, edit, build, push back to git
-
 ```sh
 cd ~/git/aerial-autonomy-stack/
 chmod +x ./main.sh
-MODE=debug ./main.sh
+MODE=dev AUTOPILOT=px4 NUM_DRONES=1 ./main.sh # Images are pre-built but the ros2_ws/src/ folders are mounted from the host
 ```
+
+On your host compute, edit the source code in: `aircraft_ws/src`, `simulation_ws/src` (it will be reflected in the containers)
+
+```sh
+cd ~/git/aerial-autonomy-stack/
+code . # To use VSCode (use git from cli, don't trust the extension), or choose your editor
+```
+
+In each of the terminals created by `main.sh`, re-build the workspaces
+
+```sh
+cd /ros2_ws
+colcon build --symlink-install # rosdep update, rosdep install, if necessary
+```
+
+Start the simulation to check the changes
+
+```sh
+# In the simulation terminal
+tmuxinator start -p /git/simulation_resources/simulation.yml.erb
+# In aircraft 1's terminal
+tmuxinator start -p /git/aircraft_resources/aircraft.yml.erb
+```
+
+Detach tmuxinator with `Ctrl + d` and kill the sessions
+
+```sh
+# In the simulation terminal
+tmux kill-session -t simulation_tmuxinator && pkill -f gz
+# In aircraft 1's terminal
+tmux kill-session -t aircraft_tmuxinator
+```
+
+Repeat until necessary, finally commit the changes from the repo on the host computer
+
+> [!NOTE]
+> Folders `aircraft_resources/` and `simulation_resources/` are also mounted but certain modifications, e.g. in PX4's ROMFS, require compilation steps that are more easily achieved by rebuilding the images as in "Part 1: Installation of AAS"
 
 ### Run an Example
 
