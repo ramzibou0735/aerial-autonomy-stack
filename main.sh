@@ -3,7 +3,7 @@
 # Set up the simulation
 DRONE_TYPE="${DRONE_TYPE:-quad}" # Options: quad (default), vtol
 AUTOPILOT="${AUTOPILOT:-px4}" # Options: px4 (default), ardupilot
-NUM_DRONES="${NUM_DRONES:-2}" # Number of aircraft (default = 2)
+NUM_DRONES="${NUM_DRONES:-1}" # Number of aircraft (default = 1)
 WORLD="${WORLD:-impalpable_greyness}" # Options: impalpable_greyness (default), apple_orchard, shibuya_crossing, swiss_town
 HEADLESS="${HEADLESS:-false}" # Options: true, false (default)
 CAMERA="${CAMERA:-true}" # Options: true (default), false

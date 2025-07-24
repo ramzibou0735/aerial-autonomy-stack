@@ -125,6 +125,13 @@ docker exec simulation-container bash -c "gz service -s /world/\$WORLD/control -
 > 
 > </details>
 
+### Run an Example
+
+```sh
+# on vehicle 1
+./skibidi.sh
+```
+
 ---
 
 ## Part 3: Development with AAS
@@ -132,17 +139,17 @@ docker exec simulation-container bash -c "gz service -s /world/\$WORLD/control -
 ```sh
 cd ~/git/aerial-autonomy-stack/
 chmod +x ./main.sh
-MODE=dev AUTOPILOT=px4 NUM_DRONES=1 ./main.sh # Images are pre-built but the ros2_ws/src/ folders are mounted from the host
+MODE=dev ./main.sh # Images are pre-built but the ros2_ws/src/ folders are mounted from the host
 ```
 
-On your host compute, edit the source code in: `aircraft_ws/src`, `simulation_ws/src` (it will be reflected in the containers)
+Edit the source of `aircraft_ws/src`, `simulation_ws/src` (it will be reflected in the containers)
 
 ```sh
 cd ~/git/aerial-autonomy-stack/
 code . # To use VSCode (use git from cli, don't trust the extension), or choose your editor
 ```
 
-In each of the terminals created by `main.sh`, re-build the workspaces
+In each of the two terminals created by `main.sh`, re-build the workspaces
 
 ```sh
 cd /ros2_ws
@@ -170,14 +177,7 @@ tmux kill-session -t aircraft_tmuxinator
 Repeat until necessary, finally commit the changes from the repo on the host computer
 
 > [!NOTE]
-> Folders `aircraft_resources/` and `simulation_resources/` are also mounted but certain modifications, e.g. in PX4's ROMFS, require compilation steps that are more easily achieved by rebuilding the images as in "Part 1: Installation of AAS"
-
-### Run an Example
-
-```sh
-# on vehicle 1
-./skibidi.sh
-```
+> `aircraft_resources/` and `simulation_resources/` are also mounted but certain changes, e.g. in PX4's ROMFS, require compilation steps more easily achieved by building the Dockerfiles (see "Part 1: Installation of AAS")
 
 ---
 
