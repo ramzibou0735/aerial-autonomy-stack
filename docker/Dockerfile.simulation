@@ -194,17 +194,19 @@ RUN mkdir -p /ros2_ws/src
 COPY simulation_ws/src /ros2_ws/src
 WORKDIR /ros2_ws
 RUN rosdep update
-RUN rosdep install --from-paths src/ground_system_msgs src/ground_system --ignore-src --rosdistro humble -y
+RUN rosdep install --from-paths src/ --ignore-src --rosdistro humble -y
 # Explicitly use bash, not sh, to source and build the workspace
 RUN bash -c "source /opt/ros/humble/setup.bash && colcon build --symlink-install"
+# RUN bash -c "source /opt/ros/humble/setup.bash && source /ros2_ws_github/install/setup.bash && colcon build --symlink-install"
 
 # Copy resources and configuration files from this repository
 COPY simulation_resources/ /simulation_resources
 COPY simulation_resources/patches/QGroundControl.ini /home/qgcuser/.config/QGroundControl/
 
-# Source the workspace
+# Source the workspaces
+# RUN echo "source /ros2_ws_github/install/setup.bash" >> /root/.bashrc
 RUN echo "source /ros2_ws/install/setup.bash" >> /root/.bashrc
-# If needed (but already in .bashrc) $ source /opt/ros/humble/setup.bash && source /ros2_ws/install/setup.bash
+# If needed (but already in .bashrc) $ source /opt/ros/humble/setup.bash && source /ros2_ws_github/install/setup.bash && source /ros2_ws/install/setup.bash
 
 # Final config
 WORKDIR /

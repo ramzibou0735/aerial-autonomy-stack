@@ -14,6 +14,7 @@ MODE="${MODE:-}" # Options: empty (default), dev, ...
 MODE_OPTS=""
 case "$MODE" in
   dev)
+    # In dev mode, resources and workspaces are mounted from the host
     SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
     MODE_SIM_OPTS="--entrypoint /bin/bash"
     MODE_SIM_OPTS+=" -v ${SCRIPT_DIR}/simulation_resources/:/simulation_resources"

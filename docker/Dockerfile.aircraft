@@ -51,9 +51,9 @@ RUN rosdep init
 FROM ros2-image AS ros2-px4msgs-image
 
 # Build PX4 messages
-RUN mkdir -p /ros2_ws/src
-RUN git clone --depth 1 --branch release/1.15 https://github.com/PX4/px4_msgs.git /ros2_ws/src/px4_msgs
-WORKDIR /ros2_ws
+RUN mkdir -p /ros2_ws_github/src
+RUN git clone --depth 1 --branch release/1.15 https://github.com/PX4/px4_msgs.git /ros2_ws_github/src/px4_msgs
+WORKDIR /ros2_ws_github
 RUN rosdep update
 RUN rosdep install --from-paths src --ignore-src --rosdistro humble -y
 # Explicitly use bash, not sh, to source and build the workspace
@@ -145,8 +145,8 @@ FROM ros2-px4msgs-dds-mavsdk-yolo-image AS aircraft-dev-image
 
 # Install KISS-ICP
 RUN pip3 install --no-cache-dir --upgrade "cmake>=3.24"
-RUN mkdir -p /ros2_ws/src
-WORKDIR /ros2_ws
+RUN mkdir -p /ros2_ws_github/src
+WORKDIR /ros2_ws_github
 RUN git clone https://github.com/PRBonn/kiss-icp.git src/kiss-icp
 # Explicitly use bash, not sh, to source and build the workspace
 RUN bash -c "source /opt/ros/humble/setup.bash && colcon build --symlink-install"
@@ -163,17 +163,18 @@ RUN mkdir -p /ros2_ws/src
 COPY simulation_ws/src/ground_system_msgs /ros2_ws/src/ground_system_msgs
 WORKDIR /ros2_ws
 RUN rosdep update
-RUN rosdep install --from-paths src/ground_system_msgs --ignore-src --rosdistro humble -y
+RUN rosdep install --from-paths src/ --ignore-src --rosdistro humble -y
 # Explicitly use bash, not sh, to source and build the workspace
-RUN bash -c "source /opt/ros/humble/setup.bash && colcon build --symlink-install"
+RUN bash -c "source /opt/ros/humble/setup.bash && source /ros2_ws_github/install/setup.bash && colcon build --symlink-install"
 
 # Copy resources and configuration files from this repository
 COPY aircraft_resources/ /aircraft_resources
-COPY aircraft_resources/patches/kiss_icp.rviz src/kiss-icp/ros/rviz/kiss_icp.rviz
+COPY aircraft_resources/patches/kiss_icp.rviz /ros2_ws_github/src/kiss-icp/ros/rviz/kiss_icp.rviz
 
-# Source the workspace
+# Source the workspaces
+RUN echo "source /ros2_ws_github/install/setup.bash" >> /root/.bashrc
 RUN echo "source /ros2_ws/install/setup.bash" >> /root/.bashrc
-# If needed (but already in .bashrc) $ source /opt/ros/humble/setup.bash && source /ros2_ws/install/setup.bash
+# If needed (but already in .bashrc) $ source /opt/ros/humble/setup.bash && source /ros2_ws_github/install/setup.bash && source /ros2_ws/install/setup.bash
 
 # Final config
 WORKDIR /
