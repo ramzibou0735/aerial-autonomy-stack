@@ -2,7 +2,7 @@
 
 if [ "$#" -ne 2 ]; then
   echo "Usage: $0 <number_of_drones> <full_path_to_base_model_directory>"
-  echo "Example: ./_create_ardupilot_models.sh 3 /git/simulation_resources/aircraft_models/iris_with_ardupilot"
+  echo "Example: ./_create_ardupilot_models.sh 3 /simulation_resources/aircraft_models/iris_with_ardupilot"
   exit 1
 fi
 

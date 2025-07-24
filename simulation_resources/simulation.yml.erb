@@ -20,7 +20,7 @@ windows:
       layout: even-horizontal
       panes:
         - >
-          GZ_SIM_RESOURCE_PATH=$GZ_SIM_RESOURCE_PATH:/git/simulation_resources/aircraft_models:/git/simulation_resources/simulation_worlds 
+          GZ_SIM_RESOURCE_PATH=$GZ_SIM_RESOURCE_PATH:/simulation_resources/aircraft_models:/simulation_resources/simulation_worlds 
           GZ_SIM_PHYSICS_ENGINE_PATH=$GZ_SIM_PHYSICS_ENGINE_PATH:/usr/lib/x86_64-linux-gnu/gz-physics-7/engine-plugins/
           gz sim -v4 -r <% if headless == 'true' %> -s <% end %> <%= world %>.sdf
   <% elsif autopilot == 'ardupilot' %>
@@ -28,12 +28,12 @@ windows:
       layout: even-horizontal
       panes:
         - > 
-          chmod +x /git/simulation_resources/aircraft_models/_create_ardupilot_models.sh &&
-          /git/simulation_resources/aircraft_models/_create_ardupilot_models.sh <%= num_drones %> /git/simulation_resources/aircraft_models/<%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'zephyr_with_ardupilot' %> &&
-          chmod +x /git/simulation_resources/simulation_worlds/_create_ardupilot_world.sh &&
-          /git/simulation_resources/simulation_worlds/_create_ardupilot_world.sh <%= num_drones %> <%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'zephyr_with_ardupilot' %> /git/simulation_resources/simulation_worlds/<%= world %>.sdf &&
+          chmod +x /simulation_resources/aircraft_models/_create_ardupilot_models.sh &&
+          /simulation_resources/aircraft_models/_create_ardupilot_models.sh <%= num_drones %> /simulation_resources/aircraft_models/<%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'zephyr_with_ardupilot' %> &&
+          chmod +x /simulation_resources/simulation_worlds/_create_ardupilot_world.sh &&
+          /simulation_resources/simulation_worlds/_create_ardupilot_world.sh <%= num_drones %> <%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'zephyr_with_ardupilot' %> /simulation_resources/simulation_worlds/<%= world %>.sdf &&
           GZ_SIM_SYSTEM_PLUGIN_PATH=/git/ardupilot_gazebo/build:$GZ_SIM_SYSTEM_PLUGIN_PATH 
-          GZ_SIM_RESOURCE_PATH=/git/simulation_resources/aircraft_models:/git/simulation_resources/simulation_worlds:$GZ_SIM_RESOURCE_PATH 
+          GZ_SIM_RESOURCE_PATH=/simulation_resources/aircraft_models:/simulation_resources/simulation_worlds:$GZ_SIM_RESOURCE_PATH 
           GZ_SIM_PHYSICS_ENGINE_PATH=$GZ_SIM_PHYSICS_ENGINE_PATH:/usr/lib/x86_64-linux-gnu/gz-physics-7/engine-plugins/
           gz sim -v4 -r <% if headless == 'true' %> -s <% end %> populated_ardupilot.sdf
   <% end %>
@@ -58,7 +58,7 @@ windows:
         <% end %>
         <% if camera == 'true' %>
         - >
-          python3 /git/simulation_resources/comms/gz_to_gst_image_bridge.py 
+          python3 /simulation_resources/comms/gz_to_gst_image_bridge.py 
           --gz_topic /world/<%= world %>/model/<%= drone_type == 'quad' ? 'x500' : 'standard_vtol' %>_<%= i %>/link/mono_cam/base_link/sensor/imager/image
           --ip 42.42.1.<%= i + 1 %> --port 5600
         <% end %>
@@ -73,18 +73,18 @@ windows:
           -f <%= drone_type == 'quad' ? 'gazebo-iris' : 'gazebo-zephyr' %> 
           --model JSON
           -I <%= i %>
-          -l $(awk -F "[><]" "/<spherical_coordinates>/,/<\/spherical_coordinates>/" /git/simulation_resources/simulation_worlds/<%= world %>.sdf | awk -F "[><]" "/latitude_deg/ {print \$3}"),$(awk -F "[><]" "/<spherical_coordinates>/,/<\/spherical_coordinates>/" /git/simulation_resources/simulation_worlds/<%= world %>.sdf | awk -F "[><]" "/longitude_deg/ {print \$3}"),$(awk -F "[><]" "/<spherical_coordinates>/,/<\/spherical_coordinates>/" /git/simulation_resources/simulation_worlds/<%= world %>.sdf | awk -F "[><]" "/elevation/ {print \$3}"),0          
+          -l $(awk -F "[><]" "/<spherical_coordinates>/,/<\/spherical_coordinates>/" /simulation_resources/simulation_worlds/<%= world %>.sdf | awk -F "[><]" "/latitude_deg/ {print \$3}"),$(awk -F "[><]" "/<spherical_coordinates>/,/<\/spherical_coordinates>/" /simulation_resources/simulation_worlds/<%= world %>.sdf | awk -F "[><]" "/longitude_deg/ {print \$3}"),$(awk -F "[><]" "/<spherical_coordinates>/,/<\/spherical_coordinates>/" /simulation_resources/simulation_worlds/<%= world %>.sdf | awk -F "[><]" "/elevation/ {print \$3}"),0          
           --out=udp:127.0.0.1:1455<%= i %>
           --out=udp:127.0.0.1:1454<%= i %>
           --out=udp:42.42.1.<%= i + 1 %>:14550
-          --add-param-file=/git/simulation_resources/aircraft_models/<%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'zephyr_with_ardupilot' %>_<%= i + 1 %>/ardupilot-4.6.params
+          --add-param-file=/simulation_resources/aircraft_models/<%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'zephyr_with_ardupilot' %>_<%= i + 1 %>/ardupilot-4.6.params
         - "ROS_DOMAIN_ID=<%= i + 1 %> ros2 run ros_gz_bridge parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock"
         <% if lidar == 'true' %>
         - "ROS_DOMAIN_ID=<%= i + 1 %> ros2 run ros_gz_bridge parameter_bridge /world/<%= world %>/model/<%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'zephyr_with_ardupilot' %>_<%= i + 1 %>/model/<%= drone_type == 'quad' ? 'iris' : 'zephyr' %>/link/lidar/base_link/sensor/lidar3d/scan/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked --ros-args -r /world/<%= world %>/model/<%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'zephyr_with_ardupilot' %>_<%= i + 1 %>/model/<%= drone_type == 'quad' ? 'iris' : 'zephyr' %>/link/lidar/base_link/sensor/lidar3d/scan/points:=/lidar_points"
         <% end %>
         <% if camera == 'true' %>
         - >
-          python3 /git/simulation_resources/comms/gz_to_gst_image_bridge.py 
+          python3 /simulation_resources/comms/gz_to_gst_image_bridge.py 
           --gz_topic /world/<%= world %>/model/<%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'zephyr_with_ardupilot' %>_<%= i + 1 %>/model/<%= drone_type == 'quad' ? 'iris' : 'zephyr' %>/link/mono_cam/base_link/sensor/imager/image
           --ip 42.42.1.<%= i + 1 %> --port 5600
         <% end %>
@@ -100,12 +100,12 @@ windows:
   - zenoh:
       layout: even-horizontal
       panes:
-        - zenoh-bridge-ros2dds -c /git/simulation_resources/comms/zenoh_config_ground.json5
+        - zenoh-bridge-ros2dds -c /simulation_resources/comms/zenoh_config_ground.json5
 
   - tcp_repeater:
       layout: even-horizontal
       panes:
-        - python3 /git/simulation_resources/comms/emulate_serial_over_tcp.py
+        - python3 /simulation_resources/comms/emulate_serial_over_tcp.py
 
   - qgc:
       layout: even-horizontal

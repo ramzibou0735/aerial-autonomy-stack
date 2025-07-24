@@ -199,7 +199,7 @@ RUN rosdep install --from-paths src/ground_system_msgs src/ground_system --ignor
 RUN bash -c "source /opt/ros/humble/setup.bash && colcon build --symlink-install"
 
 # Copy resources and configuration files from this repository
-COPY simulation_resources/ /git/simulation_resources
+COPY simulation_resources/ /simulation_resources
 COPY simulation_resources/patches/QGroundControl.ini /home/qgcuser/.config/QGroundControl/
 
 # Source the workspace
@@ -208,5 +208,5 @@ RUN echo "source /ros2_ws/install/setup.bash" >> /root/.bashrc
 
 # Final config
 WORKDIR /
-ENTRYPOINT ["tmuxinator", "start", "-p", "/git/simulation_resources/simulation.yml.erb"]
+ENTRYPOINT ["tmuxinator", "start", "-p", "/simulation_resources/simulation.yml.erb"]
 # ENTRYPOINT ["/bin/bash"]

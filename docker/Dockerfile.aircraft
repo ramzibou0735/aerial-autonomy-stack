@@ -168,7 +168,7 @@ RUN rosdep install --from-paths src/ground_system_msgs --ignore-src --rosdistro 
 RUN bash -c "source /opt/ros/humble/setup.bash && colcon build --symlink-install"
 
 # Copy resources and configuration files from this repository
-COPY aircraft_resources/ /git/aircraft_resources
+COPY aircraft_resources/ /aircraft_resources
 COPY aircraft_resources/patches/kiss_icp.rviz src/kiss-icp/ros/rviz/kiss_icp.rviz
 
 # Source the workspace
@@ -177,5 +177,5 @@ RUN echo "source /ros2_ws/install/setup.bash" >> /root/.bashrc
 
 # Final config
 WORKDIR /
-ENTRYPOINT ["tmuxinator", "start", "-p", "/git/aircraft_resources/aircraft.yml.erb"]
+ENTRYPOINT ["tmuxinator", "start", "-p", "/aircraft_resources/aircraft.yml.erb"]
 # ENTRYPOINT ["/bin/bash"]

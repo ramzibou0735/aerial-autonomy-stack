@@ -31,7 +31,7 @@ windows:
   - yolo:
       layout: even-horizontal
       panes:
-        - python3 /git/aircraft_resources/yolo/yolo-inference.py <% if headless == 'true' %> --headless<% end %>
+        - python3 /aircraft_resources/yolo/yolo-inference.py <% if headless == 'true' %> --headless<% end %>
   <% end %>
 
   <% if lidar == 'true' %>
@@ -44,7 +44,7 @@ windows:
   - zenoh:
       layout: even-horizontal
       panes:
-        - zenoh-bridge-ros2dds -e tcp/42.42.1.99:7447 -c /git/aircraft_resources/comms/zenoh_config_air.json5
+        - zenoh-bridge-ros2dds -e tcp/42.42.1.99:7447 -c /aircraft_resources/comms/zenoh_config_air.json5
 
   - serial_over_tcp:
       layout: even-horizontal

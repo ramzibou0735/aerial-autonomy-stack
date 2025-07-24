@@ -160,9 +160,9 @@ Start the simulation to check the changes
 
 ```sh
 # In the simulation terminal
-tmuxinator start -p /git/simulation_resources/simulation.yml.erb
+tmuxinator start -p /simulation_resources/simulation.yml.erb
 # In aircraft 1's terminal
-tmuxinator start -p /git/aircraft_resources/aircraft.yml.erb
+tmuxinator start -p /aircraft_resources/aircraft.yml.erb
 ```
 
 Detach tmuxinator with `Ctrl + d` and kill the sessions

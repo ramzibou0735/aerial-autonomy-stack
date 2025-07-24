@@ -16,10 +16,10 @@ case "$MODE" in
   dev)
     SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
     MODE_SIM_OPTS="--entrypoint /bin/bash"
-    MODE_SIM_OPTS+=" -v ${SCRIPT_DIR}/simulation_resources/:/git/simulation_resources"
+    MODE_SIM_OPTS+=" -v ${SCRIPT_DIR}/simulation_resources/:/simulation_resources"
     MODE_SIM_OPTS+=" -v ${SCRIPT_DIR}/simulation_ws/src:/ros2_ws/src"
     MODE_AIR_OPTS="--entrypoint /bin/bash"
-    MODE_SIM_OPTS+=" -v ${SCRIPT_DIR}/aircraft_resources/:/git/aircraft_resources"
+    MODE_SIM_OPTS+=" -v ${SCRIPT_DIR}/aircraft_resources/:/aircraft_resources"
     MODE_AIR_OPTS+=" -v ${SCRIPT_DIR}/aircraft_ws/src:/ros2_ws/src"
     MODE_AIR_OPTS+=" -v ${SCRIPT_DIR}/simulation_ws/src/ground_system_msgs:/ros2_ws/src/ground_system_msgs"
     ;;

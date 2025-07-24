@@ -2,7 +2,7 @@
 
 if [ "$#" -ne 3 ]; then
   echo "Usage: $0 <number_of_drones> <base_model_name> <full_path_to_empty_world>"
-  echo "Example: ./_create_ardupilot_world.sh 3 iris_with_ardupilot /git/simulation_resources/simulation_worlds/empty_ardupilot.sdf"
+  echo "Example: ./_create_ardupilot_world.sh 3 iris_with_ardupilot /simulation_resources/simulation_worlds/empty_ardupilot.sdf"
   exit 1
 fi
 
