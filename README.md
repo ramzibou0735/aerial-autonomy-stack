@@ -51,7 +51,7 @@ git clone git@github.com:JacopoPan/aerial-autonomy-stack.git ~/git/aerial-autono
 cd ~/git/aerial-autonomy-stack
 ```
 
-### Option 1:  Build the Docker Images
+### Option 1: Build the Docker Images
 
 > [!WARNING]
 > Building from scratch requires a stable internet connection, `Ctrl + c` and restart if needed 
@@ -174,10 +174,10 @@ tmux kill-session -t simulation_tmuxinator && pkill -f gz
 tmux kill-session -t aircraft_tmuxinator
 ```
 
-Repeat until necessary, finally commit the changes from the repo on the host computer
+Repeat as necessary, finally commit the changes from the repo on the host computer
 
 > [!NOTE]
-> `aircraft_resources/` and `simulation_resources/` are also mounted but certain changes, e.g. in PX4's ROMFS, require compilation steps more easily achieved by building the Dockerfiles (see "Part 1: Installation of AAS")
+> `aircraft_resources/` and `simulation_resources/` are also mounted but certain changes, e.g. in PX4's ROMFS, require compilation steps more easily achieved by building the Dockerfiles (see ["Part 1"](###-option-1-build-the-docker-images))
 
 ---
 
