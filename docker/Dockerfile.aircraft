@@ -167,6 +167,13 @@ RUN rosdep install --from-paths src/ --ignore-src --rosdistro humble -y
 # Explicitly use bash, not sh, to source and build the workspace
 RUN bash -c "source /opt/ros/humble/setup.bash && source /ros2_ws_github/install/setup.bash && colcon build --symlink-install"
 
+# TEMP WORK
+RUN apt-get update && \
+    apt-get install -y ros-humble-mavros ros-humble-mavros-msgs \
+    && apt clean \
+    && rm -rf /var/lib/apt/lists/*
+RUN /opt/ros/humble/lib/mavros/install_geographiclib_datasets.sh
+
 # Copy resources and configuration files from this repository
 COPY aircraft_resources/ /aircraft_resources
 COPY aircraft_resources/patches/kiss_icp.rviz /ros2_ws_github/src/kiss-icp/ros/rviz/kiss_icp.rviz
