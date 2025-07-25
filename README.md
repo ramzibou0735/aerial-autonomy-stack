@@ -19,10 +19,10 @@
 <details>
 <summary><b>Additional Features:</b> <i>(expand)</i></summary>
 
-> - 3D worlds for [PX4](https://docs.px4.io/main/en/simulation/#sitl-simulation-environment)/[ArduPilot](https://ardupilot.org/dev/docs/sitl-simulator-software-in-the-loop.html#sitl-architecture) **software-in-the-loop (SITL) simulation**
+> - **3D worlds** for [PX4](https://docs.px4.io/main/en/simulation/#sitl-simulation-environment)/[ArduPilot](https://ardupilot.org/dev/docs/sitl-simulator-software-in-the-loop.html#sitl-architecture) software-in-the-loop (SITL) simulation
+> - **Steppable simulation** interface for reinforcement learning 
+> - [Zenoh](https://github.com/eclipse-zenoh/zenoh-plugin-ros2dds) ground-to-drone ROS2 bridge and serial inter-drone communication for real-world deployment
 > - Support for [PX4 Offboard](https://docs.px4.io/main/en/flight_modes/offboard.html) mode in CTBR (`VehicleRatesSetpoint`) for agile, GNSS-denied flight 
-> - Steppable simulation interface for reinforcement learning 
-> - [Zenoh](https://github.com/eclipse-zenoh/zenoh-plugin-ros2dds) ground-to-drone ROS2 bridge and serial inter-drone communication for real-world deployment 
 
 </details>
 
@@ -105,7 +105,7 @@ docker exec simulation-container bash -c "gz service -s /world/\$WORLD/control -
 > - Move between Tmux windows with `Ctrl + b`, then `n`, `p`
 > - Move between Tmux panes with `Ctrl + b`, then `arrow keys`
 > - Enter copy mode to scroll back with `Ctrl + [`, then `arrow keys`, exit with `q`
-> - Detach Tmux with `Ctrl + b`, then press `d`
+> - Detach Tmux with `Ctrl + b`, then `d`
 > ```sh
 > tmux list-sessions # List all sessions
 > tmux attach-session -t [session_name] # Reattach a session
@@ -142,16 +142,12 @@ chmod +x ./main.sh
 MODE=dev ./main.sh # Images are pre-built but the ros2_ws/src/ folders are mounted from the host
 ```
 
-Edit the source of `aircraft_ws/src`, `simulation_ws/src` (it will be reflected in the containers)
+*On the host*, edit the source of `~/git/aerial-autonomy-stack/aircraft_ws/src` and `~/git/aerial-autonomy-stack/simulation_ws/src`: it will be reflected in the two running containers
+
+*In each of the two terminals/containers* created by `main.sh`, re-build the workspaces
 
 ```sh
-cd ~/git/aerial-autonomy-stack/
-code . # To use VSCode (use git from cli, don't trust the extension), or choose your editor
-```
-
-In each of the two terminals created by `main.sh`, re-build the workspaces
-
-```sh
+# In the simulation and aircraft 1 terminals
 cd /ros2_ws
 colcon build --symlink-install # rosdep update, rosdep install, if necessary
 ```
@@ -174,7 +170,7 @@ tmux kill-session -t simulation_tmuxinator && pkill -f gz
 tmux kill-session -t aircraft_tmuxinator
 ```
 
-Repeat as necessary, finally commit the changes from the repo on the host computer
+Repeat as necessary, finally commit the changes from the repository on the host computer
 
 > [!NOTE]
 > `aircraft_resources/` and `simulation_resources/` are also mounted but certain changes, e.g. in PX4's ROMFS, require compilation steps more easily achieved by re-building the Dockerfiles (see ["Part 1"](#option-1-build-the-docker-images))
