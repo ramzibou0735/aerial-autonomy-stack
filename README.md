@@ -199,6 +199,10 @@ docker exec -it <container_name_or_id> tmux attach
 
 ## TODOs
 
+Share over Zenoh
+for ArduPilot ros2 topic echo /mavros/global_position/global (add namespace)
+for PX4 /Drone1/fmu/out/vehicle_global_position
+
 ### Known Issues
 
 - mavros commands require multiple resend

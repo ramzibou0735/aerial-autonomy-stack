@@ -105,7 +105,7 @@ FROM ros2-gz-qgc-px4-image AS ros2-gz-qgc-px4-ardupilot-image
 # ArduPilot SITL (temporarily as arduuser, then re chown to root)
 # Based on https://ardupilot.org/dev/docs/building-setup-linux.html#building-setup-linux
 RUN mkdir -p /git/
-RUN git clone --depth 1 --branch Copter-4.6.1 https://github.com/ArduPilot/ardupilot.git /git/ardupilot
+RUN git clone --depth 1 --branch Copter-4.6.2 https://github.com/ArduPilot/ardupilot.git /git/ardupilot
 WORKDIR /git/ardupilot
 RUN git submodule update --init --recursive --depth 1
 RUN useradd -m -s /bin/bash arduuser
