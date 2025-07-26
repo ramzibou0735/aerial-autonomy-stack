@@ -10,18 +10,18 @@ Nonetheless, in robotics, an equally important component of *sim2real gap* is so
 That is, the challenge of **full-stack integration** among:
 
 - the **many frameworks** that go into drone autonomy (a physics engine to simulate drone dynamics, a rendering engine to generate realistic imagery, a GPU-accelerated machine learning runtime for perception, one or more inter-process and inter-thread communication middleware, the interface to the microcontroller and autopilot software performing state-estimation and low-level control, the SDKs of the deployed embedded systems)
-- reasonably emulated **inter-robot communication** (in aerial systems, this is heavily affected by the actual flight plans and available RF hardware)
+- emulated **inter-robot communication** (in aerial systems, this is heavily affected by the actual flight plans and available RF hardware)
 
 ## Design Manifesto
 
 - **Simplicity** (less is more, ["simple is better than complex"](https://peps.python.org/pep-0020/), and ["worse is better"](https://www.dreamsongs.com/RiseOfWorseIsBetter.html))
-- [おまかせ](https://dhh.dk/2012/rails-is-omakase.html) **end-to-end**ness (from camera frames with YOLO bounding boxes, to MAVLink and uORB messages for the autopilot)
+- [おまかせ](https://dhh.dk/2012/rails-is-omakase.html) **end-to-end**ness (from camera frames with YOLO bounding boxes, to uORB and MAVLink messages for the autopilot)
 - **Deployment** focus
     - Clear, Dockerized split between simulation and aircraft software
     - ROS2 intra-companion board messaging
-    - Zenoh inter-vehicle ROS2 bridge, networking emulated with `docker network`
-    - XRCE-DDS, MAVSDK autopilot-to-companion board messaging
+    - XRCE-DDS (PX4), MAVROS (ArduPilot) autopilot-to-companion board ROS2 UDP bridge
     - GStreamer camera-to-companion board acquisition
+    - Zenoh inter-vehicle ROS2 bridge, with networking emulated by `docker network`
 
 ## Related Work
 
