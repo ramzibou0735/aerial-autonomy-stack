@@ -24,7 +24,7 @@ windows:
   - mavsdk_aircraft_<%= drone_id %>:
       layout: even-horizontal
       panes:
-        - ros2 launch mavros apm.launch fcu_url:=udp://:14550@127.0.0.1:14557
+        - ros2 launch mavros apm.launch fcu_url:=udp://:1453<%= drone_id - 1 %>@127.0.0.1
   <% end %>
 
   <% if camera == 'true' %>
