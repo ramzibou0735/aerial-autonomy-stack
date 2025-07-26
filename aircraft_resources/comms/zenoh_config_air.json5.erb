@@ -1,0 +1,18 @@
+<% autopilot = ENV.fetch('AUTOPILOT', 'px4') %>
+<% drone_id = ENV.fetch('DRONE_ID', 1).to_i %>
+
+{
+  plugins: {
+    ros2dds: {
+      allow: {
+        publishers: ["/test_topic_<%= drone_id %>"],
+        subscribers: ["/tracks", "/test_topic_.*"]
+      }
+    }
+  },
+  scouting: {
+    multicast: {
+      enabled: true
+    }
+  }
+}
