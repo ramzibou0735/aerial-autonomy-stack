@@ -2,8 +2,8 @@
   plugins: {
     ros2dds: {
       allow: {
-        publishers: ["/tracks"],
-        subscribers: []
+        publishers: [],
+        subscribers: ["/tracks"]
       }
     }
   }

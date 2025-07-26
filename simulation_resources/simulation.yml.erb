@@ -75,7 +75,7 @@ windows:
           -I <%= i %>
           -l $(awk -F "[><]" "/<spherical_coordinates>/,/<\/spherical_coordinates>/" /simulation_resources/simulation_worlds/<%= world %>.sdf | awk -F "[><]" "/latitude_deg/ {print \$3}"),$(awk -F "[><]" "/<spherical_coordinates>/,/<\/spherical_coordinates>/" /simulation_resources/simulation_worlds/<%= world %>.sdf | awk -F "[><]" "/longitude_deg/ {print \$3}"),$(awk -F "[><]" "/<spherical_coordinates>/,/<\/spherical_coordinates>/" /simulation_resources/simulation_worlds/<%= world %>.sdf | awk -F "[><]" "/elevation/ {print \$3}"),0          
           --out=udp:127.0.0.1:<%= 14550 + i %>
-          --out=udp:127.0.0.1:<%= 18540 + i %>
+          --out=udp:127.0.0.1:<%= 14540 + i %>
           --out=udp:42.42.1.<%= i + 1 %>:<%= 22530 + i %>
           --add-param-file=/simulation_resources/aircraft_models/<%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'zephyr_with_ardupilot' %>_<%= i + 1 %>/ardupilot-4.6.params
         - "ROS_DOMAIN_ID=<%= i + 1 %> ros2 run ros_gz_bridge parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock"
@@ -95,7 +95,7 @@ windows:
       layout: even-horizontal
       panes:
         - "ros2 run ros_gz_bridge parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock"
-        - sleep 3 && ros2 run ground_system oracle --num-drones <%=  num_drones %> --base-port 18540 --rate 1.0 --ros-args -p use_sim_time:=True
+        - sleep 3 && ros2 run ground_system oracle --num-drones <%=  num_drones %> --base-port 14540 --rate 1.0 --ros-args -p use_sim_time:=True
 
   - zenoh:
       layout: even-horizontal
