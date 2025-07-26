@@ -77,27 +77,22 @@ RUN mkdir build && cd build && \
 # Run with $ MicroXRCEAgent udp4 -p 8888
 
 ################################################################################
-# Stage 4 - 9GB ################################################################
+# Stage 4 - 8.5GB ##############################################################
 ################################################################################
-FROM ros2-px4msgs-dds-image AS ros2-px4msgs-dds-mavsdk-image
+FROM ros2-px4msgs-dds-image AS ros2-px4msgs-dds-mavros-image
 
-# MAVSDK
-# Based on: https://mavsdk.mavlink.io/main/en/cpp/guide/build_linux.html
-RUN mkdir -p /git/
-RUN git clone --depth 1 --branch v3.6.0 https://github.com/mavlink/MAVSDK.git /git/MAVSDK
-WORKDIR /git/MAVSDK
-RUN git submodule update --init --recursive --depth 1
-RUN cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_MAVSDK_SERVER=ON -Bbuild -S. && \
-    cmake --build build -j$(nproc) && \
-    cmake --build build --target install
-RUN ldconfig
-# Check with $ pkg-config --modversion mavsdk
-# Run with $ /git/MAVSDK/build/src/mavsdk_server/src/mavsdk_server
+# MAVROS
+RUN apt-get update && \
+    apt-get install -y ros-humble-mavros ros-humble-mavros-msgs \
+    && apt clean \
+    && rm -rf /var/lib/apt/lists/*
+RUN /opt/ros/humble/lib/mavros/install_geographiclib_datasets.sh
+# Run with $ ros2 launch mavros apm.launch fcu_url:=[URI]
 
 ################################################################################
-# Stage 5 - 16GB ###############################################################
+# Stage 5 - 15GB ###############################################################
 ################################################################################
-FROM ros2-px4msgs-dds-mavsdk-image AS ros2-px4msgs-dds-mavsdk-yolo-image
+FROM ros2-px4msgs-dds-mavros-image AS ros2-px4msgs-dds-mavros-yolo-image
 
 # Install YOLOv8 and ONNX in virtual environment /yolo-env/
 # See https://github.com/ultralytics/ultralytics/blob/main/README.md and https://onnxruntime.ai/getting-started
@@ -113,12 +108,11 @@ RUN /yolo-env/bin/python3 -c "from ultralytics import YOLO; YOLO('yolov8s.pt').e
 RUN yolo-env/bin/python3 -c "import json; from ultralytics import YOLO; print(json.dumps(YOLO('yolov8s.pt').names))" | grep '{' > coco.json
 RUN wget https://github.com/intel-iot-devkit/sample-videos/raw/master/person-bicycle-car-detection.mp4 -O /sample.mp4
 
-# Add GStreamer, Python OpenCV, socat packages
+# Add GStreamer, Python OpenCV packages
 RUN apt update \
     && apt install -y --no-install-recommends \
         gstreamer1.0-tools gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav \
         python3-opencv \
-        socat \
     && apt clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -134,9 +128,9 @@ RUN pip3 install --no-cache-dir --upgrade pip \
 # Check with $ python3 -c "import onnxruntime as ort; print(ort.__version__)"
 
 ################################################################################
-# Stage 6 - 17+GB ##############################################################
+# Stage 6 - 15+GB ##############################################################
 ################################################################################
-FROM ros2-px4msgs-dds-mavsdk-yolo-image AS aircraft-dev-image
+FROM ros2-px4msgs-dds-mavros-yolo-image AS aircraft-dev-image
 
 # Install KISS-ICP
 RUN pip3 install --no-cache-dir --upgrade "cmake>=3.24"
@@ -161,13 +155,6 @@ RUN rosdep update
 RUN rosdep install --from-paths src/ --ignore-src --rosdistro humble -y
 # Explicitly use bash, not sh, to source and build the workspace
 RUN bash -c "source /opt/ros/humble/setup.bash && source /ros2_ws_github/install/setup.bash && colcon build --symlink-install"
-
-# TEMP WORK
-RUN apt-get update && \
-    apt-get install -y ros-humble-mavros ros-humble-mavros-msgs \
-    && apt clean \
-    && rm -rf /var/lib/apt/lists/*
-RUN /opt/ros/humble/lib/mavros/install_geographiclib_datasets.sh
 
 # Copy resources and configuration files from this repository
 COPY aircraft_resources/ /aircraft_resources

@@ -11,7 +11,7 @@
 ## Feature Highlights
 
 - Support for **multiple quadrotors and VTOLs** based on **PX4 or ArduPilot**
-- **ROS2**-based autopilot interfaces (*via* XRCE-DDS and MAVSDK)
+- **ROS2**-based autopilot interfaces (*via* XRCE-DDS and MAVROS)
 - Support for **YOLOv8** and ONNX GPU Runtimes
 - Support for [KISS-ICP](https://github.com/PRBonn/kiss-icp) **Lidar Odometry**
 - **Dockerized simulation and deployment** based on [`nvcr.io/nvidia/cuda:12.8.1-cudnn-runtime-ubuntu22.04`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/cuda/tags), [`nvcr.io/nvidia/l4t-jetpack:r36.4.0`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/l4t-jetpack/tags)
@@ -29,7 +29,7 @@
 <details>
 <summary>AAS leverages the following frameworks: <i>(expand)</i></summary>
 
-> [*ROS2 Humble*](https://docs.ros.org/en/rolling/Releases.html) (LTS, EOL 5/2027), [*Gazebo Sim Harmonic*](https://gazebosim.org/docs/latest/releases/) (LTS, EOL 9/2028), [*PX4 1.15*](https://github.com/PX4/PX4-Autopilot/releases) interfaced *via* [XRCE-DDS](https://github.com/eProsima/Micro-XRCE-DDS/releases), [*ArduPilot 4.6*](https://github.com/ArduPilot/ardupilot/releases) interfaced *via* [MAVSDK](https://github.com/mavlink/mavsdk/releases), [*YOLOv8*](https://github.com/ultralytics/ultralytics/releases) on [*ONNX Runtime 1.22*](https://onnxruntime.ai/getting-started) (latest stable releases as of 6/2025), [*L4T 36* (Ubuntu 22-based)/*JetPack 6*](https://developer.nvidia.com/embedded/jetpack-archive) (for deployment only, latest major release as of 6/2025)
+> [*ROS2 Humble*](https://docs.ros.org/en/rolling/Releases.html) (LTS, EOL 5/2027), [*Gazebo Sim Harmonic*](https://gazebosim.org/docs/latest/releases/) (LTS, EOL 9/2028), [*PX4 1.15*](https://github.com/PX4/PX4-Autopilot/releases) interfaced *via* [XRCE-DDS](https://github.com/eProsima/Micro-XRCE-DDS/releases), [*ArduPilot 4.6*](https://github.com/ArduPilot/ardupilot/releases) interfaced *via* [MAVROS](https://github.com/mavlink/mavros/releases), [*YOLOv8*](https://github.com/ultralytics/ultralytics/releases) on [*ONNX Runtime 1.22*](https://onnxruntime.ai/getting-started) (latest stable releases as of 6/2025), [*L4T 36* (Ubuntu 22-based)/*JetPack 6*](https://developer.nvidia.com/embedded/jetpack-archive) (for deployment only, latest major release as of 6/2025)
 
 </details>
 
@@ -58,7 +58,7 @@ cd ~/git/aerial-autonomy-stack
 
 ```sh
 docker build -t simulation-image -f docker/Dockerfile.simulation . # The first build takes ~15' and creates a 19GB image (6GB for ros-humble-desktop, 9GB for PX4 and ArduPilot SITL)
-docker build -t aircraft-image -f docker/Dockerfile.aircraft . # Having built Dockerfile.simulation, the first build takes ~15' and creates a 17GB image (6GB for ros-humble-desktop, 7GB for YOLOv8, ONNX)
+docker build -t aircraft-image -f docker/Dockerfile.aircraft . # Having built Dockerfile.simulation, the first build takes ~15' and creates a 15GB image (6GB for ros-humble-desktop, 7GB for YOLOv8, ONNX)
 ```
 
 > These are development-friendly images with lots of tools and artifacts, trim if needed
