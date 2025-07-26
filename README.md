@@ -201,6 +201,9 @@ docker exec -it <container_name_or_id> tmux attach
 
 ### Known Issues
 
+- mavros not working with multiple sitls yet
+ros2 topic pub --once /mavros/setpoint_position/local geometry_msgs/msg/PoseStamped '{header: {frame_id: "map"}, pose: {position: {x: 10.0, y: 0.0, z: 5.0}}}'
+
 - Revise orientation of the lidar and frame of the lidar odometry for VTOLs
 - In yolo.py, cannot open GPU accelerated (nvh264dec) GStreamer pipeline with cv2.VideoCapture, might need to recompile OpenCV to have both CUDA and GStreamer support (or use python3-gi gir1.2-gst-plugins-base-1.0 gir1.2-gstreamer-1.0 and circumbent OpenCV)
 

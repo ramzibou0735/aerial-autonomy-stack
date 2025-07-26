@@ -19,7 +19,7 @@ class OracleNode(Node):
         for i in range(num_drones):
             drone_id = i + 1
             port = base_port + i
-            connection_string = f"udp:0.0.0.0:{port}"
+            connection_string = f"udp:127.0.0.1:{port}"
             thread = threading.Thread(target=self.mavlink_listener, args=(drone_id, connection_string))
             thread.daemon = True
             thread.start()

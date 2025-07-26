@@ -94,11 +94,6 @@ RUN ldconfig
 # Check with $ pkg-config --modversion mavsdk
 # Run with $ /git/MAVSDK/build/src/mavsdk_server/src/mavsdk_server
 
-# # pymavlink
-# RUN pip3 install --no-cache-dir --upgrade pip \
-#     && pip3 install --no-cache-dir --resume-retries 5 pymavlink
-# # Check with $ python3 -c "import pymavlink; print(pymavlink.__version__)"
-
 ################################################################################
 # Stage 5 - 16GB ###############################################################
 ################################################################################
