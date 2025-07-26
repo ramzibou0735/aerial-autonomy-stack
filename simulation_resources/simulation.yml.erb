@@ -102,11 +102,6 @@ windows:
       panes:
         - zenoh-bridge-ros2dds -c /simulation_resources/comms/zenoh_config_ground.json5
 
-  - tcp_repeater:
-      layout: even-horizontal
-      panes:
-        - python3 /simulation_resources/comms/emulate_serial_over_tcp.py
-
   - qgc:
       layout: even-horizontal
       panes:
