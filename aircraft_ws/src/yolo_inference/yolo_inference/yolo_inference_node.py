@@ -7,10 +7,26 @@ import onnxruntime as ort
 import argparse
 import os
 import matplotlib.pyplot as plt
+import threading
+import queue
+import time
 
 from vision_msgs.msg import Detection2DArray, Detection2D, BoundingBox2D
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
+
+frame_queue = queue.Queue(maxsize=2) # A queue to hold frames
+
+def frame_capture_thread(cap, is_running):
+    while is_running.is_set():
+        ret, frame = cap.read()
+        if not ret:
+            time.sleep(0.01)
+            continue
+        try:
+            frame_queue.put(frame, timeout=0.1)
+        except queue.Full:
+            pass # Drop frame if the main thread is lagging
 
 def xywh2xyxy(box):
     """Convert [x, y, w, h] to [x1, y1, x2, y2]"""
@@ -82,10 +98,18 @@ class YoloInferenceNode(Node):
             cv2.moveWindow(self.WINDOW_NAME, 1500-(int(drone_id)-1)*50, 5+(int(drone_id)-1)*150)
             # cv2.resizeWindow(self.WINDOW_NAME, 400, 200)
 
+        # Start the video capture thread
+        is_running = threading.Event()
+        is_running.set()
+        thread = threading.Thread(target=frame_capture_thread, args=(cap, is_running))
+        thread.start()
+
         while rclpy.ok():
-            ret, frame = cap.read()
-            if not ret:
-                break
+            try:
+                frame = frame_queue.get(timeout=1) # Get the most recent frame from the queue
+            except queue.Empty:
+                self.get_logger().warn("Frame queue is empty, is the stream running?")
+                continue
             
             # Inference
             boxes, confidences, class_ids = self.run_yolo(frame)
@@ -98,6 +122,10 @@ class YoloInferenceNode(Node):
                 self.visualize(frame, boxes, confidences, class_ids)
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
+
+        # Cleanup
+        is_running.clear()
+        thread.join()
         
         cap.release()
         if not self.headless:
