@@ -147,6 +147,12 @@ RUN apt-get update && \
     && apt clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Add ROS2 vision messages
+RUN apt-get update && \
+    apt-get install -y ros-humble-vision-msgs \
+    && apt clean \
+    && rm -rf /var/lib/apt/lists/*
+
 # Build the ROS 2 workspace (including ground_system_msgs)
 RUN mkdir -p /ros2_ws/src
 COPY simulation_ws/src/ground_system_msgs /ros2_ws/src/ground_system_msgs

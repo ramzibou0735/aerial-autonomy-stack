@@ -31,7 +31,7 @@ windows:
   - yolo:
       layout: even-horizontal
       panes:
-        - python3 /aircraft_resources/yolo/yolo-inference.py <% if headless == 'true' %> --headless<% end %>
+        - ros2 run yolo_inference yolo_inference <% if headless == 'true' %> --headless<% end %>
   <% end %>
 
   <% if lidar == 'true' %>
@@ -48,7 +48,7 @@ windows:
           erb /aircraft_resources/comms/zenoh_config_air.json5.erb > /aircraft_resources/comms/zenoh_config_air.json5 &&
           zenoh-bridge-ros2dds -e tcp/42.42.1.99:7447 -c /aircraft_resources/comms/zenoh_config_air.json5
 
-  - test:
+  - state_sharing:
       layout: even-horizontal
       panes:
         - ros2 launch state_sharing state_sharing_launch.py autopilot:=<%= autopilot %> drone_id:=<%= drone_id %> use_sim_time:=true
