@@ -52,3 +52,4 @@ windows:
       layout: even-horizontal
       panes:
         - python3 /aircraft_resources/comms/test.py --drone-id <%= drone_id %>
+        - ros2 launch state_sharing state_sharing_launch.py autopilot:=<%= autopilot %> drone_id:=<%= drone_id %> use_sim_time:=true

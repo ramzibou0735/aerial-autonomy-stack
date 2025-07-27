@@ -147,12 +147,13 @@ RUN apt-get update && \
     && apt clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Build round_system_msgs in the ROS 2 workspace
+# Build the ROS 2 workspace (including ground_system_msgs)
 RUN mkdir -p /ros2_ws/src
 COPY simulation_ws/src/ground_system_msgs /ros2_ws/src/ground_system_msgs
+COPY aircraft_ws/src /ros2_ws/src
 WORKDIR /ros2_ws
 RUN rosdep update
-RUN rosdep install --from-paths src/ --ignore-src --rosdistro humble -y
+RUN rosdep install --from-paths src/ --ignore-src --rosdistro humble -y --skip-keys "px4_msgs"
 # Explicitly use bash, not sh, to source and build the workspace
 RUN bash -c "source /opt/ros/humble/setup.bash && source /ros2_ws_github/install/setup.bash && colcon build --symlink-install"
 
