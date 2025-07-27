@@ -5,7 +5,7 @@
 <% camera = ENV.fetch('CAMERA', 'true') %>
 <% lidar = ENV.fetch('LIDAR', 'true') %>
 
-name: aircraft_tmuxinator
+name: drone
 
 windows:
 
@@ -41,14 +41,10 @@ windows:
         - ros2 launch kiss_icp odometry.launch.py topic:=/lidar_points <% if headless == 'true' %> visualize:=false<% end %>
   <% end %>
 
-  - zenoh:
-      layout: even-horizontal
-      panes:
-        - >
-          erb /aircraft_resources/comms/zenoh_config_air.json5.erb > /aircraft_resources/comms/zenoh_config_air.json5 &&
-          zenoh-bridge-ros2dds -e tcp/42.42.1.99:7447 -c /aircraft_resources/comms/zenoh_config_air.json5
-
-  - state_sharing:
+  - state_sharing_over_zenoh:
       layout: even-horizontal
       panes:
         - ros2 launch state_sharing state_sharing_launch.py autopilot:=<%= autopilot %> drone_id:=<%= drone_id %> use_sim_time:=true
+        - >
+          erb /aircraft_resources/comms/zenoh_config_air.json5.erb > /aircraft_resources/comms/zenoh_config_air.json5 &&
+          zenoh-bridge-ros2dds -e tcp/42.42.1.99:7447 -c /aircraft_resources/comms/zenoh_config_air.json5

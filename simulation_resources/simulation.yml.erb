@@ -6,7 +6,7 @@
 <% camera = ENV.fetch('CAMERA', 'true') %>
 <% lidar = ENV.fetch('LIDAR', 'true') %>
 
-name: simulation_tmuxinator
+name: sim
 
 windows:
 
@@ -91,15 +91,11 @@ windows:
   <% end %>
   <% end %>
 
-  - ground_system:
+  - ground_system_over_zenoh:
       layout: even-horizontal
       panes:
         - "ros2 run ros_gz_bridge parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock"
         - sleep 3 && ros2 run ground_system oracle --num-drones <%=  num_drones %> --base-port 14540 --rate 1.0 --ros-args -p use_sim_time:=True
-
-  - zenoh:
-      layout: even-horizontal
-      panes:
         - zenoh-bridge-ros2dds -c /simulation_resources/comms/zenoh_config_ground.json5
 
   - qgc:
