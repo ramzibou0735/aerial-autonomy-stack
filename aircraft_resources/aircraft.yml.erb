@@ -31,7 +31,7 @@ windows:
   - yolo:
       layout: even-horizontal
       panes:
-        - ros2 run yolo_inference yolo_inference <% if headless == 'true' %> --headless<% end %>
+        - ros2 run yolo_inference yolo_inference <% if headless == 'true' %> --headless<% end %> --ros-args -p use_sim_time:=True
   <% end %>
 
   <% if lidar == 'true' %>

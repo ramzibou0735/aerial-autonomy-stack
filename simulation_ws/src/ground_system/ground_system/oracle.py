@@ -59,7 +59,7 @@ class OracleNode(Node):
 
     def publish_swarm_obs(self):
         swarm_msg = SwarmObs()
-        swarm_msg.header.stamp = self.get_clock().now().to_msg() # Check sim time
+        swarm_msg.header.stamp = self.get_clock().now().to_msg()
         
         with self.lock:
             current_obs = self.drone_obs.copy()

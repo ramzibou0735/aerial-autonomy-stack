@@ -105,6 +105,8 @@ class YoloInferenceNode(Node):
         thread.start()
 
         while rclpy.ok():
+            rclpy.spin_once(self, timeout_sec=0) # This is to get the simulation time from /clock
+
             try:
                 frame = frame_queue.get(timeout=1) # Get the most recent frame from the queue
             except queue.Empty:
@@ -151,13 +153,22 @@ class YoloInferenceNode(Node):
 
         CONF_THRESH = 0.5
         mask = (confidences > CONF_THRESH)
+
+        # Apply Non-Maximal Suppression
+        NMS_THRESH = 0.45
+        boxes_for_nms = boxes[mask]
+        boxes_for_nms = xywh2xyxy(boxes_for_nms)
+        indices = cv2.dnn.NMSBoxes(boxes_for_nms.tolist(), confidences[mask].tolist(), CONF_THRESH, NMS_THRESH)
+        final_boxes = boxes[mask][indices]
+        final_confidences = confidences[mask][indices]
+        final_class_ids = class_ids[mask][indices]
         
-        boxes = xywh2xyxy(boxes[mask])
+        final_boxes = xywh2xyxy(final_boxes)
         scale_w, scale_h = w0 / INPUT_SIZE, h0 / INPUT_SIZE
-        boxes[:, [0, 2]] *= scale_w
-        boxes[:, [1, 3]] *= scale_h
+        final_boxes[:, [0, 2]] *= scale_w
+        final_boxes[:, [1, 3]] *= scale_h
         
-        return boxes, confidences[mask], class_ids[mask]
+        return final_boxes, final_confidences, final_class_ids
 
     def publish_detections(self, frame, boxes, confidences, class_ids):
         detection_array_msg = Detection2DArray()
@@ -197,11 +208,11 @@ class YoloInferenceNode(Node):
         cv2.imshow(self.WINDOW_NAME, frame)
 
 def main(args=None):
-    rclpy.init(args=args)
-    
     parser = argparse.ArgumentParser(description="YOLOv8 ROS2 Inference Node.")
     parser.add_argument('--headless', action='store_true', help="Run in headless mode.")
-    cli_args, _ = parser.parse_known_args()
+    cli_args, ros_args = parser.parse_known_args()
+
+    rclpy.init(args=ros_args)
 
     yolo_node = YoloInferenceNode(headless=cli_args.headless)
     yolo_node.run_inference_loop()

@@ -199,13 +199,8 @@ docker exec -it <container_name_or_id> tmux attach
 
 ## TODOs
 
-Share over Zenoh
-for ArduPilot ros2 topic echo /mavros/global_position/global (add namespace)
-for PX4 /Drone1/fmu/out/vehicle_global_position
-
 ### Known Issues
 
-- add time/sim time to the yolo /detections
 - mavros commands require multiple resend
 ```sh
 ros2 topic pub --once /mavros/setpoint_position/local geometry_msgs/msg/PoseStamped '{header: {frame_id: "map"}, pose: {position: {x: 10.0, y: 0.0, z: 5.0}}}'
