@@ -77,8 +77,8 @@ docker pull jacopopan/aircraft-image:latest # TODO
 
 ```sh
 cd ~/git/aerial-autonomy-stack/
-chmod +x ./main.sh
-DRONE_TYPE=quad AUTOPILOT=px4 NUM_DRONES=2 WORLD=swiss_town HEADLESS=false ./main.sh # Read main.sh for more options
+chmod +x ./main_sim.sh
+DRONE_TYPE=quad AUTOPILOT=px4 NUM_DRONES=2 WORLD=swiss_town HEADLESS=false ./main_sim.sh # Read main_sim.sh for more options
 # `Ctrl + b`, then `d` in each terminal once done
 ```
 
@@ -138,13 +138,13 @@ docker exec simulation-container bash -c "gz service -s /world/\$WORLD/control -
 
 ```sh
 cd ~/git/aerial-autonomy-stack/
-chmod +x ./main.sh
-MODE=dev ./main.sh # Images are pre-built but the ros2_ws/src/ folders are mounted from the host
+chmod +x ./main_sim.sh
+MODE=dev ./main_sim.sh # Images are pre-built but the ros2_ws/src/ folders are mounted from the host
 ```
 
 *On the host*, edit the source of `~/git/aerial-autonomy-stack/aircraft_ws/src` and `~/git/aerial-autonomy-stack/simulation_ws/src`: it will be reflected in the two running containers
 
-*In each of the two terminals/containers* created by `main.sh`, re-build the workspaces
+*In each of the two terminals/containers* created by `main_sim.sh`, re-build the workspaces
 
 ```sh
 # In the simulation and aircraft 1 terminals
@@ -183,11 +183,14 @@ TBD
 
 > [!IMPORTANT]
 > **To setup PX4 parameters and DDS client, read [`PX4_SETUP.md`](/docs/PX4_SETUP.md)**
+> 
+> **To setup ArduPilot MAVLink interface, read [`ARDUPILOT_SETUP.md`](/docs/ARDUPILOT_SETUP.md)**
 
 ```sh
-# run on vehicle with
-docker run -d -t --name 
-docker exec -it <container_name_or_id> tmux attach
+cd ~/git/aerial-autonomy-stack/
+chmod +x ./main_deploy.sh
+DRONE_TYPE=quad AUTOPILOT=px4 DRONE_ID=1 CAMERA=true LIDAR=false  ./main_deploy.sh
+docker exec -it aircraft-container tmux attach
 ```
 
 ---
@@ -201,6 +204,7 @@ docker exec -it <container_name_or_id> tmux attach
 
 ### Known Issues
 
+- must hardcode an ENVVAR for use_sim_time in main_sim and main_deploy to pass down to the tmuxinator yml.erb
 - mavros is not using the simulation time on /clock https://ardupilot.org/dev/docs/ros-timesync.html
 - mavros commands require multiple resend
 ```sh
