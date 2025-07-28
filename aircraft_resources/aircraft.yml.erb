@@ -18,12 +18,14 @@ windows:
   - uxrce_dds_aircraft_<%= drone_id %>:
       layout: even-horizontal
       panes:
+        - ros2 run autopilot_interface px4_interface --ros-args -p use_sim_time:=true
         - MicroXRCEAgent udp4 -p 8888
 
   <% elsif autopilot == 'ardupilot' %>
   - mavros_aircraft_<%= drone_id %>:
       layout: even-horizontal
       panes:
+        - ros2 run autopilot_interface ardupilot_interface --ros-args -p use_sim_time:=true
         - ros2 launch mavros apm.launch fcu_url:=udp://0.0.0.0:<%= 22530 + drone_id - 1 %>@<%= 22530 + drone_id - 1 %> tgt_system:=<%= drone_id %>
   <% end %>
 
