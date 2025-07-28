@@ -26,7 +26,9 @@ windows:
       layout: even-horizontal
       panes:
         - ros2 run autopilot_interface ardupilot_interface --ros-args -p use_sim_time:=true
-        - ros2 launch mavros apm.launch fcu_url:=udp://0.0.0.0:<%= 22530 + drone_id - 1 %>@<%= 22530 + drone_id - 1 %> tgt_system:=<%= drone_id %>
+        - >
+          sudo sed -i '0,/ros__parameters:/s/ros__parameters:/ros__parameters:\n    use_sim_time: true/' /opt/ros/humble/share/mavros/launch/apm_config.yaml &&
+          ros2 launch mavros apm.launch fcu_url:=udp://0.0.0.0:<%= 22530 + drone_id - 1 %>@<%= 22530 + drone_id - 1 %> tgt_system:=<%= drone_id %>
   <% end %>
 
   <% if camera == 'true' %>
