@@ -44,7 +44,7 @@ windows:
   - state_sharing_over_zenoh:
       layout: even-horizontal
       panes:
-        - ros2 launch state_sharing state_sharing_launch.py autopilot:=<%= autopilot %> drone_id:=<%= drone_id %> use_sim_time:=true
+        - ros2 run state_sharing state_sharing_node --ros-args -p autopilot:=<%= autopilot %> -p drone_id:=<%= drone_id %> -p use_sim_time:=true
         - >
           erb /aircraft_resources/comms/zenoh_config_air.json5.erb > /aircraft_resources/comms/zenoh_config_air.json5 &&
           zenoh-bridge-ros2dds -e tcp/42.42.1.99:7447 -c /aircraft_resources/comms/zenoh_config_air.json5

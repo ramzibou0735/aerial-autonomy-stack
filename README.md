@@ -201,6 +201,7 @@ docker exec -it <container_name_or_id> tmux attach
 
 ### Known Issues
 
+- mavros is not using the simulation time on /clock https://ardupilot.org/dev/docs/ros-timesync.html
 - mavros commands require multiple resend
 ```sh
 ros2 topic pub --once /mavros/setpoint_position/local geometry_msgs/msg/PoseStamped '{header: {frame_id: "map"}, pose: {position: {x: 10.0, y: 0.0, z: 5.0}}}'

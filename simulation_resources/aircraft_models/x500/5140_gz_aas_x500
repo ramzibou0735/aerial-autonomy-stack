@@ -36,6 +36,8 @@ param set-default GPS_UBX_DYNMODEL 6
 
 param set-default COM_RCL_EXCEPT 7 # Disable RC loss action
 
+param set-default UXRCE_DDS_SYNCT 0 # This lets PX4 SITL keep using Gazebo simulation time
+
 # Original airframe
 
 PX4_SIMULATOR=${PX4_SIMULATOR:=gz}
