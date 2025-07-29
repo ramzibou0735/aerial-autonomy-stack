@@ -17,8 +17,8 @@ publications:
   # - topic: /fmu/out/mode_completed
   #   type: px4_msgs::msg::ModeCompleted
 
-  - topic: /fmu/out/battery_status
-    type: px4_msgs::msg::BatteryStatus
+  # - topic: /fmu/out/battery_status
+  #   type: px4_msgs::msg::BatteryStatus
 
   # - topic: /fmu/out/collision_constraints
   #   type: px4_msgs::msg::CollisionConstraints
@@ -41,17 +41,17 @@ publications:
   # - topic: /fmu/out/sensor_combined
   #   type: px4_msgs::msg::SensorCombined
 
-  - topic: /fmu/out/timesync_status
-    type: px4_msgs::msg::TimesyncStatus
+  # - topic: /fmu/out/timesync_status
+  #   type: px4_msgs::msg::TimesyncStatus
 
   # - topic: /fmu/out/vehicle_angular_velocity
   #   type: px4_msgs::msg::VehicleAngularVelocity
 
-  - topic: /fmu/out/vehicle_attitude
-    type: px4_msgs::msg::VehicleAttitude
+  # - topic: /fmu/out/vehicle_attitude
+  #   type: px4_msgs::msg::VehicleAttitude
 
-  - topic: /fmu/out/vehicle_control_mode
-    type: px4_msgs::msg::VehicleControlMode
+  # - topic: /fmu/out/vehicle_control_mode
+  #   type: px4_msgs::msg::VehicleControlMode
 
   - topic: /fmu/out/vehicle_command_ack
     type: px4_msgs::msg::VehicleCommandAck
@@ -59,8 +59,8 @@ publications:
   - topic: /fmu/out/vehicle_global_position
     type: px4_msgs::msg::VehicleGlobalPosition
 
-  - topic: /fmu/out/vehicle_gps_position
-    type: px4_msgs::msg::SensorGps
+  # - topic: /fmu/out/vehicle_gps_position
+  #   type: px4_msgs::msg::SensorGps
 
   - topic: /fmu/out/vehicle_local_position
     type: px4_msgs::msg::VehicleLocalPosition
@@ -112,8 +112,8 @@ subscriptions:
   # - topic: /fmu/in/sensor_optical_flow
   #   type: px4_msgs::msg::SensorOpticalFlow
 
-  # - topic: /fmu/in/goto_setpoint
-  #   type: px4_msgs::msg::GotoSetpoint
+  - topic: /fmu/in/goto_setpoint
+    type: px4_msgs::msg::GotoSetpoint
 
   # - topic: /fmu/in/telemetry_status
   #   type: px4_msgs::msg::TelemetryStatus

@@ -57,6 +57,7 @@ gnome-terminal --geometry=$(get_quadrant_geometry 0) -- bash -c "echo 'Launching
     --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR \
     --env ROS_DOMAIN_ID=99 --env AUTOPILOT=$AUTOPILOT --env DRONE_TYPE=$DRONE_TYPE \
     --env NUM_DRONES=$NUM_DRONES --env WORLD=$WORLD --env HEADLESS=$HEADLESS --env CAMERA=$CAMERA --env LIDAR=$LIDAR \
+    --env SIMULATED_TIME=true \
     --net=aas-network --ip=42.42.1.99 \
     --privileged \
     --name simulation-container \
@@ -72,6 +73,7 @@ for i in $(seq 1 $NUM_DRONES); do
       --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR \
       --env ROS_DOMAIN_ID=$i --env AUTOPILOT=$AUTOPILOT --env DRONE_TYPE=$DRONE_TYPE \
       --env DRONE_ID=$i --env HEADLESS=$HEADLESS --env CAMERA=$CAMERA --env LIDAR=$LIDAR \
+      --env SIMULATED_TIME=true \
       --net=aas-network --ip=42.42.1.$i \
       --privileged \
       --name aircraft-container_$i \

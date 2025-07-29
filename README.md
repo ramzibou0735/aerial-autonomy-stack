@@ -33,7 +33,7 @@
 
 </details>
 
-<!-- [![Teaser](docs/assets/video.jpg)](https://www.youtube.com/watch?v=VIDEO_ID) -->
+<!-- TODO: add video -->
 
 ---
 
@@ -201,8 +201,6 @@ docker exec -it aircraft-container tmux attach
 
 
 ## TODOs
-
-- hardcode in main sim setting a use sim time variable to true for the aricraft containers that would otherwise default to false in the yml.erb
 
 ### Known Issues
 
