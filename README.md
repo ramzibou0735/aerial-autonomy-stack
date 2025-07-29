@@ -202,10 +202,10 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
+- hardcode in main sim setting a use sim time variable to true for the aricraft containers that would otherwise default to false in the yml.erb
+
 ### Known Issues
 
-- must hardcode an ENVVAR for use_sim_time in main_sim and main_deploy to pass down to the tmuxinator yml.erb
-- mavros is not using the simulation time on /clock https://ardupilot.org/dev/docs/ros-timesync.html
 - mavros commands require multiple resend
 ```sh
 ros2 topic pub --once /mavros/setpoint_position/local geometry_msgs/msg/PoseStamped '{header: {frame_id: "map"}, pose: {position: {x: 10.0, y: 0.0, z: 5.0}}}'
