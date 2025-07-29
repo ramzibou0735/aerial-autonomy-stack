@@ -19,7 +19,7 @@ windows:
   - uxrce_dds_aircraft_<%= drone_id %>:
       layout: even-horizontal
       panes:
-        - ros2 run autopilot_interface px4_interface <% if simulated_time == 'true' %> --ros-args -p use_sim_time:=true<% end %>
+        - ros2 run autopilot_interface px4_interface --ros-args -r __ns:=/Drone<%= drone_id %> <% if simulated_time == 'true' %> -p use_sim_time:=true<% end %>
         - MicroXRCEAgent udp4 -p 8888
 
   <% elsif autopilot == 'ardupilot' %>

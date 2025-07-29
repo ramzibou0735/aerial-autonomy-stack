@@ -1,0 +1,6 @@
+float64 some_value1
+float64 some_value2
+---
+bool success
+---
+string message

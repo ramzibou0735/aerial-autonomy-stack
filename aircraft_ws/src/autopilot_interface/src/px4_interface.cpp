@@ -1,6 +1,6 @@
 #include "px4_interface.hpp"
 
-PX4Interface::PX4Interface() : Node("px4_interface")
+PX4Interface::PX4Interface() : Node("px4_interface"), active_srv_or_act_flag_(false)
 {
     RCLCPP_INFO(this->get_logger(), "PX4 Interfacing!");
     RCLCPP_INFO(this->get_logger(), "namespace: %s", this->get_namespace());
@@ -13,6 +13,425 @@ PX4Interface::PX4Interface() : Node("px4_interface")
     // Initialize the clock
     this->clock = std::make_shared<rclcpp::Clock>();
 
+    // Publishers
+    rclcpp::QoS qos_profile_pub(10);  // Depth of 10
+    qos_profile_pub.durability(rclcpp::DurabilityPolicy::TransientLocal);  // Or rclcpp::DurabilityPolicy::Volatile
+    goto_pub_ = this->create_publisher<GotoSetpoint>("fmu/in/goto_setpoint", qos_profile_pub);
+    command_pub_ = this->create_publisher<VehicleCommand>("fmu/in/vehicle_command", qos_profile_pub);
+
+    // Create callback groups (Reentrant or MutuallyExclusive)
+    callback_group_timer_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant); // Timed callbacks in parallel
+    callback_group_subscriber_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant); // Listen to subscribers in parallel
+    callback_group_service_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant); // Services are parallel but refused if active_srv_or_act_flag_ is true
+    callback_group_action_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant); // Action callbacks in parallel
+
+    // Timers
+    px4_interface_printout_timer_ = this->create_wall_timer(
+        3s, // Timer period of 3 seconds
+        std::bind(&PX4Interface::px4_interface_printout_callback, this),
+        callback_group_timer_
+    );
+
+    // Subscribers configuration
+    auto subscriber_options = rclcpp::SubscriptionOptions();
+    subscriber_options.callback_group = callback_group_subscriber_;
+    rclcpp::QoS qos_profile_sub(rclcpp::QoSInitialization::from_rmw(rmw_qos_profile_default));
+    qos_profile_sub.keep_last(10);  // History: KEEP_LAST with depth 10
+    qos_profile_sub.reliability(rclcpp::ReliabilityPolicy::BestEffort);
+
+    // PX4 subscribers
+    vehicle_global_position_sub_= this->create_subscription<VehicleGlobalPosition>(
+        "fmu/out/vehicle_global_position", qos_profile_sub,
+        std::bind(&PX4Interface::global_position_callback, this, std::placeholders::_1), subscriber_options);
+    vehicle_local_position_sub_= this->create_subscription<VehicleLocalPosition>(
+        "fmu/out/vehicle_local_position", qos_profile_sub,
+        std::bind(&PX4Interface::local_position_callback, this, std::placeholders::_1), subscriber_options);
+    vehicle_odometry_sub_= this->create_subscription<VehicleOdometry>(
+        "fmu/out/vehicle_odometry", qos_profile_sub,
+        std::bind(&PX4Interface::odometry_callback, this, std::placeholders::_1), subscriber_options);
+    vehicle_status_sub_ = this->create_subscription<VehicleStatus>(
+        "fmu/out/vehicle_status", qos_profile_sub,
+        std::bind(&PX4Interface::status_callback, this, std::placeholders::_1), subscriber_options);
+    airspeed_validated_sub_ = this->create_subscription<AirspeedValidated>(
+        "fmu/out/airspeed_validated", qos_profile_sub,
+        std::bind(&PX4Interface::airspeed_callback, this, std::placeholders::_1), subscriber_options);
+    vehicle_command_ack_sub_ = this->create_subscription<VehicleCommandAck>(
+        "fmu/out/vehicle_command_ack", qos_profile_sub,
+        std::bind(&PX4Interface::vehicle_command_ack_callback, this, std::placeholders::_1), subscriber_options);
+
+    // Services
+    set_altitude_service_ = this->create_service<autopilot_interface_msgs::srv::SetAltitude>(
+        "set_altitude", std::bind(&PX4Interface::set_altitude_callback, this, std::placeholders::_1, std::placeholders::_2),
+        rmw_qos_profile_services_default, callback_group_service_);
+    set_speed_service_ = this->create_service<autopilot_interface_msgs::srv::SetSpeed>(
+        "set_speed", std::bind(&PX4Interface::set_speed_callback, this, std::placeholders::_1, std::placeholders::_2),
+        rmw_qos_profile_services_default, callback_group_service_);
+    set_goto_service_ = this->create_service<autopilot_interface_msgs::srv::SetGoto>(
+        "set_goto", std::bind(&PX4Interface::set_goto_callback, this, std::placeholders::_1, std::placeholders::_2),
+        rmw_qos_profile_services_default, callback_group_service_);
+
+    // Actions
+    land_action_server_ = rclcpp_action::create_server<autopilot_interface_msgs::action::Land>(this, "land_action",
+            std::bind(&PX4Interface::land_handle_goal, this, std::placeholders::_1, std::placeholders::_2),
+            std::bind(&PX4Interface::land_handle_cancel, this, std::placeholders::_1),
+            std::bind(&PX4Interface::land_handle_accepted, this, std::placeholders::_1),
+            rcl_action_server_get_default_options(), callback_group_action_);
+    takeoff_action_server_ = rclcpp_action::create_server<autopilot_interface_msgs::action::Takeoff>(this, "takeoff_action",
+            std::bind(&PX4Interface::takeoff_handle_goal, this, std::placeholders::_1, std::placeholders::_2),
+            std::bind(&PX4Interface::takeoff_handle_cancel, this, std::placeholders::_1),
+            std::bind(&PX4Interface::takeoff_handle_accepted, this, std::placeholders::_1),
+            rcl_action_server_get_default_options(), callback_group_action_);
+
+    // Initialize node variables
+    aircraft_fsm_state_ = PX4InterfaceState::TEST_STATE;
+    target_system_id_ = arming_state_ = vehicle_type_ = -1;
+    is_vtol_ = is_vtol_tailsitter_ = in_transition_mode_ = in_transition_to_fw_ = pre_flight_checks_pass_ = false;
+    lat_ = lon_ = alt_ = alt_ellipsoid_ = NAN;
+    xy_valid_ = z_valid_ = v_xy_valid_ = v_z_valid_ = xy_global_ = z_global_ = false; 
+    x_ = y_ = z_ = heading_ = vx_ = vy_ = vz_ = NAN;
+    ref_lat_ = ref_lon_ = ref_alt_ = NAN;
+    pose_frame_ = velocity_frame_ = -1;
+    position_.fill(NAN);
+    q_.fill(NAN);
+    velocity_.fill(NAN);
+    angular_velocity_.fill(NAN);
+    true_airspeed_m_s_ = NAN;
+    command_ack_ = -1;
+    command_ack_result_ = -1;
+    command_ack_from_external_ = false;
+}
+
+// Callbacks for subscribers (reentrant group)
+void PX4Interface::status_callback(const VehicleStatus::SharedPtr msg)
+{
+    std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // protect data writes being read by services
+    if (target_system_id_ == -1)
+    {
+        target_system_id_ = msg->system_id; // get target_system_id from PX4's MAV_SYS_ID once
+        RCLCPP_INFO(get_logger(), "target_system_id (MAV_SYS_ID) saved as: %d", target_system_id_);
+    }
+    arming_state_ = msg->arming_state; // DISARMED = 1, ARMED = 2
+    vehicle_type_ = msg->vehicle_type; // UNKNOWN = 0, ROTARY_WING = 1, FIXED_WING = 2 (ROVER = 3, AIRSHIP = 4)
+    is_vtol_ = msg->is_vtol; // bool
+    is_vtol_tailsitter_ = msg->is_vtol_tailsitter; // bool
+    in_transition_mode_ = msg->in_transition_mode; // bool
+    in_transition_to_fw_ = msg->in_transition_to_fw; // bool
+    pre_flight_checks_pass_ = msg->pre_flight_checks_pass; // bool
+}
+void PX4Interface::global_position_callback(const VehicleGlobalPosition::SharedPtr msg)
+{
+    std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // protect data writes being read by services
+    lat_ = msg->lat;
+    lon_ = msg->lon;
+    alt_ = msg->alt; // AMSL
+    alt_ellipsoid_ = msg->alt_ellipsoid; 
+}
+void PX4Interface::local_position_callback(const VehicleLocalPosition::SharedPtr msg)
+{
+    std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // protect data writes being read by services
+    xy_valid_ = msg->xy_valid;
+    z_valid_ = msg->z_valid;
+    v_xy_valid_ = msg->v_xy_valid;
+    v_z_valid_ = msg->v_z_valid;
+    // Position in local NED frame
+    x_ = msg->x; // N
+    y_= msg->y; // E
+    z_ = msg->z; // D
+    heading_ = msg->heading; // Euler yaw angle transforming the tangent plane relative to NED earth-fixed frame, -PI..+PI,  (radians)
+    // Velocity in NED frame
+    vx_ = msg->vx;
+    vy_ = msg->vy;
+    vz_ = msg->vz;
+    // Position of reference point (local NED frame origin) in global (GPS / WGS84) frame
+    xy_global_ = msg->xy_global; // validity
+    z_global_ = msg->z_global; // validity
+    ref_lat_ = msg->ref_lat;
+    ref_lon_ = msg->ref_lon;
+    ref_alt_ = msg->ref_alt; // AMSL
+}
+void PX4Interface::odometry_callback(const VehicleOdometry::SharedPtr msg)
+{
+    std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // protect data writes being read by services
+    pose_frame_ = msg->pose_frame; // 1:  NED earth-fixed frame, 2: FRD world-fixed frame, arbitrary heading
+    velocity_frame_ = msg->velocity_frame; // 1:  NED earth-fixed frame, 2: FRD world-fixed frame, arbitrary heading, 3: FRD body-fixed frame
+    position_ = msg->position;
+    q_ = msg->q;
+    velocity_ = msg->velocity;
+    angular_velocity_ = msg->angular_velocity;
+}
+void PX4Interface::airspeed_callback(const AirspeedValidated::SharedPtr msg)
+{
+    std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // protect data writes being read by services
+    true_airspeed_m_s_ = msg->true_airspeed_m_s;
+}
+void PX4Interface::vehicle_command_ack_callback(const VehicleCommandAck::SharedPtr msg)
+{
+    std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // protect data writes being read by services
+    command_ack_ = msg->command;
+    command_ack_result_ = msg->result;
+    command_ack_from_external_ = msg->from_external;
+}
+
+// Callbacks for timers (reentrant group)
+void PX4Interface::px4_interface_printout_callback()
+{
+    std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // protect data writes being read by services
+    RCLCPP_INFO(get_logger(),
+                "Vehicle status:\n"
+                "\ttarget_system_id: %d\n"
+                "\tarming_state: %d\n"
+                "\tvehicle_type (MC:1, FW:2): %d\n"
+                "\tis_vtol: %s\n"
+                "\tis_vtol_tailsitter: %s\n"
+                "\tin_transition_mode: %s\n"
+                "\tin_transition_to_fw: %s\n"
+                "\tpre_flight_checks_pass: %s",
+                target_system_id_, arming_state_, vehicle_type_,
+                (is_vtol_ ? "true" : "false"),
+                (is_vtol_tailsitter_ ? "true" : "false"),
+                (in_transition_mode_ ? "true" : "false"),
+                (in_transition_to_fw_ ? "true" : "false"),
+                (pre_flight_checks_pass_ ? "true" : "false"));
+    RCLCPP_INFO(get_logger(),
+                "Global position:\n"
+                "\tlatitude: %.5f, longitude: %.5f, altitude AMSL: %.2f, altitude ellipsoid: %.2f",
+                lat_, lon_, alt_, alt_ellipsoid_);
+    RCLCPP_INFO(get_logger(),
+                "Local position:\n"
+                "\tNED position: %.2f %.2f %.2f (XY valid %s, Z valid %s)\n"
+                "\tNED velocity: %.2f %.2f %.2f (V_XY valid %s, V_Z valid %s)\n"
+                "\theading: %.2f\n"
+                "\treference latitude: %.5f, longitude: %.5f, altitude AMSL: %.2f (XY valid %s, Z valid %s)",
+                x_, y_, z_, (xy_valid_ ? "true" : "false"), (z_valid_ ? "true" : "false"),
+                vx_, vy_, vz_, (v_xy_valid_ ? "true" : "false"), (v_z_valid_ ? "true" : "false"),
+                heading_ * 180.0 / M_PI,
+                ref_lat_, ref_lon_, ref_alt_, (xy_global_ ? "true" : "false"), (z_global_ ? "true" : "false"));
+    RCLCPP_INFO(get_logger(),
+                "Odometry:\n"
+                "\tpose_frame: %.d, velocity_frame %d\n"
+                "\tposition: %.2f %.2f %.2f\n"
+                "\tquaternion: %.2f %.2f %.2f %.2f\n"
+                "\tvelocity: %.2f %.2f %.2f\n"
+                "\tangular_velocity: %.2f %.2f %.2f", 
+                pose_frame_, velocity_frame_,
+                position_[0], position_[1], position_[2],
+                q_[0], q_[1], q_[2], q_[3],
+                velocity_[0], velocity_[1], velocity_[2],
+                angular_velocity_[0] * 180.0 / M_PI, angular_velocity_[1] * 180.0 / M_PI, angular_velocity_[2] * 180.0 / M_PI);
+    RCLCPP_INFO(get_logger(),
+                "Airspeed validated:\n"
+                "\ttrue_airspeed_m_s: %.2f",
+                true_airspeed_m_s_);
+    RCLCPP_INFO(get_logger(),
+                "Command Ack:\n"
+                "\tcommand: %d (result %d from_external %s)\n\n",
+                command_ack_, command_ack_result_, (command_ack_from_external_ ? "true" : "false"));
+}
+
+// Callbacks for non-blocking services (reentrant callback group, active_srv_or_act_flag_ act as semaphore)
+void PX4Interface::set_altitude_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetAltitude::Request> request,
+                        std::shared_ptr<autopilot_interface_msgs::srv::SetAltitude::Response> response)
+{
+    RCLCPP_INFO(this->get_logger(), "Test");
+    // TODO
+}
+void PX4Interface::set_speed_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetSpeed::Request> request,
+                        std::shared_ptr<autopilot_interface_msgs::srv::SetSpeed::Response> response)
+{
+    RCLCPP_INFO(this->get_logger(), "Test");
+    // TODO
+}
+void PX4Interface::set_goto_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetGoto::Request> request,
+                        std::shared_ptr<autopilot_interface_msgs::srv::SetGoto::Response> response)
+{
+    RCLCPP_INFO(this->get_logger(), "Test");
+    // TODO
+}
+
+// Callbacks for actions (reentrant callback group, to be able to handle_goal and handle_cancel at the same time)
+rclcpp_action::GoalResponse PX4Interface::land_handle_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const autopilot_interface_msgs::action::Land::Goal> goal)
+{
+    RCLCPP_INFO(this->get_logger(), "Test");
+    // TODO
+    return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
+}
+rclcpp_action::CancelResponse PX4Interface::land_handle_cancel(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Land>> goal_handle)
+{
+    RCLCPP_INFO(this->get_logger(), "Test");
+    // TODO
+    return rclcpp_action::CancelResponse::ACCEPT;
+}
+void PX4Interface::land_handle_accepted(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Land>> goal_handle)
+{
+    RCLCPP_INFO(this->get_logger(), "Test");
+    // TODO
+}
+//
+rclcpp_action::GoalResponse PX4Interface::takeoff_handle_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const autopilot_interface_msgs::action::Takeoff::Goal> goal)
+{
+    RCLCPP_INFO(this->get_logger(), "Test");
+    // TODO
+    return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
+}
+rclcpp_action::CancelResponse PX4Interface::takeoff_handle_cancel(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Takeoff>> goal_handle)
+{
+    RCLCPP_INFO(this->get_logger(), "Test");
+    // TODO
+    return rclcpp_action::CancelResponse::ACCEPT;
+}
+void PX4Interface::takeoff_handle_accepted(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Takeoff>> goal_handle)
+{
+    RCLCPP_INFO(this->get_logger(), "Test");
+    // TODO
+}
+
+// vehicle_commands
+void PX4Interface::do_takeoff(double alt, double yaw) {
+    // Send arm command 3 times
+    for (int i = 0; i < 3; ++i) {
+        send_vehicle_command(
+            400,  // MAV_CMD_COMPONENT_ARM_DISARM
+            1.0,  // arm, 0.0, disarm
+            0.0, // arm-disarm unless prevented by safety checks with 0.0, 21196.0: forced (e.g. allow arming to override preflight checks and disarming in flight)
+                 // note that non-zero or above 50% RC throttle prevents arming in Stabilized and Position mode, respectively
+            0.0, 0.0, 0.0, 0.0, 0.0, // Unused parameters
+            i  // Confirmation, up to 255
+        );
+    }
+
+    // Send VTOL takeoff command
+    send_vehicle_command(
+        84,  // VEHICLE_CMD_NAV_VTOL_TAKEOFF
+        0.0,  // Unused
+        3.0,  // Takeoff mode (specified) works with custom implementation of navigator_main.cpp and vtol_takeoff.cpp in PX4
+        0.0,  // Unused
+        yaw,  // Heading works with custom implementation of navigator_main.cpp and vtol_takeoff.cpp in PX4
+        home_lat_,  // Latitude
+        home_lon_,  // Longitude
+        home_alt_ + alt,  // Altitude
+        0  // Confirmation
+    );
+}
+void PX4Interface::do_change_altitude(double alt)
+{
+    send_vehicle_command(
+        186,  // VEHICLE_CMD_DO_CHANGE_ALTITUDE
+        home_alt_ + alt,  // New altitude
+        1.0,  // Global frame
+        0.0, 0.0, 0.0, 0.0, 0.0,  // Unused parameters
+        0  // Confirmation
+    );
+}
+void PX4Interface::do_change_speed(double speed)
+{
+    send_vehicle_command(
+        178,  // VEHICLE_CMD_DO_CHANGE_SPEED
+        0.0,  // Speed type: airspeed
+        speed,  // Speed setpoint
+        0.0, 0.0, 0.0, 0.0, 0.0,  // Unused parameters
+        0  // Confirmation
+    );
+}
+void PX4Interface::do_orbit(double lat, double lon, double alt, double r, double loops)
+{
+    send_vehicle_command(
+        34,  // VEHICLE_CMD_DO_ORBIT
+        r,   // Orbit radius
+        NAN,  // Orbit speed (Tangential Velocity. NaN: Use vehicle default velocity, or current velocity if already orbiting. m/s)
+        0.0,  // Unused
+        loops,  // Number of loops (0 for forever)
+        lat,  // Target latitude
+        lon,  // Target longitude
+        home_alt_ + alt,  // Altitude
+        0  // Confirmation
+    );
+}
+void PX4Interface::do_reposition(double lat, double lon, double alt)
+{
+    send_vehicle_command(
+        192,  // MAV_CMD_DO_REPOSITION
+        0.0, 0.0, 0.0, 0.0,  // Unused parameters
+        lat,  // Latitude
+        lon,  // Longitude
+        home_alt_ + alt,  // Altitude
+        0  // Confirmation
+    );
+}
+void PX4Interface::do_vtol_transition(int trans_type)
+{
+    send_vehicle_command(
+        3000,  // VEHICLE_CMD_DO_VTOL_TRANSITION
+        trans_type,  // Transition type (3: MC, 4: FW)
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0,  // Unused parameters
+        0  // Confirmation
+    );
+}
+void PX4Interface::do_rtl()
+{
+    send_vehicle_command(
+        20,  // VEHICLE_CMD_NAV_RETURN_TO_LAUNCH
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,  // Unused parameters
+        0  // Confirmation
+    );
+}
+void PX4Interface::do_land()
+{
+    send_vehicle_command(
+        21,  // VEHICLE_CMD_NAV_LAND
+        0.0, 0.0, 0.0, 0.0,  // Unused parameters
+        home_lat_,  // Latitude
+        home_lon_,  // Longitude
+        home_alt_,  // Ground altitude
+        0  // Confirmation
+    );
+}
+void PX4Interface::send_vehicle_command(int command, double param1, double param2, double param3, 
+                        double param4, double param5, double param6, double param7, int conf)
+{ 
+    VehicleCommand vehicle_command;
+    vehicle_command.command = command;
+
+    uint64_t current_time_ms = clock->now().nanoseconds() / 1e6;  // Convert to milliseconds
+    vehicle_command.timestamp = static_cast<uint64_t>(current_time_ms);
+    
+    vehicle_command.param1 = param1;
+    vehicle_command.param2 = param2;
+    vehicle_command.param3 = param3;
+    vehicle_command.param4 = param4;
+    vehicle_command.param5 = param5;  // Latitude
+    vehicle_command.param6 = param6;  // Longitude
+    vehicle_command.param7 = param7;  // Altitude
+
+    vehicle_command.target_system = target_system_id_; // in PX4 MAV_SYS_ID param for real systems, based on -i N for SITL
+    vehicle_command.target_component = 1;
+    vehicle_command.source_system = 255; // same as QGC's default, can be different
+    vehicle_command.source_component = 0;
+    vehicle_command.confirmation = conf;
+    vehicle_command.from_external = true;
+
+    command_pub_->publish(vehicle_command);
+
+    if (command != 176) { // Log info if the command is not 176 (i.e., do not spam set_mode)
+        RCLCPP_INFO(this->get_logger(), "Sent VehicleCommand: %d", command);
+    }
+}
+
+std::pair<double, double> PX4Interface::lat_lon_from_cartesian(double ref_lat, double ref_lon, double x_offset, double y_offset)
+{
+    double temp_lat, temp_lon;
+    double bearing_ns = (y_offset >= 0) ? 0 : 180; // North-South offset (bearing 0 for north, 180 for south)
+    geod.Direct(ref_lat, ref_lon, bearing_ns, std::abs(y_offset), temp_lat, temp_lon);
+    double return_lat, return_lon;
+    double bearing_ew = (x_offset >= 0) ? 90 : 270; // East-West offset (bearing 90 for east, 270 for west)
+    geod.Direct(temp_lat, temp_lon, bearing_ew, std::abs(x_offset), return_lat, return_lon);
+    return {return_lat, return_lon};
+}
+
+std::pair<double, double> PX4Interface::lat_lon_from_polar(double ref_lat, double ref_lon, double dist, double bear)
+{
+    double return_lat, return_lon;
+    geod.Direct(ref_lat, ref_lon, bear, dist, return_lat, return_lon);
+    return {return_lat, return_lon};
 }
 
 int main(int argc, char *argv[])

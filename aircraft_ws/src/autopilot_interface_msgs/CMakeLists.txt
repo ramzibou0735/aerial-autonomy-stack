@@ -12,11 +12,14 @@ find_package(geographic_msgs REQUIRED)
 # Generate messages
 rosidl_generate_interfaces(${PROJECT_NAME}
 
-  "action/Test.action"
+  "action/Land.action"
+  "action/Takeoff.action"
 
-  "msg/Test.msg"
+  "msg/Template.msg"
 
-  "srv/Test.srv"
+  "srv/SetAltitude.srv"
+  "srv/SetSpeed.srv"
+  "srv/SetGoto.srv"
 
   DEPENDENCIES
   geometry_msgs
