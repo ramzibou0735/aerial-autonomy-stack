@@ -68,6 +68,7 @@ private:
     // Node variables
     PX4InterfaceState aircraft_fsm_state_;
     std::atomic<bool> active_srv_or_act_flag_;
+    double home_lat_, home_lon_, home_alt_; // saved on takeoff
 
     // Callback groups
     rclcpp::CallbackGroup::SharedPtr callback_group_timer_;
@@ -102,8 +103,6 @@ private:
     int command_ack_;
     int command_ack_result_;
     bool command_ack_from_external_;
-    //
-    double home_lat_, home_lon_, home_alt_; // saved on takeoff
 
     // PX4 publishers
     rclcpp::Publisher<GotoSetpoint>::SharedPtr goto_pub_;

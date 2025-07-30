@@ -1,6 +1,15 @@
 #include "px4_interface.hpp"
 
-PX4Interface::PX4Interface() : Node("px4_interface"), active_srv_or_act_flag_(false)
+PX4Interface::PX4Interface() : Node("px4_interface"), 
+    active_srv_or_act_flag_(false), aircraft_fsm_state_(PX4InterfaceState::STARTED),
+    target_system_id_(-1), arming_state_(-1), vehicle_type_(-1),
+    is_vtol_(false), is_vtol_tailsitter_(false), in_transition_mode_(false), in_transition_to_fw_(false), pre_flight_checks_pass_(false),
+    lat_(NAN), lon_(NAN), alt_(NAN), alt_ellipsoid_(NAN),
+    xy_valid_(false), z_valid_(false), v_xy_valid_(false), v_z_valid_(false), xy_global_(false), z_global_(false),
+    x_(NAN), y_(NAN), z_(NAN), heading_(NAN), vx_(NAN), vy_(NAN), vz_(NAN), ref_lat_(NAN), ref_lon_(NAN), ref_alt_(NAN),
+    pose_frame_(-1), velocity_frame_(-1), true_airspeed_m_s_(NAN),
+    command_ack_(-1), command_ack_result_(-1), command_ack_from_external_(false),
+    home_lat_(NAN), home_lon_(NAN), home_alt_(NAN)
 {
     RCLCPP_INFO(this->get_logger(), "PX4 Interfacing!");
     RCLCPP_INFO(this->get_logger(), "namespace: %s", this->get_namespace());
@@ -12,6 +21,11 @@ PX4Interface::PX4Interface() : Node("px4_interface"), active_srv_or_act_flag_(fa
     }
     // Initialize the clock
     this->clock = std::make_shared<rclcpp::Clock>();
+    // Initialize the arrays
+    position_.fill(NAN);
+    q_.fill(NAN);
+    velocity_.fill(NAN);
+    angular_velocity_.fill(NAN);
 
     // Publishers
     rclcpp::QoS qos_profile_pub(10);  // Depth of 10
@@ -81,25 +95,6 @@ PX4Interface::PX4Interface() : Node("px4_interface"), active_srv_or_act_flag_(fa
             std::bind(&PX4Interface::takeoff_handle_cancel, this, std::placeholders::_1),
             std::bind(&PX4Interface::takeoff_handle_accepted, this, std::placeholders::_1),
             rcl_action_server_get_default_options(), callback_group_action_);
-
-    // Initialize node variables
-    aircraft_fsm_state_ = PX4InterfaceState::STARTED;
-    target_system_id_ = arming_state_ = vehicle_type_ = -1;
-    is_vtol_ = is_vtol_tailsitter_ = in_transition_mode_ = in_transition_to_fw_ = pre_flight_checks_pass_ = false;
-    lat_ = lon_ = alt_ = alt_ellipsoid_ = NAN;
-    xy_valid_ = z_valid_ = v_xy_valid_ = v_z_valid_ = xy_global_ = z_global_ = false; 
-    x_ = y_ = z_ = heading_ = vx_ = vy_ = vz_ = NAN;
-    ref_lat_ = ref_lon_ = ref_alt_ = NAN;
-    pose_frame_ = velocity_frame_ = -1;
-    position_.fill(NAN);
-    q_.fill(NAN);
-    velocity_.fill(NAN);
-    angular_velocity_.fill(NAN);
-    true_airspeed_m_s_ = NAN;
-    command_ack_ = -1;
-    command_ack_result_ = -1;
-    command_ack_from_external_ = false;
-    home_lat_ = home_lon_ = home_alt_ = NAN; // saved home on takeoff
 }
 
 // Callbacks for subscribers (reentrant group)

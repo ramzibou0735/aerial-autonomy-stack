@@ -1,8 +1,8 @@
-float64 takeoff_altitude
-float64 vtol_transition_heading
-float64 vtol_loiter_nord
-float64 vtol_loiter_east
-float64 vtol_loiter_alt
+float64 takeoff_altitude 50.0
+float64 vtol_transition_heading 90.0
+float64 vtol_loiter_nord 150.0
+float64 vtol_loiter_east 0.0
+float64 vtol_loiter_alt 100.0
 ---
 bool success
 ---
