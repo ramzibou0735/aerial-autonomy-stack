@@ -473,19 +473,6 @@ void PX4Interface::takeoff_handle_accepted(const std::shared_ptr<rclcpp_action::
 }
 
 // vehicle_commands
-void PX4Interface::abort_action()
-{
-    send_vehicle_command(
-        192,  // MAV_CMD_DO_REPOSITION, if vtol, loiter radius determined by param NAV_LOITER_RAD
-        0.0, 0.0, 0.0, 0.0,  // Unused parameters
-        home_lat_,  // Latitude
-        home_lon_,  // Longitude
-        home_alt_ + 100.0,  // Altitude
-        0  // Confirmation
-    );
-    aircraft_fsm_state_ = PX4InterfaceState::ABORTED;
-    active_srv_or_act_flag_ = false;
-}
 void PX4Interface::do_takeoff(double alt, double yaw) {
     // Send arm command 3 times
     for (int i = 0; i < 3; ++i) {
@@ -578,7 +565,7 @@ void PX4Interface::do_vtol_transition(int trans_type)
         0  // Confirmation
     );
 }
-void PX4Interface::do_rtl()
+void PX4Interface::do_rtl() // UNUSED
 {
     send_vehicle_command(
         20,  // VEHICLE_CMD_NAV_RETURN_TO_LAUNCH
@@ -626,6 +613,12 @@ void PX4Interface::send_vehicle_command(int command, double param1, double param
     if (command != 176) { // Log info if the command is not 176 (i.e., do not spam set_mode)
         RCLCPP_INFO(this->get_logger(), "Sent VehicleCommand: %d", command);
     }
+}
+void PX4Interface::abort_action()
+{
+    do_reposition(home_lat_, home_lon_, 100.0); // HARDCODED: reposition to 100m above home
+    aircraft_fsm_state_ = PX4InterfaceState::ABORTED;
+    active_srv_or_act_flag_ = false;
 }
 
 std::pair<double, double> PX4Interface::lat_lon_from_cartesian(double ref_lat, double ref_lon, double x_offset, double y_offset)

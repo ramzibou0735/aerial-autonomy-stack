@@ -146,7 +146,6 @@ private:
     void takeoff_handle_accepted(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Takeoff>> goal_handle);
 
     // vehicle_command methods
-    void abort_action();
     void do_takeoff(double alt, double yaw);
     void do_orbit(double lat, double lon, double alt, double r, double loops = 0.0);
     void do_change_altitude(double alt);
@@ -158,6 +157,7 @@ private:
     void send_vehicle_command(int command, double param1 = 0.0, double param2 = 0.0, double param3 = 0.0, 
                                 double param4 = 0.0, double param5 = 0.0, double param6 = 0.0, double param7 = 0.0, 
                                 int conf = 0);
+    void abort_action();
     
     // Transformations
     std::pair<double, double> lat_lon_from_cartesian(double ref_lat, double ref_lon, double x_offset, double y_offset);
