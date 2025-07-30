@@ -41,8 +41,18 @@ using namespace GeographicLib;
 using namespace std::chrono_literals;  // for time literals (e.g. 1s)
 
 enum class PX4InterfaceState {
-    TEST_STATE,
-    ANOTHER_STATE
+    STARTED,
+    MC_TAKEOFF,
+    MC_HOVER,
+    VTOL_TAKEOFF_TRANSITION,
+    FW_CRUISE,
+    FW_LANDING_LOITER,
+    FW_LANDING_DESCENT,
+    FW_LANDING_APPROACH,
+    VTOL_LANDING_TRANSITION,
+    RTL,
+    MC_LANDING,
+    ABORTED
 };
 
 class PX4Interface : public rclcpp::Node
@@ -93,7 +103,7 @@ private:
     int command_ack_result_;
     bool command_ack_from_external_;
     //
-    double home_lat_, home_lon_, home_alt_; // TODO save home on takeoff
+    double home_lat_, home_lon_, home_alt_; // saved on takeoff
 
     // PX4 publishers
     rclcpp::Publisher<GotoSetpoint>::SharedPtr goto_pub_;
@@ -137,6 +147,7 @@ private:
     void takeoff_handle_accepted(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Takeoff>> goal_handle);
 
     // vehicle_command methods
+    void abort_action();
     void do_takeoff(double alt, double yaw);
     void do_orbit(double lat, double lon, double alt, double r, double loops = 0.0);
     void do_change_altitude(double alt);

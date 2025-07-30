@@ -1,5 +1,8 @@
-float64 some_value1
-float64 some_value2
+float64 takeoff_altitude
+float64 vtol_transition_heading
+float64 vtol_loiter_nord
+float64 vtol_loiter_east
+float64 vtol_loiter_alt
 ---
 bool success
 ---

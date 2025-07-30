@@ -83,7 +83,7 @@ PX4Interface::PX4Interface() : Node("px4_interface"), active_srv_or_act_flag_(fa
             rcl_action_server_get_default_options(), callback_group_action_);
 
     // Initialize node variables
-    aircraft_fsm_state_ = PX4InterfaceState::TEST_STATE;
+    aircraft_fsm_state_ = PX4InterfaceState::STARTED;
     target_system_id_ = arming_state_ = vehicle_type_ = -1;
     is_vtol_ = is_vtol_tailsitter_ = in_transition_mode_ = in_transition_to_fw_ = pre_flight_checks_pass_ = false;
     lat_ = lon_ = alt_ = alt_ellipsoid_ = NAN;
@@ -99,6 +99,7 @@ PX4Interface::PX4Interface() : Node("px4_interface"), active_srv_or_act_flag_(fa
     command_ack_ = -1;
     command_ack_result_ = -1;
     command_ack_from_external_ = false;
+    home_lat_ = home_lon_ = home_alt_ = NAN; // saved home on takeoff
 }
 
 // Callbacks for subscribers (reentrant group)
@@ -251,41 +252,245 @@ void PX4Interface::set_goto_callback(const std::shared_ptr<autopilot_interface_m
 // Callbacks for actions (reentrant callback group, to be able to handle_goal and handle_cancel at the same time)
 rclcpp_action::GoalResponse PX4Interface::land_handle_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const autopilot_interface_msgs::action::Land::Goal> goal)
 {
-    RCLCPP_INFO(this->get_logger(), "Test");
-    // TODO
+    RCLCPP_INFO(this->get_logger(), "land_handle_goal");
+    if ((!is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::MC_HOVER) || (is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::FW_CRUISE)) {
+        RCLCPP_INFO(this->get_logger(), "Takeoff rejected, PX4Interface is not in hover/cruise state");
+        return rclcpp_action::GoalResponse::REJECT;
+    }
+    if (active_srv_or_act_flag_.exchange(true)) { 
+        RCLCPP_INFO(this->get_logger(), "Another service/action is active");
+        return rclcpp_action::GoalResponse::REJECT;
+    }
     return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
 }
 rclcpp_action::CancelResponse PX4Interface::land_handle_cancel(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Land>> goal_handle)
 {
-    RCLCPP_INFO(this->get_logger(), "Test");
-    // TODO
+    RCLCPP_INFO(this->get_logger(), "land_handle_cancel");
     return rclcpp_action::CancelResponse::ACCEPT;
 }
 void PX4Interface::land_handle_accepted(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Land>> goal_handle)
 {
-    RCLCPP_INFO(this->get_logger(), "Test");
-    // TODO
+    RCLCPP_INFO(this->get_logger(), "land_handle_accepted");
+    const auto goal = goal_handle->get_goal();
+    auto result = std::make_shared<autopilot_interface_msgs::action::Land::Result>();
+    auto feedback = std::make_shared<autopilot_interface_msgs::action::Land::Feedback>();
+
+    double landing_altitude = goal->landing_altitude;
+    double vtol_transition_heading = goal->vtol_transition_heading;
+
+    bool landing = true;
+    rclcpp::Rate landing_loop_rate(100);
+    while (landing) {
+        landing_loop_rate.sleep();
+        std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // using data written by subs
+
+        if (goal_handle->is_canceling()) { // Check if there is a cancel request
+            abort_action(); // sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to ABORTED
+            result->success = false;
+            goal_handle->canceled(result);
+            RCLCPP_INFO(this->get_logger(), "Landing canceled");
+            return;
+        }
+
+        if (is_vtol_ == false) {
+            if (aircraft_fsm_state_ == PX4InterfaceState::MC_HOVER) {
+                do_reposition(home_lat_, home_lon_, landing_altitude);
+                aircraft_fsm_state_ = PX4InterfaceState::RTL;
+                feedback->message = "Repositioning in MC mode";
+                goal_handle->publish_feedback(feedback);
+            } else if (aircraft_fsm_state_ == PX4InterfaceState::RTL) {
+                double distance_from_home_in_meters;
+                geod.Inverse(lat_, lon_, home_lat_, home_lon_, distance_from_home_in_meters);
+                if (distance_from_home_in_meters < 3.0) { // HARDCODED: distance from home for landing
+                    do_land();
+                    aircraft_fsm_state_ = PX4InterfaceState::MC_LANDING;
+                    landing = false;
+                    feedback->message = "Final MC mode descent";
+                    goal_handle->publish_feedback(feedback);
+                }
+            }  
+        } else if (is_vtol_ == true) {
+            double loiter_alt_low = 65.0; // HARDCODED
+            double pre_landing_loiter_radius = 150.0; // HARDCODED
+            double pre_landing_loiter_distance = 300.0; // HARDCODED
+            double angle_correction_deg = atan(pre_landing_loiter_radius/pre_landing_loiter_distance) * 180.0 / M_PI;
+            if (aircraft_fsm_state_ == PX4InterfaceState::FW_CRUISE) {
+                double loiter_alt_hi = 150.0; // HARDCODED
+                auto [des_lat, des_lon] = lat_lon_from_polar(home_lat_, home_lon_, pre_landing_loiter_distance, vtol_transition_heading + 180.0 - angle_correction_deg);
+                do_orbit(des_lat, des_lon, loiter_alt_hi, pre_landing_loiter_radius);
+                aircraft_fsm_state_ = PX4InterfaceState::FW_LANDING_LOITER;
+                feedback->message = "Going to landing loiter";
+                goal_handle->publish_feedback(feedback);
+            } else if (aircraft_fsm_state_ == PX4InterfaceState::FW_LANDING_LOITER) {
+                auto [des_lat, des_lon] = lat_lon_from_polar(home_lat_, home_lon_, pre_landing_loiter_distance, vtol_transition_heading + 180.0 - angle_correction_deg);
+                double distance_from_loiter_in_meters;
+                geod.Inverse(lat_, lon_, des_lat, des_lon, distance_from_loiter_in_meters);
+                if (distance_from_loiter_in_meters < (pre_landing_loiter_radius + 50.0) && distance_from_loiter_in_meters > (pre_landing_loiter_radius - 50.0)) { // HARDCODED: 100m wide ring
+                    do_orbit(des_lat, des_lon, loiter_alt_low, pre_landing_loiter_radius);
+                    aircraft_fsm_state_ = PX4InterfaceState::FW_LANDING_DESCENT;
+                    feedback->message = "Starting the descent loiter";
+                    goal_handle->publish_feedback(feedback);
+                }
+            } else if (aircraft_fsm_state_ == PX4InterfaceState::FW_LANDING_DESCENT) {
+                auto [exit_lat, exit_lon] = lat_lon_from_polar(home_lat_, home_lon_, pre_landing_loiter_distance, vtol_transition_heading + 180.0);
+                double distance_from_exit_in_meters;
+                geod.Inverse(lat_, lon_, exit_lat, exit_lon, distance_from_exit_in_meters);
+                if (distance_from_exit_in_meters < 30.0 && std::abs(alt_ - (home_alt_ + loiter_alt_low)) < 10.0) { // HARDCODED: thresholds of 30m xy and 10m z, exit from the loiter tangentially if altitude requirement met
+                    auto [des_lat, des_lon] = lat_lon_from_polar(home_lat_, home_lon_, 600.0, vtol_transition_heading); // HARDCODED: reposition 600m behind home, must be greater than NAV_LOITER_RAD (e.g. 400m)
+                    do_reposition(des_lat, des_lon, landing_altitude);
+                    aircraft_fsm_state_ = PX4InterfaceState::FW_LANDING_APPROACH;
+                    feedback->message = "Exiting the landing loiter";
+                    goal_handle->publish_feedback(feedback);
+                }
+            } else if (aircraft_fsm_state_ == PX4InterfaceState::FW_LANDING_APPROACH) {
+                double distance_from_home_in_meters;
+                geod.Inverse(lat_, lon_, home_lat_, home_lon_, distance_from_home_in_meters);
+                double landing_transition_distance = 120.0; // HARDCODED: distance from home to start the transition, affected by the platforms's cruise speed, mass, wind
+                if (distance_from_home_in_meters < landing_transition_distance) {
+                    do_vtol_transition(3.0); // 3 is MAV_VTOL_STATE_MC
+                    aircraft_fsm_state_ = PX4InterfaceState::VTOL_LANDING_TRANSITION;
+                    feedback->message = "Transitioning to MC mode";
+                    goal_handle->publish_feedback(feedback);
+                }
+            } else if (aircraft_fsm_state_ == PX4InterfaceState::VTOL_LANDING_TRANSITION && !in_transition_mode_ && vehicle_type_ == px4_msgs::msg::VehicleStatus::VEHICLE_TYPE_ROTARY_WING) {
+                do_reposition(home_lat_, home_lon_, landing_altitude);
+                aircraft_fsm_state_ = PX4InterfaceState::RTL;
+                feedback->message = "Repositioning in MC mode";
+                goal_handle->publish_feedback(feedback);
+            } else if (aircraft_fsm_state_ == PX4InterfaceState::RTL) {
+                double distance_from_home_in_meters;
+                geod.Inverse(lat_, lon_, home_lat_, home_lon_, distance_from_home_in_meters);
+                if (distance_from_home_in_meters < 3.0) { // HARDCODED: distance from home for landing
+                    do_land();
+                    aircraft_fsm_state_ = PX4InterfaceState::MC_LANDING;
+                    landing = false;
+                    feedback->message = "Final MC mode descent";
+                    goal_handle->publish_feedback(feedback);
+                }
+            }
+        }
+    }
+    result->success = true;
+    goal_handle->succeed(result);
+    active_srv_or_act_flag_ = false;
+    return;
+    // TODO: reset aircraft_fsm_state_ for the next flight
 }
 //
 rclcpp_action::GoalResponse PX4Interface::takeoff_handle_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const autopilot_interface_msgs::action::Takeoff::Goal> goal)
 {
-    RCLCPP_INFO(this->get_logger(), "Test");
-    // TODO
+    RCLCPP_INFO(this->get_logger(), "takeoff_handle_goal");
+    if (aircraft_fsm_state_ != PX4InterfaceState::STARTED) {
+        RCLCPP_INFO(this->get_logger(), "Takeoff rejected, PX4Interface is not in STARTED state");
+        return rclcpp_action::GoalResponse::REJECT;
+    }
+    if (pre_flight_checks_pass_ != true) {
+        RCLCPP_INFO(this->get_logger(), "Takeoff rejected, pre_flight_checks_pass_ is false");
+        return rclcpp_action::GoalResponse::REJECT;
+    }
+    if (active_srv_or_act_flag_.exchange(true)) { 
+        RCLCPP_INFO(this->get_logger(), "Another service/action is active");
+        return rclcpp_action::GoalResponse::REJECT;
+    }
+    std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // protect data writes being read by services
+    home_lat_ = lat_;
+    home_lon_ = lon_;
+    home_alt_ = alt_;
+    RCLCPP_INFO(this->get_logger(), "Saved home_lat_: %.5f, home_lon_ %.5f, home_alt_ %.2f", home_lat_, home_lon_, home_alt_);
     return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
 }
 rclcpp_action::CancelResponse PX4Interface::takeoff_handle_cancel(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Takeoff>> goal_handle)
 {
-    RCLCPP_INFO(this->get_logger(), "Test");
-    // TODO
+    RCLCPP_INFO(this->get_logger(), "takeoff_handle_cancel");
     return rclcpp_action::CancelResponse::ACCEPT;
 }
 void PX4Interface::takeoff_handle_accepted(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Takeoff>> goal_handle)
 {
-    RCLCPP_INFO(this->get_logger(), "Test");
-    // TODO
+    RCLCPP_INFO(this->get_logger(), "takeoff_handle_accepted");
+    const auto goal = goal_handle->get_goal();
+    auto result = std::make_shared<autopilot_interface_msgs::action::Takeoff::Result>();
+    auto feedback = std::make_shared<autopilot_interface_msgs::action::Takeoff::Feedback>();
+
+    double takeoff_altitude = goal->takeoff_altitude;
+    double vtol_transition_heading = goal->vtol_transition_heading;
+    double vtol_loiter_nord = goal->vtol_loiter_nord;
+    double vtol_loiter_east = goal->vtol_loiter_east;
+    double vtol_loiter_alt = goal->vtol_loiter_alt;
+
+    bool taking_off = true;
+    double time_of_vtol_transition_ms_ = NAN;
+    rclcpp::Rate takeoff_loop_rate(100);
+    while (taking_off) {
+        takeoff_loop_rate.sleep();
+        std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // using data written by subs
+
+        if (goal_handle->is_canceling()) { // Check if there is a cancel request
+            abort_action(); // sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to ABORTED
+            result->success = false;
+            goal_handle->canceled(result);
+            RCLCPP_INFO(this->get_logger(), "Takeoff canceled");
+            return;
+        }
+
+        if (is_vtol_ == false) {
+            if (aircraft_fsm_state_ == PX4InterfaceState::STARTED) {
+                do_takeoff(takeoff_altitude, NAN); // HARDCODED: no heading takeoff for multirotor
+                aircraft_fsm_state_ = PX4InterfaceState::MC_TAKEOFF;
+                feedback->message = "Taking off in MC mode";
+                goal_handle->publish_feedback(feedback);
+            } else if (aircraft_fsm_state_ == PX4InterfaceState::MC_TAKEOFF) {
+                if ((alt_ - home_alt_) > 0.9 * takeoff_altitude) { // HARDCODED: 90% threshold for takeoff altitude
+                    aircraft_fsm_state_ = PX4InterfaceState::MC_HOVER;
+                    taking_off = false;
+                    feedback->message = "Takeoff completed, hovering";
+                    goal_handle->publish_feedback(feedback);
+                }
+            }
+        } else if (is_vtol_ == true) {
+            uint64_t current_time_ms = clock->now().nanoseconds() / 1e6;  // Convert to milliseconds
+            if (aircraft_fsm_state_ == PX4InterfaceState::STARTED) {
+                do_takeoff(takeoff_altitude, vtol_transition_heading);
+                aircraft_fsm_state_ = PX4InterfaceState::MC_TAKEOFF;
+                feedback->message = "Taking off in MC mode";
+                goal_handle->publish_feedback(feedback);
+            } else if (aircraft_fsm_state_ == PX4InterfaceState::MC_TAKEOFF) {
+                if (vehicle_type_ == px4_msgs::msg::VehicleStatus::VEHICLE_TYPE_FIXED_WING) {
+                    aircraft_fsm_state_ = PX4InterfaceState::VTOL_TAKEOFF_TRANSITION;
+                    time_of_vtol_transition_ms_ = current_time_ms;
+                    feedback->message = "Transitioned to FW";
+                    goal_handle->publish_feedback(feedback);
+                }
+            } else if (aircraft_fsm_state_ == PX4InterfaceState::VTOL_TAKEOFF_TRANSITION && 
+                (current_time_ms > (time_of_vtol_transition_ms_ + 10.0 * 1e3))) { // HARDCODED: wait 10 seconds after transition
+                auto [des_lat, des_lon] = lat_lon_from_cartesian(home_lat_, home_lon_, vtol_loiter_east, vtol_loiter_nord);
+                do_orbit(des_lat, des_lon, vtol_loiter_alt, 200.0); // HARDCODED: 200m loiter radius
+                aircraft_fsm_state_ = PX4InterfaceState::FW_CRUISE;
+                taking_off = false;
+                feedback->message = "Takeoff loiter sent";
+                goal_handle->publish_feedback(feedback);
+            }
+        }
+    }
+    result->success = true;
+    goal_handle->succeed(result);
+    active_srv_or_act_flag_ = false;
+    return;
 }
 
 // vehicle_commands
+void PX4Interface::abort_action()
+{
+    send_vehicle_command(
+        192,  // MAV_CMD_DO_REPOSITION, if vtol, loiter radius determined by param NAV_LOITER_RAD
+        0.0, 0.0, 0.0, 0.0,  // Unused parameters
+        home_lat_,  // Latitude
+        home_lon_,  // Longitude
+        home_alt_ + 100.0,  // Altitude
+        0  // Confirmation
+    );
+    aircraft_fsm_state_ = PX4InterfaceState::ABORTED;
+    active_srv_or_act_flag_ = false;
+}
 void PX4Interface::do_takeoff(double alt, double yaw) {
     // Send arm command 3 times
     for (int i = 0; i < 3; ++i) {
@@ -298,19 +503,31 @@ void PX4Interface::do_takeoff(double alt, double yaw) {
             i  // Confirmation, up to 255
         );
     }
-
-    // Send VTOL takeoff command
-    send_vehicle_command(
-        84,  // VEHICLE_CMD_NAV_VTOL_TAKEOFF
-        0.0,  // Unused
-        3.0,  // Takeoff mode (specified) works with custom implementation of navigator_main.cpp and vtol_takeoff.cpp in PX4
-        0.0,  // Unused
-        yaw,  // Heading works with custom implementation of navigator_main.cpp and vtol_takeoff.cpp in PX4
-        home_lat_,  // Latitude
-        home_lon_,  // Longitude
-        home_alt_ + alt,  // Altitude
-        0  // Confirmation
-    );
+    if (is_vtol_ == false) {
+        send_vehicle_command(
+            22,  // VEHICLE_CMD_NAV_TAKEOFF
+            0.0,  // Unused
+            0.0,  // Takeoff mode (specified) works with custom implementation of navigator_main.cpp and vtol_takeoff.cpp in PX4
+            0.0,  // Unused
+            yaw,  // TODO: implement heading for multirotor takeoff
+            home_lat_,  // Latitude
+            home_lon_,  // Longitude
+            home_alt_ + alt,  // Altitude
+            0  // Confirmation
+        );
+    } else if (is_vtol_ == true) {
+        send_vehicle_command(
+            84,  // VEHICLE_CMD_NAV_VTOL_TAKEOFF
+            0.0,  // Unused
+            3.0,  // Takeoff mode (specified) works with custom implementation of navigator_main.cpp and vtol_takeoff.cpp in PX4
+            0.0,  // Unused
+            yaw,  // Heading works with custom implementation of navigator_main.cpp and vtol_takeoff.cpp in PX4
+            home_lat_,  // Latitude
+            home_lon_,  // Longitude
+            home_alt_ + alt,  // Altitude
+            0  // Confirmation
+        );
+    }
 }
 void PX4Interface::do_change_altitude(double alt)
 {

@@ -6,7 +6,7 @@
 2. **Simulate** vision and control in software-in-the-loop, with YOLOv8 and PX4/ArduPilot
 3. **Deploy** in real drones with NVIDIA Orin/JetPack
 
-> For the rationale of AAS (besides being good sport) and how it compares to similar projects, read [`RATIONALE.md`](/docs/RATIONALE.md)
+> For the motivation behind AAS and how it compares to similar projects, read [`RATIONALE.md`](/docs/RATIONALE.md)
 
 ## Feature Highlights
 
@@ -202,8 +202,23 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
+```sh
+# VTOL
+
+ros2 action send_goal /Drone1/takeoff_action autopilot_interface_msgs/action/Takeoff "{takeoff_altitude: 40.0, vtol_transition_heading: 330.0, vtol_loiter_nord: 200.0, vtol_loiter_east: 100.0, vtol_loiter_alt: 120.0}" --feedback
+
+ros2 action send_goal /Drone1/land_action autopilot_interface_msgs/action/Land "{landing_altitude: 60.0, vtol_transition_heading: 60.0}" --feedback
+
+# QUAD
+
+ros2 action send_goal /Drone1/takeoff_action autopilot_interface_msgs/action/Takeoff "{takeoff_altitude: 40.0}" --feedback
+
+ros2 action send_goal /Drone1/land_action autopilot_interface_msgs/action/Land "{landing_altitude: 60.0}" --feedback
+```
+
 ### Known Issues
 
+- QGC reports the quad landing as a takeoff mode
 - mavros commands require multiple resend
 ```sh
 ros2 topic pub --once /mavros/setpoint_position/local geometry_msgs/msg/PoseStamped '{header: {frame_id: "map"}, pose: {position: {x: 10.0, y: 0.0, z: 5.0}}}'
