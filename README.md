@@ -202,6 +202,8 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
+- replace "std::unique_lock" with "std::shared_lock" in read-only/non-writing threads/callbacks
+
 ```sh
 # VTOL
 
