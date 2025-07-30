@@ -6,7 +6,7 @@
 2. **Simulate** vision and control in software-in-the-loop, with YOLOv8 and PX4/ArduPilot
 3. **Deploy** in real drones with NVIDIA Orin/JetPack
 
-> For the motivation behind AAS and how it compares to similar projects, read [`RATIONALE.md`](/docs/RATIONALE.md)
+> For the rationale of AAS (besides being good sport) and how it compares to similar projects, read [`RATIONALE.md`](/docs/RATIONALE.md)
 
 ## Feature Highlights
 
