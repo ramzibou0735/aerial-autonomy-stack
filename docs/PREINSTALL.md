@@ -96,7 +96,7 @@ docker info | grep -i runtime
 - Click "Generate API Key" -> "+ Generate Personal Key" for the "NCG Catalog" service, confirm, and copy the key.
 
 ```sh
-docker login nvcr.io
+docker login nvcr.io # To be able to reliably pull NVIDIA base images
 Username: # type $oauthtoken
 Password: # copy and paste the API key and press enter to pull base images from nvcr.io/
 ```
