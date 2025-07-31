@@ -10,19 +10,19 @@
 
 ## Feature Highlights
 
-- Support for **multiple quadrotors and VTOLs** based on **PX4 or ArduPilot**
+- Support for multiple **quadrotors and VTOLs** based on **PX4 or ArduPilot**
 - **ROS2**-based autopilot interfaces (*via* XRCE-DDS and MAVROS)
-- Support for **YOLOv8** and ONNX GPU Runtimes
-- Support for [KISS-ICP](https://github.com/PRBonn/kiss-icp) **Lidar Odometry**
-- **Dockerized simulation and deployment** based on [`nvcr.io/nvidia/cuda:12.8.1-cudnn-runtime-ubuntu22.04`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/cuda/tags), [`nvcr.io/nvidia/l4t-jetpack:r36.4.0`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/l4t-jetpack/tags)
+- Support for **YOLOv8** (with ONNX GPU Runtimes) and **Lidar Odometry** (with [KISS-ICP](https://github.com/PRBonn/kiss-icp))
+- **Dockerized simulation** based on [`nvcr.io/nvidia/cuda:12.8.1-cudnn-runtime-ubuntu22.04`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/cuda/tags)
+- **Dockerized deployment** based on [`nvcr.io/nvidia/l4t-jetpack:r36.4.0`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/l4t-jetpack/tags)
 
 <details>
 <summary><b>Additional Features:</b> <i>(expand)</i></summary>
 
-> - **3D worlds** for [PX4](https://docs.px4.io/main/en/simulation/#sitl-simulation-environment)/[ArduPilot](https://ardupilot.org/dev/docs/sitl-simulator-software-in-the-loop.html#sitl-architecture) software-in-the-loop (SITL) simulation
+> - **3D worlds** for [PX4](https://docs.px4.io/main/en/simulation/#sitl-simulation-environment) and [ArduPilot](https://ardupilot.org/dev/docs/sitl-simulator-software-in-the-loop.html#sitl-architecture) software-in-the-loop (SITL) simulation
 > - **Steppable simulation** interface for reinforcement learning 
 > - [Zenoh](https://github.com/eclipse-zenoh/zenoh-plugin-ros2dds) inter-vehicle ROS2 bridge
-> - Support for [PX4 Offboard](https://docs.px4.io/main/en/flight_modes/offboard.html) mode in CTBR (`VehicleRatesSetpoint`) for agile, GNSS-denied flight 
+> - Support for [PX4 Offboard](https://docs.px4.io/main/en/flight_modes/offboard.html) mode (including CTBR/`VehicleRatesSetpoint` for agile, GNSS-denied flight) 
 
 </details>
 
@@ -40,9 +40,9 @@
 ## Part 1: Installation of AAS
 
 > [!IMPORTANT]
-> This stack is developed and tested using a [Ubuntu 22.04](https://ubuntu.com/about/release-cycle) host (penultimate LTS, ESM 4/2032) with [**`nvidia-driver-575`**](https://developer.nvidia.com/datacenter-driver-archive) and Docker Engine v28 (latest stable releases as of 7/2025) on an i9-13 with RTX3500 and an i7-11 with RTX3060 computers
+> This stack is developed and tested using a [Ubuntu 22.04](https://ubuntu.com/about/release-cycle) host (penultimate LTS, ESM 4/2032) with [**`nvidia-driver-575`**](https://developer.nvidia.com/datacenter-driver-archive) and Docker Engine v28 (latest stable releases as of 7/2025) on an i9-13 with RTX3500 and an i7-11 with RTX3060
 > 
-> **To setup (i) Ubuntu 22, Git LFS, (ii) NVIDIA driver, (iii) Docker Engine, (iv) NVIDIA Container Toolkit, and (v) NVIDIA NGC API Key, read [`PREINSTALL.md`](/docs/PREINSTALL.md)**
+> **To setup the requirements: (i) Ubuntu 22, Git LFS, (ii) NVIDIA driver, (iii) Docker Engine, (iv) NVIDIA Container Toolkit, and (v) NVIDIA NGC API Key, read [`PREINSTALL.md`](/docs/PREINSTALL.md)**
 
 ```sh
 # Clone this repo
@@ -61,7 +61,7 @@ docker build -t simulation-image -f docker/Dockerfile.simulation . # The first b
 docker build -t aircraft-image -f docker/Dockerfile.aircraft . # Having built Dockerfile.simulation, the first build takes ~15' and creates a 15GB image (6GB for ros-humble-desktop, 7GB for YOLOv8, ONNX)
 ```
 
-> These are development-friendly images with lots of tools and artifacts, trim if needed
+> These are development-friendly images with lots of tools and artifacts, trim as needed
 
 ### Option 2: Pull the Pre-built Docker Images
 
@@ -82,7 +82,7 @@ DRONE_TYPE=quad AUTOPILOT=px4 NUM_DRONES=2 WORLD=swiss_town HEADLESS=false ./mai
 # `Ctrl + b`, then `d` in each terminal once done
 ```
 
-> Once "Ready to Fly", one can takeoff and control from QGroundControl's ["Fly View"](https://docs.qgroundcontrol.com/master/en/qgc-user-guide/fly_view/fly_view.html)<!--. E.g., for PX4 VTOL, takeoff -> change altitude -> transition to FW, then take manual control; for ArduPilot VTOL, change mode to FBW A -> arm -> throttle all the way up -> then change mode to Loiter -->
+> Once "Ready to Fly", one can takeoff and control from QGroundControl's ["Fly View"](https://docs.qgroundcontrol.com/master/en/qgc-user-guide/fly_view/fly_view.html)
 
 ![worlds](https://github.com/user-attachments/assets/45a2f2ad-cc31-4d71-aa2e-4fe542a59a77)
 
@@ -128,9 +128,13 @@ docker exec simulation-container bash -c "gz service -s /world/\$WORLD/control -
 ### Run an Example
 
 ```sh
-# on vehicle 1
+cd ~/git/aerial-autonomy-stack/
+DRONE_TYPE=quad AUTOPILOT=px4 NUM_DRONES=1 ./main_sim.sh
+# In aircraft 1's terminal
 ./skibidi.sh
 ```
+
+<!-- TODO: add video -->
 
 ---
 
@@ -179,19 +183,20 @@ Repeat as necessary, finally commit the changes from the repository on the host 
 
 ## Part 4: Deployment of AAS
 
-TBD
-
 > [!IMPORTANT]
 > **To setup PX4 parameters and DDS client, read [`PX4_SETUP.md`](/docs/PX4_SETUP.md)**
 > 
 > **To setup ArduPilot MAVLink interface, read [`ARDUPILOT_SETUP.md`](/docs/ARDUPILOT_SETUP.md)**
 
+WIP
+<!-- 
 ```sh
 cd ~/git/aerial-autonomy-stack/
 chmod +x ./main_deploy.sh
 DRONE_TYPE=quad AUTOPILOT=px4 DRONE_ID=1 CAMERA=true LIDAR=false  ./main_deploy.sh
 docker exec -it aircraft-container tmux attach
 ```
+-->
 
 ---
 > You've done a man's job, sir. I guess you're through, huh?
