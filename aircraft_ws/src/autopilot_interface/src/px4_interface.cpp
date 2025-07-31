@@ -249,7 +249,7 @@ rclcpp_action::GoalResponse PX4Interface::land_handle_goal(const rclcpp_action::
 {
     RCLCPP_INFO(this->get_logger(), "land_handle_goal");
     if ((!is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::MC_HOVER) || (is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::FW_CRUISE)) {
-        RCLCPP_INFO(this->get_logger(), "Takeoff rejected, PX4Interface is not in hover/cruise state");
+        RCLCPP_INFO(this->get_logger(), "Landing rejected, PX4Interface is not in hover/cruise state");
         return rclcpp_action::GoalResponse::REJECT;
     }
     if (active_srv_or_act_flag_.exchange(true)) { 
@@ -370,6 +370,59 @@ void PX4Interface::land_handle_accepted(const std::shared_ptr<rclcpp_action::Ser
     active_srv_or_act_flag_ = false;
     return;
     // TODO: reset aircraft_fsm_state_ for the next flight
+}
+//
+rclcpp_action::GoalResponse PX4Interface::offboard_handle_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const autopilot_interface_msgs::action::Offboard::Goal> goal)
+{
+    RCLCPP_INFO(this->get_logger(), "offboard_handle_goal");
+    if ((!is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::MC_HOVER) || (is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::FW_CRUISE)) {
+        RCLCPP_INFO(this->get_logger(), "Offboard rejected, PX4Interface is not in hover/cruise state");
+        return rclcpp_action::GoalResponse::REJECT;
+    }
+    if (active_srv_or_act_flag_.exchange(true)) { 
+        RCLCPP_INFO(this->get_logger(), "Another service/action is active");
+        return rclcpp_action::GoalResponse::REJECT;
+    }
+    RCLCPP_INFO(this->get_logger(), "TODO");
+    return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
+}
+rclcpp_action::CancelResponse PX4Interface::offboard_handle_cancel(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Offboard>> goal_handle)
+{
+    RCLCPP_INFO(this->get_logger(), "offboard_handle_cancel");
+    return rclcpp_action::CancelResponse::ACCEPT;
+}
+void PX4Interface::offboard_handle_accepted(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Offboard>> goal_handle)
+{
+    RCLCPP_INFO(this->get_logger(), "offboard_handle_accepted");
+    const auto goal = goal_handle->get_goal();
+    auto result = std::make_shared<autopilot_interface_msgs::action::Offboard::Result>();
+    auto feedback = std::make_shared<autopilot_interface_msgs::action::Offboard::Feedback>();
+
+    int offboard_setpoint_type = goal->offboard_setpoint_type;
+    double max_duration_sec = goal->max_duration_sec;
+
+    bool offboard_control = true;
+    rclcpp::Rate offboard_loop_rate(100);
+    while (offboard_control) {
+        offboard_loop_rate.sleep();
+        std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // using data written by subs
+
+        if (goal_handle->is_canceling()) { // Check if there is a cancel request
+            abort_action(); // sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to ABORTED
+            result->success = false;
+            goal_handle->canceled(result);
+            RCLCPP_INFO(this->get_logger(), "Offboard canceled");
+            return;
+        }
+
+        // TODO
+        // set cruise/hover afterwards
+
+    }
+    result->success = true;
+    goal_handle->succeed(result);
+    active_srv_or_act_flag_ = false;
+    return;
 }
 //
 rclcpp_action::GoalResponse PX4Interface::takeoff_handle_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const autopilot_interface_msgs::action::Takeoff::Goal> goal)
@@ -613,6 +666,21 @@ void PX4Interface::send_vehicle_command(int command, double param1, double param
     if (command != 176) { // Log info if the command is not 176 (i.e., do not spam set_mode)
         RCLCPP_INFO(this->get_logger(), "Sent VehicleCommand: %d", command);
     }
+}
+void PX4Interface::goto_setpoint_cmd(double position_n, double position_e, double position_d, 
+                                bool flag_control_heading, double heading)
+{
+    GotoSetpoint goto_setpoint_msg;
+    uint64_t current_time_ms = clock->now().nanoseconds() / 1e6;  // Convert to milliseconds
+    goto_setpoint_msg.timestamp = static_cast<uint64_t>(current_time_ms);
+
+    goto_setpoint_msg.position[0] = position_n;
+    goto_setpoint_msg.position[1] = position_e;
+    goto_setpoint_msg.position[2] = position_d;
+    goto_setpoint_msg.flag_control_heading = flag_control_heading;
+    goto_setpoint_msg.heading = heading;
+
+    goto_pub_->publish(goto_setpoint_msg);
 }
 void PX4Interface::abort_action()
 {

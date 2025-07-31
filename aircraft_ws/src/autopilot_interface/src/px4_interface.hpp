@@ -28,12 +28,16 @@
 
 #include <px4_msgs/msg/goto_setpoint.hpp>
 #include <px4_msgs/msg/vehicle_command.hpp>
+#include <px4_msgs/msg/offboard_control_mode.hpp>
+#include <px4_msgs/msg/vehicle_attitude_setpoint.hpp>
+#include <px4_msgs/msg/vehicle_rates_setpoint.hpp>
 
 #include "autopilot_interface_msgs/srv/set_altitude.hpp"
 #include "autopilot_interface_msgs/srv/set_speed.hpp"
 #include "autopilot_interface_msgs/srv/set_goto.hpp"
 
 #include "autopilot_interface_msgs/action/land.hpp"
+#include "autopilot_interface_msgs/action/offboard.hpp"
 #include "autopilot_interface_msgs/action/takeoff.hpp"
 
 using namespace px4_msgs::msg;
@@ -107,6 +111,9 @@ private:
     // PX4 publishers
     rclcpp::Publisher<GotoSetpoint>::SharedPtr goto_pub_;
     rclcpp::Publisher<VehicleCommand>::SharedPtr command_pub_;
+    rclcpp::Publisher<OffboardControlMode>::SharedPtr offboard_mode_pub_;
+    rclcpp::Publisher<VehicleAttitudeSetpoint>::SharedPtr attitude_ref_pub_;
+    rclcpp::Publisher<VehicleRatesSetpoint>::SharedPtr rates_ref_pub_;
 
     // Node Services
     rclcpp::Service<autopilot_interface_msgs::srv::SetAltitude>::SharedPtr set_altitude_service_;
@@ -115,6 +122,7 @@ private:
 
     // Node Actions
     rclcpp_action::Server<autopilot_interface_msgs::action::Land>::SharedPtr land_action_server_;
+    rclcpp_action::Server<autopilot_interface_msgs::action::Offboard>::SharedPtr offboard_action_server_;
     rclcpp_action::Server<autopilot_interface_msgs::action::Takeoff>::SharedPtr takeoff_action_server_;
 
     // Callbacks for timers
@@ -141,6 +149,10 @@ private:
     rclcpp_action::CancelResponse land_handle_cancel(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Land>> goal_handle);
     void land_handle_accepted(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Land>> goal_handle);
     //
+    rclcpp_action::GoalResponse offboard_handle_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const autopilot_interface_msgs::action::Offboard::Goal> goal);
+    rclcpp_action::CancelResponse offboard_handle_cancel(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Offboard>> goal_handle);
+    void offboard_handle_accepted(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Offboard>> goal_handle);
+    //
     rclcpp_action::GoalResponse takeoff_handle_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const autopilot_interface_msgs::action::Takeoff::Goal> goal);
     rclcpp_action::CancelResponse takeoff_handle_cancel(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Takeoff>> goal_handle);
     void takeoff_handle_accepted(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Takeoff>> goal_handle);
@@ -157,6 +169,8 @@ private:
     void send_vehicle_command(int command, double param1 = 0.0, double param2 = 0.0, double param3 = 0.0, 
                                 double param4 = 0.0, double param5 = 0.0, double param6 = 0.0, double param7 = 0.0, 
                                 int conf = 0);
+    void goto_setpoint_cmd(double position_n = 0.0, double position_e = 0.0, double position_d = 0.0, 
+                                bool flag_control_heading = false, double heading = 0.0);
     void abort_action();
     
     // Transformations

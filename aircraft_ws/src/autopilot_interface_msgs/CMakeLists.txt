@@ -13,6 +13,7 @@ find_package(geographic_msgs REQUIRED)
 rosidl_generate_interfaces(${PROJECT_NAME}
 
   "action/Land.action"
+  "action/Offboard.action"
   "action/Takeoff.action"
 
   "msg/Template.msg"
