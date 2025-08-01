@@ -11,3 +11,62 @@ index 0fd28a0f13..f633b0027f 100644
  
  if param greater -s MNT_MODE_IN -1
  then
+diff --git a/src/modules/navigator/navigator_main.cpp b/src/modules/navigator/navigator_main.cpp
+index d5ea7ac22d..dbb4f31f84 100644
+--- a/src/modules/navigator/navigator_main.cpp
++++ b/src/modules/navigator/navigator_main.cpp
+@@ -645,6 +645,11 @@ void Navigator::run()
+ 
+ 				_vtol_takeoff.setTransitionAltitudeAbsolute(cmd.param7);
+ 
++				float epsilon = 1e-6f;
++				if (std::fabs(cmd.param2 - 3.0f) < epsilon) { // Specified transition direction
++					_vtol_takeoff.setTransitionDirection(cmd.param4);
++				}
++
+ 				// after the transition the vehicle will establish on a loiter at this position
+ 				_vtol_takeoff.setLoiterLocation(matrix::Vector2d(cmd.param5, cmd.param6));
+ 
+diff --git a/src/modules/navigator/vtol_takeoff.cpp b/src/modules/navigator/vtol_takeoff.cpp
+index 7b36201856..6fa848188c 100644
+--- a/src/modules/navigator/vtol_takeoff.cpp
++++ b/src/modules/navigator/vtol_takeoff.cpp
+@@ -71,8 +71,14 @@ VtolTakeoff::on_active()
+ 				position_setpoint_triplet_s *pos_sp_triplet = _navigator->get_position_setpoint_triplet();
+ 
+ 				_mission_item.nav_cmd = NAV_CMD_WAYPOINT;
+-				_mission_item.yaw = wrap_pi(get_bearing_to_next_waypoint(_mission_item.lat,
+-							    _mission_item.lon, _loiter_location(0), _loiter_location(1)));
++
++				if (std::isnan(_transition_direction_deg)) {
++					_mission_item.yaw = wrap_pi(get_bearing_to_next_waypoint(_navigator->get_home_position()->lat,
++					_navigator->get_home_position()->lon, _loiter_location(0), _loiter_location(1)));
++				} else {
++					_mission_item.yaw = wrap_pi(math::radians(_transition_direction_deg));
++				}
++
+ 				_mission_item.force_heading = true;
+ 				mission_item_to_position_setpoint(_mission_item, &pos_sp_triplet->current);
+ 				pos_sp_triplet->current.cruising_speed = -1.f;
+diff --git a/src/modules/navigator/vtol_takeoff.h b/src/modules/navigator/vtol_takeoff.h
+index a353d89ce8..33266c6cf6 100644
+--- a/src/modules/navigator/vtol_takeoff.h
++++ b/src/modules/navigator/vtol_takeoff.h
+@@ -56,6 +56,8 @@ public:
+ 
+ 	void setTransitionAltitudeAbsolute(const float alt_amsl) {_transition_alt_amsl = alt_amsl; }
+ 
++	void setTransitionDirection(const float tran_bear) {_transition_direction_deg = tran_bear; }
++
+ 	void setLoiterLocation(matrix::Vector2d loiter_location) { _loiter_location = loiter_location; }
+ 	void setLoiterHeight(const float height_m) { _loiter_height = height_m; }
+ 
+@@ -73,6 +75,8 @@ private:
+ 	matrix::Vector2d _loiter_location;
+ 	float _loiter_height{0};
+ 
++	float _transition_direction_deg{NAN};
++
+ 	DEFINE_PARAMETERS(
+ 		(ParamFloat<px4::params::VTO_LOITER_ALT>) _param_loiter_alt
+ 	)
