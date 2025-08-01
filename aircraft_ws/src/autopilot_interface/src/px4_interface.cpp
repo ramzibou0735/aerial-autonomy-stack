@@ -1,7 +1,7 @@
 #include "px4_interface.hpp"
 
 PX4Interface::PX4Interface() : Node("px4_interface"), 
-    active_srv_or_act_flag_(false), aircraft_fsm_state_(PX4InterfaceState::STARTED),
+    active_srv_or_act_flag_(false), aircraft_fsm_state_(PX4InterfaceState::STARTED), offboard_loop_count_(0),
     target_system_id_(-1), arming_state_(-1), vehicle_type_(-1),
     is_vtol_(false), is_vtol_tailsitter_(false), in_transition_mode_(false), in_transition_to_fw_(false), pre_flight_checks_pass_(false),
     lat_(NAN), lon_(NAN), alt_(NAN), alt_ellipsoid_(NAN),
@@ -21,6 +21,7 @@ PX4Interface::PX4Interface() : Node("px4_interface"),
     }
     // Initialize the clock
     this->clock = std::make_shared<rclcpp::Clock>();
+    last_offboard_rate_check_time_ = this->get_clock()->now(); // Monitor the rate of offboard control loop
     // Initialize the arrays
     position_.fill(NAN);
     q_.fill(NAN);
@@ -235,11 +236,21 @@ void PX4Interface::px4_interface_printout_callback()
                 true_airspeed_m_s_);
     RCLCPP_INFO(get_logger(),
                 "Command Ack:\n"
-                "\tcommand: %d (result %d from_external %s)\n\n",
+                "\tcommand: %d (result %d from_external %s)",
                 command_ack_, command_ack_result_, (command_ack_from_external_ ? "true" : "false"));
+    auto now = this->get_clock()->now();
+    double elapsed_sec = (now - last_offboard_rate_check_time_).seconds();
+    if (elapsed_sec > 0) {
+        double actual_rate = offboard_loop_count_ / elapsed_sec;
+        RCLCPP_INFO(this->get_logger(), "Offboard loop actual rate: %.2f Hz\n\n", actual_rate);
+    }    
+    offboard_loop_count_ = 0;
+    last_offboard_rate_check_time_ = now;
 }
 void PX4Interface::offboard_control_loop_callback()
 {
+    offboard_loop_count_++; // Counter to monitor the rate of the offboard loo
+
     std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // using data written by subs
     if (aircraft_fsm_state_ != PX4InterfaceState::OFFBOARD) {
         return; // Do not publish if not in OFFBOARD state

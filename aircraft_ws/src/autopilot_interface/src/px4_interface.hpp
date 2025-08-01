@@ -101,6 +101,8 @@ private:
     PX4InterfaceState aircraft_fsm_state_;
     std::atomic<bool> active_srv_or_act_flag_;
     double home_lat_, home_lon_, home_alt_; // Saved on takeoff
+    std::atomic<int> offboard_loop_count_;
+    rclcpp::Time last_offboard_rate_check_time_;
 
     // Callback groups
     rclcpp::CallbackGroup::SharedPtr callback_group_timer_;
