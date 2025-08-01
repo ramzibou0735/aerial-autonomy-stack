@@ -1,3 +1,27 @@
+/**
+
+# QUAD TAKEOFF AND LANDING
+
+ros2 action send_goal /Drone1/takeoff_action autopilot_interface_msgs/action/Takeoff "{takeoff_altitude: 40.0}" --feedback # relative to Home
+ros2 action send_goal /Drone1/land_action autopilot_interface_msgs/action/Land "{landing_altitude: 60.0}" --feedback # relative to Home
+
+# VTOL TAKEOFF AND LANDING
+
+ros2 action send_goal /Drone1/takeoff_action autopilot_interface_msgs/action/Takeoff "{takeoff_altitude: 40.0, vtol_transition_heading: 330.0, vtol_loiter_nord: 200.0, vtol_loiter_east: 100.0, vtol_loiter_alt: 120.0}" --feedback # relative to Home
+ros2 action send_goal /Drone1/land_action autopilot_interface_msgs/action/Land "{landing_altitude: 60.0, vtol_transition_heading: 60.0}" --feedback # relative to Home
+
+# COMMON
+
+ros2 service call /Drone1/set_speed autopilot_interface_msgs/srv/SetSpeed "{speed: 16.0}" # Note: always limited by the autopilot params, for quads applies from the next set_reposition
+ros2 service call /Drone1/set_altitude autopilot_interface_msgs/srv/SetAltitude "{altitude: 100.0}" # relative to Home
+ros2 service call /Drone1/set_orbit autopilot_interface_msgs/srv/SetOrbit "{east: 500.0, north: 0.0, altitude: 150.0, radius: 200.0}" # relative to Home
+
+# QUAD ONLY
+
+ros2 service call /Drone1/set_reposition autopilot_interface_msgs/srv/SetReposition "{east: 100.0, north: 200.0, altitude: 60.0}" # relative to Home
+
+ */
+
 #ifndef AUTOPILOT_INTERFACE__PX4_INTERFACE_HPP_
 #define AUTOPILOT_INTERFACE__PX4_INTERFACE_HPP_
 
@@ -26,7 +50,6 @@
 #include <px4_msgs/msg/airspeed_validated.hpp>
 #include <px4_msgs/msg/vehicle_odometry.hpp>
 
-#include <px4_msgs/msg/goto_setpoint.hpp>
 #include <px4_msgs/msg/vehicle_command.hpp>
 #include <px4_msgs/msg/offboard_control_mode.hpp>
 #include <px4_msgs/msg/vehicle_attitude_setpoint.hpp>
@@ -34,7 +57,8 @@
 
 #include "autopilot_interface_msgs/srv/set_altitude.hpp"
 #include "autopilot_interface_msgs/srv/set_speed.hpp"
-#include "autopilot_interface_msgs/srv/set_goto.hpp"
+#include "autopilot_interface_msgs/srv/set_orbit.hpp"
+#include "autopilot_interface_msgs/srv/set_reposition.hpp"
 
 #include "autopilot_interface_msgs/action/land.hpp"
 #include "autopilot_interface_msgs/action/offboard.hpp"
@@ -109,7 +133,6 @@ private:
     bool command_ack_from_external_;
 
     // PX4 publishers
-    rclcpp::Publisher<GotoSetpoint>::SharedPtr goto_pub_;
     rclcpp::Publisher<VehicleCommand>::SharedPtr command_pub_;
     rclcpp::Publisher<OffboardControlMode>::SharedPtr offboard_mode_pub_;
     rclcpp::Publisher<VehicleAttitudeSetpoint>::SharedPtr attitude_ref_pub_;
@@ -118,7 +141,8 @@ private:
     // Node Services
     rclcpp::Service<autopilot_interface_msgs::srv::SetAltitude>::SharedPtr set_altitude_service_;
     rclcpp::Service<autopilot_interface_msgs::srv::SetSpeed>::SharedPtr set_speed_service_;
-    rclcpp::Service<autopilot_interface_msgs::srv::SetGoto>::SharedPtr set_goto_service_;
+    rclcpp::Service<autopilot_interface_msgs::srv::SetOrbit>::SharedPtr set_orbit_service_;
+    rclcpp::Service<autopilot_interface_msgs::srv::SetReposition>::SharedPtr set_reposition_service_;
 
     // Node Actions
     rclcpp_action::Server<autopilot_interface_msgs::action::Land>::SharedPtr land_action_server_;
@@ -141,8 +165,10 @@ private:
                             std::shared_ptr<autopilot_interface_msgs::srv::SetAltitude::Response> response);
     void set_speed_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetSpeed::Request> request,
                             std::shared_ptr<autopilot_interface_msgs::srv::SetSpeed::Response> response);
-    void set_goto_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetGoto::Request> request,
-                            std::shared_ptr<autopilot_interface_msgs::srv::SetGoto::Response> response);
+    void set_orbit_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetOrbit::Request> request,
+                            std::shared_ptr<autopilot_interface_msgs::srv::SetOrbit::Response> response);
+    void set_reposition_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetReposition::Request> request,
+                            std::shared_ptr<autopilot_interface_msgs::srv::SetReposition::Response> response);
 
     // Callbacks for actions
     rclcpp_action::GoalResponse land_handle_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const autopilot_interface_msgs::action::Land::Goal> goal);
@@ -162,15 +188,13 @@ private:
     void do_orbit(double lat, double lon, double alt, double r, double loops = 0.0);
     void do_change_altitude(double alt);
     void do_change_speed(double speed);
-    void do_reposition(double lat, double lon, double alt);
+    void do_reposition(double lat, double lon, double alt, double heading = 0.0);
     void do_vtol_transition(int trans_type);
     void do_rtl();
     void do_land();
     void send_vehicle_command(int command, double param1 = 0.0, double param2 = 0.0, double param3 = 0.0, 
                                 double param4 = 0.0, double param5 = 0.0, double param6 = 0.0, double param7 = 0.0, 
                                 int conf = 0);
-    void goto_setpoint_cmd(double position_n = 0.0, double position_e = 0.0, double position_d = 0.0, 
-                                bool flag_control_heading = false, double heading = 0.0);
     void abort_action();
     
     // Transformations

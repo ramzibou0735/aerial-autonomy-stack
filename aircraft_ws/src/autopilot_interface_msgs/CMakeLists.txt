@@ -20,7 +20,8 @@ rosidl_generate_interfaces(${PROJECT_NAME}
 
   "srv/SetAltitude.srv"
   "srv/SetSpeed.srv"
-  "srv/SetGoto.srv"
+  "srv/SetOrbit.srv"
+  "srv/SetReposition.srv"
 
   DEPENDENCIES
   geometry_msgs

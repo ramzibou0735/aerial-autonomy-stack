@@ -30,7 +30,6 @@ PX4Interface::PX4Interface() : Node("px4_interface"),
     // Publishers
     rclcpp::QoS qos_profile_pub(10);  // Depth of 10
     qos_profile_pub.durability(rclcpp::DurabilityPolicy::TransientLocal);  // Or rclcpp::DurabilityPolicy::Volatile
-    goto_pub_ = this->create_publisher<GotoSetpoint>("fmu/in/goto_setpoint", qos_profile_pub);
     command_pub_ = this->create_publisher<VehicleCommand>("fmu/in/vehicle_command", qos_profile_pub);
 
     // Create callback groups (Reentrant or MutuallyExclusive)
@@ -80,8 +79,11 @@ PX4Interface::PX4Interface() : Node("px4_interface"),
     set_speed_service_ = this->create_service<autopilot_interface_msgs::srv::SetSpeed>(
         "set_speed", std::bind(&PX4Interface::set_speed_callback, this, std::placeholders::_1, std::placeholders::_2),
         rmw_qos_profile_services_default, callback_group_service_);
-    set_goto_service_ = this->create_service<autopilot_interface_msgs::srv::SetGoto>(
-        "set_goto", std::bind(&PX4Interface::set_goto_callback, this, std::placeholders::_1, std::placeholders::_2),
+    set_orbit_service_ = this->create_service<autopilot_interface_msgs::srv::SetOrbit>(
+        "set_orbit", std::bind(&PX4Interface::set_orbit_callback, this, std::placeholders::_1, std::placeholders::_2),
+        rmw_qos_profile_services_default, callback_group_service_);
+    set_reposition_service_ = this->create_service<autopilot_interface_msgs::srv::SetReposition>(
+        "set_reposition", std::bind(&PX4Interface::set_reposition_callback, this, std::placeholders::_1, std::placeholders::_2),
         rmw_qos_profile_services_default, callback_group_service_);
 
     // Actions
@@ -228,20 +230,88 @@ void PX4Interface::px4_interface_printout_callback()
 void PX4Interface::set_altitude_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetAltitude::Request> request,
                         std::shared_ptr<autopilot_interface_msgs::srv::SetAltitude::Response> response)
 {
-    RCLCPP_INFO(this->get_logger(), "Test");
-    // TODO
+    if ((!is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::MC_HOVER) || (is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::FW_CRUISE)) {
+        RCLCPP_INFO(this->get_logger(), "Set altitude rejected, PX4Interface is not in hover/cruise state");
+        response->success = false;
+        return;
+    }
+    if (active_srv_or_act_flag_.exchange(true)) { 
+        RCLCPP_INFO(this->get_logger(), "Another service/action is active");
+        response->success = false;
+        return;
+    }
+    RCLCPP_INFO(this->get_logger(), "New requested altitude is: %.2f", request->altitude);
+    do_change_altitude(request->altitude);
+    response->success = true;
+    active_srv_or_act_flag_ = false;
 }
 void PX4Interface::set_speed_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetSpeed::Request> request,
                         std::shared_ptr<autopilot_interface_msgs::srv::SetSpeed::Response> response)
-{
-    RCLCPP_INFO(this->get_logger(), "Test");
-    // TODO
+{    
+    if ((!is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::MC_HOVER) || (is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::FW_CRUISE)) {
+        RCLCPP_INFO(this->get_logger(), "Set speed rejected, PX4Interface is not in hover/cruise state");
+        response->success = false;
+        return;
+    }
+    if (active_srv_or_act_flag_.exchange(true)) { 
+        RCLCPP_INFO(this->get_logger(), "Another service/action is active");
+        response->success = false;
+        return;
+    }
+    RCLCPP_INFO(this->get_logger(), "New requested speed is: %.2f", request->speed);
+    do_change_speed(request->speed);
+    response->success = true;
+    active_srv_or_act_flag_ = false;
 }
-void PX4Interface::set_goto_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetGoto::Request> request,
-                        std::shared_ptr<autopilot_interface_msgs::srv::SetGoto::Response> response)
+void PX4Interface::set_orbit_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetOrbit::Request> request,
+                        std::shared_ptr<autopilot_interface_msgs::srv::SetOrbit::Response> response)
 {
-    RCLCPP_INFO(this->get_logger(), "Test");
-    // TODO
+    if ((!is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::MC_HOVER) || (is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::FW_CRUISE)) {
+        RCLCPP_INFO(this->get_logger(), "Set orbit rejected, PX4Interface is not in hover/cruise state");
+        response->success = false;
+        return;
+    }
+    if (active_srv_or_act_flag_.exchange(true)) { 
+        RCLCPP_INFO(this->get_logger(), "Another service/action is active");
+        response->success = false;
+        return;
+    }
+    std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // using data written by subs
+    double desired_east = request->east;
+    double desired_north = request->north;
+    double desired_alt = request->altitude;
+    double desired_r = request->radius;
+    RCLCPP_INFO(this->get_logger(), "New requested orbit East-North %.2f %.2f Alt. %.2f Radius %.2f", desired_east, desired_north, desired_alt, desired_r);
+    auto [des_lat, des_lon] = lat_lon_from_cartesian(home_lat_, home_lon_, desired_east, desired_north);
+    double desired_loops = 0.0; // 0: Orbit forever
+    do_orbit(des_lat, des_lon, desired_alt, desired_r, desired_loops);
+    response->success = true;
+    active_srv_or_act_flag_ = false;
+}
+void PX4Interface::set_reposition_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetReposition::Request> request,
+                        std::shared_ptr<autopilot_interface_msgs::srv::SetReposition::Response> response)
+{
+    if ((is_vtol_) || (!is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::MC_HOVER)) {
+        RCLCPP_INFO(this->get_logger(), "Set reposition rejected, PX4Interface is not in a quad hover state, use set_orbit for VTOLs");
+        response->success = false;
+        return;
+    }
+    if (active_srv_or_act_flag_.exchange(true)) { 
+        RCLCPP_INFO(this->get_logger(), "Another service/action is active");
+        response->success = false;
+        return;
+    }
+    std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // using data written by subs
+    double desired_east = request->east;
+    double desired_north = request->north;
+    double desired_alt = request->altitude;
+    RCLCPP_INFO(this->get_logger(), "New requested reposition East-North %.2f %.2f Alt. %.2f", desired_east, desired_north, desired_alt);
+    auto [des_lat, des_lon] = lat_lon_from_cartesian(home_lat_, home_lon_, desired_east, desired_north);
+    double distance, heading;
+    geod.Inverse(lat_, lon_, des_lat, des_lon, distance, heading);
+    do_reposition(des_lat, des_lon, desired_alt, fmod(heading + 360.0, 360.0) / 180.0 * M_PI);
+    response->success = true;
+    active_srv_or_act_flag_ = false;
 }
 
 // Callbacks for actions (reentrant callback group, to be able to handle_goal and handle_cancel at the same time)
@@ -590,7 +660,7 @@ void PX4Interface::do_orbit(double lat, double lon, double alt, double r, double
         34,  // VEHICLE_CMD_DO_ORBIT
         r,   // Orbit radius
         NAN,  // Orbit speed (Tangential Velocity. NaN: Use vehicle default velocity, or current velocity if already orbiting. m/s)
-        0.0,  // Unused
+        0.0,  // Yaw behavior: along the orbit for VTOLs, towards the center for quads
         loops,  // Number of loops (0 for forever)
         lat,  // Target latitude
         lon,  // Target longitude
@@ -598,11 +668,12 @@ void PX4Interface::do_orbit(double lat, double lon, double alt, double r, double
         0  // Confirmation
     );
 }
-void PX4Interface::do_reposition(double lat, double lon, double alt)
+void PX4Interface::do_reposition(double lat, double lon, double alt, double heading)
 {
     send_vehicle_command(
         192,  // MAV_CMD_DO_REPOSITION
-        0.0, 0.0, 0.0, 0.0,  // Unused parameters
+        0.0, 0.0, 0.0, // Unused parameters
+        heading,  
         lat,  // Latitude
         lon,  // Longitude
         home_alt_ + alt,  // Altitude
@@ -666,21 +737,6 @@ void PX4Interface::send_vehicle_command(int command, double param1, double param
     if (command != 176) { // Log info if the command is not 176 (i.e., do not spam set_mode)
         RCLCPP_INFO(this->get_logger(), "Sent VehicleCommand: %d", command);
     }
-}
-void PX4Interface::goto_setpoint_cmd(double position_n, double position_e, double position_d, 
-                                bool flag_control_heading, double heading)
-{
-    GotoSetpoint goto_setpoint_msg;
-    uint64_t current_time_ms = clock->now().nanoseconds() / 1e6;  // Convert to milliseconds
-    goto_setpoint_msg.timestamp = static_cast<uint64_t>(current_time_ms);
-
-    goto_setpoint_msg.position[0] = position_n;
-    goto_setpoint_msg.position[1] = position_e;
-    goto_setpoint_msg.position[2] = position_d;
-    goto_setpoint_msg.flag_control_heading = flag_control_heading;
-    goto_setpoint_msg.heading = heading;
-
-    goto_pub_->publish(goto_setpoint_msg);
 }
 void PX4Interface::abort_action()
 {
