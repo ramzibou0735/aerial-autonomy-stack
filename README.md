@@ -207,11 +207,12 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- replace "std::unique_lock" with "std::shared_lock" in read-only/non-writing threads/callbacks
-- check action cancellations
+- Make sure that for all maps, all vehicles, a simple autonomous takeoff + loiter + landing example works with up to 3 vehicles
 
 ### Known Issues
 
+- replace "std::unique_lock" with "std::shared_lock" in read-only/non-writing threads/callbacks
+- check action cancellations
 - QGC reports the quad landing as a takeoff mode
 - mavros commands require multiple resend
 ```sh
@@ -219,14 +220,6 @@ ros2 topic pub --once /mavros/setpoint_position/local geometry_msgs/msg/PoseStam
 ```
 - Revise orientation of the lidar and frame of the lidar odometry for VTOLs
 - In yolo.py, cannot open GPU accelerated (nvh264dec) GStreamer pipeline with cv2.VideoCapture, might need to recompile OpenCV to have both CUDA and GStreamer support (or use python3-gi gir1.2-gst-plugins-base-1.0 gir1.2-gstreamer-1.0 and circumbent OpenCV)
-
-### Testing
-
-- Make sure that for all maps, all vehicles, a simple takeoff example works with up to 3 vehicles
-
-### Model Resources
-
-- ArduPilot SITL models: https://github.com/ArduPilot/SITL_Models
 
 
 
