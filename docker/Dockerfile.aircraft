@@ -40,6 +40,7 @@ RUN apt update \
     && apt install -y --no-install-recommends \
         ros-humble-desktop ros-dev-tools \
         ros-humble-bondcpp ros-humble-ament-cmake-clang-format \
+        ros-humble-vision-msgs \
     && apt clean \
     && rm -rf /var/lib/apt/lists/*
 RUN echo "source /opt/ros/humble/setup.bash" >> /root/.bashrc
@@ -130,7 +131,7 @@ RUN pip3 install --no-cache-dir --upgrade pip \
 ################################################################################
 # Stage 6 - 15+GB ##############################################################
 ################################################################################
-FROM ros2-px4msgs-dds-mavros-yolo-image AS aircraft-dev-image
+FROM ros2-px4msgs-dds-mavros-yolo-image AS ros2-px4msgs-dds-mavros-yolo-kissicp-zenoh-image
 
 # Install KISS-ICP
 RUN pip3 install --no-cache-dir --upgrade "cmake>=3.24"
@@ -147,13 +148,12 @@ RUN apt-get update && \
     && apt clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Add ROS2 vision messages
-RUN apt-get update && \
-    apt-get install -y ros-humble-vision-msgs \
-    && apt clean \
-    && rm -rf /var/lib/apt/lists/*
+################################################################################
+# Stage 7 - 15+GB ##############################################################
+################################################################################
+FROM ros2-px4msgs-dds-mavros-yolo-kissicp-zenoh-image AS aircraft-dev-image
 
-# Build the ROS 2 workspace (including ground_system_msgs)
+# Build the ROS 2 workspace (NOTE: also includes ground_system_msgs from simulation_ws)
 RUN mkdir -p /ros2_ws/src
 COPY simulation_ws/src/ground_system_msgs /ros2_ws/src/ground_system_msgs
 COPY aircraft_ws/src /ros2_ws/src

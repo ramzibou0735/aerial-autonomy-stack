@@ -57,8 +57,8 @@ cd ~/git/aerial-autonomy-stack
 > Building from scratch requires a stable internet connection, `Ctrl + c` and restart if needed 
 
 ```sh
-docker build -t simulation-image -f docker/Dockerfile.simulation . # The first build takes ~15' and creates a 19GB image (6GB for ros-humble-desktop, 9GB for PX4 and ArduPilot SITL)
-docker build -t aircraft-image -f docker/Dockerfile.aircraft . # Having built Dockerfile.simulation, the first build takes ~15' and creates a 15GB image (6GB for ros-humble-desktop, 7GB for YOLOv8, ONNX)
+docker build -t simulation-image -f docker/Dockerfile.simulation . # The first build takes ~15' and creates a 19GB image (8GB for ros-humble-desktop with nvidia runtime, 9GB for PX4 and ArduPilot SITL)
+docker build -t aircraft-image -f docker/Dockerfile.aircraft . # The first build takes ~15' and creates a 16GB image (8GB for ros-humble-desktop with nvidia runtime, 7GB for YOLOv8, ONNX)
 ```
 
 > These are development-friendly images with lots of tools and artifacts, trim as needed

@@ -39,6 +39,7 @@ RUN apt update \
     && apt install -y --no-install-recommends \
         ros-humble-desktop ros-dev-tools \
         ros-humble-bondcpp ros-humble-ament-cmake-clang-format \
+        ros-humble-vision-msgs \
     && apt clean \
     && rm -rf /var/lib/apt/lists/*
 RUN echo "source /opt/ros/humble/setup.bash" >> /root/.bashrc
@@ -89,7 +90,7 @@ RUN /QGroundControl-x86_64.AppImage --appimage-extract
 ################################################################################
 FROM ros2-gz-qgc-image AS ros2-gz-qgc-px4-image
 
-# PX4 SITL
+# PX4 SITL (NOTE: install PX4 tools first to avoid conflicts with ArduPilot, build later to customize)
 # Based on https://docs.px4.io/main/en/dev_setup/dev_env_linux_ubuntu.html
 RUN mkdir -p /git/
 RUN git clone --depth 1 --branch v1.15.4 https://github.com/PX4/PX4-Autopilot.git /git/PX4-Autopilot
@@ -146,7 +147,7 @@ RUN find /temp_folder -type f -regex '.*/[0-9]+_.*' -exec cp {} /airframes/ \;
 ################################################################################
 # Stage 5 - 18+GB ##############################################################
 ################################################################################
-FROM ros2-gz-qgc-px4-ardupilot-image AS simulation-dev-image
+FROM ros2-gz-qgc-px4-ardupilot-image AS ros2-gz-qgc-px4custom-ardupilot-image
 
 # Apply PX4 patches (DDS Agent on custom IP, ...)
 COPY simulation_resources/patches/px4-1.15.4.patch /git
@@ -169,6 +170,11 @@ WORKDIR /git/PX4-Autopilot
 RUN make px4_sitl
 # Run with $ /git/PX4-Autopilot/build/px4_sitl_default/bin/px4
 
+################################################################################
+# Stage 6 - 18+GB ##############################################################
+################################################################################
+FROM ros2-gz-qgc-px4custom-ardupilot-image AS ros2-gz-qgc-px4custom-ardupilot-gst-pymavlink-zenoh-image
+
 # Add GStreamer packages to stream the cameras to the aircraft containers
 RUN apt update \
     && apt install -y --no-install-recommends \
@@ -188,6 +194,11 @@ RUN apt-get update && \
     apt-get install -y zenoh-bridge-ros2dds \
     && apt clean \
     && rm -rf /var/lib/apt/lists/*
+
+################################################################################
+# Stage 7 - 18+GB ##############################################################
+################################################################################
+FROM ros2-gz-qgc-px4custom-ardupilot-gst-pymavlink-zenoh-image AS simulation-dev-image
 
 # Build the ROS 2 workspace for external packages
 RUN mkdir -p /ros2_ws_github/src

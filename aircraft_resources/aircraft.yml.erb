@@ -28,7 +28,9 @@ windows:
       panes:
         - ros2 run autopilot_interface ardupilot_interface <% if simulated_time == 'true' %> --ros-args -p use_sim_time:=true<% end %>
         - >
-          <% if simulated_time == 'true' %> sudo sed -i '0,/ros__parameters:/s/ros__parameters:/ros__parameters:\n    use_sim_time: true/' /opt/ros/humble/share/mavros/launch/apm_config.yaml && <% end %>
+          <% if simulated_time == 'true' %>
+          sudo sed -i '0,/ros__parameters:/s/ros__parameters:/ros__parameters:\n    use_sim_time: true/' /opt/ros/humble/share/mavros/launch/apm_config.yaml && 
+          <% end %>
           ros2 launch mavros apm.launch fcu_url:=udp://0.0.0.0:<%= 22530 + drone_id - 1 %>@<%= 22530 + drone_id - 1 %> tgt_system:=<%= drone_id %>
   <% end %>
 
