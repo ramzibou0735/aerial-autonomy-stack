@@ -31,6 +31,9 @@ PX4Interface::PX4Interface() : Node("px4_interface"),
     rclcpp::QoS qos_profile_pub(10);  // Depth of 10
     qos_profile_pub.durability(rclcpp::DurabilityPolicy::TransientLocal);  // Or rclcpp::DurabilityPolicy::Volatile
     command_pub_ = this->create_publisher<VehicleCommand>("fmu/in/vehicle_command", qos_profile_pub);
+    offboard_mode_pub_ = this->create_publisher<OffboardControlMode>("fmu/in/offboard_control_mode", qos_profile_pub);
+    attitude_ref_pub_ = this->create_publisher<VehicleAttitudeSetpoint>("fmu/in/vehicle_attitude_setpoint", qos_profile_pub);
+    rates_ref_pub_ = this->create_publisher<VehicleRatesSetpoint>("fmu/in/vehicle_rates_setpoint", qos_profile_pub);
 
     // Create callback groups (Reentrant or MutuallyExclusive)
     callback_group_timer_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant); // Timed callbacks in parallel
@@ -42,6 +45,11 @@ PX4Interface::PX4Interface() : Node("px4_interface"),
     px4_interface_printout_timer_ = this->create_wall_timer(
         3s, // Timer period of 3 seconds
         std::bind(&PX4Interface::px4_interface_printout_callback, this),
+        callback_group_timer_
+    );
+    offboard_control_loop_timer_ = this->create_wall_timer(
+        0.01s, // 100Hz
+        std::bind(&PX4Interface::offboard_control_loop_callback, this),
         callback_group_timer_
     );
 
@@ -96,6 +104,11 @@ PX4Interface::PX4Interface() : Node("px4_interface"),
             std::bind(&PX4Interface::takeoff_handle_goal, this, std::placeholders::_1, std::placeholders::_2),
             std::bind(&PX4Interface::takeoff_handle_cancel, this, std::placeholders::_1),
             std::bind(&PX4Interface::takeoff_handle_accepted, this, std::placeholders::_1),
+            rcl_action_server_get_default_options(), callback_group_action_);
+    offboard_action_server_ = rclcpp_action::create_server<autopilot_interface_msgs::action::Offboard>(this, "offboard_action",
+            std::bind(&PX4Interface::offboard_handle_goal, this, std::placeholders::_1, std::placeholders::_2),
+            std::bind(&PX4Interface::offboard_handle_cancel, this, std::placeholders::_1),
+            std::bind(&PX4Interface::offboard_handle_accepted, this, std::placeholders::_1),
             rcl_action_server_get_default_options(), callback_group_action_);
 }
 
@@ -224,6 +237,29 @@ void PX4Interface::px4_interface_printout_callback()
                 "Command Ack:\n"
                 "\tcommand: %d (result %d from_external %s)\n\n",
                 command_ack_, command_ack_result_, (command_ack_from_external_ ? "true" : "false"));
+}
+void PX4Interface::offboard_control_loop_callback()
+{
+    std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // using data written by subs
+    if (aircraft_fsm_state_ != PX4InterfaceState::OFFBOARD) {
+        return; // Do not publish if not in OFFBOARD state
+    }
+
+    // TODO: implement custom offboard control logic here
+    uint64_t current_time_ms = clock->now().nanoseconds() / 1e6;  // Convert to milliseconds
+    VehicleAttitudeSetpoint attitude_ref;
+    attitude_ref.timestamp = static_cast<uint64_t>(current_time_ms);
+    attitude_ref.roll_body = 0.0;
+    attitude_ref.pitch_body = -20.0; // dive
+    attitude_ref.thrust_body = {0.5, 0.0, 0.0};
+    attitude_ref_pub_->publish(attitude_ref);
+
+    VehicleRatesSetpoint rates_ref;
+    rates_ref.timestamp = static_cast<uint64_t>(current_time_ms);
+    rates_ref.roll= 4.0; // roll
+    rates_ref.pitch = 0.0;
+    rates_ref.thrust_body = {0.5, 0.0, 0.0};
+    rates_ref_pub_->publish(rates_ref);
 }
 
 // Callbacks for non-blocking services (reentrant callback group, active_srv_or_act_flag_ act as semaphore)
@@ -453,7 +489,6 @@ rclcpp_action::GoalResponse PX4Interface::offboard_handle_goal(const rclcpp_acti
         RCLCPP_INFO(this->get_logger(), "Another service/action is active");
         return rclcpp_action::GoalResponse::REJECT;
     }
-    RCLCPP_INFO(this->get_logger(), "TODO");
     return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
 }
 rclcpp_action::CancelResponse PX4Interface::offboard_handle_cancel(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Offboard>> goal_handle)
@@ -471,9 +506,12 @@ void PX4Interface::offboard_handle_accepted(const std::shared_ptr<rclcpp_action:
     int offboard_setpoint_type = goal->offboard_setpoint_type;
     double max_duration_sec = goal->max_duration_sec;
 
-    bool offboard_control = true;
+    bool offboarding = true;
+    aircraft_fsm_state_ = PX4InterfaceState::OFFBOARD;
+    double time_of_offboard_start_ms_ = NAN;
+    int offboard_counter = 0;
     rclcpp::Rate offboard_loop_rate(100);
-    while (offboard_control) {
+    while (offboarding) {
         offboard_loop_rate.sleep();
         std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // using data written by subs
 
@@ -485,9 +523,41 @@ void PX4Interface::offboard_handle_accepted(const std::shared_ptr<rclcpp_action:
             return;
         }
 
-        // TODO
-        // set cruise/hover afterwards
-
+        uint64_t current_time_ms = clock->now().nanoseconds() / 1e6;  // Convert to milliseconds
+        if (std::isnan(time_of_offboard_start_ms_)) {
+            time_of_offboard_start_ms_ = current_time_ms;
+            feedback->message = "Starting offboard control";
+            goal_handle->publish_feedback(feedback);
+        }
+        if (current_time_ms < (time_of_offboard_start_ms_ + max_duration_sec * 1e3)) {
+            OffboardControlMode offboard_mode;
+            offboard_mode.timestamp = static_cast<uint64_t>(current_time_ms);
+            if (offboard_setpoint_type == autopilot_interface_msgs::action::Offboard::Goal::ATTITUDE) {
+                offboard_mode.attitude = true;        
+            } 
+            else if (offboard_setpoint_type == autopilot_interface_msgs::action::Offboard::Goal::RATES) {
+                offboard_mode.body_rate = true;
+            } 
+            else {
+                result->success = false;
+                goal_handle->canceled(result);
+                RCLCPP_INFO(this->get_logger(), "Offboard type is not supported");
+                return;
+            }
+            offboard_mode_pub_->publish(offboard_mode);
+            if (offboard_counter >= 5 && offboard_counter < 10) { // HARDCODED: wait 5 publish cycles before changing the mode
+                send_vehicle_command(176, 1.0, 6.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0);  // MAV_CMD_DO_SET_MODE
+            }
+            feedback->message = "Offboarding";
+            goal_handle->publish_feedback(feedback);
+        } else {
+            time_of_offboard_start_ms_ = NAN;
+            offboarding = false;
+            aircraft_fsm_state_ = is_vtol_ ? PX4InterfaceState::FW_CRUISE : PX4InterfaceState::MC_HOVER;
+            feedback->message = "Exiting offboard control, returning to cruise/hover state";
+            goal_handle->publish_feedback(feedback);
+        }
+        offboard_counter++;
     }
     result->success = true;
     goal_handle->succeed(result);

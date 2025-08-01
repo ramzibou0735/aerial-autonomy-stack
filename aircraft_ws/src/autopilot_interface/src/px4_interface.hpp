@@ -20,6 +20,10 @@ ros2 service call /Drone1/set_orbit autopilot_interface_msgs/srv/SetOrbit "{east
 
 ros2 service call /Drone1/set_reposition autopilot_interface_msgs/srv/SetReposition "{east: 100.0, north: 200.0, altitude: 60.0}" # relative to Home
 
+# OFFBOARD
+
+ros2 action send_goal /Drone1/offboard_action autopilot_interface_msgs/action/Offboard "{offboard_setpoint_type: 1, max_duration_sec: 3.0}" --feedback
+
  */
 
 #ifndef AUTOPILOT_INTERFACE__PX4_INTERFACE_HPP_
@@ -80,6 +84,7 @@ enum class PX4InterfaceState {
     VTOL_LANDING_TRANSITION,
     RTL,
     MC_LANDING,
+    OFFBOARD,
     ABORTED
 };
 
@@ -106,6 +111,7 @@ private:
 
     // Node timers
     rclcpp::TimerBase::SharedPtr px4_interface_printout_timer_;
+    rclcpp::TimerBase::SharedPtr offboard_control_loop_timer_;
 
     // PX4 subscribers
     rclcpp::Subscription<VehicleStatus>::SharedPtr vehicle_status_sub_;
@@ -151,6 +157,7 @@ private:
 
     // Callbacks for timers
     void px4_interface_printout_callback();
+    void offboard_control_loop_callback();
 
     // Callbacks for PX4 subscribers
     void global_position_callback(const VehicleGlobalPosition::SharedPtr msg);
