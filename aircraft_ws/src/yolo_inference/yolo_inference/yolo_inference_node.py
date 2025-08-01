@@ -29,7 +29,7 @@ def frame_capture_thread(cap, is_running):
             pass # Drop frame if the main thread is lagging
 
 def xywh2xyxy(box):
-    """Convert [x, y, w, h] to [x1, y1, x2, y2]"""
+    # Convert [x, y, w, h] to [x1, y1, x2, y2]
     coord = np.copy(box)
     coord[..., 0] = box[..., 0] - box[..., 2] / 2  # x1
     coord[..., 1] = box[..., 1] - box[..., 3] / 2  # y1
@@ -60,6 +60,7 @@ class YoloInferenceNode(Node):
         # Confirm execution providers
         self.get_logger().info(f"Execution providers in use: {self.session.get_providers()}")
         
+        # Create publishers
         self.detection_publisher = self.create_publisher(Detection2DArray, 'detections', 10)
         # self.image_publisher = self.create_publisher(Image, 'detections_image', 10)
         self.bridge = CvBridge()
@@ -88,7 +89,7 @@ class YoloInferenceNode(Node):
         #     "video/x-raw, format=BGR ! appsink"
         # )
         cap = cv2.VideoCapture(gst_pipeline_string, cv2.CAP_GSTREAMER)
-        # cap = cv2.VideoCapture("sample.mp4") # Load example video
+        # cap = cv2.VideoCapture("sample.mp4") # Load example video for testing
         assert cap.isOpened(), "Failed to open video stream"
 
         if not self.headless:
@@ -105,7 +106,7 @@ class YoloInferenceNode(Node):
         thread.start()
 
         while rclpy.ok():
-            rclpy.spin_once(self, timeout_sec=0) # This is to get the simulation time from /clock
+            rclpy.spin_once(self, timeout_sec=0) # This is only to get the simulation time from /clock
 
             try:
                 frame = frame_queue.get(timeout=1) # Get the most recent frame from the queue
@@ -156,9 +157,9 @@ class YoloInferenceNode(Node):
 
         # Apply Non-Maximal Suppression
         NMS_THRESH = 0.45
-        boxes_for_nms = boxes[mask]
-        boxes_for_nms = xywh2xyxy(boxes_for_nms)
+        boxes_for_nms = xywh2xyxy(boxes[mask])
         indices = cv2.dnn.NMSBoxes(boxes_for_nms.tolist(), confidences[mask].tolist(), CONF_THRESH, NMS_THRESH)
+        
         final_boxes = boxes[mask][indices]
         final_confidences = confidences[mask][indices]
         final_class_ids = class_ids[mask][indices]
@@ -167,7 +168,6 @@ class YoloInferenceNode(Node):
         scale_w, scale_h = w0 / INPUT_SIZE, h0 / INPUT_SIZE
         final_boxes[:, [0, 2]] *= scale_w
         final_boxes[:, [1, 3]] *= scale_h
-        
         return final_boxes, final_confidences, final_class_ids
 
     def publish_detections(self, frame, boxes, confidences, class_ids):
@@ -176,19 +176,16 @@ class YoloInferenceNode(Node):
         detection_array_msg.header.frame_id = "camera_frame"
 
         for i in range(len(boxes)):
-            detection = Detection2D()
-            
             x1, y1, x2, y2 = boxes[i]
-
             bbox = BoundingBox2D()
             bbox.center.position.x = float((x1 + x2) / 2.0)
             bbox.center.position.y = float((y1 + y2) / 2.0)
             bbox.size_x = float(x2 - x1)
             bbox.size_y = float(y2 - y1)
             
+            detection = Detection2D() 
             detection.bbox = bbox
-            detection.id = str(self.classes[class_ids[i]])
-            
+            detection.id = str(self.classes[class_ids[i]]) 
             detection_array_msg.detections.append(detection)
 
         self.detection_publisher.publish(detection_array_msg)

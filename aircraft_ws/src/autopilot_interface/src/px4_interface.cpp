@@ -154,8 +154,8 @@ void PX4Interface::local_position_callback(const VehicleLocalPosition::SharedPtr
     vy_ = msg->vy;
     vz_ = msg->vz;
     // Position of reference point (local NED frame origin) in global (GPS / WGS84) frame
-    xy_global_ = msg->xy_global; // validity
-    z_global_ = msg->z_global; // validity
+    xy_global_ = msg->xy_global; // Validity of reference
+    z_global_ = msg->z_global; // Validity of reference
     ref_lat_ = msg->ref_lat;
     ref_lon_ = msg->ref_lon;
     ref_alt_ = msg->ref_alt; // AMSL
@@ -262,7 +262,7 @@ void PX4Interface::offboard_control_loop_callback()
     rates_ref_pub_->publish(rates_ref);
 }
 
-// Callbacks for non-blocking services (reentrant callback group, active_srv_or_act_flag_ act as semaphore)
+// Callbacks for non-blocking services (reentrant callback group, active_srv_or_act_flag_ acting as semaphore)
 void PX4Interface::set_altitude_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetAltitude::Request> request,
                         std::shared_ptr<autopilot_interface_msgs::srv::SetAltitude::Response> response)
 {
@@ -386,7 +386,7 @@ void PX4Interface::land_handle_accepted(const std::shared_ptr<rclcpp_action::Ser
         std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // using data written by subs
 
         if (goal_handle->is_canceling()) { // Check if there is a cancel request
-            abort_action(); // sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to ABORTED
+            abort_action(); // Sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to ABORTED
             result->success = false;
             goal_handle->canceled(result);
             RCLCPP_INFO(this->get_logger(), "Landing canceled");
@@ -516,7 +516,7 @@ void PX4Interface::offboard_handle_accepted(const std::shared_ptr<rclcpp_action:
         std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // using data written by subs
 
         if (goal_handle->is_canceling()) { // Check if there is a cancel request
-            abort_action(); // sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to ABORTED
+            abort_action(); // Sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to ABORTED
             result->success = false;
             goal_handle->canceled(result);
             RCLCPP_INFO(this->get_logger(), "Offboard canceled");
@@ -613,7 +613,7 @@ void PX4Interface::takeoff_handle_accepted(const std::shared_ptr<rclcpp_action::
         std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // using data written by subs
 
         if (goal_handle->is_canceling()) { // Check if there is a cancel request
-            abort_action(); // sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to ABORTED
+            abort_action(); // Sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to ABORTED
             result->success = false;
             goal_handle->canceled(result);
             RCLCPP_INFO(this->get_logger(), "Takeoff canceled");
@@ -743,7 +743,7 @@ void PX4Interface::do_reposition(double lat, double lon, double alt, double head
     send_vehicle_command(
         192,  // MAV_CMD_DO_REPOSITION
         0.0, 0.0, 0.0, // Unused parameters
-        heading,  
+        heading, // Heaiding in radians, only used for quads
         lat,  // Latitude
         lon,  // Longitude
         home_alt_ + alt,  // Altitude
@@ -795,9 +795,9 @@ void PX4Interface::send_vehicle_command(int command, double param1, double param
     vehicle_command.param6 = param6;  // Longitude
     vehicle_command.param7 = param7;  // Altitude
 
-    vehicle_command.target_system = target_system_id_; // in PX4 MAV_SYS_ID param for real systems, based on -i N for SITL
+    vehicle_command.target_system = target_system_id_; // In PX4 MAV_SYS_ID param for real systems, based on -i N for SITL, fetched once by status_callback
     vehicle_command.target_component = 1;
-    vehicle_command.source_system = 255; // same as QGC's default, can be different
+    vehicle_command.source_system = 255; // Same as QGC's default, can be different
     vehicle_command.source_component = 0;
     vehicle_command.confirmation = conf;
     vehicle_command.from_external = true;
@@ -836,7 +836,7 @@ std::pair<double, double> PX4Interface::lat_lon_from_polar(double ref_lat, doubl
 int main(int argc, char *argv[])
 {    
     rclcpp::init(argc, argv);
-    rclcpp::executors::MultiThreadedExecutor executor; // or set num_threads executor(rclcpp::ExecutorOptions(), 8);
+    rclcpp::executors::MultiThreadedExecutor executor; // Or set num_threads with executor(rclcpp::ExecutorOptions(), 8);
     auto node = std::make_shared<PX4Interface>();
     executor.add_node(node);
     executor.spin();

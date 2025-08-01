@@ -18,7 +18,7 @@ ArdupilotInterface::ArdupilotInterface() : Node("ardupilot_interface")
 int main(int argc, char *argv[])
 {    
     rclcpp::init(argc, argv);
-    rclcpp::executors::MultiThreadedExecutor executor; // or set num_threads executor(rclcpp::ExecutorOptions(), 8);
+    rclcpp::executors::MultiThreadedExecutor executor; // Or set num_threads with executor(rclcpp::ExecutorOptions(), 8);
     auto node = std::make_shared<ArdupilotInterface>();
     executor.add_node(node);
     executor.spin();

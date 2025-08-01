@@ -69,7 +69,7 @@ ros2 action send_goal /Drone1/offboard_action autopilot_interface_msgs/action/Of
 
 using namespace px4_msgs::msg;
 using namespace GeographicLib;
-using namespace std::chrono_literals;  // for time literals (e.g. 1s)
+using namespace std::chrono_literals;  // For time literals (e.g. 1s)
 
 enum class PX4InterfaceState {
     STARTED,
@@ -100,7 +100,7 @@ private:
     // Node variables
     PX4InterfaceState aircraft_fsm_state_;
     std::atomic<bool> active_srv_or_act_flag_;
-    double home_lat_, home_lon_, home_alt_; // saved on takeoff
+    double home_lat_, home_lon_, home_alt_; // Saved on takeoff
 
     // Callback groups
     rclcpp::CallbackGroup::SharedPtr callback_group_timer_;

@@ -33,7 +33,7 @@
 
 </details>
 
-<!-- TODO: add video -->
+<!-- TODO: add video of example startup/usage with API from git clone on -->
 
 ---
 
@@ -134,7 +134,7 @@ DRONE_TYPE=quad AUTOPILOT=px4 NUM_DRONES=1 ./main_sim.sh
 ./skibidi.sh
 ```
 
-<!-- TODO: add video -->
+<!-- TODO: add video of the skibidi example -->
 
 ---
 

@@ -10,7 +10,7 @@ setup(
     zip_safe=True,
     maintainer='JacopoPan',
     maintainer_email='jacopo.pan@gmail.com',
-    description='TODO: Package description',
+    description='YOLO inference and ROS2 published, OpenCV and GStreamer based',
     license='MIT License',
     tests_require=['pytest'],
     entry_points={
