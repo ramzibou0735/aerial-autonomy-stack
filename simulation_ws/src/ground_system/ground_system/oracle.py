@@ -15,7 +15,7 @@ class OracleNode(Node):
         self.drone_obs = {}  # Thread-safe storage for latest data
         self.lock = threading.Lock()
 
-        # Start a listener thread for each drone
+        # Start a listener thread for each drone's UDP MAVLink connection
         for i in range(num_drones):
             drone_id = i + 1
             port = base_port + i
