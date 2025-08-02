@@ -9,11 +9,8 @@ LIDAR="${LIDAR:-true}" # Options: true (default), false
 
 # TODO: turn off use_sim_time in aircraft.yml.erb
 
-# Launch the aircraft container
-
-# docker run -d -t \
-
-docker run -it --rm \
+# Launch the aircraft container in detached mode
+docker run -d -t \
     --runtime nvidia \
     --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --device /dev/dri --gpus all \
     --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR \
@@ -25,5 +22,7 @@ docker run -it --rm \
     # --env ROS_DOMAIN_ID=$DRONE_ID --env AUTOPILOT=$AUTOPILOT --env DRONE_TYPE=$DRONE_TYPE \
     # --env DRONE_ID=$DRONE_ID --env CAMERA=$CAMERA --env LIDAR=$LIDAR \
     # --env SIMULATED_TIME=false --env HEADLESS=true \
+    # -v ~/Downloads/:/mounted_volume \
 
-echo "Now attach with: docker exec -it aircraft-container tmux attach"
+echo "Now attach with: docker exec -it aircraft-container bash"
+# echo "Now attach with: docker exec -it aircraft-container tmux attach"

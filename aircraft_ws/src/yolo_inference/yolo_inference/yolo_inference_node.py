@@ -52,9 +52,9 @@ class YoloInferenceNode(Node):
 
         # Load model runtime
         model_path = "yolov8s.onnx" # Model options (from fastest to most accurate, <10MB to >100MB): yolov8s, yolov8s, yolov8m, yolov8l, yolov8x
-        self.session = ort.InferenceSession(model_path, providers=["CUDAExecutionProvider"])
-        # self.session = ort.InferenceSession(model_path, providers=["CPUExecutionProvider"])
-        # self.session = ort.InferenceSession(model_path, providers=["TensorRTExecutionProvider"])
+        self.session = ort.InferenceSession(model_path, providers=["CUDAExecutionProvider"]) # For simulation
+        # self.session = ort.InferenceSession(model_path, providers=["TensorrtExecutionProvider"]) # For deployment on Jetson Orin
+        # self.session = ort.InferenceSession(model_path, providers=["CPUExecutionProvider"]) # Backup, not recommended
         self.input_name = self.session.get_inputs()[0].name
         
         # Confirm execution providers
