@@ -10,15 +10,20 @@ LIDAR="${LIDAR:-true}" # Options: true (default), false
 # TODO: turn off use_sim_time in aircraft.yml.erb
 
 # Launch the aircraft container
-docker run -d -t \
-    # --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --device /dev/dri --gpus all \
-    # --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR \
-    --env ROS_DOMAIN_ID=$DRONE_ID --env AUTOPILOT=$AUTOPILOT --env DRONE_TYPE=$DRONE_TYPE \
-    --env DRONE_ID=$DRONE_ID --env CAMERA=$CAMERA --env LIDAR=$LIDAR \
-    --env SIMULATED_TIME=false --env HEADLESS=true \
+
+# docker run -d -t \
+
+docker run -it --rm \
+    --runtime nvidia \
+    --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --device /dev/dri --gpus all \
+    --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR \
     --privileged \
     --name aircraft-container \
-    aircraft-image; \
-exec bash"
+    --entrypoint /bin/bash \
+    aircraft-image
+
+    # --env ROS_DOMAIN_ID=$DRONE_ID --env AUTOPILOT=$AUTOPILOT --env DRONE_TYPE=$DRONE_TYPE \
+    # --env DRONE_ID=$DRONE_ID --env CAMERA=$CAMERA --env LIDAR=$LIDAR \
+    # --env SIMULATED_TIME=false --env HEADLESS=true \
 
 echo "Now attach with: docker exec -it aircraft-container tmux attach"

@@ -196,7 +196,23 @@ mkdir -p ~/git
 git clone git@github.com:JacopoPan/aerial-autonomy-stack.git ~/git/aerial-autonomy-stack
 cd ~/git/aerial-autonomy-stack
 
-# TODO: install onnxruntime-gpu
+# TODO: install onnxruntime-gpu for python3.10, JP6
+# go back to prebuilt wheel
+# Get ONNX Runtime for JP6 from https://elinux.org/Jetson_Zoo#ONNX_Runtime
+# RUN wget https://nvidia.box.com/shared/static/6l0u97rj80ifwkk8rqbzj1try89fk26z.whl -O onnxruntime_gpu-1.19.0-cp310-cp310-linux_aarch64.whl && \
+#     pip3 install onnxruntime_gpu-1.19.0-cp310-cp310-linux_aarch64.whl && \
+#     rm onnxruntime_gpu-1.19.0-cp310-cp310-linux_aarch64.whl
+# Or rebuild
+# https://onnxruntime.ai/docs/build/eps.html#tensorrt
+# git clone --recursive https://github.com/microsoft/onnxruntime
+# export CUDACXX="/usr/local/cuda/bin/nvcc"
+# sudo apt update
+# sudo apt install -y --no-install-recommends \
+#   build-essential software-properties-common libopenblas-dev \
+#   libpython3.10-dev python3-pip python3-dev python3-setuptools python3-wheel
+# ./build.sh --config Release --update --build --parallel --build_wheel \
+# --use_tensorrt --cuda_home /usr/local/cuda --cudnn_home /usr/lib/aarch64-linux-gnu \
+# --tensorrt_home /usr/lib/aarch64-linux-gnu --allow_running_as_root
 docker build -t aircraft-image -f docker/Dockerfile.aircraft .
 # Or: docker pull jacopopan/aircraft-image:jetson # TODO
 
