@@ -2,13 +2,17 @@
 
 ## Configure PX4's Network and DDS Client
 
-Access QGroundControl -> Analyze Tools -> MAVLink console, copy and paste the following commands to assign the PX4 autopilot IP 10.10.1.33 and let the0 `uxrce_dds_client` connect to the NX in IP 10.10.1.44  using namespace "Drone1", then re-start the autopilot 
+> [!NOTE]
+> Skip this step if you are using ArduPilot
+
+- Access QGroundControl -> Analyze Tools -> MAVLink console
+- Copy-and-paste the following commands (to assign an IP the PX4 autopilot (e.g., 10.10.1.33) and let the `uxrce_dds_client` connect to the NX (e.g., on IP 10.10.1.44) using namespace "Drone1")
+- Re-start the autopilot 
 
 ```sh
 mkdir /fs/microsd/etc
 echo "uxrce_dds_client stop" > /fs/microsd/etc/extras.txt
 echo "sleep 3" >> /fs/microsd/etc/extras.txt
-# With the NX on 10.10.1.5
 echo "uxrce_dds_client start -p 8888 -h 10.10.1.44 -n Drone1" >> /fs/microsd/etc/extras.txt
 
 echo DEVICE=eth0 > /fs/microsd/net.cfg
@@ -18,7 +22,7 @@ echo NETMASK=255.255.255.0 >> /fs/microsd/net.cfg
 echo ROUTER=10.10.1.254 >> /fs/microsd/net.cfg
 echo DNS=10.10.1.254 >> /fs/microsd/net.cfg
 
-# Check files
+# Check the content of the files
 cat /fs/microsd/etc/extras.txt
 cat /fs/microsd/net.cfg
 
@@ -29,7 +33,10 @@ Also read [PX4 documentation](https://github.com/PX4/PX4-Autopilot/blob/main/doc
 
 ## Configure ArduPilot's MAVLink bridge
 
-This can be done either over ethernet or using the Pixhawk 6X's TELEM2 serial port
+> [!NOTE]
+> Skip this step if you are using PX4
+
+MAVLink can be connected either over ethernet or using the Pixhawk 6X's TELEM2 serial port
 
 - [Holybro documentation](https://docs.holybro.com/autopilot/pixhawk-baseboards/pixhawk-jetson-baseboard/mavlink-bridge)
 - [ArduPilot documentation](https://ardupilot.org/copter/docs/common-serial-options.html)
@@ -48,14 +55,14 @@ sdkmanager # Log in with your https://developer.nvidia.com account
 - Put the Holybro Jetson baseboard in recovery mode with the dedicated switch
 - Connect the USB-C port closes to the fan to the computer running `sdkmanager` and power on the board
 - On Step 1, select "Jetson", "Host Machine Ubuntu 22 x86_64", "Target Hardware Jetson Orin NX" (automatically detected), "SDK Version JetPack 6.2.1"
-- On Step 2, under "Target Components", select all "Jetson Linux"
+- On Step 2, under "Target Components", select all "Jetson Linux" (uncheck all others)
 - On the flash dialog after the download, choose "OEM Pre-config", username, password, and "Storage NVMe"
-- Log in, finish the configuration, power off, put the board out of recovery mode and power on again
+- Log in, finish the configuration, power-off, put the board out of recovery mode and power-on again
 
 Also read [PX4 documentation](https://github.com/PX4/PX4-Autopilot/blob/main/docs/en/companion_computer/holybro_pixhawk_jetson_baseboard.md#flashing-the-jetson-board)
 
 > [!WARNING]
-> At the time of writing, Snap is broken on JetPack 6, a solution can be found [here](https://forums.developer.nvidia.com/t/chromium-other-browsers-not-working-after-flashing-or-updating-heres-why-and-quick-fix/338891)
+> At the time of writing, Snap is broken on JetPack 6, a fix is suggested [here](https://forums.developer.nvidia.com/t/chromium-other-browsers-not-working-after-flashing-or-updating-heres-why-and-quick-fix/338891)
 > ```sh
 > snap download snapd --revision=24724
 > sudo snap ack snapd_24724.assert
@@ -64,6 +71,8 @@ Also read [PX4 documentation](https://github.com/PX4/PX4-Autopilot/blob/main/doc
 > 
 > snap install firefox
 > ```
+
+## Install Docker Engine and NVIDIA Container Toolkit
 
 ```sh
 # Install git

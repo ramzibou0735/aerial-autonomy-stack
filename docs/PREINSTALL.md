@@ -81,11 +81,11 @@ sudo apt install -y nvidia-container-toolkit
 sudo nvidia-ctk runtime configure --runtime=docker
 sudo systemctl restart docker
 
-# Test with
-docker run --rm --gpus all nvidia/cuda:12.2.0-base-ubuntu22.04 nvidia-smi
-
 # Check `nvidia` runtime is available
 docker info | grep -i runtime
+
+# Test with
+docker run --rm --gpus all nvidia/cuda:12.2.0-base-ubuntu22.04 nvidia-smi # Login as shown below if required
 ```
 
 ## Pre-installation Step 3 of 3: Log In to the NVIDIA Registry

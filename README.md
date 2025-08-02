@@ -186,7 +186,9 @@ Repeat as necessary, finally commit the changes from the repository on the host 
 > [!IMPORTANT]
 > The instructions here are tested on a [Holybro Jetson Baseboard](https://holybro.com/products/pixhawk-jetson-baseboard) kit that includes (i) a Pixhawk 6X autopilot and (ii) an NVIDIA Orin NX 16GB computer connected via both serial and ethernet
 > 
-> **To setup (i) PX4's DDS UDP client, (ii) ArduPilot serial MAVLink bridge, or (iii) flash JetPack 6 and setup Docker on Jetson, read [`AVIONICS.md`](/docs/AVIONICS.md)**
+> **To setup (i) PX4's DDS UDP client, (ii) ArduPilot serial MAVLink bridge, (iii) JetPack 6, (iv) Docker Engine, (v) NVIDIA Container Toolkit, and (vi) NVIDIA NGC API Key on Orin, read [`AVIONICS.md`](/docs/AVIONICS.md)**
+>
+> The Holybro Jetson Baseboard comes with an (i) integrated 4-way (Orin, 6X, RJ-45 port, JST port) Ethernet switch and (ii) two JST USB 2.0 (to minmize EM interference) ports that can be connected to ASIX Ethernet adapters to create additional network interfaces: make sure to configure Orin, 6X's XRCE-DDS, IP radio, lidar, Zenoh, etc. consistently with your network setup
 
 On Jetson Orin NX
 ```sh
@@ -212,6 +214,7 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
+- Implement constant attitude and constant rate offboard examples for quad and vtol
 - Make sure that for all maps, all vehicles, a simple autonomous takeoff + loiter + landing example works with up to 3 vehicles
 
 ### Known Issues
