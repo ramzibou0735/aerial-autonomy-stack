@@ -186,15 +186,17 @@ Repeat as necessary, finally commit the changes from the repository on the host 
 > [!IMPORTANT]
 > The instructions here are tested on a [Holybro Jetson Baseboard](https://holybro.com/products/pixhawk-jetson-baseboard) kit that includes (i) a Pixhawk 6X autopilot and (ii) an NVIDIA Orin NX 16GB computer connected via both serial and ethernet
 > 
-> **To setup (i) PX4's DDS UDP client, (ii) ArduPilot serial MAVLink bridge, or (iii) flash JetPack 6, read [`AVIONICS.md`](/docs/AVIONICS.md)**
+> **To setup (i) PX4's DDS UDP client, (ii) ArduPilot serial MAVLink bridge, or (iii) flash JetPack 6 and setup Docker on Jetson, read [`AVIONICS.md`](/docs/AVIONICS.md)**
 
-On the Jetson Orin NX
+On Jetson Orin NX
 ```sh
 mkdir -p ~/git
 git clone git@github.com:JacopoPan/aerial-autonomy-stack.git ~/git/aerial-autonomy-stack
 cd ~/git/aerial-autonomy-stack
 
-# TODO: build instructions
+# TODO: install onnxruntime-gpu
+docker build -t aircraft-image -f docker/Dockerfile.aircraft .
+# Or: docker pull jacopopan/aircraft-image:jetson # TODO
 
 chmod +x ./main_deploy.sh
 DRONE_TYPE=quad AUTOPILOT=px4 DRONE_ID=1 CAMERA=true LIDAR=false  ./main_deploy.sh
