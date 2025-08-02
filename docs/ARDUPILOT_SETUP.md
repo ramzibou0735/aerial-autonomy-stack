@@ -1,5 +1,0 @@
-# ArduPilot Setup
-
-## TBD
-
-TBD

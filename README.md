@@ -184,19 +184,22 @@ Repeat as necessary, finally commit the changes from the repository on the host 
 ## Part 4: Deployment of AAS
 
 > [!IMPORTANT]
-> **To setup PX4 parameters and DDS client, read [`PX4_SETUP.md`](/docs/PX4_SETUP.md)**
+> The instructions here are tested on a [Holybro Jetson Baseboard](https://holybro.com/products/pixhawk-jetson-baseboard) kit that includes (i) a Pixhawk 6X autopilot and (ii) an NVIDIA Orin NX 16GB computer connected via both serial and ethernet
 > 
-> **To setup ArduPilot MAVLink interface, read [`ARDUPILOT_SETUP.md`](/docs/ARDUPILOT_SETUP.md)**
+> **To setup (i) PX4's DDS UDP client, (ii) ArduPilot serial MAVLink bridge, or (iii) flash JetPack 6, read [`AVIONICS.md`](/docs/AVIONICS.md)**
 
-WIP
-<!-- 
+On the Jetson Orin NX
 ```sh
-cd ~/git/aerial-autonomy-stack/
+mkdir -p ~/git
+git clone git@github.com:JacopoPan/aerial-autonomy-stack.git ~/git/aerial-autonomy-stack
+cd ~/git/aerial-autonomy-stack
+
+# TODO: build instructions
+
 chmod +x ./main_deploy.sh
 DRONE_TYPE=quad AUTOPILOT=px4 DRONE_ID=1 CAMERA=true LIDAR=false  ./main_deploy.sh
 docker exec -it aircraft-container tmux attach
 ```
--->
 
 ---
 > You've done a man's job, sir. I guess you're through, huh?

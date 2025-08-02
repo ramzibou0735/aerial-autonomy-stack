@@ -25,7 +25,6 @@ sudo apt upgrade
 sudo apt install git
 
 # Install git-lfs (for the large files in simulation_resources/)
-sudo apt update
 sudo apt install git-lfs
 git lfs install
 
