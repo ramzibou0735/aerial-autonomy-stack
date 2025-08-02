@@ -29,7 +29,7 @@ cat /fs/microsd/net.cfg
 netman update
 ```
 
-Also read [PX4 documentation](https://github.com/PX4/PX4-Autopilot/blob/main/docs/en/companion_computer/holybro_pixhawk_jetson_baseboard.md#ethernet-setup-using-netplan)
+Also read the [PX4 documentation](https://github.com/PX4/PX4-Autopilot/blob/main/docs/en/companion_computer/holybro_pixhawk_jetson_baseboard.md#ethernet-setup-using-netplan)
 
 ## Configure ArduPilot's MAVLink bridge
 
@@ -44,7 +44,9 @@ MAVLink can be connected either over ethernet or using the Pixhawk 6X's TELEM2 s
 
 ## Flash JetPack 6 to NVIDIA Orin
 
-Holybro Jetson baseboard normally comes installed with JetPack 5, to upgrade, download NVIDIA SDK Manager on the Ubuntu 22 host computer from [this link](https://developer.nvidia.com/sdk-manager#installation_get_started)
+Holybro Jetson baseboard normally comes installed with JetPack 5
+
+To upgrade, download NVIDIA SDK Manager on the Ubuntu 22 host computer from [here](https://developer.nvidia.com/sdk-manager#installation_get_started)
 
 ```sh
 cd ~/Downloads
@@ -59,10 +61,10 @@ sdkmanager # Log in with your https://developer.nvidia.com account
 - On the flash dialog after the download, choose "OEM Pre-config", username, password, and "Storage NVMe"
 - Log in, finish the configuration, power-off, put the board out of recovery mode and power-on again
 
-Also read [PX4 documentation](https://github.com/PX4/PX4-Autopilot/blob/main/docs/en/companion_computer/holybro_pixhawk_jetson_baseboard.md#flashing-the-jetson-board)
+Also read the [PX4 documentation](https://github.com/PX4/PX4-Autopilot/blob/main/docs/en/companion_computer/holybro_pixhawk_jetson_baseboard.md#flashing-the-jetson-board)
 
 > [!WARNING]
-> At the time of writing, Snap is broken on JetPack 6, a fix is suggested [here](https://forums.developer.nvidia.com/t/chromium-other-browsers-not-working-after-flashing-or-updating-heres-why-and-quick-fix/338891)
+> At the time of writing, **Snap is broken on JetPack 6**, a fix is suggested [here](https://forums.developer.nvidia.com/t/chromium-other-browsers-not-working-after-flashing-or-updating-heres-why-and-quick-fix/338891)
 > ```sh
 > snap download snapd --revision=24724
 > sudo snap ack snapd_24724.assert

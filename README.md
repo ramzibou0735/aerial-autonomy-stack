@@ -188,7 +188,9 @@ Repeat as necessary, finally commit the changes from the repository on the host 
 > 
 > **To setup (i) PX4's DDS UDP client, (ii) ArduPilot serial MAVLink bridge, (iii) JetPack 6, (iv) Docker Engine, (v) NVIDIA Container Toolkit, and (vi) NVIDIA NGC API Key on Orin, read [`AVIONICS.md`](/docs/AVIONICS.md)**
 >
-> The Holybro Jetson Baseboard comes with an (i) integrated 4-way (Orin, 6X, RJ-45 port, JST port) Ethernet switch and (ii) two JST USB 2.0 (to minmize EM interference) ports that can be connected to ASIX Ethernet adapters to create additional network interfaces: make sure to configure Orin, 6X's XRCE-DDS, IP radio, Zenoh, etc. consistently with your network setup; the camera acquisition pipeline should be setup in `yolo_inference_node.py`, the lidar should be publishing `sensor_msgs/msg/PointCloud2` messages on topic `/lidar_points` for KISS-ICP
+> The Holybro Jetson Baseboard comes with an (i) integrated 4-way (Orin, 6X, RJ-45 port, JST port) Ethernet switch and (ii) two JST USB 2.0 (to minmize EM interference) ports that can be connected to ASIX Ethernet adapters to create additional network interfaces
+> 
+> Make sure to configure Orin, 6X's XRCE-DDS, IP radio, Zenoh, etc. consistently with your network setup; the camera acquisition pipeline should be setup in `yolo_inference_node.py`, the lidar should be publishing `sensor_msgs/msg/PointCloud2` messages on topic `/lidar_points` for KISS-ICP
 
 On Jetson Orin NX
 ```sh
