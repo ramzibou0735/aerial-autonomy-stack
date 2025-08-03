@@ -198,17 +198,10 @@ mkdir -p ~/git
 git clone git@github.com:JacopoPan/aerial-autonomy-stack.git ~/git/aerial-autonomy-stack
 cd ~/git/aerial-autonomy-stack
 
-# TODO: install onnxruntime-gpu for python3.10, JP6
-# go back to prebuilt wheel
-# Get ONNX Runtime for JP6 from https://elinux.org/Jetson_Zoo#ONNX_Runtime
-# RUN wget https://nvidia.box.com/shared/static/6l0u97rj80ifwkk8rqbzj1try89fk26z.whl -O onnxruntime_gpu-1.19.0-cp310-cp310-linux_aarch64.whl && \
-#     pip3 install onnxruntime_gpu-1.19.0-cp310-cp310-linux_aarch64.whl && \
-#     rm onnxruntime_gpu-1.19.0-cp310-cp310-linux_aarch64.whl
-# Or rebuild
-# https://onnxruntime.ai/docs/build/eps.html#tensorrt
-git clone --recursive https://github.com/microsoft/onnxruntime /git/onnxruntime
 
 
+# TODO: buid onnxruntime-gpu
+# git clone --recursive https://github.com/microsoft/onnxruntime /git/onnxruntime
 export CUDACXX="/usr/local/cuda/bin/nvcc"
 sudo apt update
 sudo apt install -y --no-install-recommends \
@@ -216,10 +209,13 @@ sudo apt install -y --no-install-recommends \
   libpython3.10-dev python3-pip python3-dev python3-setuptools python3-wheel
 git clone --recursive --depth 1 --branch v1.22.1 https://github.com/microsoft/onnxruntime /git/onnxruntime
 cd /git/onnxruntime/
+# root@fb82c681c16b:/git/onnxruntime# cmake --version
+# cmake version 4.0.3
 ./build.sh --config Release --update --build --parallel --build_wheel \
 --use_tensorrt --cuda_home /usr/local/cuda --cudnn_home /usr/lib/aarch64-linux-gnu \
 --tensorrt_home /usr/lib/aarch64-linux-gnu \
 --skip_tests --cmake_extra_defines 'CMAKE_CUDA_ARCHITECTURES=native' 'onnxruntime_BUILD_UNIT_TESTS=OFF' 'onnxruntime_USE_FLASH_ATTENTION=OFF' 'onnxruntime_USE_MEMORY_EFFICIENT_ATTENTION=OFF' \
+'CMAKE_POLICY_VERSION_MINIMUM=3.5' \
 --allow_running_as_root
 cd /git/onnxruntime/build/Linux/Release
 sudo make install
@@ -228,30 +224,6 @@ cd /git/onnxruntime/build/Linux/Release/dist
 pip3 install onnxruntime_gpu-1.22.1-cp310-cp310-linux_aarch64.whl
 
 
-
-      export CUDACXX="/usr/local/cuda/bin/nvcc" && \
-      apt update && \
-      apt install -y --no-install-recommends \
-        build-essential software-properties-common libopenblas-dev \
-        libpython3.10-dev python3-pip python3-dev python3-setuptools python3-wheel && \
-      git clone --recursive --depth 1 --branch v1.22.1 https://github.com/microsoft/onnxruntime.git /git/onnxruntime && \
-      cd /git/onnxruntime/ && \
-      ./build.sh --config Release --update --build --parallel --build_wheel \
-        --use_tensorrt --cuda_home /usr/local/cuda --cudnn_home /usr/lib/aarch64-linux-gnu \
-        --tensorrt_home /usr/lib/aarch64-linux-gnu \
-        --skip_tests --cmake_extra_defines 'CMAKE_CUDA_ARCHITECTURES=native' \
-        'onnxruntime_BUILD_UNIT_TESTS=OFF' 'onnxruntime_USE_FLASH_ATTENTION=OFF' \
-        'onnxruntime_USE_MEMORY_EFFICIENT_ATTENTION=OFF' \
-        --allow_running_as_root && \
-      cd /git/onnxruntime/build/Linux/Release && \
-      make install && \
-      ldconfig && \
-      pip3 install dist/onnxruntime_gpu-1.22.1-cp310-cp310-linux_aarch64.whl && \
-      # Clean up the source to save space
-      rm -rf /git/onnxruntime; \
-
-root@855fbc814e76:/git/onnxruntime/build/Linux/Release/dist# ls
-onnxruntime_gpu-1.23.0-cp310-cp310-linux_aarch64.whl
 root@855fbc814e76:/git/onnxruntime/build/Linux/Release/dist# pip3 install onnxruntime_gpu-1.23.0-cp310-cp310-linux_aarch64.whl 
 
 root@855fbc814e76:/git/onnxruntime/build/Linux/Release# ls
@@ -262,6 +234,7 @@ cmake_install.cmake    generated_source.c            libonnxruntime_mlas.a      
 compile_commands.json  lib                           libonnxruntime_optimizer.a  libonnxruntime.so                     onnxruntime_config.h            PROJECT_CONFIG_FILE
 CTestTestfile.cmake    libonnxruntime_common.a       libonnxruntime.pc           libonnxruntime.so.1                   onnxruntimeConfigVersion.cmake  quantization
 _deps                  libonnxruntime_flatbuffers.a  libonnxruntime_providers.a  libonnxruntime.so.1.23.0              onnxruntime_gpu.egg-info        requirements.txt
+
 root@855fbc814e76:/git/onnxruntime/build/Linux/Release# sudo make install
 root@855fbc814e76:/git/onnxruntime/build/Linux/Release# sudo ldconfig
 
@@ -284,8 +257,7 @@ Falling back to ['CPUExecutionProvider'] and retrying.
 >>> session = ort.InferenceSession("/yolov8s.onnx", providers=["TensorrtExecutionProvider"])
 
 
-# Or
-# pip install https://github.com/ultralytics/assets/releases/download/v0.0.0/onnxruntime_gpu-1.20.0-cp310-cp310-linux_aarch64.whl
+
 docker build -t aircraft-image -f docker/Dockerfile.aircraft .
 # Or: docker pull jacopopan/aircraft-image:jetson # TODO
 

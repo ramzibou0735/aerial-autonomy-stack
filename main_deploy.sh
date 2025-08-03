@@ -17,12 +17,12 @@ docker run -d -t \
     --privileged \
     --name aircraft-container \
     --entrypoint /bin/bash \
+    -v ~/Downloads/:/mounted_volume \
     aircraft-image
 
     # --env ROS_DOMAIN_ID=$DRONE_ID --env AUTOPILOT=$AUTOPILOT --env DRONE_TYPE=$DRONE_TYPE \
     # --env DRONE_ID=$DRONE_ID --env CAMERA=$CAMERA --env LIDAR=$LIDAR \
     # --env SIMULATED_TIME=false --env HEADLESS=true \
-    # -v ~/Downloads/:/mounted_volume \
 
 echo "Now attach with: docker exec -it aircraft-container bash"
 # echo "Now attach with: docker exec -it aircraft-container tmux attach"
