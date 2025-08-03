@@ -58,8 +58,17 @@ class YoloInferenceNode(Node):
             print("Loading CUDAExecutionProvider on AMD64 (x86) architecture.")
             self.session = ort.InferenceSession(model_path, providers=["CUDAExecutionProvider"]) # For simulation
         elif self.architecture == 'aarch64':
-            print("Loading TensorrtExecutionProvider on ARM64 architecture (Jetson).")
-            self.session = ort.InferenceSession(model_path, providers=["TensorrtExecutionProvider"]) # For deployment on Jetson Orin
+            print("Loading (with cache) TensorrtExecutionProvider on ARM64 architecture (Jetson).") # The first cache built takes ~3'
+            cache_path = "/tensorrt_cache" # Mounted as volume by main_deploy.sh
+            os.makedirs(cache_path, exist_ok=True)
+            provider_options = {
+                'trt_engine_cache_enable': True,
+                'trt_engine_cache_path': cache_path,
+            }
+            self.session = ort.InferenceSession(
+                model_path,
+                providers=[('TensorrtExecutionProvider', provider_options)] # For deployment on Jetson Orin
+            )
         else:
             print(f"Loading CPUExecutionProvider on an unknown architecture: {self.architecture}")
             self.session = ort.InferenceSession(model_path, providers=["CPUExecutionProvider"]) # Backup, not recommended
@@ -100,6 +109,7 @@ class YoloInferenceNode(Node):
             cap = cv2.VideoCapture(gst_pipeline_string, cv2.CAP_GSTREAMER)
         elif self.architecture == 'aarch64':
             cap = cv2.VideoCapture("sample.mp4") # Load example video for testing
+            # TODO: open CSI or RTSP camera feed instead
         assert cap.isOpened(), "Failed to open video stream"
 
         if not self.headless:

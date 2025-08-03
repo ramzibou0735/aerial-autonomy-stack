@@ -124,13 +124,13 @@ RUN pip3 install --no-cache-dir --upgrade pip \
 # Versus $ /yolo-env/bin/python3 -c "import cv2; print(cv2.getBuildInformation())"
 
 ################################################################################
-# Alternative stage for ONNX Runtime GPU: use CUDA in sim, TensorRT on Orin ####
+# Alternate stage for ONNX Runtime GPU: use CUDA in sim, TensorRT on Orin ######
 ################################################################################
 FROM ros2-px4msgs-dds-mavros-yolo-image AS image-with-onnxruntime-gpu_amd64
 # Add ONNX Runtime with GPU (CUDA) support for system Python
 RUN pip3 install --no-cache-dir --upgrade pip && \
     pip3 install --no-cache-dir --resume-retries 5 onnxruntime-gpu
-# Check with $ python3 -c "import onnxruntime as ort; print(ort.__version__)"
+# Check with $ python3 -c "import onnxruntime as ort; print(ort.__version__); print(ort.get_available_providers())"
 
 FROM ros2-px4msgs-dds-mavros-yolo-image AS image-with-onnxruntime-gpu_arm64
 # Build ONNX Runtime from source with Jetson (TensorRT) support for system Python
@@ -157,12 +157,11 @@ RUN apt update && \
     pip3 install onnxruntime_gpu-1.22.1-cp310-cp310-linux_aarch64.whl && \
     cd /git/onnxruntime/build/Linux/Release && \
     sudo make install && \
-    sudo ldconfig 
-    # && \
-    # rm -rf /git/onnxruntime && \
-    # apt clean && \
-    # rm -rf /var/lib/apt/lists/*
-# Check with $ python3 -c "import onnxruntime as ort; print(ort.__version__)"
+    sudo ldconfig && \
+    apt clean && \
+    rm -rf /var/lib/apt/lists/*
+ENV PYTHONPATH=/git/onnxruntime/build/Linux/Release:$PYTHONPATH
+# Check with $ python3 -c "import onnxruntime as ort; print(ort.__version__); print(ort.get_available_providers())"
 
 ################################################################################
 # Stage 6 - 15+GB ##############################################################

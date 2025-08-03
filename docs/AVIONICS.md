@@ -42,7 +42,7 @@ MAVLink can be connected either over ethernet or using the Pixhawk 6X's TELEM2 s
 - [ArduPilot documentation](https://ardupilot.org/copter/docs/common-serial-options.html)
 - [PX4 documentation](https://github.com/PX4/PX4-Autopilot/blob/main/docs/en/companion_computer/holybro_pixhawk_jetson_baseboard.md#mavlink-setup)
 
-## Flash JetPack 6 to NVIDIA Orin
+## Flash JetPack 6 to Jetson Orin
 
 Holybro Jetson baseboard normally comes installed with JetPack 5
 
@@ -63,19 +63,6 @@ sdkmanager # Log in with your https://developer.nvidia.com account
 
 Also read the [PX4 documentation](https://github.com/PX4/PX4-Autopilot/blob/main/docs/en/companion_computer/holybro_pixhawk_jetson_baseboard.md#flashing-the-jetson-board)
 
-> [!WARNING]
-> At the time of writing, **Snap is broken on JetPack 6**, a fix is suggested [here](https://forums.developer.nvidia.com/t/chromium-other-browsers-not-working-after-flashing-or-updating-heres-why-and-quick-fix/338891)
-> ```sh
-> snap download snapd --revision=24724
-> sudo snap ack snapd_24724.assert
-> sudo snap install snapd_24724.snap
-> sudo snap refresh --hold snapd
-> 
-> snap install firefox
-> ```
-
-## Install Docker Engine and NVIDIA Container Toolkit
-
 ```sh
 # Install git
 sudo apt update
@@ -88,13 +75,57 @@ git lfs install
 # Create an ssh key
 ssh-keygen 
 cat ~/.ssh/id_rsa.pub
+```
+
+> [!WARNING]
+> At the time of writing, **Snap is broken on JetPack 6**, a fix is suggested [here](https://forums.developer.nvidia.com/t/chromium-other-browsers-not-working-after-flashing-or-updating-heres-why-and-quick-fix/338891)
+> ```sh
+> snap download snapd --revision=24724
+> sudo snap ack snapd_24724.assert
+> sudo snap install snapd_24724.snap
+> sudo snap refresh --hold snapd
+> 
+> snap install firefox
+> ```
+
+## Install Docker Engine and NVIDIA Container Toolkit on Jetson Orin
+
+```sh
+for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo apt-get remove $pkg; done # none should be there
+
+# Add Docker's official GPG key:
+sudo apt-get update
+sudo apt-get install ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+# Add the repository to Apt sources:
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+```
+
+```sh
+# Install and test Docker Engine
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo docker run hello-world
+sudo docker version # 28.3.0 at the time of writing
+
+# Remove the need to sudo the docker command
+sudo groupadd docker
+sudo usermod -aG docker $USER
+newgrp docker # Reboot
+docker run hello-world
 
 # Login to the NVIDIA Registry
 docker login nvcr.io # To be able to reliably pull NVIDIA base images
 Username: # type $oauthtoken
 Password: # copy and paste the API key and press enter to pull base images from nvcr.io/
 
-# Add NVIDIA Container Toolkit for GPU use within containers
+# Add NVIDIA Container Toolkit to use the GPU within containers
 distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
 curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
 curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list

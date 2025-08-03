@@ -7,7 +7,8 @@ DRONE_ID="${DRONE_ID:-1}" # Id of aircraft (default = 1)
 CAMERA="${CAMERA:-true}" # Options: true (default), false
 LIDAR="${LIDAR:-true}" # Options: true (default), false 
 
-# TODO: turn off use_sim_time in aircraft.yml.erb
+# Grant access to the X server
+xhost +local:docker # Remove this when building TensorRT cache for the first time
 
 # Launch the aircraft container in detached mode
 docker run -d -t \
@@ -17,6 +18,7 @@ docker run -d -t \
     --privileged \
     --name aircraft-container \
     --entrypoint /bin/bash \
+    -v ~/tensorrt_cache/:/tensorrt_cache \
     -v ~/Downloads/:/mounted_volume  --env HEADLESS=false \
     aircraft-image
 
@@ -24,7 +26,13 @@ docker run -d -t \
     # --env DRONE_ID=$DRONE_ID --env CAMERA=$CAMERA --env LIDAR=$LIDAR \
     # --env SIMULATED_TIME=false --env HEADLESS=true \
 
-echo "Now attach with: docker exec -it aircraft-container bash"
-# echo "Now attach with: docker exec -it aircraft-container tmux attach"
+    # TODO -net=???, HEADLESS
+    # TODO: turn off use_sim_time in aircraft.yml.erb
 
+    # tmuxinator start -p /aircraft_resources/aircraft.yml.erb
+
+# echo "Now attach with: docker exec -it aircraft-container tmux attach"
 docker exec -it aircraft-container bash
+
+# docker stop $(docker ps -q) # Stop all containers
+# docker container prune

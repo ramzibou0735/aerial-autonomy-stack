@@ -1,6 +1,6 @@
-# Pre-installation Steps
+# Pre-installation
 
-## Pre-installation Step 1 of 3: Host Computer Setup
+## Install Ubuntu 22 with NVIDIA Driver
 
 > [!NOTE]
 > Skip this step if you already have an **Ubuntu 22 computer with NVIDIA Driver**, Git, **Git LFS** etc.
@@ -33,7 +33,7 @@ ssh-keygen
 cat ~/.ssh/id_rsa.pub
 ```
 
-## Pre-installation Step 2 of 3: Docker Setup
+## Install Docker Engine and NVIDIA Container Toolkit
 
 > [!NOTE]
 > Skip this step if you already installed **Docker Engine and NVIDIA Container Toolkit**
@@ -71,8 +71,20 @@ newgrp docker # Reboot
 docker run hello-world
 ```
 
+Log In to the NVIDIA Registry:
+
+- Go to https://ngc.nvidia.com and login/create an account.
+- Click on your account the top right, go to Setup -> Get API Key.
+- Click "Generate API Key" -> "+ Generate Personal Key" for the "NCG Catalog" service, confirm, and copy the key.
+
 ```sh
-# Add NVIDIA Container Toolkit for GPU use within containers
+docker login nvcr.io # To be able to reliably pull NVIDIA base images
+Username: # type $oauthtoken
+Password: # copy and paste the API key and press enter to pull base images from nvcr.io/
+```
+
+```sh
+# Add NVIDIA Container Toolkit to use the GPU within containers
 distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
 curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
 curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
@@ -85,17 +97,5 @@ sudo systemctl restart docker
 docker info | grep -i runtime
 
 # Test with
-docker run --rm --gpus all nvidia/cuda:12.2.0-base-ubuntu22.04 nvidia-smi # Login as shown below if required
-```
-
-## Pre-installation Step 3 of 3: Log In to the NVIDIA Registry
-
-- Go to https://ngc.nvidia.com and login/create an account.
-- Click on your account the top right, go to Setup -> Get API Key.
-- Click "Generate API Key" -> "+ Generate Personal Key" for the "NCG Catalog" service, confirm, and copy the key.
-
-```sh
-docker login nvcr.io # To be able to reliably pull NVIDIA base images
-Username: # type $oauthtoken
-Password: # copy and paste the API key and press enter to pull base images from nvcr.io/
+docker run --rm --gpus all nvidia/cuda:12.2.0-base-ubuntu22.04 nvidia-smi
 ```

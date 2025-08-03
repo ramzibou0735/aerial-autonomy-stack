@@ -22,7 +22,7 @@
 > - **3D worlds** for [PX4](https://docs.px4.io/main/en/simulation/#sitl-simulation-environment) and [ArduPilot](https://ardupilot.org/dev/docs/sitl-simulator-software-in-the-loop.html#sitl-architecture) software-in-the-loop (SITL) simulation
 > - **Steppable simulation** interface for reinforcement learning 
 > - [Zenoh](https://github.com/eclipse-zenoh/zenoh-plugin-ros2dds) inter-vehicle ROS2 bridge
-> - Support for [PX4 Offboard](https://docs.px4.io/main/en/flight_modes/offboard.html) mode (including CTBR/`VehicleRatesSetpoint` for agile, GNSS-denied flight) 
+> - Support for [PX4 Offboard](https://docs.px4.io/main/en/flight_modes/offboard.html) mode (e.g. CTBR/`VehicleRatesSetpoint` for agile, GNSS-denied flight) 
 
 </details>
 
@@ -40,7 +40,7 @@
 ## Part 1: Installation of AAS
 
 > [!IMPORTANT]
-> This stack is developed and tested using a [Ubuntu 22.04](https://ubuntu.com/about/release-cycle) host (penultimate LTS, ESM 4/2032) with [**`nvidia-driver-575`**](https://developer.nvidia.com/datacenter-driver-archive) and Docker Engine v28 (latest stable releases as of 7/2025) on an i9-13 with RTX3500 and an i7-11 with RTX3060—note that an NVIDIA GPU *is* required
+> This stack is developed and tested using a [Ubuntu 22.04](https://ubuntu.com/about/release-cycle) host (penultimate LTS, ESM 4/2032) with [**`nvidia-driver-575`**](https://developer.nvidia.com/datacenter-driver-archive) and Docker Engine v28 (latest stable releases as of 7/2025) on an i9-13 with RTX3500 and an i7-11 with RTX3060—**note that an NVIDIA GPU *is* required**
 > 
 > **To setup the requirements: (i) Ubuntu 22, Git LFS, (ii) NVIDIA driver, (iii) Docker Engine, (iv) NVIDIA Container Toolkit, and (v) NVIDIA NGC API Key, read [`PREINSTALL.md`](/docs/PREINSTALL.md)**
 
@@ -184,13 +184,13 @@ Repeat as necessary, finally commit the changes from the repository on the host 
 ## Part 4: Deployment of AAS
 
 > [!IMPORTANT]
-> The instructions here are tested on a [Holybro Jetson Baseboard](https://holybro.com/products/pixhawk-jetson-baseboard) kit that includes (i) a Pixhawk 6X autopilot and (ii) an NVIDIA Orin NX 16GB computer connected via both serial and ethernet
+> These instructions are tested on a [Holybro Jetson Baseboard](https://holybro.com/products/pixhawk-jetson-baseboard) kit that includes (i) a Pixhawk 6X autopilot and (ii) an NVIDIA Orin NX 16GB computer connected via both serial and ethernet
 > 
 > **To setup (i) PX4's DDS UDP client, (ii) ArduPilot serial MAVLink bridge, (iii) JetPack 6, (iv) Docker Engine, (v) NVIDIA Container Toolkit, and (vi) NVIDIA NGC API Key on Orin, read [`AVIONICS.md`](/docs/AVIONICS.md)**
 >
-> The Holybro Jetson Baseboard comes with an (i) integrated 4-way (Orin, 6X, RJ-45, JST) Ethernet switch and (ii) two JST USB 2.0 (to minmize EM interference) that can be connected to ASIX Ethernet adapters to create additional network interfaces
+> The Holybro Jetson Baseboard comes with an (i) integrated 4-way (Orin, 6X, RJ-45, JST) Ethernet switch and (ii) two JST USB 2.0 that can be connected to ASIX Ethernet adapters to create additional network interfaces
 > 
-> Make sure to configure Orin, 6X's XRCE-DDS, IP radio, Zenoh, etc. consistently with your network setup; the camera acquisition pipeline should be setup in `yolo_inference_node.py`, the lidar should publish on topic `/lidar_points` for KISS-ICP
+> Make sure to configure Orin, 6X's XRCE-DDS, IP radio, Zenoh, etc. consistently with your network setup; the camera acquisition pipeline should be setup in `yolo_inference_node.py`, the lidar should publish on topic `/lidar_points` for KISS-ICP ([discuss in the Issues](/issues))
 
 On Jetson Orin NX
 ```sh
@@ -198,49 +198,9 @@ mkdir -p ~/git
 git clone git@github.com:JacopoPan/aerial-autonomy-stack.git ~/git/aerial-autonomy-stack
 cd ~/git/aerial-autonomy-stack
 
-
-
-# TODO: buid onnxruntime-gpu
-export CUDACXX="/usr/local/cuda/bin/nvcc"
-sudo apt update
-sudo apt install -y --no-install-recommends \
-  build-essential software-properties-common libopenblas-dev \
-  libpython3.10-dev python3-pip python3-dev python3-setuptools python3-wheel
-git clone --recursive --depth 1 --branch v1.22.1 https://github.com/microsoft/onnxruntime /git/onnxruntime
-cd /git/onnxruntime/
-# root@fb82c681c16b:/git/onnxruntime# cmake --version
-# cmake version 4.0.3
-./build.sh --config Release --update --build --parallel --build_wheel \
---use_tensorrt --cuda_home /usr/local/cuda --cudnn_home /usr/lib/aarch64-linux-gnu \
---tensorrt_home /usr/lib/aarch64-linux-gnu \
---skip_tests --cmake_extra_defines 'CMAKE_CUDA_ARCHITECTURES=native' 'onnxruntime_BUILD_UNIT_TESTS=OFF' 'onnxruntime_USE_FLASH_ATTENTION=OFF' 'onnxruntime_USE_MEMORY_EFFICIENT_ATTENTION=OFF' \
-'CMAKE_POLICY_VERSION_MINIMUM=3.5' \
---allow_running_as_root
-cd /git/onnxruntime/build/Linux/Release
-sudo make install
-sudo ldconfig
-cd /git/onnxruntime/build/Linux/Release/dist
-pip3 install onnxruntime_gpu-1.22.1-cp310-cp310-linux_aarch64.whl
-
-root@855fbc814e76:/git/onnxruntime/build/Linux/Release/dist# pip3 install onnxruntime_gpu-1.23.0-cp310-cp310-linux_aarch64.whl 
-root@855fbc814e76:/git/onnxruntime/build/Linux/Release# sudo make install
-root@855fbc814e76:/git/onnxruntime/build/Linux/Release# sudo ldconfig
-
->>> import onnxruntime as ort
->>> print(ort.__version__)
->>> session = ort.InferenceSession("/yolov8s.onnx", providers=["TensorrtExecutionProvider"])
->>> session.get_providers()
-
-# MISSING STEPS
-export PYTHONPATH=/git/onnxruntime/build/Linux/Release:$PYTHONPATH
-# ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
-add display in docker container
-add cache for tensorrt
-
-
-
-docker build -t aircraft-image -f docker/Dockerfile.aircraft .
-# Or: docker pull jacopopan/aircraft-image:jetson # TODO
+docker build -t aircraft-image -f docker/Dockerfile.aircraft . # The first build takes ~1h (mostly to build onnxruntime-gpu from source) and creates an 18GB image
+# Alternatively
+docker pull jacopopan/aircraft-image:jetson # TODO
 
 chmod +x ./main_deploy.sh
 DRONE_TYPE=quad AUTOPILOT=px4 DRONE_ID=1 CAMERA=true LIDAR=false  ./main_deploy.sh
@@ -269,8 +229,7 @@ docker exec -it aircraft-container tmux attach
 ros2 topic pub --once /mavros/setpoint_position/local geometry_msgs/msg/PoseStamped '{header: {frame_id: "map"}, pose: {position: {x: 10.0, y: 0.0, z: 5.0}}}'
 ```
 - Revise orientation of the lidar and frame of the lidar odometry for VTOLs
-- In yolo.py, cannot open GPU accelerated (nvh264dec) GStreamer pipeline with cv2.VideoCapture, might need to recompile OpenCV to have both CUDA and GStreamer support (or use python3-gi gir1.2-gst-plugins-base-1.0 gir1.2-gstreamer-1.0 and circumbent OpenCV)
-- it would be best to be able to cache the TensorrtRuntime YOLO model to save the few minutes needed to load it on Jetson
+- In yolo_inference_node.py, cannot open GPU accelerated (nvh264dec) GStreamer pipeline with cv2.VideoCapture, might need to recompile OpenCV to have both CUDA and GStreamer support (or use python3-gi gir1.2-gst-plugins-base-1.0 gir1.2-gstreamer-1.0 and circumbent OpenCV)
 
 
 
