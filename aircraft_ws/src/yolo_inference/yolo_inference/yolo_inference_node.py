@@ -19,6 +19,8 @@ from cv_bridge import CvBridge
 frame_queue = queue.Queue(maxsize=2) # A queue to hold frames
 
 def frame_capture_thread(cap, is_running):
+    frame_count = 0
+    start_time = time.time()
     while is_running.is_set():
         ret, frame = cap.read()
         if not ret:
@@ -26,8 +28,17 @@ def frame_capture_thread(cap, is_running):
             continue
         try:
             frame_queue.put(frame, timeout=0.1)
+            frame_count += 1
         except queue.Full:
             pass # Drop frame if the main thread is lagging
+        if frame_count % 120 == 0:
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            fps = frame_count / elapsed_time
+            print(f"Frame Reception Rate: {fps:.2f} FPS")
+            # Reset counters
+            frame_count = 0
+            start_time = time.time()
 
 def xywh2xyxy(box):
     # Convert [x, y, w, h] to [x1, y1, x2, y2]
@@ -109,7 +120,7 @@ class YoloInferenceNode(Node):
             cap = cv2.VideoCapture(gst_pipeline_string, cv2.CAP_GSTREAMER)
         elif self.architecture == 'aarch64':
             cap = cv2.VideoCapture("sample.mp4") # Load example video for testing
-            # TODO: open CSI or RTSP camera feed instead
+            # TODO: open CSI or RTSP camera feed instead, use hardware acceleration
         assert cap.isOpened(), "Failed to open video stream"
 
         if not self.headless:
@@ -125,6 +136,9 @@ class YoloInferenceNode(Node):
         thread = threading.Thread(target=frame_capture_thread, args=(cap, is_running))
         thread.start()
 
+        inference_count = 0
+        start_time = time.time()
+
         while rclpy.ok():
             rclpy.spin_once(self, timeout_sec=0) # This is only to get the simulation time from /clock
 
@@ -136,6 +150,16 @@ class YoloInferenceNode(Node):
             
             # Inference
             boxes, confidences, class_ids = self.run_yolo(frame)
+
+            inference_count += 1
+            if inference_count % 120 == 0:
+                end_time = time.time()
+                elapsed_time = end_time - start_time
+                yolo_fps = inference_count / elapsed_time
+                print(f"YOLO Inference Rate: {yolo_fps:.2f} FPS")
+                # Reset counters
+                inference_count = 0
+                start_time = time.time()
 
             # Publish detections
             self.publish_detections(frame, boxes, confidences, class_ids)

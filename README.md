@@ -203,7 +203,7 @@ docker build -t aircraft-image -f docker/Dockerfile.aircraft . # The first build
 docker pull jacopopan/aircraft-image:jetson # TODO
 
 chmod +x ./main_deploy.sh
-DRONE_TYPE=quad AUTOPILOT=px4 DRONE_ID=1 CAMERA=true LIDAR=false  ./main_deploy.sh
+DRONE_TYPE=quad AUTOPILOT=px4 DRONE_ID=1 CAMERA=true LIDAR=false ./main_deploy.sh
 docker exec -it aircraft-container tmux attach
 ```
 

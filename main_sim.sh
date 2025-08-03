@@ -11,7 +11,8 @@ LIDAR="${LIDAR:-true}" # Options: true (default), false
 MODE="${MODE:-}" # Options: empty (default), dev, ...
 
 # Initialize an empty variable for the flags
-MODE_OPTS=""
+MODE_SIM_OPTS=""
+MODE_AIR_OPTS=""
 case "$MODE" in
   dev)
     # In dev mode, resources and workspaces are mounted from the host
@@ -25,7 +26,8 @@ case "$MODE" in
     MODE_AIR_OPTS+=" -v ${SCRIPT_DIR}/simulation_ws/src/ground_system_msgs:/ros2_ws/src/ground_system_msgs"
     ;;
   *)
-    MODE_OPTS=""
+    MODE_SIM_OPTS=""
+    MODE_AIR_OPTS=""
     ;;
 esac
 
