@@ -201,7 +201,6 @@ cd ~/git/aerial-autonomy-stack
 
 
 # TODO: buid onnxruntime-gpu
-# git clone --recursive https://github.com/microsoft/onnxruntime /git/onnxruntime
 export CUDACXX="/usr/local/cuda/bin/nvcc"
 sudo apt update
 sudo apt install -y --no-install-recommends \
@@ -223,38 +222,20 @@ sudo ldconfig
 cd /git/onnxruntime/build/Linux/Release/dist
 pip3 install onnxruntime_gpu-1.22.1-cp310-cp310-linux_aarch64.whl
 
-
 root@855fbc814e76:/git/onnxruntime/build/Linux/Release/dist# pip3 install onnxruntime_gpu-1.23.0-cp310-cp310-linux_aarch64.whl 
-
-root@855fbc814e76:/git/onnxruntime/build/Linux/Release# ls
-build                  detect_cuda_arch              libonnxruntime_framework.a  libonnxruntime_providers_cuda.so      libonnxruntime_util.a           onnxruntime.lds                transformers
-CMakeCache.txt         dist                          libonnxruntime_graph.a      libonnxruntime_providers_shared.so    Makefile                        onnxruntime_mlas_q4dq          VERSION_NUMBER
-CMakeFiles             eager_test                    libonnxruntime_lora.a       libonnxruntime_providers_tensorrt.so  onnxruntime                     onnxruntime_pybind11_state.so
-cmake_install.cmake    generated_source.c            libonnxruntime_mlas.a       libonnxruntime_session.a              onnxruntimeConfig.cmake         options-pinned.h
-compile_commands.json  lib                           libonnxruntime_optimizer.a  libonnxruntime.so                     onnxruntime_config.h            PROJECT_CONFIG_FILE
-CTestTestfile.cmake    libonnxruntime_common.a       libonnxruntime.pc           libonnxruntime.so.1                   onnxruntimeConfigVersion.cmake  quantization
-_deps                  libonnxruntime_flatbuffers.a  libonnxruntime_providers.a  libonnxruntime.so.1.23.0              onnxruntime_gpu.egg-info        requirements.txt
-
 root@855fbc814e76:/git/onnxruntime/build/Linux/Release# sudo make install
 root@855fbc814e76:/git/onnxruntime/build/Linux/Release# sudo ldconfig
 
-oot@855fbc814e76:/git/onnxruntime/build/Linux/Release# python
-Python 3.10.12 (main, May 27 2025, 17:12:29) [GCC 11.4.0] on linux
-Type "help", "copyright", "credits" or "license" for more information.
 >>> import onnxruntime as ort
 >>> print(ort.__version__)
-1.23.0
->>> session = ort.InferenceSession("/yolov8s.onnx")
->>> session.get_providers()
-['CPUExecutionProvider']
->>> session = ort.InferenceSession("/yolov8s.onnx", providers=["TensorRTExecutionProvider"])
-/git/onnxruntime/build/Linux/Release/onnxruntime/capi/onnxruntime_inference_collection.py:121: UserWarning: Specified provider 'TensorRTExecutionProvider' is not in available provider names.Available providers: 'TensorrtExecutionProvider, CUDAExecutionProvider, CPUExecutionProvider'
-  warnings.warn(
-*************** EP Error ***************
-EP Error Unknown Provider Type: TensorRTExecutionProvider when using ['TensorRTExecutionProvider']
-Falling back to ['CPUExecutionProvider'] and retrying.
-****************************************
 >>> session = ort.InferenceSession("/yolov8s.onnx", providers=["TensorrtExecutionProvider"])
+>>> session.get_providers()
+
+# MISSING STEPS
+export PYTHONPATH=/git/onnxruntime/build/Linux/Release:$PYTHONPATH
+# ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+add display in docker container
+add cache for tensorrt
 
 
 

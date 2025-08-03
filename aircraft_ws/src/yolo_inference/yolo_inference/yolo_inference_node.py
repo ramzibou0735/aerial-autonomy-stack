@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import threading
 import queue
 import time
+import platform
 
 from vision_msgs.msg import Detection2DArray, Detection2D, BoundingBox2D
 from sensor_msgs.msg import Image
@@ -41,6 +42,7 @@ class YoloInferenceNode(Node):
     def __init__(self, headless):
         super().__init__('yolo_inference_node')
         self.headless = headless
+        self.architecture = platform.machine()
         
         # Load classes
         names_file = "coco.json"
@@ -52,9 +54,15 @@ class YoloInferenceNode(Node):
 
         # Load model runtime
         model_path = "yolov8s.onnx" # Model options (from fastest to most accurate, <10MB to >100MB): yolov8s, yolov8s, yolov8m, yolov8l, yolov8x
-        self.session = ort.InferenceSession(model_path, providers=["CUDAExecutionProvider"]) # For simulation
-        # self.session = ort.InferenceSession(model_path, providers=["TensorrtExecutionProvider"]) # For deployment on Jetson Orin
-        # self.session = ort.InferenceSession(model_path, providers=["CPUExecutionProvider"]) # Backup, not recommended
+        if self.architecture == 'x86_64':
+            print("Loading CUDAExecutionProvider on AMD64 (x86) architecture.")
+            self.session = ort.InferenceSession(model_path, providers=["CUDAExecutionProvider"]) # For simulation
+        elif self.architecture == 'aarch64':
+            print("Loading TensorrtExecutionProvider on ARM64 architecture (Jetson).")
+            self.session = ort.InferenceSession(model_path, providers=["TensorrtExecutionProvider"]) # For deployment on Jetson Orin
+        else:
+            print(f"Loading CPUExecutionProvider on an unknown architecture: {self.architecture}")
+            self.session = ort.InferenceSession(model_path, providers=["CPUExecutionProvider"]) # Backup, not recommended
         self.input_name = self.session.get_inputs()[0].name
         
         # Confirm execution providers
@@ -88,8 +96,10 @@ class YoloInferenceNode(Node):
         #     "videoconvert ! "
         #     "video/x-raw, format=BGR ! appsink"
         # )
-        cap = cv2.VideoCapture(gst_pipeline_string, cv2.CAP_GSTREAMER)
-        # cap = cv2.VideoCapture("sample.mp4") # Load example video for testing
+        if self.architecture == 'x86_64':
+            cap = cv2.VideoCapture(gst_pipeline_string, cv2.CAP_GSTREAMER)
+        elif self.architecture == 'aarch64':
+            cap = cv2.VideoCapture("sample.mp4") # Load example video for testing
         assert cap.isOpened(), "Failed to open video stream"
 
         if not self.headless:
