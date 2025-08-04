@@ -60,6 +60,7 @@ sdkmanager # Log in with your https://developer.nvidia.com account
 - On Step 2, under "Target Components", select all "Jetson Linux" (uncheck all others)
 - On the flash dialog after the download, choose "OEM Pre-config", username, password, and "Storage NVMe"
 - Log in, finish the configuration, power-off, put the board out of recovery mode and power-on again
+- Select an appropriate "Power Mode" (e.g. 25W)
 
 Also read the [PX4 documentation](https://github.com/PX4/PX4-Autopilot/blob/main/docs/en/companion_computer/holybro_pixhawk_jetson_baseboard.md#flashing-the-jetson-board)
 
