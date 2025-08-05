@@ -820,66 +820,14 @@
       <child>simple_camera::mono_cam/base_link</child>
     </joint>
 
-    <link name="lidar/base_link">
+    <include>
+      <uri>model://sensor_lidar</uri>
+      <name>simple_lidar</name>
       <pose degrees="true">0 0 -0.08 180 0 0</pose>
-      <inertial>
-        <mass>0.37</mass>
-        <inertia>
-          <ixx>0.00034437749999999994</ixx>
-          <ixy>0</ixy>
-          <ixz>0</ixz>
-          <iyy>0.00034437749999999994</iyy>
-          <iyz>0</iyz>
-          <izz>0.00022199999999999998</izz>
-        </inertia>
-      </inertial>
-      <visual name="visual">
-        <geometry>
-          <sphere>
-            <radius>0.025</radius>
-          </sphere>
-        </geometry>
-        <material>
-          <ambient>0 1 0 1.0</ambient>
-          <diffuse>0 1 0 1.0</diffuse>
-        </material>
-      </visual>
-      <sensor name="lidar3d" type="gpu_lidar">
-        <lidar>
-          <scan>
-            <horizontal>
-              <samples>720</samples>
-              <resolution>1</resolution>
-              <min_angle>-3.14159</min_angle>
-              <max_angle>3.14159</max_angle>
-            </horizontal>
-            <vertical>
-              <samples>120</samples>
-              <resolution>1</resolution>
-              <min_angle>0</min_angle>
-              <max_angle>1.296</max_angle>
-            </vertical>
-          </scan>
-          <range>
-            <min>0.1</min>
-            <max>70.0</max>
-            <resolution>0.01</resolution>
-          </range>
-          <noise>
-            <type>gaussian</type>
-            <mean>0.0</mean>
-            <stddev>0.001</stddev>
-          </noise>
-        </lidar>
-        <always_on>1</always_on>
-        <update_rate>10</update_rate>
-        <visualize>true</visualize>
-        <!-- <topic>lidar3d</topic> -->
-      </sensor>
-    </link>
+    </include>
     <joint name="LidarJoint" type="fixed">
       <parent>base_link</parent>
-      <child>lidar/base_link</child>
+      <child>simple_lidar::lidar/base_link</child>
     </joint>
 
   </model>

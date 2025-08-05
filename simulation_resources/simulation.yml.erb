@@ -55,7 +55,7 @@ windows:
           /git/PX4-Autopilot/build/px4_sitl_default/bin/px4 -i <%= i %>
         - "ROS_DOMAIN_ID=<%= i + 1 %> ros2 run ros_gz_bridge parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock"
         <% if lidar == 'true' %>
-        - "ROS_DOMAIN_ID=<%= i + 1 %> ros2 run ros_gz_bridge parameter_bridge /world/<%= world %>/model/<%= drone_type == 'quad' ? 'x500' : 'standard_vtol' %>_<%= i %>/link/lidar/base_link/sensor/lidar3d/scan/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked --ros-args -r /world/<%= world %>/model/<%= drone_type == 'quad' ? 'x500' : 'standard_vtol' %>_<%= i %>/link/lidar/base_link/sensor/lidar3d/scan/points:=/lidar_points"
+        - "ROS_DOMAIN_ID=<%= i + 1 %> ros2 run ros_gz_bridge parameter_bridge /world/<%= world %>/model/<%= drone_type == 'quad' ? 'x500' : 'standard_vtol' %>_<%= i %>/model/simple_lidar/link/lidar/base_link/sensor/lidar3d/scan/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked --ros-args -r /world/<%= world %>/model/<%= drone_type == 'quad' ? 'x500' : 'standard_vtol' %>_<%= i %>/model/simple_lidar/link/lidar/base_link/sensor/lidar3d/scan/points:=/lidar_points"
         <% end %>
         <% if camera == 'true' %>
         - >
@@ -81,7 +81,7 @@ windows:
           --add-param-file=/simulation_resources/aircraft_models/<%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'zephyr_with_ardupilot' %>_<%= i + 1 %>/ardupilot-4.6.params
         - "ROS_DOMAIN_ID=<%= i + 1 %> ros2 run ros_gz_bridge parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock"
         <% if lidar == 'true' %>
-        - "ROS_DOMAIN_ID=<%= i + 1 %> ros2 run ros_gz_bridge parameter_bridge /world/<%= world %>/model/<%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'zephyr_with_ardupilot' %>_<%= i + 1 %>/model/<%= drone_type == 'quad' ? 'iris' : 'zephyr' %>/link/lidar/base_link/sensor/lidar3d/scan/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked --ros-args -r /world/<%= world %>/model/<%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'zephyr_with_ardupilot' %>_<%= i + 1 %>/model/<%= drone_type == 'quad' ? 'iris' : 'zephyr' %>/link/lidar/base_link/sensor/lidar3d/scan/points:=/lidar_points"
+        - "ROS_DOMAIN_ID=<%= i + 1 %> ros2 run ros_gz_bridge parameter_bridge /world/<%= world %>/model/<%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'zephyr_with_ardupilot' %>_<%= i + 1 %>/model/<%= drone_type == 'quad' ? 'iris' : 'zephyr' %>/model/simple_lidar/link/lidar/base_link/sensor/lidar3d/scan/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked --ros-args -r /world/<%= world %>/model/<%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'zephyr_with_ardupilot' %>_<%= i + 1 %>/model/<%= drone_type == 'quad' ? 'iris' : 'zephyr' %>/model/simple_lidar/link/lidar/base_link/sensor/lidar3d/scan/points:=/lidar_points"
         <% end %>
         <% if camera == 'true' %>
         - >
