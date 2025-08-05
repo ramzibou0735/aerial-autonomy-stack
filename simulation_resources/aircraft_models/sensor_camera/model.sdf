@@ -16,10 +16,12 @@
         </inertia>
       </inertial>
       <visual name="visual">
+        <pose degrees="true">0 0 0 0 -90 0</pose>
         <geometry>
-          <sphere>
+          <cone>
             <radius>0.025</radius>
-          </sphere>
+            <length>0.05</length>
+          </cone>
         </geometry>
         <material>
           <ambient>1 0 0 1.0</ambient>
