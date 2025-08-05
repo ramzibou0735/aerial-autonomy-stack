@@ -69,7 +69,7 @@ param set-default VTO_LOITER_ALT 150 # Altitude relative to home at which vehicl
 # Configure "Offboard" failsafe behaviour
 param set-default COM_QC_ACT -1 # No quadchute, FUN BUT DO NOT USE IN REAL LIFE
 param set-default COM_OBL_RC_ACT 5 # Force hold mode when falling out of offboard
-param set-default COM_OF_LOSS_T 1.0 # Timeout for the offboard failsafe to kcick in
+param set-default COM_OF_LOSS_T 1.0 # Timeout for the offboard failsafe to kick in
 param set-default NAV_RCL_ACT 1 # RC loss failsafe mode: hold mode
 param set-default COM_RC_OVERRIDE 1 # Enable RC stick override of auto (0) and/or offboard modes (1)
 

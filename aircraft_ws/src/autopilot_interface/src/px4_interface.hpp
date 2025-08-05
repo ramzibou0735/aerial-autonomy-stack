@@ -14,7 +14,7 @@ ros2 action send_goal /Drone1/land_action autopilot_interface_msgs/action/Land "
 
 ros2 service call /Drone1/set_speed autopilot_interface_msgs/srv/SetSpeed "{speed: 16.0}" # Note: always limited by the autopilot params, for quads applies from the next set_reposition
 ros2 service call /Drone1/set_altitude autopilot_interface_msgs/srv/SetAltitude "{altitude: 100.0}" # relative to Home
-ros2 service call /Drone1/set_orbit autopilot_interface_msgs/srv/SetOrbit "{east: 500.0, north: 0.0, altitude: 150.0, radius: 200.0}" # relative to Home
+ros2 service call /Drone1/set_orbit autopilot_interface_msgs/srv/SetOrbit "{east: 1500.0, north: 0.0, altitude: 250.0, radius: 200.0}" # relative to Home
 
 # QUAD ONLY
 
@@ -22,7 +22,7 @@ ros2 service call /Drone1/set_reposition autopilot_interface_msgs/srv/SetReposit
 
 # OFFBOARD
 
-ros2 action send_goal /Drone1/offboard_action autopilot_interface_msgs/action/Offboard "{offboard_setpoint_type: 1, max_duration_sec: 3.0}" --feedback
+ros2 action send_goal /Drone1/offboard_action autopilot_interface_msgs/action/Offboard "{offboard_setpoint_type: 0, max_duration_sec: 3.0}" --feedback
 
  */
 #ifndef AUTOPILOT_INTERFACE__PX4_INTERFACE_HPP_

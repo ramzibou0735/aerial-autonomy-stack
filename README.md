@@ -216,15 +216,27 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- Implement constant attitude and constant rate offboard examples for quad and vtol
+- Polish offboard interface/examples for PX4
 - Implement ardupilot/mavros interface
 - Make sure that for all maps, all vehicles, a simple autonomous takeoff + loiter + landing example works with up to 3 vehicles
 
 ### Known Issues
 
+#### PX4 interface
 - replace "std::unique_lock" with "std::shared_lock" in read-only/non-writing threads/callbacks of the px4 interface
 - check px4 interface action cancellations
 - QGC reports the px4 interface landing as a takeoff mode (?)
+##### Offboard
+- only publish one reference for offboard and/or move to the offboard action OR use offboard action to "enable" timed offboard controller
+- monitor duration of offboard
+- set default offboard duration consisrently with example vtol maneuvers (e.g. 3s less steep or no thrust dive)
+##### Quad
+- px4 quad cannot exit from orbit/only accepts orbit mode?
+- change altitude for quad stops the current repositions (makes sense)
+- change speed for quad only affects the next reposition and not orbit (movement and orbit speeds are param dependent)
+
+#### Others
+
 - Adjust orientation of the lidar and frame of the lidar odometry for VTOLs
 - In yolo_inference_node.py, cannot open GPU accelerated (nvh264dec) GStreamer pipeline with cv2.VideoCapture, might need to recompile OpenCV to have both CUDA and GStreamer support (or use python3-gi gir1.2-gst-plugins-base-1.0 gir1.2-gstreamer-1.0 and circumbent OpenCV)
 

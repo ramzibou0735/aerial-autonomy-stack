@@ -249,28 +249,43 @@ void PX4Interface::px4_interface_printout_callback()
 }
 void PX4Interface::offboard_control_loop_callback()
 {
-    offboard_loop_count_++; // Counter to monitor the rate of the offboard loo
+    offboard_loop_count_++; // Counter to monitor the rate of the offboard loop
 
-    std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // using data written by subs
-    if (aircraft_fsm_state_ != PX4InterfaceState::OFFBOARD) {
-        return; // Do not publish if not in OFFBOARD state
-    }
+    // std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // using data written by subs
+    // if (aircraft_fsm_state_ != PX4InterfaceState::OFFBOARD) {
+    //     return; // Do not publish if not in OFFBOARD state
+    // }
 
-    // TODO: implement custom offboard control logic here
-    uint64_t current_time_ms = clock->now().nanoseconds() / 1e6;  // Convert to milliseconds
-    VehicleAttitudeSetpoint attitude_ref;
-    attitude_ref.timestamp = static_cast<uint64_t>(current_time_ms);
-    attitude_ref.roll_body = 0.0;
-    attitude_ref.pitch_body = -20.0; // dive
-    attitude_ref.thrust_body = {0.5, 0.0, 0.0};
-    attitude_ref_pub_->publish(attitude_ref);
+    // uint64_t current_time_ms = clock->now().nanoseconds() / 1e6;  // Convert to milliseconds
+    // VehicleAttitudeSetpoint attitude_ref;
+    // attitude_ref.timestamp = static_cast<uint64_t>(current_time_ms);
+    // VehicleRatesSetpoint rates_ref;
+    // rates_ref.timestamp = static_cast<uint64_t>(current_time_ms);
 
-    VehicleRatesSetpoint rates_ref;
-    rates_ref.timestamp = static_cast<uint64_t>(current_time_ms);
-    rates_ref.roll= 4.0; // roll
-    rates_ref.pitch = 0.0;
-    rates_ref.thrust_body = {0.5, 0.0, 0.0};
-    rates_ref_pub_->publish(rates_ref);
+    // // TODO: implement custom offboard control logic here
+    // if (!is_vtol_) { // Multicopter
+    //     attitude_ref.roll_body = 0.0;
+    //     attitude_ref.pitch_body = -10.0; // Forward
+    //     attitude_ref.yaw_body = 0.0;
+    //     attitude_ref.thrust_body = {0.0, 0.0, 0.72};
+    //     //
+    //     rates_ref.roll= 0.0;
+    //     rates_ref.pitch = 0.0;
+    //     rates_ref.yaw = 1.0; // Spin
+    //     rates_ref.thrust_body = {0.0, 0.0, 0.72};
+
+    // } else if (is_vtol_) { // VTOL
+    //     attitude_ref.roll_body = 0.0;
+    //     attitude_ref.pitch_body = -20.0; // Dive
+    //     attitude_ref.thrust_body = {0.5, 0.0, 0.0};
+    //     //
+    //     rates_ref.roll= 4.0; // Roll
+    //     rates_ref.pitch = 0.0;
+    //     rates_ref.thrust_body = {0.5, 0.0, 0.0};
+    // }
+    // // Publish attitude and rates references (only one is used)
+    // attitude_ref_pub_->publish(attitude_ref);
+    // rates_ref_pub_->publish(rates_ref);
 }
 
 // Callbacks for non-blocking services (reentrant callback group, active_srv_or_act_flag_ acting as semaphore)
@@ -544,10 +559,12 @@ void PX4Interface::offboard_handle_accepted(const std::shared_ptr<rclcpp_action:
             OffboardControlMode offboard_mode;
             offboard_mode.timestamp = static_cast<uint64_t>(current_time_ms);
             if (offboard_setpoint_type == autopilot_interface_msgs::action::Offboard::Goal::ATTITUDE) {
-                offboard_mode.attitude = true;        
+                offboard_mode.attitude = true;
+                feedback->message = "Offboarding with ATTITUDE setpoints";       
             } 
             else if (offboard_setpoint_type == autopilot_interface_msgs::action::Offboard::Goal::RATES) {
                 offboard_mode.body_rate = true;
+                feedback->message = "Offboarding with RATES setpoints";
             } 
             else {
                 result->success = false;
@@ -555,11 +572,53 @@ void PX4Interface::offboard_handle_accepted(const std::shared_ptr<rclcpp_action:
                 RCLCPP_INFO(this->get_logger(), "Offboard type is not supported");
                 return;
             }
+            ////////////////////////////////////////////////////
+            uint64_t current_time_ms = clock->now().nanoseconds() / 1e6;  // Convert to milliseconds
+            VehicleAttitudeSetpoint attitude_ref;
+            attitude_ref.timestamp = static_cast<uint64_t>(current_time_ms);
+            VehicleRatesSetpoint rates_ref;
+            rates_ref.timestamp = static_cast<uint64_t>(current_time_ms);
+
+            // TODO: implement custom offboard control logic here
+            if (!is_vtol_) { // Multicopter
+                attitude_ref.roll_body = 0.0;
+                attitude_ref.pitch_body = -5.0; // Forward
+                attitude_ref.yaw_body = 0.0;
+                // # For quaternion-based attitude control
+                // float32[4] q_d			# Desired quaternion for quaternion control
+                attitude_ref.thrust_body = {0.0, 0.0, -0.72};
+                //
+                rates_ref.roll= 0.0;
+                rates_ref.pitch = 0.0;
+                rates_ref.yaw = 1.0; // Spin
+                rates_ref.thrust_body = {0.0, 0.0, -0.72};
+
+            } else if (is_vtol_) { // VTOL
+                attitude_ref.roll_body = 0.0;
+                attitude_ref.pitch_body = -15.0; // Dive
+                attitude_ref.thrust_body = {0.5, 0.0, 0.0};
+                //
+                rates_ref.roll= 4.0; // Roll
+                rates_ref.pitch = 0.0;
+                rates_ref.thrust_body = {0.5, 0.0, 0.0};
+            }
+            // Publish attitude and rates references (only one is used)
+            // attitude_ref_pub_->publish(attitude_ref);
+            // https://github.com/PX4/px4_msgs/blob/release/1.15/msg/VehicleAttitudeSetpoint.msg
+            // rates_ref_pub_->publish(rates_ref);
+            // https://github.com/PX4/px4_msgs/blob/release/1.15/msg/VehicleRatesSetpoint.msg
+            if (offboard_setpoint_type == autopilot_interface_msgs::action::Offboard::Goal::ATTITUDE) {
+                attitude_ref_pub_->publish(attitude_ref);
+            } 
+            else if (offboard_setpoint_type == autopilot_interface_msgs::action::Offboard::Goal::RATES) {
+                rates_ref_pub_->publish(rates_ref);
+            }
+            ////////////////////////////////////////////////////
             offboard_mode_pub_->publish(offboard_mode);
             if (offboard_counter >= 5 && offboard_counter < 10) { // HARDCODED: wait 5 publish cycles before changing the mode
                 send_vehicle_command(176, 1.0, 6.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0);  // MAV_CMD_DO_SET_MODE
+                feedback->message = "Changing PX4 mode to Offboard";
             }
-            feedback->message = "Offboarding";
             goal_handle->publish_feedback(feedback);
         } else {
             time_of_offboard_start_ms_ = NAN;
