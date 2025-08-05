@@ -201,6 +201,7 @@ RUN bash -c "source /opt/ros/humble/setup.bash && source /ros2_ws_github/install
 # Copy resources and configuration files from this repository
 COPY aircraft_resources/ /aircraft_resources
 COPY aircraft_resources/patches/kiss_icp.rviz /ros2_ws_github/src/kiss-icp/ros/rviz/kiss_icp.rviz
+COPY aircraft_resources/patches/apm_pluginlists.yaml /opt/ros/humble/share/mavros/launch/apm_pluginlists.yaml
 
 # Source the workspaces
 RUN echo "source /ros2_ws_github/install/setup.bash" >> /root/.bashrc
