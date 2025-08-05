@@ -445,6 +445,11 @@
       <pose degrees="true">20 20 2 0 0 30</pose>
     </include>
 
+    <include>
+      <uri>model://duck</uri>
+      <pose degrees="true">2 0.5 2 0 0 -45</pose>
+    </include>
+
     <!-- <include>
       <uri>model://crash</uri>
       <pose degrees="true">5 40 3.75 0 0 0</pose>
