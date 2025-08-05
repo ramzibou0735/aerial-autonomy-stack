@@ -217,18 +217,15 @@ docker exec -it aircraft-container tmux attach
 ## TODOs
 
 - Implement constant attitude and constant rate offboard examples for quad and vtol
+- Implement ardupilot/mavros interface
 - Make sure that for all maps, all vehicles, a simple autonomous takeoff + loiter + landing example works with up to 3 vehicles
 
 ### Known Issues
 
-- replace "std::unique_lock" with "std::shared_lock" in read-only/non-writing threads/callbacks
-- check action cancellations
-- QGC reports the quad landing as a takeoff mode
-- mavros commands require multiple resend
-```sh
-ros2 topic pub --once /mavros/setpoint_position/local geometry_msgs/msg/PoseStamped '{header: {frame_id: "map"}, pose: {position: {x: 10.0, y: 0.0, z: 5.0}}}'
-```
-- Revise orientation of the lidar and frame of the lidar odometry for VTOLs
+- replace "std::unique_lock" with "std::shared_lock" in read-only/non-writing threads/callbacks of the px4 interface
+- check px4 interface action cancellations
+- QGC reports the px4 interface landing as a takeoff mode (?)
+- Adjust orientation of the lidar and frame of the lidar odometry for VTOLs
 - In yolo_inference_node.py, cannot open GPU accelerated (nvh264dec) GStreamer pipeline with cv2.VideoCapture, might need to recompile OpenCV to have both CUDA and GStreamer support (or use python3-gi gir1.2-gst-plugins-base-1.0 gir1.2-gstreamer-1.0 and circumbent OpenCV)
 
 
