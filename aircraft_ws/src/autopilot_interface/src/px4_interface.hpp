@@ -20,7 +20,7 @@ ros2 service call /Drone1/set_orbit autopilot_interface_msgs/srv/SetOrbit "{east
 
 ros2 service call /Drone1/set_reposition autopilot_interface_msgs/srv/SetReposition "{east: 100.0, north: 200.0, altitude: 60.0}" # relative to Home
 
-# OFFBOARD
+# OFFBOARD (ATTITUDE: 0, RATES: 1)
 
 ros2 action send_goal /Drone1/offboard_action autopilot_interface_msgs/action/Offboard "{offboard_setpoint_type: 0, max_duration_sec: 3.0}" --feedback
 
@@ -83,7 +83,8 @@ enum class PX4InterfaceState {
     VTOL_LANDING_TRANSITION,
     RTL,
     MC_LANDING,
-    OFFBOARD,
+    OFFBOARD_ATTITUDE,
+    OFFBOARD_RATES,
     ABORTED
 };
 
@@ -93,7 +94,6 @@ public:
     PX4Interface();
 
 private:
-    rclcpp::Clock::SharedPtr clock;
     std::shared_mutex subs_data_mutex_;
     const GeographicLib::Geodesic& geod = GeographicLib::Geodesic::WGS84();
 
@@ -102,6 +102,7 @@ private:
     std::atomic<bool> active_srv_or_act_flag_;
     double home_lat_, home_lon_, home_alt_; // Saved on takeoff
     std::atomic<int> offboard_loop_count_;
+    std::atomic<int> last_loop_count_not_on_offboard;
     rclcpp::Time last_offboard_rate_check_time_;
 
     // Callback groups

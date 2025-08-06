@@ -216,7 +216,6 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- Polish offboard interface/examples for PX4
 - Implement ardupilot/mavros interface
 - Make sure that for all maps, all vehicles, a simple autonomous takeoff + loiter + landing example works with up to 3 vehicles
 
@@ -224,11 +223,10 @@ docker exec -it aircraft-container tmux attach
 
 #### PX4 interface
 - replace "std::unique_lock" with "std::shared_lock" in read-only/non-writing threads/callbacks of the px4 interface
-- check px4 interface action cancellations
+- check px4 interface action cancellations (check the sleep)
 - QGC reports the px4 interface landing as a takeoff mode (?)
 ##### Offboard
-- only publish one reference for offboard and/or move to the offboard action OR use offboard action to "enable" timed offboard controller
-- monitor duration of offboard
+- change mode is not working correctly (published in 2 blocks but not effective, command temporarily rejected))
 - set default offboard duration consisrently with example vtol maneuvers (e.g. 3s less steep or no thrust dive)
 ##### Quad
 - px4 quad cannot exit from orbit/only accepts orbit mode?

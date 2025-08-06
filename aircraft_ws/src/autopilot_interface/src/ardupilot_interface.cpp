@@ -10,8 +10,6 @@ ArdupilotInterface::ArdupilotInterface() : Node("ardupilot_interface")
     } else {
         RCLCPP_INFO(this->get_logger(), "Simulation time is disabled.");
     }
-    // Initialize the clock
-    this->clock = std::make_shared<rclcpp::Clock>();
 
 }
 

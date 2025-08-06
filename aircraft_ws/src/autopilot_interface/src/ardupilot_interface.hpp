@@ -283,7 +283,6 @@ public:
     ArdupilotInterface();
 
 private:
-    rclcpp::Clock::SharedPtr clock;
     const GeographicLib::Geodesic& geod = GeographicLib::Geodesic::WGS84();
 
 };
