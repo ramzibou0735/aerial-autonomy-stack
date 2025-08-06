@@ -218,17 +218,18 @@ docker exec -it aircraft-container tmux attach
 ## TODOs
 
 PX4 Interface  
-- Offboard (the change mode is rejected when using sim time by PX4, why?) test using system clock for mode changes
+- Offboard (the change mode is rejected when using sim time by PX4, why?) test using system clock for mode changes (hack)
+- Locally clone git externals before building docker images to better debug PX4 internals
 - Manage going back to hold mode from orbit in Quads
 - Warn that change speed in quad only affects next reposition (and not orbit speed)
 - Manage/warn altitude change in quad stopping repositon (check effect on orbit)
+- Canceling actions with Ctrl + c is not working (because of Tmux?), should then implement logic to exit ABORTED state
 
 - Implement ardupilot/mavros interface
 - Make sure that for all maps, all vehicles, a simple autonomous takeoff + loiter + landing example works with up to 3 vehicles
 
 ### Known Issues
 
-- Canceling actions with Ctrl + c is not working (because of Tmux?), should then implement logic to exit ABORTED state
 - QGC reports the px4 interface landing as a takeoff mode
 - QGC does not save roll and pitch in the telemetry bar for PX4 VTOLs
 - Adjust orientation of the lidar and frame of the lidar odometry for VTOLs
