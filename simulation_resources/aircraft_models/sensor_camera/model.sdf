@@ -29,6 +29,7 @@
         </material>
       </visual>
       <sensor name="imager" type="camera">
+      <!-- TODO: https://www.seeedstudio.com/IMX219-200-Camera-200-FOV-Applicable-for-Jetson-Nano-p-4609.html -->
         <camera>
           <horizontal_fov>1.74</horizontal_fov>
           <image>
