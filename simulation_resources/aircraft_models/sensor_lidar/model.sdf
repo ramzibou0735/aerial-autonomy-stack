@@ -29,6 +29,7 @@
         </material>
       </visual>
       <sensor name="lidar3d" type="gpu_lidar">
+      <!-- https://www.livoxtech.com/mid-360/specs -->
         <lidar>
           <scan>
             <horizontal>
@@ -40,8 +41,8 @@
             <vertical>
               <samples>120</samples>
               <resolution>1</resolution>
-              <min_angle>0</min_angle>
-              <max_angle>1.296</max_angle>
+              <min_angle>0.12217</min_angle>
+              <max_angle>0.90757</max_angle>
             </vertical>
           </scan>
           <range>
