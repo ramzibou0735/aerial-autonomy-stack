@@ -217,9 +217,6 @@ docker exec -it aircraft-container tmux attach
 ## TODOs
 
 - Implement ardupilot/mavros interface
-- Make sure that for all maps, all vehicles, a simple autonomous takeoff + loiter + landing example works with up to 3 vehicles
-
-### Known Issues
 
 #### PX4 interface
 - replace "std::unique_lock" with "std::shared_lock" in read-only/non-writing threads/callbacks of the px4 interface
@@ -233,7 +230,9 @@ docker exec -it aircraft-container tmux attach
 - change altitude for quad stops the current repositions (makes sense)
 - change speed for quad only affects the next reposition and not orbit (movement and orbit speeds are param dependent)
 
-#### Others
+- Make sure that for all maps, all vehicles, a simple autonomous takeoff + loiter + landing example works with up to 3 vehicles
+
+### Known Issues
 
 - Adjust orientation of the lidar and frame of the lidar odometry for VTOLs
 - In yolo_inference_node.py, cannot open GPU accelerated (nvh264dec) GStreamer pipeline with cv2.VideoCapture, might need to recompile OpenCV to have both CUDA and GStreamer support (or use python3-gi gir1.2-gst-plugins-base-1.0 gir1.2-gstreamer-1.0 and circumbent OpenCV)
