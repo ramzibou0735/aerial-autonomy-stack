@@ -1,7 +1,7 @@
 #include "px4_interface.hpp"
 
 PX4Interface::PX4Interface() : Node("px4_interface"), 
-    active_srv_or_act_flag_(false), aircraft_fsm_state_(PX4InterfaceState::STARTED), offboard_loop_count_(0), last_loop_count_not_on_offboard(0),
+    active_srv_or_act_flag_(false), aircraft_fsm_state_(PX4InterfaceState::STARTED), offboard_loop_count_(0), offboard_action_count_(0),
     target_system_id_(-1), arming_state_(-1), vehicle_type_(-1),
     is_vtol_(false), is_vtol_tailsitter_(false), in_transition_mode_(false), in_transition_to_fw_(false), pre_flight_checks_pass_(false),
     lat_(NAN), lon_(NAN), alt_(NAN), alt_ellipsoid_(NAN),
@@ -114,7 +114,7 @@ PX4Interface::PX4Interface() : Node("px4_interface"),
 // Callbacks for subscribers (reentrant group)
 void PX4Interface::status_callback(const VehicleStatus::SharedPtr msg)
 {
-    std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // protect data writes being read by services
+    std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // Use unique_lock for data writes
     if (target_system_id_ == -1)
     {
         target_system_id_ = msg->system_id; // get target_system_id from PX4's MAV_SYS_ID once
@@ -130,7 +130,7 @@ void PX4Interface::status_callback(const VehicleStatus::SharedPtr msg)
 }
 void PX4Interface::global_position_callback(const VehicleGlobalPosition::SharedPtr msg)
 {
-    std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // protect data writes being read by services
+    std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // Use unique_lock for data writes
     lat_ = msg->lat;
     lon_ = msg->lon;
     alt_ = msg->alt; // AMSL
@@ -138,7 +138,7 @@ void PX4Interface::global_position_callback(const VehicleGlobalPosition::SharedP
 }
 void PX4Interface::local_position_callback(const VehicleLocalPosition::SharedPtr msg)
 {
-    std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // protect data writes being read by services
+    std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // Use unique_lock for data writes
     xy_valid_ = msg->xy_valid;
     z_valid_ = msg->z_valid;
     v_xy_valid_ = msg->v_xy_valid;
@@ -161,7 +161,7 @@ void PX4Interface::local_position_callback(const VehicleLocalPosition::SharedPtr
 }
 void PX4Interface::odometry_callback(const VehicleOdometry::SharedPtr msg)
 {
-    std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // protect data writes being read by services
+    std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // Use unique_lock for data writes
     pose_frame_ = msg->pose_frame; // 1:  NED earth-fixed frame, 2: FRD world-fixed frame, arbitrary heading
     velocity_frame_ = msg->velocity_frame; // 1:  NED earth-fixed frame, 2: FRD world-fixed frame, arbitrary heading, 3: FRD body-fixed frame
     position_ = msg->position;
@@ -171,12 +171,12 @@ void PX4Interface::odometry_callback(const VehicleOdometry::SharedPtr msg)
 }
 void PX4Interface::airspeed_callback(const AirspeedValidated::SharedPtr msg)
 {
-    std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // protect data writes being read by services
+    std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // Use unique_lock for data writes
     true_airspeed_m_s_ = msg->true_airspeed_m_s;
 }
 void PX4Interface::vehicle_command_ack_callback(const VehicleCommandAck::SharedPtr msg)
 {
-    std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // protect data writes being read by services
+    std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // Use unique_lock for data writes
     command_ack_ = msg->command;
     command_ack_result_ = msg->result;
     command_ack_from_external_ = msg->from_external;
@@ -185,7 +185,7 @@ void PX4Interface::vehicle_command_ack_callback(const VehicleCommandAck::SharedP
 // Callbacks for timers (reentrant group)
 void PX4Interface::px4_interface_printout_callback()
 {
-    std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // protect data writes being read by services
+    std::shared_lock<std::shared_mutex> lock(subs_data_mutex_); // Use shared_lock for data reads
     RCLCPP_INFO(get_logger(),
                 "Vehicle status:\n"
                 "\ttarget_system_id: %d\n"
@@ -250,9 +250,8 @@ void PX4Interface::offboard_control_loop_callback()
 {
     offboard_loop_count_++; // Counter to monitor the rate of the offboard loop
 
-    std::shared_lock<std::shared_mutex> lock(subs_data_mutex_); // using data written by subs
+    std::shared_lock<std::shared_mutex> lock(subs_data_mutex_); // Use shared_lock for data reads
     if (!((aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_ATTITUDE) || (aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_RATES))) {
-        last_loop_count_not_on_offboard.store(offboard_loop_count_.load()); // atomic assignment
         return; // Do not publish if not in and OFFBOARD state
     }
 
@@ -299,7 +298,7 @@ void PX4Interface::offboard_control_loop_callback()
     }
     offboard_mode_pub_->publish(offboard_mode);
     //RCLCPP_INFO(this->get_logger(), "mode");
-    if (offboard_loop_count_ >= last_loop_count_not_on_offboard + 10 && offboard_loop_count_ < last_loop_count_not_on_offboard + 15) { // HARDCODED: wait 10 publish cycles (~0.1sec) before sending the mode change for ~0.5sec
+    if (offboard_action_count_ >= 5 && offboard_action_count_ < 10) { // HARDCODED: short wait and send for a short time
         send_vehicle_command(176, 1.0, 6.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0);  // MAV_CMD_DO_SET_MODE
         RCLCPP_INFO(this->get_logger(), "change mode");
     }
@@ -355,7 +354,7 @@ void PX4Interface::set_orbit_callback(const std::shared_ptr<autopilot_interface_
         response->success = false;
         return;
     }
-    std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // using data written by subs
+    std::shared_lock<std::shared_mutex> lock(subs_data_mutex_); // Use shared_lock for data reads
     double desired_east = request->east;
     double desired_north = request->north;
     double desired_alt = request->altitude;
@@ -380,7 +379,7 @@ void PX4Interface::set_reposition_callback(const std::shared_ptr<autopilot_inter
         response->success = false;
         return;
     }
-    std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // using data written by subs
+    std::shared_lock<std::shared_mutex> lock(subs_data_mutex_); // Use shared_lock for data reads
     double desired_east = request->east;
     double desired_north = request->north;
     double desired_alt = request->altitude;
@@ -426,7 +425,7 @@ void PX4Interface::land_handle_accepted(const std::shared_ptr<rclcpp_action::Ser
     rclcpp::Rate landing_loop_rate(100);
     while (landing) {
         landing_loop_rate.sleep();
-        std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // using data written by subs
+        std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // Reading data written by subs but also writing the FSM state
 
         if (goal_handle->is_canceling()) { // Check if there is a cancel request
             abort_action(); // Sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to ABORTED
@@ -549,12 +548,13 @@ void PX4Interface::offboard_handle_accepted(const std::shared_ptr<rclcpp_action:
     int offboard_setpoint_type = goal->offboard_setpoint_type;
     double max_duration_sec = goal->max_duration_sec;
 
+    offboard_action_count_ = 0;
     bool offboarding = true;
     double time_of_offboard_start_ms_ = NAN;
     rclcpp::Rate offboard_loop_rate(100);
     while (offboarding) {
         offboard_loop_rate.sleep();
-        std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // using data written by subs
+        std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // Reading data written by subs but also writing the FSM state
 
         if (goal_handle->is_canceling()) { // Check if there is a cancel request
             abort_action(); // Sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to ABORTED
@@ -564,6 +564,7 @@ void PX4Interface::offboard_handle_accepted(const std::shared_ptr<rclcpp_action:
             return;
         }
 
+        offboard_action_count_++;
         uint64_t current_time_ms = this->get_clock()->now().nanoseconds() / 1e6;  // Convert to milliseconds
         if (std::isnan(time_of_offboard_start_ms_)) {
             if (offboard_setpoint_type == autopilot_interface_msgs::action::Offboard::Goal::ATTITUDE) {
@@ -614,7 +615,7 @@ rclcpp_action::GoalResponse PX4Interface::takeoff_handle_goal(const rclcpp_actio
         RCLCPP_INFO(this->get_logger(), "Another service/action is active");
         return rclcpp_action::GoalResponse::REJECT;
     }
-    std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // protect data writes being read by services
+    std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // Use unique_lock for data writes
     home_lat_ = lat_;
     home_lon_ = lon_;
     home_alt_ = alt_;
@@ -644,7 +645,7 @@ void PX4Interface::takeoff_handle_accepted(const std::shared_ptr<rclcpp_action::
     rclcpp::Rate takeoff_loop_rate(100);
     while (taking_off) {
         takeoff_loop_rate.sleep();
-        std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // using data written by subs
+        std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // Reading data written by subs but also writing the FSM state
 
         if (goal_handle->is_canceling()) { // Check if there is a cancel request
             abort_action(); // Sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to ABORTED

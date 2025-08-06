@@ -105,6 +105,7 @@ docker exec simulation-container bash -c "gz service -s /world/\$WORLD/control -
 > - Move between Tmux windows with `Ctrl + b`, then `n`, `p`
 > - Move between Tmux panes with `Ctrl + b`, then `arrow keys`
 > - Enter copy mode to scroll back with `Ctrl + [`, then `arrow keys`, exit with `q`
+> - Split a Tmux window with `Ctrl + b`, then `"` (horizontal) or `%` (vertical)
 > - Detach Tmux with `Ctrl + b`, then `d`
 > ```sh
 > tmux list-sessions # List all sessions
@@ -216,24 +217,23 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- Implement ardupilot/mavros interface
+- check px4 interface action cancellations (check the sleep) / sending other services
+- Offboard change mode is not working correctly (published but command is temporarily rejected)
+- set default offboard duration consisrently with example vtol maneuvers (e.g. 3s less steep or no thrust dive)
 
 #### PX4 interface
-- replace "std::unique_lock" with "std::shared_lock" in read-only/non-writing threads/callbacks of the px4 interface
-- check px4 interface action cancellations (check the sleep)
-- QGC reports the px4 interface landing as a takeoff mode (?)
-##### Offboard
-- change mode is not working correctly (published in 2 blocks but not effective, command temporarily rejected))
-- set default offboard duration consisrently with example vtol maneuvers (e.g. 3s less steep or no thrust dive)
 ##### Quad
 - px4 quad cannot exit from orbit/only accepts orbit mode?
 - change altitude for quad stops the current repositions (makes sense)
 - change speed for quad only affects the next reposition and not orbit (movement and orbit speeds are param dependent)
 
+- Implement ardupilot/mavros interface
 - Make sure that for all maps, all vehicles, a simple autonomous takeoff + loiter + landing example works with up to 3 vehicles
 
 ### Known Issues
 
+- QGC reports the px4 interface landing as a takeoff mode
+- QGC does not save roll and pitch in the telemetry bar for PX4 VTOLs
 - Adjust orientation of the lidar and frame of the lidar odometry for VTOLs
 - In yolo_inference_node.py, cannot open GPU accelerated (nvh264dec) GStreamer pipeline with cv2.VideoCapture, might need to recompile OpenCV to have both CUDA and GStreamer support (or use python3-gi gir1.2-gst-plugins-base-1.0 gir1.2-gstreamer-1.0 and circumbent OpenCV)
 - Should add gz::sim::systems::LiftDrag to multicopter for fast, high tilt flight

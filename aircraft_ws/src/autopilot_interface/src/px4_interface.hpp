@@ -12,7 +12,7 @@ ros2 action send_goal /Drone1/land_action autopilot_interface_msgs/action/Land "
 
 # COMMON
 
-ros2 service call /Drone1/set_speed autopilot_interface_msgs/srv/SetSpeed "{speed: 16.0}" # Note: always limited by the autopilot params, for quads applies from the next set_reposition
+ros2 service call /Drone1/set_speed autopilot_interface_msgs/srv/SetSpeed "{speed: 18.0}" # Note: always limited by the autopilot params, for quads applies from the next set_reposition
 ros2 service call /Drone1/set_altitude autopilot_interface_msgs/srv/SetAltitude "{altitude: 100.0}" # relative to Home
 ros2 service call /Drone1/set_orbit autopilot_interface_msgs/srv/SetOrbit "{east: 1500.0, north: 0.0, altitude: 250.0, radius: 200.0}" # relative to Home
 
@@ -102,7 +102,7 @@ private:
     std::atomic<bool> active_srv_or_act_flag_;
     double home_lat_, home_lon_, home_alt_; // Saved on takeoff
     std::atomic<int> offboard_loop_count_;
-    std::atomic<int> last_loop_count_not_on_offboard;
+    std::atomic<int> offboard_action_count_;
     rclcpp::Time last_offboard_rate_check_time_;
 
     // Callback groups
