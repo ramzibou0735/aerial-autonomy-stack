@@ -840,9 +840,7 @@ void PX4Interface::send_vehicle_command(int command, double param1, double param
 
     command_pub_->publish(vehicle_command);
 
-    if (command != 176) { // Log info if the command is not 176 (i.e., do not spam set_mode)
-        RCLCPP_INFO(this->get_logger(), "Sent VehicleCommand: %d", command);
-    }
+    RCLCPP_INFO(this->get_logger(), "Sent VehicleCommand: %d", command);
 }
 void PX4Interface::abort_action()
 {

@@ -218,7 +218,7 @@ docker exec -it aircraft-container tmux attach
 ## TODOs
 
 PX4 Interface  
-- Offboard
+- Offboard (the change mode is rejected when using sim time by PX4, why?) test using system clock for mode changes
 - Manage going back to hold mode from orbit in Quads
 - Warn that change speed in quad only affects next reposition (and not orbit speed)
 - Manage/warn altitude change in quad stopping repositon (check effect on orbit)
