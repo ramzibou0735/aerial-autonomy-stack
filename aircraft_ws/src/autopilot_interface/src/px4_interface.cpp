@@ -845,7 +845,7 @@ void PX4Interface::send_vehicle_command(int command, double param1, double param
 void PX4Interface::abort_action()
 {
     do_reposition(home_lat_, home_lon_, 100.0); // HARDCODED: reposition to 100m above home
-    aircraft_fsm_state_ = PX4InterfaceState::ABORTED;
+    aircraft_fsm_state_ = PX4InterfaceState::ABORTED; // TODO: allow recovery from ABORTED state
     active_srv_or_act_flag_ = false;
 }
 
