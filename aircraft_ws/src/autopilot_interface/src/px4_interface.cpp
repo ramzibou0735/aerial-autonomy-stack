@@ -127,6 +127,9 @@ void PX4Interface::status_callback(const VehicleStatus::SharedPtr msg)
     in_transition_mode_ = msg->in_transition_mode; // bool
     in_transition_to_fw_ = msg->in_transition_to_fw; // bool
     pre_flight_checks_pass_ = msg->pre_flight_checks_pass; // bool
+    if ((aircraft_fsm_state_ == PX4InterfaceState::MC_LANDING) && (arming_state_ == 1)) {
+        aircraft_fsm_state_ = PX4InterfaceState::STARTED; // Reset PX4 interface state after landing and disarm
+    }
 }
 void PX4Interface::global_position_callback(const VehicleGlobalPosition::SharedPtr msg)
 {
@@ -297,10 +300,8 @@ void PX4Interface::offboard_control_loop_callback()
         rates_ref_pub_->publish(rates_ref);
     }
     offboard_mode_pub_->publish(offboard_mode);
-    //RCLCPP_INFO(this->get_logger(), "mode");
-    if (offboard_action_count_ >= 5 && offboard_action_count_ < 10) { // HARDCODED: short wait and send for a short time
+    if (offboard_action_count_ >= 100 && offboard_action_count_ < 200) { // HARDCODED: change mode 1sec after the beginning of the reference stream
         send_vehicle_command(176, 1.0, 6.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0);  // MAV_CMD_DO_SET_MODE
-        RCLCPP_INFO(this->get_logger(), "change mode");
     }
 }
 
@@ -321,7 +322,7 @@ void PX4Interface::set_altitude_callback(const std::shared_ptr<autopilot_interfa
     RCLCPP_INFO(this->get_logger(), "New requested altitude is: %.2f", request->altitude);
     do_change_altitude(request->altitude);
     response->success = true;
-    active_srv_or_act_flag_ = false;
+    active_srv_or_act_flag_.store(false);
 }
 void PX4Interface::set_speed_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetSpeed::Request> request,
                         std::shared_ptr<autopilot_interface_msgs::srv::SetSpeed::Response> response)
@@ -339,7 +340,7 @@ void PX4Interface::set_speed_callback(const std::shared_ptr<autopilot_interface_
     RCLCPP_INFO(this->get_logger(), "New requested speed is: %.2f", request->speed);
     do_change_speed(request->speed);
     response->success = true;
-    active_srv_or_act_flag_ = false;
+    active_srv_or_act_flag_.store(false);
 }
 void PX4Interface::set_orbit_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetOrbit::Request> request,
                         std::shared_ptr<autopilot_interface_msgs::srv::SetOrbit::Response> response)
@@ -364,7 +365,7 @@ void PX4Interface::set_orbit_callback(const std::shared_ptr<autopilot_interface_
     double desired_loops = 0.0; // 0: Orbit forever
     do_orbit(des_lat, des_lon, desired_alt, desired_r, desired_loops);
     response->success = true;
-    active_srv_or_act_flag_ = false;
+    active_srv_or_act_flag_.store(false);
 }
 void PX4Interface::set_reposition_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetReposition::Request> request,
                         std::shared_ptr<autopilot_interface_msgs::srv::SetReposition::Response> response)
@@ -389,7 +390,7 @@ void PX4Interface::set_reposition_callback(const std::shared_ptr<autopilot_inter
     geod.Inverse(lat_, lon_, des_lat, des_lon, distance, heading);
     do_reposition(des_lat, des_lon, desired_alt, fmod(heading + 360.0, 360.0) / 180.0 * M_PI);
     response->success = true;
-    active_srv_or_act_flag_ = false;
+    active_srv_or_act_flag_.store(false);
 }
 
 // Callbacks for actions (reentrant callback group, to be able to handle_goal and handle_cancel at the same time)
@@ -515,7 +516,7 @@ void PX4Interface::land_handle_accepted(const std::shared_ptr<rclcpp_action::Ser
     }
     result->success = true;
     goal_handle->succeed(result);
-    active_srv_or_act_flag_ = false;
+    active_srv_or_act_flag_.store(false);
     return;
     // TODO: reset aircraft_fsm_state_ for the next flight
 }
@@ -596,7 +597,7 @@ void PX4Interface::offboard_handle_accepted(const std::shared_ptr<rclcpp_action:
     }
     result->success = true;
     goal_handle->succeed(result);
-    active_srv_or_act_flag_ = false;
+    active_srv_or_act_flag_.store(false);
     return;
 }
 //
@@ -696,7 +697,7 @@ void PX4Interface::takeoff_handle_accepted(const std::shared_ptr<rclcpp_action::
     }
     result->success = true;
     goal_handle->succeed(result);
-    active_srv_or_act_flag_ = false;
+    active_srv_or_act_flag_.store(false);
     return;
 }
 
@@ -847,7 +848,7 @@ void PX4Interface::abort_action()
 {
     do_reposition(home_lat_, home_lon_, 100.0); // HARDCODED: reposition to 100m above home
     aircraft_fsm_state_ = PX4InterfaceState::ABORTED; // TODO: allow recovery from ABORTED state
-    active_srv_or_act_flag_ = false;
+    active_srv_or_act_flag_.store(false);
 }
 
 std::pair<double, double> PX4Interface::lat_lon_from_cartesian(double ref_lat, double ref_lon, double x_offset, double y_offset)

@@ -217,21 +217,18 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- check px4 interface action cancellations (check the sleep) / sending other services
-- Offboard change mode is not working correctly (published but command is temporarily rejected)
-- set default offboard duration consisrently with example vtol maneuvers (e.g. 3s less steep or no thrust dive)
-
-#### PX4 interface
-##### Quad
-- px4 quad cannot exit from orbit/only accepts orbit mode?
-- change altitude for quad stops the current repositions (makes sense)
-- change speed for quad only affects the next reposition and not orbit (movement and orbit speeds are param dependent)
+PX4 Interface  
+- Offboard
+- Manage going back to hold mode from orbit in Quads
+- Warn that change speed in quad only affects next reposition (and not orbit speed)
+- Manage/warn altitude change in quad stopping repositon (check effect on orbit)
 
 - Implement ardupilot/mavros interface
 - Make sure that for all maps, all vehicles, a simple autonomous takeoff + loiter + landing example works with up to 3 vehicles
 
 ### Known Issues
 
+- Canceling actions with Ctrl + c is not working (because of Tmux?), should then implement logic to exit ABORTED state
 - QGC reports the px4 interface landing as a takeoff mode
 - QGC does not save roll and pitch in the telemetry bar for PX4 VTOLs
 - Adjust orientation of the lidar and frame of the lidar odometry for VTOLs
