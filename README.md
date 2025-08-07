@@ -224,7 +224,7 @@ PX4 Interface
 - Orbit is no longer working for quads (also should manage going back to hold mode from orbit in Quads) (also should set orbit speed)
 - Set altitude interrupts reposition for quads (reasonable, make for vtol only?) and resets yaw
 - Set speed only affects next reposition (reasonable, add warning)
-- quad landing return has no yaw
+- quad landing return has no yaw (make it landing in place instead?)
 - Warn that change speed in quad only affects next reposition (and not orbit speed)
 - Manage/warn altitude change in quad stopping repositon (check effect on orbit)
 - Canceling actions with Ctrl + c is not working (because of Tmux?), should then implement logic to exit ABORTED state
