@@ -218,7 +218,6 @@ docker exec -it aircraft-container tmux attach
 ## TODOs
 
 PX4 Interface  
-- Should add gz::sim::systems::LiftDrag to multicopter for fast, high tilt flight
 - add traj offboard and tune offboard examples
 
 - Locally clone git externals before building docker images to better debug PX4 internals
