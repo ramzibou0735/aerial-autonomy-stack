@@ -258,13 +258,12 @@ void PX4Interface::offboard_control_loop_callback()
         return; // Do not publish if not in and OFFBOARD state
     }
 
-    //RCLCPP_INFO(this->get_logger(), "getting to the offboard callback");
     uint64_t current_time_ms = this->get_clock()->now().nanoseconds() / 1e6;  // Convert to milliseconds
     OffboardControlMode offboard_mode;
-    offboard_mode.timestamp = static_cast<uint64_t>(current_time_ms);
+    uint64_t system_current_time_ms = rclcpp::Clock(RCL_SYSTEM_TIME).now().nanoseconds() / 1000000; // HACK: USE SYSTEM CLOCK IN THE OFFBOARD MESSAGE, SET MODE TO OFFBOARD IS REFUSED OTHERWISE
+    offboard_mode.timestamp = static_cast<uint64_t>(system_current_time_ms);
     // TODO: implement custom offboard control logic here
     if (aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_ATTITUDE) {
-        //RCLCPP_INFO(this->get_logger(), "attitude");
         offboard_mode.attitude = true;
         VehicleAttitudeSetpoint attitude_ref; // https://github.com/PX4/px4_msgs/blob/release/1.15/msg/VehicleAttitudeSetpoint.msg
         attitude_ref.timestamp = static_cast<uint64_t>(current_time_ms);
@@ -282,7 +281,6 @@ void PX4Interface::offboard_control_loop_callback()
         }
         attitude_ref_pub_->publish(attitude_ref);
     } else if (aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_RATES) {
-        //RCLCPP_INFO(this->get_logger(), "rates");
         offboard_mode.body_rate = true;
         VehicleRatesSetpoint rates_ref; // https://github.com/PX4/px4_msgs/blob/release/1.15/msg/VehicleRatesSetpoint.msg
         rates_ref.timestamp = static_cast<uint64_t>(current_time_ms);
