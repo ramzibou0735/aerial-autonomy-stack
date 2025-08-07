@@ -258,15 +258,14 @@ void PX4Interface::offboard_control_loop_callback()
         return; // Do not publish if not in and OFFBOARD state
     }
 
-    uint64_t current_time_ms = this->get_clock()->now().nanoseconds() / 1e6;  // Convert to milliseconds
+    uint64_t current_time_us = this->get_clock()->now().nanoseconds() / 1000;  // Convert to microseconds
     OffboardControlMode offboard_mode;
-    uint64_t system_current_time_ms = rclcpp::Clock(RCL_SYSTEM_TIME).now().nanoseconds() / 1000000; // HACK: USE SYSTEM CLOCK IN THE OFFBOARD MESSAGE, SET MODE TO OFFBOARD IS REFUSED OTHERWISE
-    offboard_mode.timestamp = static_cast<uint64_t>(system_current_time_ms);
+    offboard_mode.timestamp = current_time_us;
     // TODO: implement custom offboard control logic here
     if (aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_ATTITUDE) {
         offboard_mode.attitude = true;
         VehicleAttitudeSetpoint attitude_ref; // https://github.com/PX4/px4_msgs/blob/release/1.15/msg/VehicleAttitudeSetpoint.msg
-        attitude_ref.timestamp = static_cast<uint64_t>(current_time_ms);
+        attitude_ref.timestamp = current_time_us;
         if (!is_vtol_) { // Multicopter
             attitude_ref.roll_body = 0.0;
             attitude_ref.pitch_body = -5.0; // Pitch forward
@@ -283,7 +282,7 @@ void PX4Interface::offboard_control_loop_callback()
     } else if (aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_RATES) {
         offboard_mode.body_rate = true;
         VehicleRatesSetpoint rates_ref; // https://github.com/PX4/px4_msgs/blob/release/1.15/msg/VehicleRatesSetpoint.msg
-        rates_ref.timestamp = static_cast<uint64_t>(current_time_ms);
+        rates_ref.timestamp = current_time_us;
         if (!is_vtol_) { // Multicopter
             rates_ref.roll= 0.0;
             rates_ref.pitch = 0.0;
@@ -549,7 +548,7 @@ void PX4Interface::offboard_handle_accepted(const std::shared_ptr<rclcpp_action:
 
     offboard_action_count_ = 0;
     bool offboarding = true;
-    double time_of_offboard_start_ms_ = NAN;
+    uint64_t time_of_offboard_start_us_ = -1;
     rclcpp::Rate offboard_loop_rate(100);
     while (offboarding) {
         offboard_loop_rate.sleep();
@@ -564,8 +563,8 @@ void PX4Interface::offboard_handle_accepted(const std::shared_ptr<rclcpp_action:
         }
 
         offboard_action_count_++;
-        uint64_t current_time_ms = this->get_clock()->now().nanoseconds() / 1e6;  // Convert to milliseconds
-        if (std::isnan(time_of_offboard_start_ms_)) {
+        uint64_t current_time_us = this->get_clock()->now().nanoseconds() / 1000;  // Convert to microseconds
+        if (time_of_offboard_start_us_ == -1) {
             if (offboard_setpoint_type == autopilot_interface_msgs::action::Offboard::Goal::ATTITUDE) {
                 aircraft_fsm_state_ = PX4InterfaceState::OFFBOARD_ATTITUDE;
                 feedback->message = "Offboarding with ATTITUDE setpoints";       
@@ -581,15 +580,15 @@ void PX4Interface::offboard_handle_accepted(const std::shared_ptr<rclcpp_action:
                 return;
             }
             goal_handle->publish_feedback(feedback);
-            time_of_offboard_start_ms_ = current_time_ms;
-            feedback->message = "Starting offboard control at t=" + std::to_string(time_of_offboard_start_ms_) + " ms";
+            time_of_offboard_start_us_ = current_time_us;
+            feedback->message = "Starting offboard control at t=" + std::to_string(time_of_offboard_start_us_) + " us";
             goal_handle->publish_feedback(feedback);
         }
-        if (current_time_ms >= (time_of_offboard_start_ms_ + max_duration_sec * 1e3)) {
-            time_of_offboard_start_ms_ = NAN;
+        if (current_time_us >= (time_of_offboard_start_us_ + max_duration_sec * 1000000)) {
+            time_of_offboard_start_us_ = -1;
             offboarding = false;
             aircraft_fsm_state_ = is_vtol_ ? PX4InterfaceState::FW_CRUISE : PX4InterfaceState::MC_HOVER;
-            feedback->message = "Exiting offboard control at t=" + std::to_string(current_time_ms) + "ms, returning to cruise/hover state";
+            feedback->message = "Exiting offboard control at t=" + std::to_string(current_time_us) + "us, returning to cruise/hover state";
             goal_handle->publish_feedback(feedback);
         }
     }
@@ -640,7 +639,7 @@ void PX4Interface::takeoff_handle_accepted(const std::shared_ptr<rclcpp_action::
     double vtol_loiter_alt = goal->vtol_loiter_alt;
 
     bool taking_off = true;
-    double time_of_vtol_transition_ms_ = NAN;
+    uint64_t time_of_vtol_transition_us_ = -1;
     rclcpp::Rate takeoff_loop_rate(100);
     while (taking_off) {
         takeoff_loop_rate.sleep();
@@ -669,7 +668,7 @@ void PX4Interface::takeoff_handle_accepted(const std::shared_ptr<rclcpp_action::
                 }
             }
         } else if (is_vtol_ == true) {
-            uint64_t current_time_ms = this->get_clock()->now().nanoseconds() / 1e6;  // Convert to milliseconds
+            uint64_t current_time_us = this->get_clock()->now().nanoseconds() / 1000;  // Convert to microseconds
             if (aircraft_fsm_state_ == PX4InterfaceState::STARTED) {
                 do_takeoff(takeoff_altitude, vtol_transition_heading);
                 aircraft_fsm_state_ = PX4InterfaceState::MC_TAKEOFF;
@@ -678,12 +677,12 @@ void PX4Interface::takeoff_handle_accepted(const std::shared_ptr<rclcpp_action::
             } else if (aircraft_fsm_state_ == PX4InterfaceState::MC_TAKEOFF) {
                 if (vehicle_type_ == px4_msgs::msg::VehicleStatus::VEHICLE_TYPE_FIXED_WING) {
                     aircraft_fsm_state_ = PX4InterfaceState::VTOL_TAKEOFF_TRANSITION;
-                    time_of_vtol_transition_ms_ = current_time_ms;
+                    time_of_vtol_transition_us_ = current_time_us;
                     feedback->message = "Transitioned to FW";
                     goal_handle->publish_feedback(feedback);
                 }
             } else if (aircraft_fsm_state_ == PX4InterfaceState::VTOL_TAKEOFF_TRANSITION && 
-                (current_time_ms > (time_of_vtol_transition_ms_ + 10.0 * 1e3))) { // HARDCODED: wait 10 seconds after transition
+                (current_time_us > (time_of_vtol_transition_us_ + 10.0 * 1000000))) { // HARDCODED: wait 10 seconds after transition
                 auto [des_lat, des_lon] = lat_lon_from_cartesian(home_lat_, home_lon_, vtol_loiter_east, vtol_loiter_nord);
                 do_orbit(des_lat, des_lon, vtol_loiter_alt, 200.0); // HARDCODED: 200m loiter radius
                 aircraft_fsm_state_ = PX4InterfaceState::FW_CRUISE;
@@ -818,8 +817,8 @@ void PX4Interface::send_vehicle_command(int command, double param1, double param
     VehicleCommand vehicle_command;
     vehicle_command.command = command;
 
-    uint64_t current_time_ms = this->get_clock()->now().nanoseconds() / 1e6;  // Convert to milliseconds
-    vehicle_command.timestamp = static_cast<uint64_t>(current_time_ms);
+    uint64_t current_time_us = this->get_clock()->now().nanoseconds() / 1000;  // Convert to microseconds
+    vehicle_command.timestamp = current_time_us;
     
     vehicle_command.param1 = param1;
     vehicle_command.param2 = param2;

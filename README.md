@@ -218,7 +218,9 @@ docker exec -it aircraft-container tmux attach
 ## TODOs
 
 PX4 Interface  
+- Should add gz::sim::systems::LiftDrag to multicopter for fast, high tilt flight
 - add traj offboard and tune offboard examples
+
 - Locally clone git externals before building docker images to better debug PX4 internals
 - Add hack for leaving actions
 - Orbit is no longer working for quads (also should manage going back to hold mode from orbit in Quads) (also should set orbit speed)
@@ -234,12 +236,10 @@ PX4 Interface
 
 ### Known Issues
 
-- OffboardMode use system time, fix/revert commit 1cd23cd
 - QGC reports the px4 interface landing as a takeoff mode
 - QGC does not save roll and pitch in the telemetry bar for PX4 VTOLs
 - Adjust orientation of the lidar and frame of the lidar odometry for VTOLs
 - In yolo_inference_node.py, cannot open GPU accelerated (nvh264dec) GStreamer pipeline with cv2.VideoCapture, might need to recompile OpenCV to have both CUDA and GStreamer support (or use python3-gi gir1.2-gst-plugins-base-1.0 gir1.2-gstreamer-1.0 and circumbent OpenCV)
-- Should add gz::sim::systems::LiftDrag to multicopter for fast, high tilt flight
 
 
 
