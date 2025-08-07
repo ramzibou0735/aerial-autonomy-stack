@@ -1,7 +1,8 @@
 #include "px4_interface.hpp"
 
 PX4Interface::PX4Interface() : Node("px4_interface"), 
-    active_srv_or_act_flag_(false), aircraft_fsm_state_(PX4InterfaceState::STARTED), offboard_loop_count_(0), offboard_action_count_(0),
+    active_srv_or_act_flag_(false), aircraft_fsm_state_(PX4InterfaceState::STARTED), 
+    offboard_loop_frequency(50), offboard_health_count_(0), offboard_action_count_(0),
     target_system_id_(-1), arming_state_(-1), vehicle_type_(-1),
     is_vtol_(false), is_vtol_tailsitter_(false), in_transition_mode_(false), in_transition_to_fw_(false), pre_flight_checks_pass_(false),
     lat_(NAN), lon_(NAN), alt_(NAN), alt_ellipsoid_(NAN),
@@ -47,7 +48,7 @@ PX4Interface::PX4Interface() : Node("px4_interface"),
         callback_group_timer_
     );
     offboard_control_loop_timer_ = this->create_wall_timer(
-        0.01s, // 100Hz
+        std::chrono::nanoseconds(1000000000 / offboard_loop_frequency),
         std::bind(&PX4Interface::offboard_control_loop_callback, this),
         callback_group_timer_
     );
@@ -243,15 +244,15 @@ void PX4Interface::px4_interface_printout_callback()
     auto now = this->get_clock()->now();
     double elapsed_sec = (now - last_offboard_rate_check_time_).seconds();
     if (elapsed_sec > 0) {
-        double actual_rate = offboard_loop_count_ / elapsed_sec;
+        double actual_rate = offboard_health_count_ / elapsed_sec;
         RCLCPP_INFO(this->get_logger(), "Offboard loop actual rate: %.2f Hz\n\n", actual_rate);
     }    
-    offboard_loop_count_ = 0;
+    offboard_health_count_ = 0;
     last_offboard_rate_check_time_ = now;
 }
 void PX4Interface::offboard_control_loop_callback()
 {
-    offboard_loop_count_++; // Counter to monitor the rate of the offboard loop
+    offboard_health_count_++; // Counter to monitor the rate of the offboard loop
 
     std::shared_lock<std::shared_mutex> lock(subs_data_mutex_); // Use shared_lock for data reads
     if (!((aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_ATTITUDE) || (aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_RATES))) {
@@ -296,8 +297,10 @@ void PX4Interface::offboard_control_loop_callback()
         }
         rates_ref_pub_->publish(rates_ref);
     }
-    offboard_mode_pub_->publish(offboard_mode);
-    if (offboard_action_count_ >= 100 && offboard_action_count_ < 200) { // HARDCODED: change mode 1sec after the beginning of the reference stream
+    if (offboard_action_count_ % int(offboard_loop_frequency / 4) == 0) {
+        offboard_mode_pub_->publish(offboard_mode); // The OffboardControlMode should run at at least 2Hz (~4 in this implementation)
+    }
+    if (offboard_action_count_ >= offboard_loop_frequency && offboard_action_count_ < 2*offboard_loop_frequency) { // Send change mode for 1 sec, 1sec after the beginning of the reference stream
         send_vehicle_command(176, 1.0, 6.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0);  // MAV_CMD_DO_SET_MODE
     }
 }

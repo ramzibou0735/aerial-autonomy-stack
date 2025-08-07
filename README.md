@@ -218,26 +218,28 @@ docker exec -it aircraft-container tmux attach
 ## TODOs
 
 PX4 Interface  
+- set hold mode on offboard exit
 - add traj offboard and tune offboard examples
 
 - Locally clone git externals before building docker images to better debug PX4 internals
-- Add hack for leaving actions
-- Orbit is no longer working for quads (also should manage going back to hold mode from orbit in Quads) (also should set orbit speed)
-- Set altitude interrupts reposition for quads (reasonable, make for vtol only?) and resets yaw
-- Set speed only affects next reposition (reasonable, add warning)
-- quad landing return has no yaw (make it landing in place instead?)
-- Warn that change speed in quad only affects next reposition (and not orbit speed)
-- Manage/warn altitude change in quad stopping repositon (check effect on orbit)
-- Canceling actions with Ctrl + c is not working (because of Tmux?), should then implement logic to exit ABORTED state
+- Switch to px4 1.16.0 (latest stable release)
+- Canceling actions with Ctrl + c is not working (because of Tmux?) fix or workaround, then implement logic to exit ABORTED state
 
-- Implement ardupilot/mavros interface
+- Orbit working questionably for quads: tangential speed should be specified, altitude in reached but not kept(?), does not exit mode automatically
+- Set altitude interrupts reposition for quads (reasonable, make it for vtol only?), also resets yaw
+- Set speed only affects next reposition for quads (reasonable, add warning)
+- Quad landing return has no yaw (make it landing in place instead?)
+
+Ardupilot Interface
+- Implement ardupilot/mavros interface (check ardupilot latest stable release)
+
 - Make sure that for all maps, all vehicles, a simple autonomous takeoff + loiter + landing example works with up to 3 vehicles
 
 ### Known Issues
 
 - QGC reports the px4 interface landing as a takeoff mode
 - QGC does not save roll and pitch in the telemetry bar for PX4 VTOLs
-- Adjust orientation of the lidar and frame of the lidar odometry for VTOLs
+- Need to adjust orientation of the lidar and frame of the lidar odometry for VTOLs
 - In yolo_inference_node.py, cannot open GPU accelerated (nvh264dec) GStreamer pipeline with cv2.VideoCapture, might need to recompile OpenCV to have both CUDA and GStreamer support (or use python3-gi gir1.2-gst-plugins-base-1.0 gir1.2-gstreamer-1.0 and circumbent OpenCV)
 
 
