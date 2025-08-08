@@ -216,9 +216,7 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-PX4 Interface  
-- scripts forlder for build to locally clone git externals before building docker images to better debug PX4 internals
-- fix aircraft dockerfile git clone for deployment
+PX4 Interface  t
 - Switch to px4 1.16.0 (latest stable release)
 
 - Canceling actions with Ctrl + c is not working (because of Tmux?) fix or workaround, then implement logic to exit ABORTED state
@@ -230,6 +228,8 @@ PX4 Interface
 
 Ardupilot Interface
 - Implement ardupilot/mavros interface (check if 4.6.2 is still the latest stable release)
+
+- Remove part 3 development and include it to part 2 simulation
 
 - Make sure that for all maps, all vehicles, a simple autonomous takeoff + loiter + landing example works with up to 3 vehicles
 
