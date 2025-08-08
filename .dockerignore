@@ -1,0 +1,12 @@
+.git
+# github_clones/ardupilot/.git
+github_clones/ardupilot_gazebo/.git
+github_clones/kiss-icp/.git
+github_clones/Micro-XRCE-DDS-Agent/.git
+github_clones/px4_msgs/.git
+# github_clones/PX4-Autopilot/.git
+
+# **/.gitmodules
+
+**/__pycache__/
+**/*.pyc

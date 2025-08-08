@@ -144,9 +144,9 @@ RUN find /temp_folder -type f -regex '.*/[0-9]+_.*' -exec cp {} /airframes/ \;
 FROM ros2-gz-qgc-px4-ardupilot-image AS ros2-gz-qgc-px4custom-ardupilot-image
 
 # Apply PX4 patches (DDS Agent on custom IP, ...)
-COPY simulation_resources/patches/px4-1.15.4.patch /git
+COPY simulation_resources/patches/px4-v1.16.0.patch /git
 WORKDIR /git/PX4-Autopilot
-RUN git apply ../px4-1.15.4.patch
+RUN git apply ../px4-v1.16.0.patch
 
 # Replace dds_topics.yaml with custom topics
 COPY simulation_resources/patches/dds_topics.yaml /git/PX4-Autopilot/src/modules/uxrce_dds_client/

@@ -29,7 +29,7 @@
 <details>
 <summary>AAS leverages the following frameworks: <i>(expand)</i></summary>
 
-> [*ROS2 Humble*](https://docs.ros.org/en/rolling/Releases.html) (LTS, EOL 5/2027), [*Gazebo Sim Harmonic*](https://gazebosim.org/docs/latest/releases/) (LTS, EOL 9/2028), [*PX4 1.15*](https://github.com/PX4/PX4-Autopilot/releases) interfaced *via* [XRCE-DDS](https://github.com/eProsima/Micro-XRCE-DDS/releases), [*ArduPilot 4.6*](https://github.com/ArduPilot/ardupilot/releases) interfaced *via* [MAVROS](https://github.com/mavlink/mavros/releases), [*YOLOv8*](https://github.com/ultralytics/ultralytics/releases) on [*ONNX Runtime 1.22*](https://onnxruntime.ai/getting-started) (latest stable releases as of 6/2025), [*L4T 36* (Ubuntu 22-based)/*JetPack 6*](https://developer.nvidia.com/embedded/jetpack-archive) (for deployment only, latest major release as of 6/2025)
+> [*ROS2 Humble*](https://docs.ros.org/en/rolling/Releases.html) (LTS, EOL 5/2027), [*Gazebo Sim Harmonic*](https://gazebosim.org/docs/latest/releases/) (LTS, EOL 9/2028), [*PX4 1.16*](https://github.com/PX4/PX4-Autopilot/releases) interfaced *via* [XRCE-DDS](https://github.com/eProsima/Micro-XRCE-DDS/releases), [*ArduPilot 4.6*](https://github.com/ArduPilot/ardupilot/releases) interfaced *via* [MAVROS](https://github.com/mavlink/mavros/releases), [*YOLOv8*](https://github.com/ultralytics/ultralytics/releases) on [*ONNX Runtime 1.22*](https://onnxruntime.ai/getting-started) (latest stable releases as of 8/2025), [*L4T 36* (Ubuntu 22-based)/*JetPack 6*](https://developer.nvidia.com/embedded/jetpack-archive) (for deployment only, latest major release as of 8/2025)
 
 </details>
 
@@ -216,28 +216,89 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-PX4 Interface  t
-- Switch to px4 1.16.0 (latest stable release)
+PX4 Interface
+Notes
+    these are removed from the from x500 and custom_vtol airframes (kept for now)
+        param set-default SENS_EN_GPSSIM 1
+        param set-default SENS_EN_BAROSIM 0
+        param set-default SENS_EN_MAGSIM 1
+    move this to aas custom params
+        param set-default VT_F_TRANS_THR 0.75 # The 0.3 default value in v1.16.0 does not allow to transition
 
-- Canceling actions with Ctrl + c is not working (because of Tmux?) fix or workaround, then implement logic to exit ABORTED state
+    Use these to improve commands with 1.16
+        # used as param1 in DO_CHANGE_SPEED command
+        uint8 SPEED_TYPE_AIRSPEED = 0
+        uint8 SPEED_TYPE_GROUNDSPEED = 1
+        uint8 SPEED_TYPE_CLIMB_SPEED = 2
+        uint8 SPEED_TYPE_DESCEND_SPEED = 3
+
+        # used as param3 in CMD_DO_ORBIT
+        uint8 ORBIT_YAW_BEHAVIOUR_HOLD_FRONT_TO_CIRCLE_CENTER = 0
+        uint8 ORBIT_YAW_BEHAVIOUR_HOLD_INITIAL_HEADING = 1
+        uint8 ORBIT_YAW_BEHAVIOUR_UNCONTROLLED = 2
+        uint8 ORBIT_YAW_BEHAVIOUR_HOLD_FRONT_TANGENT_TO_CIRCLE = 3
+        uint8 ORBIT_YAW_BEHAVIOUR_RC_CONTROLLED = 4
+        uint8 ORBIT_YAW_BEHAVIOUR_UNCHANGED = 5
 
 - Orbit working questionably for quads: tangential speed should be specified, altitude in reached but not kept(?), does not exit mode automatically
 - Set altitude interrupts reposition for quads (reasonable, make it for vtol only?), also resets yaw
 - Set speed only affects next reposition for quads (reasonable, add warning)
 - Quad landing return has no yaw (make it landing in place instead?)
 
-Ardupilot Interface
+- Canceling actions with Ctrl + c is not working: fix or workaround, then implement logic to exit ABORTED state
+
+Goal accepted with ID: 15357dbc13314fffbac7273fb8118ac7
+
+Feedback:
+    message: Taking off in MC mode
+
+^C^C^C^C^C^C
+Canceling goal...
+Traceback (most recent call last):
+  File "/opt/ros/humble/bin/ros2", line 33, in <module>
+    sys.exit(load_entry_point('ros2cli==0.18.13', 'console_scripts', 'ros2')())
+  File "/opt/ros/humble/lib/python3.10/site-packages/ros2cli/cli.py", line 91, in main
+    rc = extension.main(parser=parser, args=args)
+  File "/opt/ros/humble/lib/python3.10/site-packages/ros2action/command/action.py", line 37, in main
+    return extension.main(args=args)
+  File "/opt/ros/humble/lib/python3.10/site-packages/ros2action/verb/send_goal.py", line 56, in main
+    return send_goal(args.action_name, args.action_type, args.goal, feedback_callback)
+  File "/opt/ros/humble/lib/python3.10/site-packages/ros2action/verb/send_goal.py", line 154, in send_goal
+    rclpy.spin_until_future_complete(node, result_future)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 256, in spin_until_future_complete
+    executor.spin_until_future_complete(future, timeout_sec)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 308, in spin_until_future_complete
+    self.spin_once_until_future_complete(future, timeout_sec)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 758, in spin_once_until_future_complete
+    self._spin_once_impl(timeout_sec)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 740, in _spin_once_impl
+    handler, entity, node = self.wait_for_ready_callbacks(timeout_sec=timeout_sec)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 723, in wait_for_ready_callbacks
+    return next(self._cb_iter)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 620, in _wait_for_ready_callbacks
+    wait_set.wait(timeout_nsec)
+  File "/opt/ros/humble/lib/python3.10/site-packages/ros2action/verb/send_goal.py", line 124, in _sigint_cancel_handler
+    rclpy.spin_until_future_complete(node, cancel_future)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 256, in spin_until_future_complete
+    executor.spin_until_future_complete(future, timeout_sec)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 308, in spin_until_future_complete
+    self.spin_once_until_future_complete(future, timeout_sec)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 758, in spin_once_until_future_complete
+    self._spin_once_impl(timeout_sec)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 740, in _spin_once_impl
+    handler, entity, node = self.wait_for_ready_callbacks(timeout_sec=timeout_sec)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 723, in wait_for_ready_callbacks
+    return next(self._cb_iter)
+ValueError: generator already executing
+
 - Implement ardupilot/mavros interface (check if 4.6.2 is still the latest stable release)
-
 - Remove part 3 development and include it to part 2 simulation
-
 - Make sure that for all maps, all vehicles, a simple autonomous takeoff + loiter + landing example works with up to 3 vehicles
-
 - Update deployment to latest JetPack
 
 ### Known Issues
 
-- QGC reports the px4 interface landing as a takeoff mode
+- PX4 messages 1.16 have VehicleStatus on MESSAGE_VERSION = 1, topic fmu/out/vehicle_status_v1
 - QGC does not save roll and pitch in the telemetry bar for PX4 VTOLs
 - Need to adjust orientation of the lidar and frame of the lidar odometry for VTOLs
 - In yolo_inference_node.py, cannot open GPU accelerated (nvh264dec) GStreamer pipeline with cv2.VideoCapture, might need to recompile OpenCV to have both CUDA and GStreamer support (or use python3-gi gir1.2-gst-plugins-base-1.0 gir1.2-gstreamer-1.0 and circumbent OpenCV)

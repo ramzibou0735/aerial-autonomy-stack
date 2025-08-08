@@ -46,7 +46,7 @@ windows:
       panes:
         - >
           sleep <%= (i + 1) * 3 %> &&
-          PX4_GZ_MODEL_POSE="<%= i * 2 %>,<%= i * 2 %>,0,0,0,0"
+          PX4_GZ_MODEL_POSE="<%= i * 2 %>,<%= i * 2 %>,0.5,0,0,0"
           PX4_SYS_AUTOSTART=<%= drone_type == 'quad' ? '5140' : '5141' %>
           ROS_DOMAIN_ID=<%= i + 1 %>
           PX4_UXRCE_DDS_NS="Drone<%= i + 1 %>"

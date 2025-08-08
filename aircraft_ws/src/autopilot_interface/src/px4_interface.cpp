@@ -72,7 +72,7 @@ PX4Interface::PX4Interface() : Node("px4_interface"),
         "fmu/out/vehicle_odometry", qos_profile_sub,
         std::bind(&PX4Interface::odometry_callback, this, std::placeholders::_1), subscriber_options);
     vehicle_status_sub_ = this->create_subscription<VehicleStatus>(
-        "fmu/out/vehicle_status", qos_profile_sub,
+        "fmu/out/vehicle_status_v1", qos_profile_sub,
         std::bind(&PX4Interface::status_callback, this, std::placeholders::_1), subscriber_options);
     airspeed_validated_sub_ = this->create_subscription<AirspeedValidated>(
         "fmu/out/airspeed_validated", qos_profile_sub,
@@ -123,7 +123,7 @@ void PX4Interface::status_callback(const VehicleStatus::SharedPtr msg)
         RCLCPP_INFO(get_logger(), "target_system_id (MAV_SYS_ID) saved as: %d", target_system_id_);
     }
     arming_state_ = msg->arming_state; // DISARMED = 1, ARMED = 2
-    vehicle_type_ = msg->vehicle_type; // UNKNOWN = 0, ROTARY_WING = 1, FIXED_WING = 2 (ROVER = 3, AIRSHIP = 4)
+    vehicle_type_ = msg->vehicle_type; // ROTARY_WING = 1, FIXED_WING = 2 (ROVER = 3)
     is_vtol_ = msg->is_vtol; // bool
     is_vtol_tailsitter_ = msg->is_vtol_tailsitter; // bool
     in_transition_mode_ = msg->in_transition_mode; // bool
@@ -140,6 +140,9 @@ void PX4Interface::global_position_callback(const VehicleGlobalPosition::SharedP
     lon_ = msg->lon;
     alt_ = msg->alt; // AMSL
     alt_ellipsoid_ = msg->alt_ellipsoid; 
+    // New to v1.16
+    // bool lat_lon_valid
+    // bool alt_valid
 }
 void PX4Interface::local_position_callback(const VehicleLocalPosition::SharedPtr msg)
 {
@@ -269,7 +272,7 @@ void PX4Interface::offboard_control_loop_callback()
     // https://docs.px4.io/v1.15/en/flight_modes/offboard.html
     if (aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_ATTITUDE) {
         offboard_mode.attitude = true;
-        VehicleAttitudeSetpoint attitude_ref; // https://github.com/PX4/px4_msgs/blob/release/1.15/msg/VehicleAttitudeSetpoint.msg
+        VehicleAttitudeSetpoint attitude_ref; // https://github.com/PX4/px4_msgs/blob/release/1.16/msg/VehicleAttitudeSetpoint.msg
         attitude_ref.timestamp = current_time_us;
         if (!is_vtol_) { // Multicopter
             double pitch_rad = -5.0 * M_PI / 180.0; // Pitch to move forward (any duration, drops some altitude)
@@ -279,14 +282,17 @@ void PX4Interface::offboard_control_loop_callback()
             attitude_ref.q_d[3] = 0;                    // z
             attitude_ref.thrust_body = {0.0, 0.0, -0.72};
         } else if (is_vtol_) { // VTOL
-            attitude_ref.roll_body = 0.0;
-            attitude_ref.pitch_body = -20.0; // Dive (2sec maneuver to dip 50m)
+            double pitch_rad = -20.0 * M_PI / 180.0; // Pitch to dive
+            attitude_ref.q_d[0] = cos(pitch_rad / 2.0); // w
+            attitude_ref.q_d[1] = 0;                    // x
+            attitude_ref.q_d[2] = sin(pitch_rad / 2.0); // y
+            attitude_ref.q_d[3] = 0;                    // z
             attitude_ref.thrust_body = {0.15, 0.0, 0.0};
         }
         attitude_ref_pub_->publish(attitude_ref);
     } else if (aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_RATES) {
         offboard_mode.body_rate = true;
-        VehicleRatesSetpoint rates_ref; // https://github.com/PX4/px4_msgs/blob/release/1.15/msg/VehicleRatesSetpoint.msg
+        VehicleRatesSetpoint rates_ref; // https://github.com/PX4/px4_msgs/blob/release/1.16/msg/VehicleRatesSetpoint.msg
         rates_ref.timestamp = current_time_us;
         if (!is_vtol_) { // Multicopter
             rates_ref.roll= 0.0;
@@ -301,7 +307,7 @@ void PX4Interface::offboard_control_loop_callback()
         }
         rates_ref_pub_->publish(rates_ref);
     } else if (aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_TRAJECTORY) {
-        TrajectorySetpoint trajectory_ref; // https://github.com/PX4/px4_msgs/blob/release/1.15/msg/TrajectorySetpoint.msg
+        TrajectorySetpoint trajectory_ref; // https://github.com/PX4/px4_msgs/blob/release/1.16/msg/TrajectorySetpoint.msg
         trajectory_ref.timestamp = current_time_us;
         if (!is_vtol_) { // Multicopter
             offboard_mode.position = true;
@@ -842,7 +848,7 @@ void PX4Interface::do_set_mode(int mode, int submode)
     send_vehicle_command(
         176,  // MAV_CMD_DO_SET_MODE
         1.0, // Flags (custom mode)
-        mode, // Custom Mode https://github.com/PX4/PX4-Autopilot/blob/v1.15.4/src/modules/commander/px4_custom_mode.h
+        mode, // Custom Mode https://github.com/PX4/PX4-Autopilot/blob/v1.16.0/src/modules/commander/px4_custom_mode.h
         submode, // Custom Sub Mode
         0.0, 0.0, 0.0, 0.0,  // Unused parameters
         0  // Confirmation
