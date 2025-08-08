@@ -218,8 +218,9 @@ docker exec -it aircraft-container tmux attach
 ## TODOs
 
 PX4 Interface  
-- Locally clone git externals before building docker images to better debug PX4 internals
-    - Switch to px4 1.16.0 (latest stable release)
+- scripts forlder for build to locally clone git externals before building docker images to better debug PX4 internals
+- Switch to px4 1.16.0 (latest stable release)
+
 - Canceling actions with Ctrl + c is not working (because of Tmux?) fix or workaround, then implement logic to exit ABORTED state
 
 - Orbit working questionably for quads: tangential speed should be specified, altitude in reached but not kept(?), does not exit mode automatically

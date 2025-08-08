@@ -206,6 +206,7 @@ private:
     void do_vtol_transition(int trans_type);
     void do_rtl();
     void do_land();
+    void do_set_mode(int mode, int submode);
     void send_vehicle_command(int command, double param1 = 0.0, double param2 = 0.0, double param3 = 0.0, 
                                 double param4 = 0.0, double param5 = 0.0, double param6 = 0.0, double param7 = 0.0, 
                                 int conf = 0);

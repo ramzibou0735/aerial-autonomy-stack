@@ -319,8 +319,7 @@ void PX4Interface::offboard_control_loop_callback()
         offboard_mode_pub_->publish(offboard_mode); // The OffboardControlMode should run at at least 2Hz (~10 in this implementation)
     }
     if (offboard_action_count_ >= offboard_loop_frequency && offboard_action_count_ < 2*offboard_loop_frequency) { // Send change mode for 1 sec, 1sec after the beginning of the reference stream
-        send_vehicle_command(176, 1.0, 6.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0); // MAV_CMD_DO_SET_MODE to Offboard (PX4_CUSTOM_MAIN_MODE 6)
-        // https://github.com/PX4/PX4-Autopilot/blob/v1.15.4/src/modules/commander/px4_custom_mode.h
+        do_set_mode(6, 0); // Offboard (PX4_CUSTOM_MAIN_MODE 6 no sub mode)
     }
 }
 
@@ -614,8 +613,7 @@ void PX4Interface::offboard_handle_accepted(const std::shared_ptr<rclcpp_action:
             time_of_offboard_start_us_ = -1;
             offboarding = false;
             aircraft_fsm_state_ = is_vtol_ ? PX4InterfaceState::FW_CRUISE : PX4InterfaceState::MC_HOVER;
-            send_vehicle_command(176, 1.0, 4.0, 3.0, 0.0, 0.0, 0.0, 0.0, 0); // MAV_CMD_DO_SET_MODE to Auto/Loiter (PX4_CUSTOM_MAIN_MODE 4/PX4_CUSTOM_SUB_MODE_AUTO 3)
-            // https://github.com/PX4/PX4-Autopilot/blob/v1.15.4/src/modules/commander/px4_custom_mode.h
+            do_set_mode(4, 3); // Auto/Loiter (PX4_CUSTOM_MAIN_MODE 4/PX4_CUSTOM_SUB_MODE_AUTO 3)
             feedback->message = "Exiting offboard control at t=" + std::to_string(current_time_us) + "us, returning to loiter/hover (Hold) state";
             goal_handle->publish_feedback(feedback);
         }
@@ -836,6 +834,17 @@ void PX4Interface::do_land()
         home_lat_,  // Latitude
         home_lon_,  // Longitude
         home_alt_,  // Ground altitude
+        0  // Confirmation
+    );
+}
+void PX4Interface::do_set_mode(int mode, int submode)
+{
+    send_vehicle_command(
+        176,  // MAV_CMD_DO_SET_MODE
+        1.0, // Flags (custom mode)
+        mode, // Custom Mode https://github.com/PX4/PX4-Autopilot/blob/v1.15.4/src/modules/commander/px4_custom_mode.h
+        submode, // Custom Sub Mode
+        0.0, 0.0, 0.0, 0.0,  // Unused parameters
         0  // Confirmation
     );
 }
