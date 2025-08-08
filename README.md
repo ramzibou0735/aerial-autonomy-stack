@@ -57,8 +57,8 @@ cd ~/git/aerial-autonomy-stack
 > Building from scratch requires a stable internet connection, `Ctrl + c` and restart if needed 
 
 ```sh
-docker build -t simulation-image -f docker/Dockerfile.simulation . # The first build takes ~15' and creates a 19GB image (8GB for ros-humble-desktop with nvidia runtime, 9GB for PX4 and ArduPilot SITL)
-docker build -t aircraft-image -f docker/Dockerfile.aircraft . # The first build takes ~15' and creates a 16GB image (8GB for ros-humble-desktop with nvidia runtime, 7GB for YOLOv8, ONNX)
+cd ~/git/aerial-autonomy-stack/scripts
+./build_sim.sh # The first build takes ~30'
 ```
 
 > These are development-friendly images with lots of tools and artifacts, trim as needed
@@ -66,7 +66,7 @@ docker build -t aircraft-image -f docker/Dockerfile.aircraft . # The first build
 ### Option 2: Pull the Pre-built Docker Images
 
 ```sh
-# TODO add .github workflow to build and push the images
+# TODO add .github workflow to build and push the images, explain how to use with local build
 docker pull jacopopan/simulation-image:latest # TODO
 docker pull jacopopan/aircraft-image:latest # TODO
 ```
@@ -76,9 +76,8 @@ docker pull jacopopan/aircraft-image:latest # TODO
 ## Part 2: Simulation with AAS
 
 ```sh
-cd ~/git/aerial-autonomy-stack/
-chmod +x ./main_sim.sh
-DRONE_TYPE=quad AUTOPILOT=px4 NUM_DRONES=2 WORLD=swiss_town HEADLESS=false ./main_sim.sh # Read main_sim.sh for more options
+cd ~/git/aerial-autonomy-stack/scripts
+DRONE_TYPE=quad AUTOPILOT=px4 NUM_DRONES=2 WORLD=swiss_town HEADLESS=false ./run_sim.sh # Read run_sim.sh for more options
 # `Ctrl + b`, then `d` in each terminal once done
 ```
 
@@ -129,8 +128,8 @@ docker exec simulation-container bash -c "gz service -s /world/\$WORLD/control -
 ### Run an Example
 
 ```sh
-cd ~/git/aerial-autonomy-stack/
-DRONE_TYPE=quad AUTOPILOT=px4 NUM_DRONES=1 ./main_sim.sh
+cd ~/git/aerial-autonomy-stack/scripts
+DRONE_TYPE=quad AUTOPILOT=px4 NUM_DRONES=1 ./run_sim.sh
 # In aircraft 1's terminal
 ./skibidi.sh
 ```
@@ -142,14 +141,13 @@ DRONE_TYPE=quad AUTOPILOT=px4 NUM_DRONES=1 ./main_sim.sh
 ## Part 3: Development with AAS
 
 ```sh
-cd ~/git/aerial-autonomy-stack/
-chmod +x ./main_sim.sh
-MODE=dev ./main_sim.sh # Images are pre-built but the ros2_ws/src/ folders are mounted from the host
+cd ~/git/aerial-autonomy-stack/scripts
+MODE=dev ./run_sim.sh # Images are pre-built but the ros2_ws/src/ folders are mounted from the host
 ```
 
 *On the host*, edit the source of `~/git/aerial-autonomy-stack/aircraft_ws/src` and `~/git/aerial-autonomy-stack/simulation_ws/src`: it will be reflected in the two running containers
 
-*In each of the two terminals/containers* created by `main_sim.sh`, re-build the workspaces
+*In each of the two terminals/containers* created by `run_sim.sh`, re-build the workspaces
 
 ```sh
 # In the simulation and aircraft 1 terminals
@@ -197,14 +195,13 @@ On Jetson Orin NX
 ```sh
 mkdir -p ~/git
 git clone git@github.com:JacopoPan/aerial-autonomy-stack.git ~/git/aerial-autonomy-stack
-cd ~/git/aerial-autonomy-stack
+cd ~/git/aerial-autonomy-stack/scripts
 
-docker build -t aircraft-image -f docker/Dockerfile.aircraft . # The first build takes ~1h (mostly to build onnxruntime-gpu from source) and creates an 18GB image
+./build_deploy.sh # The first build takes ~1h (mostly to build onnxruntime-gpu from source)
 # Alternatively
 docker pull jacopopan/aircraft-image:jetson # TODO
 
-chmod +x ./main_deploy.sh
-DRONE_TYPE=quad AUTOPILOT=px4 DRONE_ID=1 CAMERA=true LIDAR=false ./main_deploy.sh
+DRONE_TYPE=quad AUTOPILOT=px4 DRONE_ID=1 CAMERA=true LIDAR=false ./run_deploy.sh
 docker exec -it aircraft-container tmux attach
 ```
 
