@@ -34,6 +34,7 @@ PX4Interface::PX4Interface() : Node("px4_interface"),
     offboard_mode_pub_ = this->create_publisher<OffboardControlMode>("fmu/in/offboard_control_mode", qos_profile_pub);
     attitude_ref_pub_ = this->create_publisher<VehicleAttitudeSetpoint>("fmu/in/vehicle_attitude_setpoint", qos_profile_pub);
     rates_ref_pub_ = this->create_publisher<VehicleRatesSetpoint>("fmu/in/vehicle_rates_setpoint", qos_profile_pub);
+    trajectory_ref_pub_ = this->create_publisher<TrajectorySetpoint>("fmu/in/trajectory_setpoint", qos_profile_pub);
 
     // Create callback groups (Reentrant or MutuallyExclusive)
     callback_group_timer_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant); // Timed callbacks in parallel
@@ -240,12 +241,14 @@ void PX4Interface::px4_interface_printout_callback()
                 "Command Ack:\n"
                 "\tcommand: %d (result %d from_external %s)",
                 command_ack_, command_ack_result_, (command_ack_from_external_ ? "true" : "false"));
-    RCLCPP_INFO(this->get_logger(), "Current node time: %.2f seconds", this->get_clock()->now().seconds());
+    RCLCPP_INFO(this->get_logger(), 
+                "Current node time:\n\t%.2f seconds", this->get_clock()->now().seconds());
     auto now = this->get_clock()->now();
     double elapsed_sec = (now - last_offboard_rate_check_time_).seconds();
     if (elapsed_sec > 0) {
         double actual_rate = offboard_health_count_ / elapsed_sec;
-        RCLCPP_INFO(this->get_logger(), "Offboard loop actual rate: %.2f Hz\n\n", actual_rate);
+        RCLCPP_INFO(this->get_logger(), 
+                "Offboard loop rate:\n\t%.2f Hz\n\n", actual_rate);
     }    
     offboard_health_count_ = 0;
     last_offboard_rate_check_time_ = now;
@@ -255,7 +258,7 @@ void PX4Interface::offboard_control_loop_callback()
     offboard_health_count_++; // Counter to monitor the rate of the offboard loop
 
     std::shared_lock<std::shared_mutex> lock(subs_data_mutex_); // Use shared_lock for data reads
-    if (!((aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_ATTITUDE) || (aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_RATES))) {
+    if (!((aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_ATTITUDE) || (aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_RATES) || (aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_TRAJECTORY))) {
         return; // Do not publish if not in and OFFBOARD state
     }
 
@@ -263,6 +266,7 @@ void PX4Interface::offboard_control_loop_callback()
     OffboardControlMode offboard_mode;
     offboard_mode.timestamp = current_time_us;
     // TODO: implement custom offboard control logic here
+    // https://docs.px4.io/v1.15/en/flight_modes/offboard.html
     if (aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_ATTITUDE) {
         offboard_mode.attitude = true;
         VehicleAttitudeSetpoint attitude_ref; // https://github.com/PX4/px4_msgs/blob/release/1.15/msg/VehicleAttitudeSetpoint.msg
@@ -296,6 +300,20 @@ void PX4Interface::offboard_control_loop_callback()
             rates_ref.thrust_body = {0.39, 0.0, 0.0};
         }
         rates_ref_pub_->publish(rates_ref);
+    } else if (aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_TRAJECTORY) {
+        TrajectorySetpoint trajectory_ref; // https://github.com/PX4/px4_msgs/blob/release/1.15/msg/TrajectorySetpoint.msg
+        trajectory_ref.timestamp = current_time_us;
+        if (!is_vtol_) { // Multicopter
+            offboard_mode.position = true;
+            trajectory_ref.position = {0.0, 0.0, -20.0};
+	        trajectory_ref.yaw = -3.14; // [-PI:PI]
+            // offboard_mode.acceleration = true;
+            // trajectory_ref.acceleration = {0.0, 0.0, -5.0};
+        } else if (is_vtol_) { // VTOL
+            offboard_mode.velocity = true;
+            trajectory_ref.velocity = {20.0, 0.0, 0.0};
+        }
+        trajectory_ref_pub_->publish(trajectory_ref);
     }
     if (offboard_action_count_ % std::max(1, (offboard_loop_frequency / 10)) == 0) {
         offboard_mode_pub_->publish(offboard_mode); // The OffboardControlMode should run at at least 2Hz (~10 in this implementation)
@@ -576,6 +594,10 @@ void PX4Interface::offboard_handle_accepted(const std::shared_ptr<rclcpp_action:
             else if (offboard_setpoint_type == autopilot_interface_msgs::action::Offboard::Goal::RATES) {
                 aircraft_fsm_state_ = PX4InterfaceState::OFFBOARD_RATES;
                 feedback->message = "Offboarding with RATES setpoints";
+            }
+            else if (offboard_setpoint_type == autopilot_interface_msgs::action::Offboard::Goal::TRAJECTORY) {
+                aircraft_fsm_state_ = PX4InterfaceState::OFFBOARD_TRAJECTORY;
+                feedback->message = "Offboarding with TRAJECTORY setpoints";
             } 
             else {
                 result->success = false;
