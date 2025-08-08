@@ -176,7 +176,9 @@ tmux kill-session -t aircraft_tmuxinator
 Repeat as necessary, finally commit the changes from the repository on the host computer
 
 > [!NOTE]
-> `aircraft_resources/` and `simulation_resources/` are also mounted but certain changes, e.g. in PX4's ROMFS, require compilation steps more easily achieved by re-building the Dockerfiles (see ["Part 1"](#option-1-build-the-docker-images))
+> `aircraft_resources/` and `simulation_resources/` are also mounted but certain changes, e.g. in PX4's ROMFS, require compilation steps more easily achieved by re-building the Dockerfiles
+> 
+> The sources in `git` and `ros2_ws_github/src` are not mounted because they belong to external repos, they are copied on every re-building of the Dockerfiles (see ["Part 1"](#option-1-build-the-docker-images))
 
 ---
 
@@ -216,6 +218,7 @@ docker exec -it aircraft-container tmux attach
 
 PX4 Interface  
 - scripts forlder for build to locally clone git externals before building docker images to better debug PX4 internals
+- fix aircraft dockerfile git clone for deployment
 - Switch to px4 1.16.0 (latest stable release)
 
 - Canceling actions with Ctrl + c is not working (because of Tmux?) fix or workaround, then implement logic to exit ABORTED state
@@ -226,9 +229,11 @@ PX4 Interface
 - Quad landing return has no yaw (make it landing in place instead?)
 
 Ardupilot Interface
-- Implement ardupilot/mavros interface (check ardupilot latest stable release)
+- Implement ardupilot/mavros interface (check if 4.6.2 is still the latest stable release)
 
 - Make sure that for all maps, all vehicles, a simple autonomous takeoff + loiter + landing example works with up to 3 vehicles
+
+- Update deployment to latest JetPack
 
 ### Known Issues
 

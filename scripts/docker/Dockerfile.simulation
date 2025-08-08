@@ -91,10 +91,8 @@ FROM ros2-gz-qgc-image AS ros2-gz-qgc-px4-image
 
 # PX4 SITL (NOTE: install PX4 tools first to avoid conflicts with ArduPilot, build later to customize)
 # Based on https://docs.px4.io/main/en/dev_setup/dev_env_linux_ubuntu.html
-RUN mkdir -p /git/
-RUN git clone --depth 1 --branch v1.15.4 https://github.com/PX4/PX4-Autopilot.git /git/PX4-Autopilot
+COPY /github_clones/PX4-Autopilot /git/PX4-Autopilot
 WORKDIR /git/PX4-Autopilot
-RUN git submodule update --init --recursive
 RUN bash ./Tools/setup/ubuntu.sh --no-sim-tools
 
 ################################################################################
@@ -104,10 +102,8 @@ FROM ros2-gz-qgc-px4-image AS ros2-gz-qgc-px4-ardupilot-image
 
 # ArduPilot SITL (temporarily as arduuser, then re chown to root)
 # Based on https://ardupilot.org/dev/docs/building-setup-linux.html#building-setup-linux
-RUN mkdir -p /git/
-RUN git clone --depth 1 --branch Copter-4.6.2 https://github.com/ArduPilot/ardupilot.git /git/ardupilot
+COPY /github_clones/ardupilot /git/ardupilot
 WORKDIR /git/ardupilot
-RUN git submodule update --init --recursive --depth 1
 RUN useradd -m -s /bin/bash arduuser
 RUN echo "arduuser ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/arduuser && chmod 0440 /etc/sudoers.d/arduuser
 RUN gosu arduuser git config --global --add safe.directory /git/ardupilot
@@ -119,8 +115,7 @@ RUN chown -R root:root /git/ardupilot
 
 # ArduPilot Gazebo Plugin
 # Based on https://ardupilot.org/dev/docs/sitl-with-gazebo.html
-RUN mkdir -p /git/
-RUN git clone --depth 1 --branch main https://github.com/ArduPilot/ardupilot_gazebo /git/ardupilot_gazebo
+COPY /github_clones/ardupilot_gazebo /git/ardupilot_gazebo
 WORKDIR /git/ardupilot_gazebo
 RUN apt update \
     && apt install -y --no-install-recommends \
@@ -208,7 +203,6 @@ RUN rosdep install --from-paths src/ --ignore-src --rosdistro humble -y
 RUN bash -c "source /opt/ros/humble/setup.bash && colcon build --symlink-install"
 
 # Build the ROS 2 workspace
-RUN mkdir -p /ros2_ws/src
 COPY simulation_ws/src /ros2_ws/src
 WORKDIR /ros2_ws
 RUN rosdep update
@@ -228,4 +222,3 @@ RUN echo "source /ros2_ws/install/setup.bash" >> /root/.bashrc
 # Final config
 WORKDIR /
 ENTRYPOINT ["tmuxinator", "start", "-p", "/simulation_resources/simulation.yml.erb"]
-# ENTRYPOINT ["/bin/bash"]
