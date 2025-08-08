@@ -218,8 +218,7 @@ docker exec -it aircraft-container tmux attach
 ## TODOs
 
 PX4 Interface  
-- set hold mode on offboard exit
-- add traj offboard and tune offboard examples
+- add traj offboard
 
 - Locally clone git externals before building docker images to better debug PX4 internals
 - Switch to px4 1.16.0 (latest stable release)

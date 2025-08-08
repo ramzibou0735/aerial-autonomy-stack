@@ -268,16 +268,16 @@ void PX4Interface::offboard_control_loop_callback()
         VehicleAttitudeSetpoint attitude_ref; // https://github.com/PX4/px4_msgs/blob/release/1.15/msg/VehicleAttitudeSetpoint.msg
         attitude_ref.timestamp = current_time_us;
         if (!is_vtol_) { // Multicopter
-            attitude_ref.roll_body = 0.0;
-            attitude_ref.pitch_body = -5.0; // Pitch forward
-            attitude_ref.yaw_body = 0.0;
-            // # For quaternion-based attitude control
-            // float32[4] q_d			# Desired quaternion for quaternion control
+            double pitch_rad = -5.0 * M_PI / 180.0; // Pitch to move forward (any duration, drops some altitude)
+            attitude_ref.q_d[0] = cos(pitch_rad / 2.0); // w
+            attitude_ref.q_d[1] = 0;                    // x
+            attitude_ref.q_d[2] = sin(pitch_rad / 2.0); // y
+            attitude_ref.q_d[3] = 0;                    // z
             attitude_ref.thrust_body = {0.0, 0.0, -0.72};
         } else if (is_vtol_) { // VTOL
             attitude_ref.roll_body = 0.0;
-            attitude_ref.pitch_body = -15.0; // Dive
-            attitude_ref.thrust_body = {0.5, 0.0, 0.0};
+            attitude_ref.pitch_body = -20.0; // Dive (2sec maneuver to dip 50m)
+            attitude_ref.thrust_body = {0.15, 0.0, 0.0};
         }
         attitude_ref_pub_->publish(attitude_ref);
     } else if (aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_RATES) {
@@ -287,21 +287,21 @@ void PX4Interface::offboard_control_loop_callback()
         if (!is_vtol_) { // Multicopter
             rates_ref.roll= 0.0;
             rates_ref.pitch = 0.0;
-            rates_ref.yaw = 1.0; // Spin
+            rates_ref.yaw = 1.0; // Spin on itself (any duration)
             rates_ref.thrust_body = {0.0, 0.0, -0.72};
 
         } else if (is_vtol_) { // VTOL
-            rates_ref.roll= 4.0; // Roll
+            rates_ref.roll= 4.0; // Roll (2sec maneuver 1 roll, 3sec double roll)
             rates_ref.pitch = 0.0;
-            rates_ref.thrust_body = {0.5, 0.0, 0.0};
+            rates_ref.thrust_body = {0.39, 0.0, 0.0};
         }
         rates_ref_pub_->publish(rates_ref);
     }
-    if (offboard_action_count_ % int(offboard_loop_frequency / 4) == 0) {
-        offboard_mode_pub_->publish(offboard_mode); // The OffboardControlMode should run at at least 2Hz (~4 in this implementation)
+    if (offboard_action_count_ % std::max(1, (offboard_loop_frequency / 10)) == 0) {
+        offboard_mode_pub_->publish(offboard_mode); // The OffboardControlMode should run at at least 2Hz (~10 in this implementation)
     }
     if (offboard_action_count_ >= offboard_loop_frequency && offboard_action_count_ < 2*offboard_loop_frequency) { // Send change mode for 1 sec, 1sec after the beginning of the reference stream
-        send_vehicle_command(176, 1.0, 6.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0);  // MAV_CMD_DO_SET_MODE
+        send_vehicle_command(176, 1.0, 6.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0); // MAV_CMD_DO_SET_MODE to Offboard (PX4_CUSTOM_MAIN_MODE 6)
     }
 }
 
@@ -591,6 +591,7 @@ void PX4Interface::offboard_handle_accepted(const std::shared_ptr<rclcpp_action:
             time_of_offboard_start_us_ = -1;
             offboarding = false;
             aircraft_fsm_state_ = is_vtol_ ? PX4InterfaceState::FW_CRUISE : PX4InterfaceState::MC_HOVER;
+            send_vehicle_command(176, 1.0, 4.0, 3.0, 0.0, 0.0, 0.0, 0.0, 0); // MAV_CMD_DO_SET_MODE to Auto/Loiter (PX4_CUSTOM_MAIN_MODE 4/PX4_CUSTOM_SUB_MODE_AUTO 3)
             feedback->message = "Exiting offboard control at t=" + std::to_string(current_time_us) + "us, returning to cruise/hover state";
             goal_handle->publish_feedback(feedback);
         }
