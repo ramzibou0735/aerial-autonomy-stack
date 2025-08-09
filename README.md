@@ -54,13 +54,14 @@ cd ~/git/aerial-autonomy-stack
 ### Build the Docker Images
 
 > [!WARNING]
-> Building from scratch requires a stable internet connection, `Ctrl + c` and restart if needed 
+> Building from scratch requires a stable internet connection (`Ctrl + c` and restart if needed)
 > 
-> It creates two ~20GB images with lots of tools and artifacts for development
+> The build script creates two ~20GB images with lots of tools and artifacts for development
 
 ```sh
+# Clone external repos (in github_clones/) and build the Docker images
 cd ~/git/aerial-autonomy-stack/scripts
-./sim_build.sh # The first build takes ~30', subsequent ones should takes seconds to minutes
+./sim_build.sh # The first build takes ~25', subsequent ones take seconds to minutes
 ```
 
 ---
@@ -68,8 +69,9 @@ cd ~/git/aerial-autonomy-stack/scripts
 ## Part 2: Simulation and Development with AAS
 
 ```sh
+# Run a simulation
 cd ~/git/aerial-autonomy-stack/scripts
-DRONE_TYPE=quad AUTOPILOT=px4 NUM_DRONES=2 WORLD=swiss_town ./sim_run.sh # Read sim_run.sh for more options
+DRONE_TYPE=quad AUTOPILOT=px4 NUM_DRONES=2 WORLD=swiss_town ./sim_run.sh # Check the script for more options
 # `Ctrl + b`, then `d` in each terminal once done
 ```
 
@@ -86,6 +88,7 @@ Available `WORLD`s:
 To advance the simulation in **discrete time steps**, e.g. 1s, from a terminal on the host, run:
 
 ```sh
+# Pause the simulation
 docker exec simulation-container bash -c "gz service -s /world/\$WORLD/control --reqtype gz.msgs.WorldControl --reptype gz.msgs.Boolean --req 'multi_step: 250, pause: true'" # Adjust multi_step based on the value of max_step_size in the world's .sdf 
 ```
 
@@ -121,6 +124,7 @@ docker exec simulation-container bash -c "gz service -s /world/\$WORLD/control -
 ### Run an Example
 
 ```sh
+# Simple vision-based guidance
 cd ~/git/aerial-autonomy-stack/scripts
 DRONE_TYPE=quad AUTOPILOT=px4 NUM_DRONES=1 ./sim_run.sh
 # In aircraft 1's terminal
@@ -131,11 +135,11 @@ DRONE_TYPE=quad AUTOPILOT=px4 NUM_DRONES=1 ./sim_run.sh
 
 ### Development
 
-Launching the script with `MODE=dev`, does not launch the simulation and mounts folders `simulation_resources`, `aircraft_resources`, and `ros2_ws/src` as volumes to more easily commit changes while testing them within the containers
+Launching the script with `MODE=dev`, does **not** start the simulation and mounts folders `simulation_resources`, `aircraft_resources`, and `ros2_ws/src` as volumes to more easily track, commit, push changes while testing them within the containers
 
 ```sh
 cd ~/git/aerial-autonomy-stack/scripts
-MODE=dev ./sim_run.sh # Images are pre-built but the ros2_ws/src/  and *_resources/ folders are mounted from the host
+MODE=dev ./sim_run.sh # Images are pre-built but the ros2_ws/src/ and *_resources/ folders are mounted from the host
 ```
 
 ---
@@ -151,14 +155,17 @@ MODE=dev ./sim_run.sh # Images are pre-built but the ros2_ws/src/  and *_resourc
 > 
 > Make sure to configure Orin, 6X's XRCE-DDS, IP radio, Zenoh, etc. consistently with your network setup; the camera acquisition pipeline should be setup in `yolo_inference_node.py`, the lidar should publish on topic `/lidar_points` for KISS-ICP (if necessary, discuss in the [Issues](https://github.com/JacopoPan/aerial-autonomy-stack/issues))
 
-On Jetson Orin NX
+
 ```sh
+# On Jetson Orin NX, build for arm64 with TensorRT support
 mkdir -p ~/git
 git clone git@github.com:JacopoPan/aerial-autonomy-stack.git ~/git/aerial-autonomy-stack
 cd ~/git/aerial-autonomy-stack/scripts
-
 ./deploy_build.sh # The first build takes ~1h (mostly to build onnxruntime-gpu from source)
+```
 
+```sh
+# On Jetson Orin NX, start and attach the aerial-autonomy-stack (e.g., from ssh)
 DRONE_TYPE=quad AUTOPILOT=px4 DRONE_ID=1 CAMERA=true LIDAR=false ./deploy_run.sh
 docker exec -it aircraft-container tmux attach
 ```
@@ -253,11 +260,11 @@ ValueError: generator already executing
 
 ### Known Issues
 
+- Must adjust orientation of the lidar and frame of the lidar odometry for VTOLs
+- In yolo_inference_node.py, cannot open GPU accelerated (nvh264dec) GStreamer pipeline with cv2.VideoCapture, might need to recompile OpenCV to have both CUDA and GStreamer support (or use python3-gi gir1.2-gst-plugins-base-1.0 gir1.2-gstreamer-1.0 and circumbent OpenCV)
 - Cannot use **/.git in .dockerignore because PX4 and ArduPilot use it in their build
 - PX4 messages 1.16 have VehicleStatus on MESSAGE_VERSION = 1, topic fmu/out/vehicle_status_v1
-- QGC does not save roll and pitch in the telemetry bar for PX4 VTOLs
-- Need to adjust orientation of the lidar and frame of the lidar odometry for VTOLs
-- In yolo_inference_node.py, cannot open GPU accelerated (nvh264dec) GStreamer pipeline with cv2.VideoCapture, might need to recompile OpenCV to have both CUDA and GStreamer support (or use python3-gi gir1.2-gst-plugins-base-1.0 gir1.2-gstreamer-1.0 and circumbent OpenCV)
+- QGC does not save roll and pitch in the telemetry bar for PX4 VTOLs (MAV_TYPE 22)
 
 
 

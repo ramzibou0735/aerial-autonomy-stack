@@ -73,7 +73,7 @@ sudo apt install git
 sudo apt install git-lfs
 git lfs install
 
-# Create an ssh key
+# Create an ssh key (optional)
 ssh-keygen 
 cat ~/.ssh/id_rsa.pub
 ```
@@ -92,6 +92,8 @@ cat ~/.ssh/id_rsa.pub
 ## Install Docker Engine and NVIDIA Container Toolkit on Jetson Orin
 
 ```sh
+# Based on https://docs.docker.com/engine/install/ubuntu/ and https://docs.docker.com/engine/install/linux-postinstall/
+
 for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo apt-get remove $pkg; done # none should be there
 
 # Add Docker's official GPG key:

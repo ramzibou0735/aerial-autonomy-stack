@@ -16,7 +16,7 @@
 
 ```sh
 sudo apt install mesa-utils # Also installed in the simulation container, for gz sim rendering
-# Check GPU OpenGL renderer
+# Check the GPU is the OpenGL renderer
 glxinfo | grep "OpenGL renderer"
 
 # Install git
@@ -28,7 +28,7 @@ sudo apt install git
 sudo apt install git-lfs
 git lfs install
 
-# Create an ssh key
+# Create an ssh key (optional)
 ssh-keygen 
 cat ~/.ssh/id_rsa.pub
 ```
