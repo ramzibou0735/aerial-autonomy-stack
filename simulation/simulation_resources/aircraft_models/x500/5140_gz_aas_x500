@@ -43,10 +43,6 @@ PX4_SIM_MODEL=${PX4_SIM_MODEL:=x500}
 
 param set-default SIM_GZ_EN 1
 
-param set-default SENS_EN_GPSSIM 1
-param set-default SENS_EN_BAROSIM 0
-param set-default SENS_EN_MAGSIM 1
-
 param set-default CA_AIRFRAME 0
 param set-default CA_ROTOR_COUNT 4
 
@@ -87,6 +83,11 @@ param set-default NAV_DLL_ACT 2
 ################################################################################
 
 # AAS Custom
+
+# Simulated sensors
+param set-default SENS_EN_GPSSIM 1
+param set-default SENS_EN_BAROSIM 0
+param set-default SENS_EN_MAGSIM 1
 
 param set-default COM_RCL_EXCEPT 7 # Disable RC loss action
 param set-default UXRCE_DDS_SYNCT 0 # This lets PX4 SITL keep using Gazebo simulation time

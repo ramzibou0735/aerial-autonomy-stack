@@ -180,34 +180,7 @@ docker exec -it aircraft-container tmux attach
 ## TODOs
 
 PX4 Interface
-Notes
-    these are removed from the from x500 and custom_vtol airframes (kept for now)
-        param set-default SENS_EN_GPSSIM 1
-        param set-default SENS_EN_BAROSIM 0
-        param set-default SENS_EN_MAGSIM 1
-    move this to aas custom params
-        param set-default VT_F_TRANS_THR 0.75 # The 0.3 default value in v1.16.0 does not allow to transition
-
-    Use these to improve commands with 1.16
-        # used as param1 in DO_CHANGE_SPEED command
-        uint8 SPEED_TYPE_AIRSPEED = 0
-        uint8 SPEED_TYPE_GROUNDSPEED = 1
-        uint8 SPEED_TYPE_CLIMB_SPEED = 2
-        uint8 SPEED_TYPE_DESCEND_SPEED = 3
-
-        # used as param3 in CMD_DO_ORBIT
-        uint8 ORBIT_YAW_BEHAVIOUR_HOLD_FRONT_TO_CIRCLE_CENTER = 0
-        uint8 ORBIT_YAW_BEHAVIOUR_HOLD_INITIAL_HEADING = 1
-        uint8 ORBIT_YAW_BEHAVIOUR_UNCONTROLLED = 2
-        uint8 ORBIT_YAW_BEHAVIOUR_HOLD_FRONT_TANGENT_TO_CIRCLE = 3
-        uint8 ORBIT_YAW_BEHAVIOUR_RC_CONTROLLED = 4
-        uint8 ORBIT_YAW_BEHAVIOUR_UNCHANGED = 5
-
-- Orbit working questionably for quads: tangential speed should be specified, altitude in reached but not kept(?), does not exit mode automatically
-- Set altitude interrupts reposition for quads (reasonable, make it for vtol only?), also resets yaw
-- Set speed only affects next reposition for quads (reasonable, add warning)
-- Quad landing return has no yaw (make it landing in place instead?)
-
+- Move change mode to offboard back to action handler
 - Canceling actions with Ctrl + c is not working: fix or workaround, then implement logic to exit ABORTED state
 
 Goal accepted with ID: 15357dbc13314fffbac7273fb8118ac7
@@ -253,6 +226,25 @@ Traceback (most recent call last):
   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 723, in wait_for_ready_callbacks
     return next(self._cb_iter)
 ValueError: generator already executing
+
+- Orbit working questionably for quads: tangential speed should be specified, altitude in reached but not kept(?), does not exit mode automatically
+- Set altitude interrupts reposition for quads (reasonable, make it for vtol only?), also resets yaw
+- Set speed only affects next reposition for quads (reasonable, add warning)
+- Quad landing return has no yaw (make it landing in place instead?)
+    Use these to improve commands with 1.16
+        # used as param1 in DO_CHANGE_SPEED command
+        uint8 SPEED_TYPE_AIRSPEED = 0
+        uint8 SPEED_TYPE_GROUNDSPEED = 1
+        uint8 SPEED_TYPE_CLIMB_SPEED = 2
+        uint8 SPEED_TYPE_DESCEND_SPEED = 3
+
+        # used as param3 in CMD_DO_ORBIT
+        uint8 ORBIT_YAW_BEHAVIOUR_HOLD_FRONT_TO_CIRCLE_CENTER = 0
+        uint8 ORBIT_YAW_BEHAVIOUR_HOLD_INITIAL_HEADING = 1
+        uint8 ORBIT_YAW_BEHAVIOUR_UNCONTROLLED = 2
+        uint8 ORBIT_YAW_BEHAVIOUR_HOLD_FRONT_TANGENT_TO_CIRCLE = 3
+        uint8 ORBIT_YAW_BEHAVIOUR_RC_CONTROLLED = 4
+        uint8 ORBIT_YAW_BEHAVIOUR_UNCHANGED = 5
 
 - Implement ardupilot/mavros interface (check if 4.6.2 is still the latest stable release)
 - Make sure that for all maps, all vehicles, a simple autonomous takeoff + loiter + landing example works with up to 3 vehicles
