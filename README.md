@@ -253,6 +253,7 @@ ValueError: generator already executing
 
 ### Known Issues
 
+- Cannot use **/.git in .dockerignore because PX4 and ArduPilot use it in their build
 - PX4 messages 1.16 have VehicleStatus on MESSAGE_VERSION = 1, topic fmu/out/vehicle_status_v1
 - QGC does not save roll and pitch in the telemetry bar for PX4 VTOLs
 - Need to adjust orientation of the lidar and frame of the lidar odometry for VTOLs
