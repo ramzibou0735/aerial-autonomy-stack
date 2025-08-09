@@ -26,9 +26,10 @@ for repo_info in "${REPOS[@]}"; do
         cd "$TARGET_DIR"
         BRANCH=$(git branch --show-current)
         TAGS=$(git tag --points-at HEAD)
-        echo "Existing clone of ${dir} on branch: ${BRANCH}, tags: [${TAGS}], checking for updates to the branch"
-        git pull
-        git submodule update --init --recursive --depth 1
+        echo "There is a clone of ${dir} on branch: ${BRANCH}, tags: [${TAGS}]"
+        # The script does not automatically pull changes for already cloned repos (as they should be on fixed tags)
+        # git pull
+        # git submodule update --init --recursive --depth 1
         cd "$CLONE_DIR"
     else
         echo "First clone of ${dir}"
@@ -39,5 +40,5 @@ done
 # The first build takes ~15' and creates a 21GB image (8GB for ros-humble-desktop with nvidia runtime, 10GB for PX4 and ArduPilot SITL)
 docker build -t simulation-image -f "${SCRIPT_DIR}/docker/Dockerfile.simulation" "${SCRIPT_DIR}/.."
 
-# The first build takes ~15' and creates a 16GB image (8GB for ros-humble-desktop with nvidia runtime, 7GB for YOLOv8, ONNX)
+# The first build takes ~10' and creates a 16GB image (8GB for ros-humble-desktop with nvidia runtime, 7GB for YOLOv8, ONNX)
 docker build -t aircraft-image -f "${SCRIPT_DIR}/docker/Dockerfile.aircraft" "${SCRIPT_DIR}/.."

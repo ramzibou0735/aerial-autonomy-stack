@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Note that this should run on Orin to build for arm64
+# Note that this script should run on Orin to build for arm64
 
 # Find the script's path
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
@@ -24,9 +24,10 @@ for repo_info in "${REPOS[@]}"; do
         cd "$TARGET_DIR"
         BRANCH=$(git branch --show-current)
         TAGS=$(git tag --points-at HEAD)
-        echo "Existing clone of ${dir} on branch: ${BRANCH}, tags: [${TAGS}], checking for updates to the branch"
-        git pull
-        git submodule update --init --recursive --depth 1
+        echo "There is a clone of ${dir} on branch: ${BRANCH}, tags: [${TAGS}]"
+        # The script does not automatically pull changes for already cloned repos (as they should be on fixed tags)
+        # git pull
+        # git submodule update --init --recursive --depth 1
         cd "$CLONE_DIR"
     else
         echo "First clone of ${dir}"

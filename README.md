@@ -6,7 +6,7 @@
 2. **Simulate** vision and control in software-in-the-loop, with YOLOv8 and PX4/ArduPilot
 3. **Deploy** in real drones with NVIDIA Orin/JetPack
 
-> For the motivation behind AAS and how it compares to similar projects, read [`RATIONALE.md`](/docs/RATIONALE.md)
+> For the motivation behind AAS and how it compares to similar projects, read [`RATIONALE.md`](/supplementary/RATIONALE.md)
 
 ## Feature Highlights
 
@@ -42,7 +42,7 @@
 > [!IMPORTANT]
 > This stack is developed and tested using a [Ubuntu 22.04](https://ubuntu.com/about/release-cycle) host (penultimate LTS, ESM 4/2032) with [**`nvidia-driver-575`**](https://developer.nvidia.com/datacenter-driver-archive) and Docker Engine v28 (latest stable releases as of 7/2025) on an i9-13 with RTX3500 and an i7-11 with RTX3060—**note that an NVIDIA GPU *is* required**
 > 
-> **To setup the requirements: (i) Ubuntu 22, Git LFS, (ii) NVIDIA driver, (iii) Docker Engine, (iv) NVIDIA Container Toolkit, and (v) NVIDIA NGC API Key, read [`PREINSTALL.md`](/docs/PREINSTALL.md)**
+> **To setup the requirements: (i) Ubuntu 22, Git LFS, (ii) NVIDIA driver, (iii) Docker Engine, (iv) NVIDIA Container Toolkit, and (v) NVIDIA NGC API Key, read [`PREINSTALL.md`](/supplementary/PREINSTALL.md)**
 
 ```sh
 # Clone this repo
@@ -51,33 +51,25 @@ git clone git@github.com:JacopoPan/aerial-autonomy-stack.git ~/git/aerial-autono
 cd ~/git/aerial-autonomy-stack
 ```
 
-### Option 1: Build the Docker Images
+### Build the Docker Images
 
 > [!WARNING]
 > Building from scratch requires a stable internet connection, `Ctrl + c` and restart if needed 
+> 
+> It creates two ~20GB images with lots of tools and artifacts for development
 
 ```sh
 cd ~/git/aerial-autonomy-stack/scripts
-./build_sim.sh # The first build takes ~30'
-```
-
-> These are development-friendly images with lots of tools and artifacts, trim as needed
-
-### Option 2: Pull the Pre-built Docker Images
-
-```sh
-# TODO add .github workflow to build and push the images, explain how to use with local build
-docker pull jacopopan/simulation-image:latest # TODO
-docker pull jacopopan/aircraft-image:latest # TODO
+./build_sim.sh # The first build takes ~30', subsequent ones should takes seconds to minutes
 ```
 
 ---
 
-## Part 2: Simulation with AAS
+## Part 2: Simulation and Development with AAS
 
 ```sh
 cd ~/git/aerial-autonomy-stack/scripts
-DRONE_TYPE=quad AUTOPILOT=px4 NUM_DRONES=2 WORLD=swiss_town HEADLESS=false ./run_sim.sh # Read run_sim.sh for more options
+DRONE_TYPE=quad AUTOPILOT=px4 NUM_DRONES=2 WORLD=swiss_town ./run_sim.sh # Read run_sim.sh for more options
 # `Ctrl + b`, then `d` in each terminal once done
 ```
 
@@ -121,6 +113,7 @@ docker exec simulation-container bash -c "gz service -s /world/\$WORLD/control -
 > docker images # List images
 > docker image prune # Remove untagged images
 > docker rmi <image_name_or_id> # Remove a specific image
+> docker builder prune # Clear the cache system wide
 > ```
 > 
 > </details>
@@ -136,58 +129,23 @@ DRONE_TYPE=quad AUTOPILOT=px4 NUM_DRONES=1 ./run_sim.sh
 
 <!-- TODO: add video of the skibidi example -->
 
----
+### Development
 
-## Part 3: Development with AAS
+Launching the script with `MODE=dev`, does not launch the simulation and mounts folders `simulation_resources`, `aircraft_resources`, and `ros2_ws/src` as volumes to more easily commit changes while testing them within the containers
 
 ```sh
 cd ~/git/aerial-autonomy-stack/scripts
-MODE=dev ./run_sim.sh # Images are pre-built but the ros2_ws/src/ folders are mounted from the host
+MODE=dev ./run_sim.sh # Images are pre-built but the ros2_ws/src/  and *_resources/ folders are mounted from the host
 ```
-
-*On the host*, edit the source of `~/git/aerial-autonomy-stack/aircraft_ws/src` and `~/git/aerial-autonomy-stack/simulation_ws/src`: it will be reflected in the two running containers
-
-*In each of the two terminals/containers* created by `run_sim.sh`, re-build the workspaces
-
-```sh
-# In the simulation and aircraft 1 terminals
-cd /ros2_ws
-colcon build --symlink-install # rosdep update, rosdep install, if necessary
-```
-
-Start the simulation to check the changes
-
-```sh
-# In the simulation terminal
-tmuxinator start -p /simulation_resources/simulation.yml.erb
-# In aircraft 1's terminal
-tmuxinator start -p /aircraft_resources/aircraft.yml.erb
-```
-
-Detach tmuxinator with `Ctrl + d` and kill the sessions
-
-```sh
-# In the simulation terminal
-tmux kill-session -t simulation_tmuxinator && pkill -f gz
-# In aircraft 1's terminal
-tmux kill-session -t aircraft_tmuxinator
-```
-
-Repeat as necessary, finally commit the changes from the repository on the host computer
-
-> [!NOTE]
-> `aircraft_resources/` and `simulation_resources/` are also mounted but certain changes, e.g. in PX4's ROMFS, require compilation steps more easily achieved by re-building the Dockerfiles
-> 
-> The sources in `git` and `ros2_ws_github/src` are not mounted because they belong to external repos, they are copied on every re-building of the Dockerfiles (see ["Part 1"](#option-1-build-the-docker-images))
 
 ---
 
-## Part 4: Deployment of AAS
+## Part 3: Deployment of AAS
 
 > [!IMPORTANT]
 > These instructions are tested on a [Holybro Jetson Baseboard](https://holybro.com/products/pixhawk-jetson-baseboard) kit that includes (i) a Pixhawk 6X autopilot and (ii) an NVIDIA Orin NX 16GB computer connected via both serial and ethernet
 > 
-> **To setup (i) PX4's DDS UDP client, (ii) ArduPilot serial MAVLink bridge, (iii) JetPack 6, (iv) Docker Engine, (v) NVIDIA Container Toolkit, and (vi) NVIDIA NGC API Key on Orin, read [`AVIONICS.md`](/docs/AVIONICS.md)**
+> **To setup (i) PX4's DDS UDP client, (ii) ArduPilot serial MAVLink bridge, (iii) JetPack 6, (iv) Docker Engine, (v) NVIDIA Container Toolkit, and (vi) NVIDIA NGC API Key on Orin, read [`AVIONICS.md`](/supplementary/AVIONICS.md)**
 >
 > The Holybro Jetson Baseboard comes with an (i) integrated 4-way (Orin, 6X, RJ-45, JST) Ethernet switch and (ii) two JST USB 2.0 that can be connected to ASIX Ethernet adapters to create additional network interfaces
 > 
@@ -200,8 +158,6 @@ git clone git@github.com:JacopoPan/aerial-autonomy-stack.git ~/git/aerial-autono
 cd ~/git/aerial-autonomy-stack/scripts
 
 ./build_deploy.sh # The first build takes ~1h (mostly to build onnxruntime-gpu from source)
-# Alternatively
-docker pull jacopopan/aircraft-image:jetson # TODO
 
 DRONE_TYPE=quad AUTOPILOT=px4 DRONE_ID=1 CAMERA=true LIDAR=false ./run_deploy.sh
 docker exec -it aircraft-container tmux attach
@@ -292,7 +248,6 @@ Traceback (most recent call last):
 ValueError: generator already executing
 
 - Implement ardupilot/mavros interface (check if 4.6.2 is still the latest stable release)
-- Remove part 3 development and include it to part 2 simulation
 - Make sure that for all maps, all vehicles, a simple autonomous takeoff + loiter + landing example works with up to 3 vehicles
 - Update deployment to latest JetPack
 
