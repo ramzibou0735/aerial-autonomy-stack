@@ -180,7 +180,7 @@ docker exec -it aircraft-container tmux attach
 ## TODOs
 
 PX4 Interface
-- Move change mode to offboard back to action handler
+
 - Canceling actions with Ctrl + c is not working: fix or workaround, then implement logic to exit ABORTED state
 
 Goal accepted with ID: 15357dbc13314fffbac7273fb8118ac7

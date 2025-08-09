@@ -105,8 +105,8 @@ private:
     std::atomic<bool> active_srv_or_act_flag_;
     double home_lat_, home_lon_, home_alt_; // Saved on takeoff
     int offboard_loop_frequency;
-    std::atomic<int> offboard_health_count_;
-    std::atomic<int> offboard_action_count_;
+    std::atomic<int> offboard_loop_count_;
+    std::atomic<int> last_offboard_loop_count_;
     rclcpp::Time last_offboard_rate_check_time_;
 
     // Callback groups

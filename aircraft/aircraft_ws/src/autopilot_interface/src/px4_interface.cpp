@@ -2,7 +2,7 @@
 
 PX4Interface::PX4Interface() : Node("px4_interface"), 
     active_srv_or_act_flag_(false), aircraft_fsm_state_(PX4InterfaceState::STARTED), 
-    offboard_loop_frequency(50), offboard_health_count_(0), offboard_action_count_(0),
+    offboard_loop_frequency(50), offboard_loop_count_(0), last_offboard_loop_count_(0),
     target_system_id_(-1), arming_state_(-1), vehicle_type_(-1),
     is_vtol_(false), is_vtol_tailsitter_(false), in_transition_mode_(false), in_transition_to_fw_(false), pre_flight_checks_pass_(false),
     lat_(NAN), lon_(NAN), alt_(NAN), alt_ellipsoid_(NAN),
@@ -249,16 +249,16 @@ void PX4Interface::px4_interface_printout_callback()
     auto now = this->get_clock()->now();
     double elapsed_sec = (now - last_offboard_rate_check_time_).seconds();
     if (elapsed_sec > 0) {
-        double actual_rate = offboard_health_count_ / elapsed_sec;
+        double actual_rate = (offboard_loop_count_ - last_offboard_loop_count_) / elapsed_sec;
         RCLCPP_INFO(this->get_logger(), 
                 "Offboard loop rate:\n\t%.2f Hz\n\n", actual_rate);
     }    
-    offboard_health_count_ = 0;
+    last_offboard_loop_count_.store(offboard_loop_count_.load());
     last_offboard_rate_check_time_ = now;
 }
 void PX4Interface::offboard_control_loop_callback()
 {
-    offboard_health_count_++; // Counter to monitor the rate of the offboard loop
+    offboard_loop_count_++; // Counter to monitor the rate of the offboard loop
 
     std::shared_lock<std::shared_mutex> lock(subs_data_mutex_); // Use shared_lock for data reads
     if (!((aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_ATTITUDE) || (aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_RATES) || (aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_TRAJECTORY))) {
@@ -282,7 +282,7 @@ void PX4Interface::offboard_control_loop_callback()
             attitude_ref.q_d[3] = 0;                    // z
             attitude_ref.thrust_body = {0.0, 0.0, -0.72};
         } else if (is_vtol_) { // VTOL
-            double pitch_rad = -20.0 * M_PI / 180.0; // Pitch to dive
+            double pitch_rad = -30.0 * M_PI / 180.0; // Pitch to dive
             attitude_ref.q_d[0] = cos(pitch_rad / 2.0); // w
             attitude_ref.q_d[1] = 0;                    // x
             attitude_ref.q_d[2] = sin(pitch_rad / 2.0); // y
@@ -321,11 +321,8 @@ void PX4Interface::offboard_control_loop_callback()
         }
         trajectory_ref_pub_->publish(trajectory_ref);
     }
-    if (offboard_action_count_ % std::max(1, (offboard_loop_frequency / 10)) == 0) {
+    if (offboard_loop_count_ % std::max(1, (offboard_loop_frequency / 10)) == 0) {
         offboard_mode_pub_->publish(offboard_mode); // The OffboardControlMode should run at at least 2Hz (~10 in this implementation)
-    }
-    if (offboard_action_count_ >= offboard_loop_frequency && offboard_action_count_ < 2*offboard_loop_frequency) { // Send change mode for 1 sec, 1sec after the beginning of the reference stream
-        do_set_mode(6, 0); // Offboard (PX4_CUSTOM_MAIN_MODE 6 no sub mode)
     }
 }
 
@@ -573,7 +570,7 @@ void PX4Interface::offboard_handle_accepted(const std::shared_ptr<rclcpp_action:
     int offboard_setpoint_type = goal->offboard_setpoint_type;
     double max_duration_sec = goal->max_duration_sec;
 
-    offboard_action_count_ = 0;
+    offboard_loop_count_ = 0;
     bool offboarding = true;
     uint64_t time_of_offboard_start_us_ = -1;
     rclcpp::Rate offboard_loop_rate(100);
@@ -589,7 +586,6 @@ void PX4Interface::offboard_handle_accepted(const std::shared_ptr<rclcpp_action:
             return;
         }
 
-        offboard_action_count_++;
         uint64_t current_time_us = this->get_clock()->now().nanoseconds() / 1000;  // Convert to microseconds
         if (time_of_offboard_start_us_ == -1) {
             if (offboard_setpoint_type == autopilot_interface_msgs::action::Offboard::Goal::ATTITUDE) {
@@ -622,6 +618,9 @@ void PX4Interface::offboard_handle_accepted(const std::shared_ptr<rclcpp_action:
             do_set_mode(4, 3); // Auto/Loiter (PX4_CUSTOM_MAIN_MODE 4/PX4_CUSTOM_SUB_MODE_AUTO 3)
             feedback->message = "Exiting offboard control at t=" + std::to_string(current_time_us) + "us, returning to loiter/hover (Hold) state";
             goal_handle->publish_feedback(feedback);
+        } else if ((current_time_us >= (time_of_offboard_start_us_ + 1 * 1000000)) && (current_time_us < (time_of_offboard_start_us_ + 2 * 1000000))) {
+            // Send change mode for 1 sec, 1sec after the beginning of the reference stream
+            do_set_mode(6, 0); // Offboard (PX4_CUSTOM_MAIN_MODE 6 no sub mode)
         }
     }
     result->success = true;
