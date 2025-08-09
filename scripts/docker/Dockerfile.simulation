@@ -134,7 +134,7 @@ RUN mkdir build && cd build && \
 # Temporary stage to filter airframes ##########################################
 ################################################################################
 FROM ubuntu:22.04 AS airframe_filter_stage
-COPY simulation_resources/aircraft_models/ /temp_folder
+COPY simulation/simulation_resources/aircraft_models/ /temp_folder
 RUN mkdir /airframes
 RUN find /temp_folder -type f -regex '.*/[0-9]+_.*' -exec cp {} /airframes/ \;
 
@@ -144,12 +144,12 @@ RUN find /temp_folder -type f -regex '.*/[0-9]+_.*' -exec cp {} /airframes/ \;
 FROM ros2-gz-qgc-px4-ardupilot-image AS ros2-gz-qgc-px4custom-ardupilot-image
 
 # Apply PX4 patches (DDS Agent on custom IP, ...)
-COPY simulation_resources/patches/px4-v1.16.0.patch /git
+COPY simulation/simulation_resources/patches/px4-v1.16.0.patch /git/px4-v1.16.0.patch
 WORKDIR /git/PX4-Autopilot
 RUN git apply ../px4-v1.16.0.patch
 
 # Replace dds_topics.yaml with custom topics
-COPY simulation_resources/patches/dds_topics.yaml /git/PX4-Autopilot/src/modules/uxrce_dds_client/
+COPY simulation/simulation_resources/patches/dds_topics.yaml /git/PX4-Autopilot/src/modules/uxrce_dds_client/
 
 # Add PX4 Airframes ROMFS
 COPY --from=airframe_filter_stage /airframes/ /git/PX4-Autopilot/ROMFS/px4fmu_common/init.d-posix/airframes/
@@ -203,7 +203,7 @@ RUN rosdep install --from-paths src/ --ignore-src --rosdistro humble -y
 RUN bash -c "source /opt/ros/humble/setup.bash && colcon build --symlink-install"
 
 # Build the ROS 2 workspace
-COPY simulation_ws/src /ros2_ws/src
+COPY simulation/simulation_ws/src /ros2_ws/src
 WORKDIR /ros2_ws
 RUN rosdep update
 RUN rosdep install --from-paths src/ --ignore-src --rosdistro humble -y
@@ -211,8 +211,8 @@ RUN rosdep install --from-paths src/ --ignore-src --rosdistro humble -y
 RUN bash -c "source /opt/ros/humble/setup.bash && source /ros2_ws_github/install/setup.bash && colcon build --symlink-install"
 
 # Copy resources and configuration files from this repository
-COPY simulation_resources/ /simulation_resources
-COPY simulation_resources/patches/QGroundControl.ini /home/qgcuser/.config/QGroundControl/
+COPY simulation/simulation_resources/ /simulation_resources
+COPY simulation/simulation_resources/patches/QGroundControl.ini /home/qgcuser/.config/QGroundControl/
 
 # Source the workspaces
 RUN echo "source /ros2_ws_github/install/setup.bash" >> /root/.bashrc
@@ -221,4 +221,5 @@ RUN echo "source /ros2_ws/install/setup.bash" >> /root/.bashrc
 
 # Final config
 WORKDIR /
-ENTRYPOINT ["tmuxinator", "start", "-p", "/simulation_resources/simulation.yml.erb"]
+COPY simulation/simulation.yml.erb /simulation.yml.erb
+ENTRYPOINT ["tmuxinator", "start", "-p", "/simulation.yml.erb"]

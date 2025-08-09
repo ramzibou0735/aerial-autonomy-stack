@@ -60,7 +60,7 @@ cd ~/git/aerial-autonomy-stack
 
 ```sh
 cd ~/git/aerial-autonomy-stack/scripts
-./build_sim.sh # The first build takes ~30', subsequent ones should takes seconds to minutes
+./sim_build.sh # The first build takes ~30', subsequent ones should takes seconds to minutes
 ```
 
 ---
@@ -69,7 +69,7 @@ cd ~/git/aerial-autonomy-stack/scripts
 
 ```sh
 cd ~/git/aerial-autonomy-stack/scripts
-DRONE_TYPE=quad AUTOPILOT=px4 NUM_DRONES=2 WORLD=swiss_town ./run_sim.sh # Read run_sim.sh for more options
+DRONE_TYPE=quad AUTOPILOT=px4 NUM_DRONES=2 WORLD=swiss_town ./sim_run.sh # Read sim_run.sh for more options
 # `Ctrl + b`, then `d` in each terminal once done
 ```
 
@@ -122,7 +122,7 @@ docker exec simulation-container bash -c "gz service -s /world/\$WORLD/control -
 
 ```sh
 cd ~/git/aerial-autonomy-stack/scripts
-DRONE_TYPE=quad AUTOPILOT=px4 NUM_DRONES=1 ./run_sim.sh
+DRONE_TYPE=quad AUTOPILOT=px4 NUM_DRONES=1 ./sim_run.sh
 # In aircraft 1's terminal
 ./skibidi.sh
 ```
@@ -135,7 +135,7 @@ Launching the script with `MODE=dev`, does not launch the simulation and mounts 
 
 ```sh
 cd ~/git/aerial-autonomy-stack/scripts
-MODE=dev ./run_sim.sh # Images are pre-built but the ros2_ws/src/  and *_resources/ folders are mounted from the host
+MODE=dev ./sim_run.sh # Images are pre-built but the ros2_ws/src/  and *_resources/ folders are mounted from the host
 ```
 
 ---
@@ -157,9 +157,9 @@ mkdir -p ~/git
 git clone git@github.com:JacopoPan/aerial-autonomy-stack.git ~/git/aerial-autonomy-stack
 cd ~/git/aerial-autonomy-stack/scripts
 
-./build_deploy.sh # The first build takes ~1h (mostly to build onnxruntime-gpu from source)
+./deploy_build.sh # The first build takes ~1h (mostly to build onnxruntime-gpu from source)
 
-DRONE_TYPE=quad AUTOPILOT=px4 DRONE_ID=1 CAMERA=true LIDAR=false ./run_deploy.sh
+DRONE_TYPE=quad AUTOPILOT=px4 DRONE_ID=1 CAMERA=true LIDAR=false ./deploy_run.sh
 docker exec -it aircraft-container tmux attach
 ```
 

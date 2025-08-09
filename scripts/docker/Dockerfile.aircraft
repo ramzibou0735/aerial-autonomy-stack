@@ -185,9 +185,9 @@ RUN apt-get update && \
 ################################################################################
 FROM ros2-px4msgs-dds-mavros-yolo-kissicp-zenoh-image AS aircraft-dev-image
 
-# Build the ROS 2 workspace (NOTE: also includes ground_system_msgs from simulation_ws)
-COPY simulation_ws/src/ground_system_msgs /ros2_ws/src/ground_system_msgs
-COPY aircraft_ws/src /ros2_ws/src
+# Build the ROS 2 workspace (NOTE: also includes ground_system_msgs from the simulation_ws)
+COPY simulation/simulation_ws/src/ground_system_msgs /ros2_ws/src/ground_system_msgs
+COPY aircraft/aircraft_ws/src /ros2_ws/src
 WORKDIR /ros2_ws
 RUN rosdep update
 RUN rosdep install --from-paths src/ --ignore-src --rosdistro humble -y --skip-keys "px4_msgs"
@@ -195,9 +195,9 @@ RUN rosdep install --from-paths src/ --ignore-src --rosdistro humble -y --skip-k
 RUN bash -c "source /opt/ros/humble/setup.bash && source /ros2_ws_github/install/setup.bash && colcon build --symlink-install"
 
 # Copy resources and configuration files from this repository
-COPY aircraft_resources/ /aircraft_resources
-COPY aircraft_resources/patches/kiss_icp.rviz /ros2_ws_github/src/kiss-icp/ros/rviz/kiss_icp.rviz
-COPY aircraft_resources/patches/apm_pluginlists.yaml /opt/ros/humble/share/mavros/launch/apm_pluginlists.yaml
+COPY aircraft/aircraft_resources/ /aircraft_resources
+COPY aircraft/aircraft_resources/patches/kiss_icp.rviz /ros2_ws_github/src/kiss-icp/ros/rviz/kiss_icp.rviz
+COPY aircraft/aircraft_resources/patches/apm_pluginlists.yaml /opt/ros/humble/share/mavros/launch/apm_pluginlists.yaml
 
 # Source the workspaces
 RUN echo "source /ros2_ws_github/install/setup.bash" >> /root/.bashrc
@@ -206,4 +206,5 @@ RUN echo "source /ros2_ws/install/setup.bash" >> /root/.bashrc
 
 # Final config
 WORKDIR /
-ENTRYPOINT ["tmuxinator", "start", "-p", "/aircraft_resources/aircraft.yml.erb"]
+COPY aircraft/aircraft.yml.erb /aircraft.yml.erb
+ENTRYPOINT ["tmuxinator", "start", "-p", "/aircraft.yml.erb"]
