@@ -179,8 +179,6 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- implement logic to exit ABORTED state
-
 PX4 Interface Open Tasks
 - Orbit working questionably for quads: tangential speed should be specified, altitude in reached but not kept(?), does not exit mode automatically
 - Set altitude interrupts reposition for quads (reasonable, make it for vtol only?), also resets yaw

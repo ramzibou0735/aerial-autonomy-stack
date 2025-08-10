@@ -450,7 +450,9 @@ void PX4Interface::land_handle_accepted(const std::shared_ptr<rclcpp_action::Ser
         std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // Reading data written by subs but also writing the FSM state
 
         if (goal_handle->is_canceling()) { // Check if there is a cancel request
-            abort_action(); // Sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to ABORTED
+            abort_action(); // Sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to MC_HOVER or FW_CRUISE
+            feedback->message = "Canceling landing";
+            goal_handle->publish_feedback(feedback);
             result->success = false;
             goal_handle->canceled(result);
             RCLCPP_INFO(this->get_logger(), "Landing canceled");
@@ -539,7 +541,6 @@ void PX4Interface::land_handle_accepted(const std::shared_ptr<rclcpp_action::Ser
     goal_handle->succeed(result);
     active_srv_or_act_flag_.store(false);
     return;
-    // TODO: reset aircraft_fsm_state_ for the next flight
 }
 //
 rclcpp_action::GoalResponse PX4Interface::offboard_handle_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const autopilot_interface_msgs::action::Offboard::Goal> goal)
@@ -579,7 +580,9 @@ void PX4Interface::offboard_handle_accepted(const std::shared_ptr<rclcpp_action:
         std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // Reading data written by subs but also writing the FSM state
 
         if (goal_handle->is_canceling()) { // Check if there is a cancel request
-            abort_action(); // Sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to ABORTED
+            abort_action(); // Sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to MC_HOVER or FW_CRUISE
+            feedback->message = "Canceling offboard";
+            goal_handle->publish_feedback(feedback);
             result->success = false;
             goal_handle->canceled(result);
             RCLCPP_INFO(this->get_logger(), "Offboard canceled");
@@ -677,7 +680,9 @@ void PX4Interface::takeoff_handle_accepted(const std::shared_ptr<rclcpp_action::
         std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // Reading data written by subs but also writing the FSM state
 
         if (goal_handle->is_canceling()) { // Check if there is a cancel request
-            abort_action(); // Sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to ABORTED
+            abort_action(); // Sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to MC_HOVER or FW_CRUISE
+            feedback->message = "Canceling takeoff";
+            goal_handle->publish_feedback(feedback);
             result->success = false;
             goal_handle->canceled(result);
             RCLCPP_INFO(this->get_logger(), "Takeoff canceled");
@@ -883,8 +888,13 @@ void PX4Interface::send_vehicle_command(int command, double param1, double param
 }
 void PX4Interface::abort_action()
 {
+    // std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // Reading data written by subs but also writing the FSM state
     do_reposition(home_lat_, home_lon_, 100.0); // HARDCODED: reposition to 100m above home
-    aircraft_fsm_state_ = PX4InterfaceState::ABORTED; // TODO: allow recovery from ABORTED state
+    if (vehicle_type_ == px4_msgs::msg::VehicleStatus::VEHICLE_TYPE_ROTARY_WING) {
+        aircraft_fsm_state_ = PX4InterfaceState::MC_HOVER;
+    } else if (vehicle_type_ == px4_msgs::msg::VehicleStatus::VEHICLE_TYPE_FIXED_WING) {
+        aircraft_fsm_state_ = PX4InterfaceState::FW_CRUISE;
+    } // TODO: if a VTOL errenously ended in the MC_HOVER state, it would not be recoverable by PX4Interface (land via QGC)
     active_srv_or_act_flag_.store(false);
 }
 

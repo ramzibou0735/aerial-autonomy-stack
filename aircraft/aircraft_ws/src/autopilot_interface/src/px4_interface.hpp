@@ -87,8 +87,7 @@ enum class PX4InterfaceState {
     MC_LANDING,
     OFFBOARD_ATTITUDE,
     OFFBOARD_RATES,
-    OFFBOARD_TRAJECTORY,
-    ABORTED
+    OFFBOARD_TRAJECTORY
 };
 
 class PX4Interface : public rclcpp::Node
