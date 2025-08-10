@@ -14,7 +14,7 @@ That is, the challenge (and good sport) of **full-stack integration** among:
 
 ## Design Manifesto
 
-- **Simplicity** ([no "fat software"](https://people.inf.ethz.ch/wirth/Articles/LeanSoftware.pdf), ["simple is better than complex"](https://peps.python.org/pep-0020/), and ["worse is better"](https://www.dreamsongs.com/RiseOfWorseIsBetter.html))
+- **Simplicity** (["simple is better than complex"](https://peps.python.org/pep-0020/), ["worse is better"](https://www.dreamsongs.com/RiseOfWorseIsBetter.html), and [no "fat software"](https://people.inf.ethz.ch/wirth/Articles/LeanSoftware.pdf))
 - [おまかせ](https://dhh.dk/2012/rails-is-omakase.html) **end-to-end**ness (from camera frames, to autopilot uORB/MAVLink commands)
 - **Deployment** focus
     - Clear, Dockerized split between simulation and aircraft software

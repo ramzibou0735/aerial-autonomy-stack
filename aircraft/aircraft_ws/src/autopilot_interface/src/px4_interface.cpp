@@ -392,7 +392,7 @@ void PX4Interface::set_reposition_callback(const std::shared_ptr<autopilot_inter
                         std::shared_ptr<autopilot_interface_msgs::srv::SetReposition::Response> response)
 {
     if ((is_vtol_) || (!is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::MC_HOVER)) {
-        RCLCPP_INFO(this->get_logger(), "Set reposition rejected, PX4Interface is not in a quad hover state, use set_orbit for VTOLs");
+        RCLCPP_INFO(this->get_logger(), "Set reposition rejected, PX4Interface is not in a quad hover state (for VTOLs, use set_orbit)");
         response->success = false;
         return;
     }
@@ -461,9 +461,11 @@ void PX4Interface::land_handle_accepted(const std::shared_ptr<rclcpp_action::Ser
 
         if (is_vtol_ == false) {
             if (aircraft_fsm_state_ == PX4InterfaceState::MC_HOVER) {
-                do_reposition(home_lat_, home_lon_, landing_altitude);
+                double distance, heading;
+                geod.Inverse(lat_, lon_, home_lat_, home_lon_, distance, heading);
+                do_reposition(home_lat_, home_lon_, landing_altitude, fmod(heading + 360.0, 360.0) / 180.0 * M_PI);
                 aircraft_fsm_state_ = PX4InterfaceState::RTL;
-                feedback->message = "Repositioning in MC mode";
+                feedback->message = "Returning home in MC mode";
                 goal_handle->publish_feedback(feedback);
             } else if (aircraft_fsm_state_ == PX4InterfaceState::RTL) {
                 double distance_from_home_in_meters;
@@ -617,8 +619,8 @@ void PX4Interface::offboard_handle_accepted(const std::shared_ptr<rclcpp_action:
         if (current_time_us >= (time_of_offboard_start_us_ + max_duration_sec * 1000000)) {
             time_of_offboard_start_us_ = -1;
             offboarding = false;
-            aircraft_fsm_state_ = is_vtol_ ? PX4InterfaceState::FW_CRUISE : PX4InterfaceState::MC_HOVER;
             do_set_mode(4, 3); // Auto/Loiter (PX4_CUSTOM_MAIN_MODE 4/PX4_CUSTOM_SUB_MODE_AUTO 3)
+            aircraft_fsm_state_ = is_vtol_ ? PX4InterfaceState::FW_CRUISE : PX4InterfaceState::MC_HOVER;
             feedback->message = "Exiting offboard control at t=" + std::to_string(current_time_us) + "us, returning to loiter/hover (Hold) state";
             goal_handle->publish_feedback(feedback);
         } else if ((current_time_us >= (time_of_offboard_start_us_ + 1 * 1000000)) && (current_time_us < (time_of_offboard_start_us_ + 2 * 1000000))) {

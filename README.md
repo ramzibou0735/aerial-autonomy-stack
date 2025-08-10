@@ -180,10 +180,10 @@ docker exec -it aircraft-container tmux attach
 ## TODOs
 
 PX4 Interface Open Tasks
-- Orbit working questionably for quads: tangential speed should be specified, altitude in reached but not kept(?), does not exit mode automatically
 - Set altitude interrupts reposition for quads (reasonable, make it for vtol only?), also resets yaw
+  - make sure vertical reposition keeps yaw
 - Set speed only affects next reposition for quads (reasonable, add warning)
-- Quad landing return has no yaw (make it landing in place instead?)
+- Orbit working questionably for quads: tangential speed should be specified, altitude in reached but not kept(?), does not exit mode automatically
     Use these to improve commands with 1.16
         # used as param1 in DO_CHANGE_SPEED command
         uint8 SPEED_TYPE_AIRSPEED = 0
