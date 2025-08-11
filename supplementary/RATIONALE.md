@@ -14,7 +14,7 @@ That is, the challenge (and good sport) of **full-stack integration** among:
 
 ## Design Manifesto
 
-- **Simplicity** (["simple is better than complex"](https://peps.python.org/pep-0020/), ["worse is better"](https://www.dreamsongs.com/RiseOfWorseIsBetter.html), and [no "fat software"](https://people.inf.ethz.ch/wirth/Articles/LeanSoftware.pdf))
+- **Simplicity** (["simple is better than complex"](https://peps.python.org/pep-0020/), ["worse is better"](https://www.dreamsongs.com/RiseOfWorseIsBetter.html), and ["no fat software"](https://people.inf.ethz.ch/wirth/Articles/LeanSoftware.pdf) are the 3 slogans of AAS)
 - [おまかせ](https://dhh.dk/2012/rails-is-omakase.html) **end-to-end**ness (from camera frames, to autopilot uORB/MAVLink commands)
 - **Deployment** focus
     - Clear, Dockerized split between simulation and aircraft software
