@@ -201,9 +201,12 @@ PX4 Interface Open Tasks
         uint8 ORBIT_YAW_BEHAVIOUR_UNCHANGED = 5
 
 - Double check mutex and sleep use in px4_interface
+- Rename mutex
+
 - Implement ardupilot/mavros interface (check if 4.6.2 is still the latest stable release)
 - Make sure that for all maps, all vehicles, a simple autonomous takeoff + loiter + landing example works with up to 3 vehicles
 - Update deployment to latest JetPack
+- Create smaller deployment image
 
 ### Known Issues
 
