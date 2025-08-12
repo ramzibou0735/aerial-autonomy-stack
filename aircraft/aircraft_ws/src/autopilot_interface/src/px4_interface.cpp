@@ -386,7 +386,12 @@ void PX4Interface::set_orbit_callback(const std::shared_ptr<autopilot_interface_
     double desired_r = request->radius;
     RCLCPP_INFO(this->get_logger(), "New requested orbit East-North %.2f %.2f Alt. %.2f Radius %.2f", desired_east, desired_north, desired_alt, desired_r);
     auto [des_lat, des_lon] = lat_lon_from_cartesian(home_lat_, home_lon_, desired_east, desired_north);
-    do_orbit(des_lat, des_lon, desired_alt, desired_r);
+    if (!is_vtol_) {
+        do_orbit(des_lat, des_lon, desired_alt, desired_r, 5.0); // HARDCODED: 5m/s orbit tangential speed for quads
+        RCLCPP_WARN(this->get_logger(), "For quads, the orbit speed is fixed to 5m/s");
+    } else if (is_vtol_) {
+        do_orbit(des_lat, des_lon, desired_alt, desired_r, NAN);
+    }
     response->success = true;
     active_srv_or_act_flag_.store(false);
 }
@@ -488,7 +493,7 @@ void PX4Interface::land_handle_accepted(const std::shared_ptr<rclcpp_action::Ser
             if (aircraft_fsm_state_ == PX4InterfaceState::FW_CRUISE) {
                 double loiter_alt_hi = 150.0; // HARDCODED
                 auto [des_lat, des_lon] = lat_lon_from_polar(home_lat_, home_lon_, pre_landing_loiter_distance, vtol_transition_heading + 180.0 - angle_correction_deg);
-                do_orbit(des_lat, des_lon, loiter_alt_hi, pre_landing_loiter_radius);
+                do_orbit(des_lat, des_lon, loiter_alt_hi, pre_landing_loiter_radius, NAN);
                 aircraft_fsm_state_ = PX4InterfaceState::FW_LANDING_LOITER;
                 feedback->message = "Going to landing loiter";
                 goal_handle->publish_feedback(feedback);
@@ -497,7 +502,7 @@ void PX4Interface::land_handle_accepted(const std::shared_ptr<rclcpp_action::Ser
                 double distance_from_loiter_in_meters;
                 geod.Inverse(lat_, lon_, des_lat, des_lon, distance_from_loiter_in_meters);
                 if (distance_from_loiter_in_meters < (pre_landing_loiter_radius + 50.0) && distance_from_loiter_in_meters > (pre_landing_loiter_radius - 50.0)) { // HARDCODED: 100m wide ring
-                    do_orbit(des_lat, des_lon, loiter_alt_low, pre_landing_loiter_radius);
+                    do_orbit(des_lat, des_lon, loiter_alt_low, pre_landing_loiter_radius, NAN);
                     aircraft_fsm_state_ = PX4InterfaceState::FW_LANDING_DESCENT;
                     feedback->message = "Starting the descent loiter";
                     goal_handle->publish_feedback(feedback);
@@ -724,7 +729,7 @@ void PX4Interface::takeoff_handle_accepted(const std::shared_ptr<rclcpp_action::
             } else if (aircraft_fsm_state_ == PX4InterfaceState::VTOL_TAKEOFF_TRANSITION && 
                 (current_time_us > (time_of_vtol_transition_us_ + 10.0 * 1000000))) { // HARDCODED: wait 10 seconds after transition
                 auto [des_lat, des_lon] = lat_lon_from_cartesian(home_lat_, home_lon_, vtol_loiter_east, vtol_loiter_nord);
-                do_orbit(des_lat, des_lon, vtol_loiter_alt, 200.0); // HARDCODED: 200m loiter radius
+                do_orbit(des_lat, des_lon, vtol_loiter_alt, 200.0, NAN); // HARDCODED: 200m loiter radius
                 aircraft_fsm_state_ = PX4InterfaceState::FW_CRUISE;
                 taking_off = false;
                 feedback->message = "Takeoff loiter sent";
@@ -797,12 +802,12 @@ void PX4Interface::do_change_speed(double speed)
         0  // Confirmation
     );
 }
-void PX4Interface::do_orbit(double lat, double lon, double alt, double r)
+void PX4Interface::do_orbit(double lat, double lon, double alt, double r, double speed)
 {
     send_vehicle_command(
         34,  // VEHICLE_CMD_DO_ORBIT
         r,   // Orbit radius (positive: CW, negative: CCW)
-        NAN,  // Orbit speed (Tangential Velocity. NaN: Use vehicle default velocity, or current velocity if already orbiting. m/s)
+        speed,  // Orbit speed (Tangential Velocity. NaN: Use vehicle default velocity, or current velocity if already orbiting. m/s)
         0,  // Yaw behavior: 0: towards the center of the orbit (for quads, not VTOLs), 1: initial, 2: uncontrolled, 3: tangent, 4: rc, 5: unchanged
         NAN,  // Number of loops in MAVLINK but unused in PX4
         lat,  // Target latitude

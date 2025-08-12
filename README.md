@@ -180,11 +180,8 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-PX4 Interface Open Tasks
+  - make quads leave orbit (through hold mode?) for follow-up set reposition and land commands
 
-- Orbit working questionably for quads: tangential speed should be specified, altitude in reached but not kept(?), does not exit mode automatically
-  - removing loops (param4)
-  - check vel (param2) and yaw (param3)
 - Create smaller deployment image on Orin
 - Implement ardupilot/mavros interface (check if 4.6.2 is still the latest stable release)
 
@@ -201,6 +198,7 @@ PX4 Interface Open Tasks
 - Cannot use **/.git in .dockerignore because PX4 and ArduPilot use it in their build
 - PX4 messages 1.16 have VehicleStatus on MESSAGE_VERSION = 1, topic fmu/out/vehicle_status_v1
 - QGC does not save roll and pitch in the telemetry bar for PX4 VTOLs (MAV_TYPE 22)
+- QGC is started with a virtual joystick (with no-spring throttle for VTOLs and centered throttle for quads), this is reflective of real-life but note that this counts as "RC loss" when switching focus from one autopilot instance to another
 
 
 

@@ -105,5 +105,9 @@ windows:
         <% if headless == 'true' %>
         - echo "Headless mode, not launching QGroundControl."
         <% else %>
-        - gosu qgcuser /squashfs-root/AppRun -geometry 800x600+960+540
+        - >
+          <% if drone_type == 'quad' %>
+          sed -i 's/virtualJoystickAutoCenterThrottle=false/virtualJoystickAutoCenterThrottle=true/g' /home/qgcuser/.config/QGroundControl/QGroundControl.ini &&
+          <% end %>
+          gosu qgcuser /squashfs-root/AppRun -geometry 800x600+960+540
         <% end %>

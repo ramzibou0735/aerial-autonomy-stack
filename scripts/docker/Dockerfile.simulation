@@ -149,7 +149,7 @@ WORKDIR /git/PX4-Autopilot
 RUN git apply ../px4-v1.16.0.patch
 
 # Replace dds_topics.yaml with custom topics
-COPY simulation/simulation_resources/patches/dds_topics.yaml /git/PX4-Autopilot/src/modules/uxrce_dds_client/
+COPY simulation/simulation_resources/patches/dds_topics.yaml /git/PX4-Autopilot/src/modules/uxrce_dds_client/dds_topics.yaml
 
 # Add PX4 Airframes ROMFS
 COPY --from=airframe_filter_stage /airframes/ /git/PX4-Autopilot/ROMFS/px4fmu_common/init.d-posix/airframes/
@@ -212,7 +212,7 @@ RUN bash -c "source /opt/ros/humble/setup.bash && source /ros2_ws_github/install
 
 # Copy resources and configuration files from this repository
 COPY simulation/simulation_resources/ /simulation_resources
-COPY simulation/simulation_resources/patches/QGroundControl.ini /home/qgcuser/.config/QGroundControl/
+COPY simulation/simulation_resources/patches/QGroundControl.ini /home/qgcuser/.config/QGroundControl/QGroundControl.ini
 
 # Source the workspaces
 RUN echo "source /ros2_ws_github/install/setup.bash" >> /root/.bashrc

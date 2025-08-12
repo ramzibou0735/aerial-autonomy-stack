@@ -201,7 +201,7 @@ private:
 
     // vehicle_command methods
     void do_takeoff(double alt, double yaw);
-    void do_orbit(double lat, double lon, double alt, double r);
+    void do_orbit(double lat, double lon, double alt, double r, double speed = NAN);
     void do_change_altitude(double alt);
     void do_change_speed(double speed);
     void do_reposition(double lat, double lon, double alt, double heading = 0.0);
