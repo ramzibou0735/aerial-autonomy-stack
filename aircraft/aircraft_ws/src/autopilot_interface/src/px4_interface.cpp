@@ -18,7 +18,7 @@ PX4Interface::PX4Interface() : Node("px4_interface"),
     if (this->get_parameter("use_sim_time").as_bool()) {
         RCLCPP_INFO(this->get_logger(), "Simulation time is enabled.");
     } else {
-        RCLCPP_INFO(this->get_logger(), "Simulation time is disabled.");
+        RCLCPP_WARN(this->get_logger(), "Simulation time is disabled.");
     }
     last_offboard_rate_check_time_ = this->get_clock()->now(); // Monitor the rate of offboard control loop
     // Initialize the arrays
@@ -120,7 +120,7 @@ void PX4Interface::status_callback(const VehicleStatus::SharedPtr msg)
     if (target_system_id_ == -1)
     {
         target_system_id_ = msg->system_id; // get target_system_id from PX4's MAV_SYS_ID once
-        RCLCPP_INFO(get_logger(), "target_system_id (MAV_SYS_ID) saved as: %d", target_system_id_);
+        RCLCPP_WARN(get_logger(), "target_system_id (MAV_SYS_ID) saved as: %d", target_system_id_);
     }
     arming_state_ = msg->arming_state; // DISARMED = 1, ARMED = 2
     vehicle_type_ = msg->vehicle_type; // ROTARY_WING = 1, FIXED_WING = 2 (ROVER = 3)
@@ -331,12 +331,12 @@ void PX4Interface::set_altitude_callback(const std::shared_ptr<autopilot_interfa
                         std::shared_ptr<autopilot_interface_msgs::srv::SetAltitude::Response> response)
 {
     if ((!is_vtol_) || (is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::FW_CRUISE)) {
-        RCLCPP_INFO(this->get_logger(), "Set altitude rejected, PX4Interface is not in a fixed-wing cruise state (for quads, use /set_reposition)");
+        RCLCPP_ERROR(this->get_logger(), "Set altitude rejected, PX4Interface is not in a fixed-wing cruise state (for quads, use /set_reposition)");
         response->success = false;
         return;
     }
     if (active_srv_or_act_flag_.exchange(true)) { 
-        RCLCPP_INFO(this->get_logger(), "Another service/action is active");
+        RCLCPP_ERROR(this->get_logger(), "Another service/action is active");
         response->success = false;
         return;
     }
@@ -349,12 +349,12 @@ void PX4Interface::set_speed_callback(const std::shared_ptr<autopilot_interface_
                         std::shared_ptr<autopilot_interface_msgs::srv::SetSpeed::Response> response)
 {    
     if ((!is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::MC_HOVER) || (is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::FW_CRUISE)) {
-        RCLCPP_INFO(this->get_logger(), "Set speed rejected, PX4Interface is not in hover/cruise state");
+        RCLCPP_ERROR(this->get_logger(), "Set speed rejected, PX4Interface is not in hover/cruise state");
         response->success = false;
         return;
     }
     if (active_srv_or_act_flag_.exchange(true)) { 
-        RCLCPP_INFO(this->get_logger(), "Another service/action is active");
+        RCLCPP_ERROR(this->get_logger(), "Another service/action is active");
         response->success = false;
         return;
     }
@@ -370,12 +370,12 @@ void PX4Interface::set_orbit_callback(const std::shared_ptr<autopilot_interface_
                         std::shared_ptr<autopilot_interface_msgs::srv::SetOrbit::Response> response)
 {
     if ((!is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::MC_HOVER) || (is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::FW_CRUISE)) {
-        RCLCPP_INFO(this->get_logger(), "Set orbit rejected, PX4Interface is not in hover/cruise state");
+        RCLCPP_ERROR(this->get_logger(), "Set orbit rejected, PX4Interface is not in hover/cruise state");
         response->success = false;
         return;
     }
     if (active_srv_or_act_flag_.exchange(true)) { 
-        RCLCPP_INFO(this->get_logger(), "Another service/action is active");
+        RCLCPP_ERROR(this->get_logger(), "Another service/action is active");
         response->success = false;
         return;
     }
@@ -395,12 +395,12 @@ void PX4Interface::set_reposition_callback(const std::shared_ptr<autopilot_inter
                         std::shared_ptr<autopilot_interface_msgs::srv::SetReposition::Response> response)
 {
     if ((is_vtol_) || (!is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::MC_HOVER)) {
-        RCLCPP_INFO(this->get_logger(), "Set reposition rejected, PX4Interface is not in a quad hover state (for VTOLs, use /set_orbit)");
+        RCLCPP_ERROR(this->get_logger(), "Set reposition rejected, PX4Interface is not in a quad hover state (for VTOLs, use /set_orbit)");
         response->success = false;
         return;
     }
     if (active_srv_or_act_flag_.exchange(true)) { 
-        RCLCPP_INFO(this->get_logger(), "Another service/action is active");
+        RCLCPP_ERROR(this->get_logger(), "Another service/action is active");
         response->success = false;
         return;
     }
@@ -422,11 +422,11 @@ rclcpp_action::GoalResponse PX4Interface::land_handle_goal(const rclcpp_action::
 {
     RCLCPP_INFO(this->get_logger(), "land_handle_goal");
     if ((!is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::MC_HOVER) || (is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::FW_CRUISE)) {
-        RCLCPP_INFO(this->get_logger(), "Landing rejected, PX4Interface is not in hover/cruise state");
+        RCLCPP_ERROR(this->get_logger(), "Landing rejected, PX4Interface is not in hover/cruise state");
         return rclcpp_action::GoalResponse::REJECT;
     }
     if (active_srv_or_act_flag_.exchange(true)) { 
-        RCLCPP_INFO(this->get_logger(), "Another service/action is active");
+        RCLCPP_ERROR(this->get_logger(), "Another service/action is active");
         return rclcpp_action::GoalResponse::REJECT;
     }
     return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
@@ -458,7 +458,7 @@ void PX4Interface::land_handle_accepted(const std::shared_ptr<rclcpp_action::Ser
             goal_handle->publish_feedback(feedback);
             result->success = false;
             goal_handle->canceled(result);
-            RCLCPP_INFO(this->get_logger(), "Landing canceled");
+            RCLCPP_WARN(this->get_logger(), "Landing canceled");
             return;
         }
 
@@ -552,11 +552,11 @@ rclcpp_action::GoalResponse PX4Interface::offboard_handle_goal(const rclcpp_acti
 {
     RCLCPP_INFO(this->get_logger(), "offboard_handle_goal");
     if ((!is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::MC_HOVER) || (is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::FW_CRUISE)) {
-        RCLCPP_INFO(this->get_logger(), "Offboard rejected, PX4Interface is not in hover/cruise state");
+        RCLCPP_ERROR(this->get_logger(), "Offboard rejected, PX4Interface is not in hover/cruise state");
         return rclcpp_action::GoalResponse::REJECT;
     }
     if (active_srv_or_act_flag_.exchange(true)) { 
-        RCLCPP_INFO(this->get_logger(), "Another service/action is active");
+        RCLCPP_ERROR(this->get_logger(), "Another service/action is active");
         return rclcpp_action::GoalResponse::REJECT;
     }
     return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
@@ -590,7 +590,7 @@ void PX4Interface::offboard_handle_accepted(const std::shared_ptr<rclcpp_action:
             goal_handle->publish_feedback(feedback);
             result->success = false;
             goal_handle->canceled(result);
-            RCLCPP_INFO(this->get_logger(), "Offboard canceled");
+            RCLCPP_WARN(this->get_logger(), "Offboard canceled");
             return;
         }
 
@@ -611,7 +611,7 @@ void PX4Interface::offboard_handle_accepted(const std::shared_ptr<rclcpp_action:
             else {
                 result->success = false;
                 goal_handle->canceled(result);
-                RCLCPP_INFO(this->get_logger(), "Offboard type is not supported");
+                RCLCPP_ERROR(this->get_logger(), "Offboard type is not supported");
                 return;
             }
             goal_handle->publish_feedback(feedback);
@@ -641,22 +641,22 @@ rclcpp_action::GoalResponse PX4Interface::takeoff_handle_goal(const rclcpp_actio
 {
     RCLCPP_INFO(this->get_logger(), "takeoff_handle_goal");
     if (aircraft_fsm_state_ != PX4InterfaceState::STARTED) {
-        RCLCPP_INFO(this->get_logger(), "Takeoff rejected, PX4Interface is not in STARTED state");
+        RCLCPP_ERROR(this->get_logger(), "Takeoff rejected, PX4Interface is not in STARTED state");
         return rclcpp_action::GoalResponse::REJECT;
     }
     if (pre_flight_checks_pass_ != true) {
-        RCLCPP_INFO(this->get_logger(), "Takeoff rejected, pre_flight_checks_pass_ is false");
+        RCLCPP_ERROR(this->get_logger(), "Takeoff rejected, pre_flight_checks_pass_ is false");
         return rclcpp_action::GoalResponse::REJECT;
     }
     if (active_srv_or_act_flag_.exchange(true)) { 
-        RCLCPP_INFO(this->get_logger(), "Another service/action is active");
+        RCLCPP_ERROR(this->get_logger(), "Another service/action is active");
         return rclcpp_action::GoalResponse::REJECT;
     }
     std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
     home_lat_ = lat_;
     home_lon_ = lon_;
     home_alt_ = alt_;
-    RCLCPP_INFO(this->get_logger(), "Saved home_lat_: %.5f, home_lon_ %.5f, home_alt_ %.2f", home_lat_, home_lon_, home_alt_);
+    RCLCPP_WARN(this->get_logger(), "Saved home_lat_: %.5f, home_lon_ %.5f, home_alt_ %.2f", home_lat_, home_lon_, home_alt_);
     return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
 }
 rclcpp_action::CancelResponse PX4Interface::takeoff_handle_cancel(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Takeoff>> goal_handle)
@@ -690,7 +690,7 @@ void PX4Interface::takeoff_handle_accepted(const std::shared_ptr<rclcpp_action::
             goal_handle->publish_feedback(feedback);
             result->success = false;
             goal_handle->canceled(result);
-            RCLCPP_INFO(this->get_logger(), "Takeoff canceled");
+            RCLCPP_WARN(this->get_logger(), "Takeoff canceled");
             return;
         }
 
