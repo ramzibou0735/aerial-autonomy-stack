@@ -389,6 +389,7 @@ void PX4Interface::set_orbit_callback(const std::shared_ptr<autopilot_interface_
     if (!is_vtol_) {
         do_orbit(des_lat, des_lon, desired_alt, desired_r, 5.0); // HARDCODED: 5m/s orbit tangential speed for quads
         RCLCPP_WARN(this->get_logger(), "For quads, the orbit speed is fixed to 5m/s");
+        aircraft_fsm_state_ = PX4InterfaceState::MC_ORBIT; // For quads, this is a flight mode change, keep track of it
     } else if (is_vtol_) {
         do_orbit(des_lat, des_lon, desired_alt, desired_r, NAN);
     }
@@ -398,8 +399,8 @@ void PX4Interface::set_orbit_callback(const std::shared_ptr<autopilot_interface_
 void PX4Interface::set_reposition_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetReposition::Request> request,
                         std::shared_ptr<autopilot_interface_msgs::srv::SetReposition::Response> response)
 {
-    if ((is_vtol_) || (!is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::MC_HOVER)) {
-        RCLCPP_ERROR(this->get_logger(), "Set reposition rejected, PX4Interface is not in a quad hover state (for VTOLs, use /set_orbit)");
+    if ((is_vtol_) || (!is_vtol_ && !(aircraft_fsm_state_ == PX4InterfaceState::MC_HOVER || aircraft_fsm_state_ == PX4InterfaceState::MC_ORBIT))) {
+        RCLCPP_ERROR(this->get_logger(), "Set reposition rejected, PX4Interface is not in a quad hover/orbit state (for VTOLs, use /set_orbit)");
         response->success = false;
         return;
     }
@@ -409,6 +410,10 @@ void PX4Interface::set_reposition_callback(const std::shared_ptr<autopilot_inter
         return;
     }
     std::shared_lock<std::shared_mutex> lock(node_data_mutex_); // Use shared_lock for data reads
+    if (aircraft_fsm_state_ == PX4InterfaceState::MC_ORBIT) {
+        do_set_mode(4, 3); // If in an Orbit mode, switch to Hold mode
+        aircraft_fsm_state_ = PX4InterfaceState::MC_HOVER;
+    }
     double desired_east = request->east;
     double desired_north = request->north;
     double desired_alt = request->altitude;
@@ -425,8 +430,8 @@ void PX4Interface::set_reposition_callback(const std::shared_ptr<autopilot_inter
 rclcpp_action::GoalResponse PX4Interface::land_handle_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const autopilot_interface_msgs::action::Land::Goal> goal)
 {
     RCLCPP_INFO(this->get_logger(), "land_handle_goal");
-    if ((!is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::MC_HOVER) || (is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::FW_CRUISE)) {
-        RCLCPP_ERROR(this->get_logger(), "Landing rejected, PX4Interface is not in hover/cruise state");
+    if ((!is_vtol_ && !(aircraft_fsm_state_ == PX4InterfaceState::MC_HOVER || aircraft_fsm_state_ == PX4InterfaceState::MC_ORBIT)) || (is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::FW_CRUISE)) {
+        RCLCPP_ERROR(this->get_logger(), "Landing rejected, PX4Interface is not in hover/orbit/cruise state");
         return rclcpp_action::GoalResponse::REJECT;
     }
     if (active_srv_or_act_flag_.exchange(true)) { 
@@ -467,6 +472,10 @@ void PX4Interface::land_handle_accepted(const std::shared_ptr<rclcpp_action::Ser
         }
 
         if (is_vtol_ == false) {
+            if (aircraft_fsm_state_ == PX4InterfaceState::MC_ORBIT) {
+                do_set_mode(4, 3); // If in an Orbit mode, switch to Hold mode
+                aircraft_fsm_state_ = PX4InterfaceState::MC_HOVER;
+            }
             if (aircraft_fsm_state_ == PX4InterfaceState::MC_HOVER) {
                 double distance, heading;
                 geod.Inverse(lat_, lon_, home_lat_, home_lon_, distance, heading);

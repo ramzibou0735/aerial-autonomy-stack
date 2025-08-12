@@ -180,11 +180,9 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-  - make quads leave orbit (through hold mode?) for follow-up set reposition and land commands
-
 - Create smaller deployment image on Orin
-- Implement ardupilot/mavros interface (check if 4.6.2 is still the latest stable release)
 
+- Implement ardupilot/mavros interface (check if 4.6.2 is still the latest stable release)
 - Double check mutex and sleep use in px4_interface
 - Consider removing set_altitude from PX4Interface (redundant)
 - Make sure that for all maps, all vehicles, a simple autonomous takeoff + loiter + landing example works with up to 3 vehicles
