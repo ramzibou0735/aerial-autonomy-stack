@@ -129,8 +129,8 @@ void PX4Interface::status_callback(const VehicleStatus::SharedPtr msg)
     in_transition_mode_ = msg->in_transition_mode; // bool
     in_transition_to_fw_ = msg->in_transition_to_fw; // bool
     pre_flight_checks_pass_ = msg->pre_flight_checks_pass; // bool
-    if ((aircraft_fsm_state_ == PX4InterfaceState::MC_LANDING) && (arming_state_ == 1)) {
-        aircraft_fsm_state_ = PX4InterfaceState::STARTED; // Reset PX4 interface state after landing and disarm
+    if ((aircraft_fsm_state_ != PX4InterfaceState::STARTED) && (arming_state_ == 1)) {
+        aircraft_fsm_state_ = PX4InterfaceState::STARTED; // Reset PX4 interface state after a disarm (hoping the vehicle is ok)
     }
 }
 void PX4Interface::global_position_callback(const VehicleGlobalPosition::SharedPtr msg)

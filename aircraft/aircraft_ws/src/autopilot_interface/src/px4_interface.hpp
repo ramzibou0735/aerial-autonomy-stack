@@ -13,7 +13,7 @@ python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal
 # QUADS AND VTOLS
 
 ros2 service call /Drone1/set_speed autopilot_interface_msgs/srv/SetSpeed '{speed: 15.0}' # Note: always limited by the autopilot params, for quads applies from the next command
-ros2 service call /Drone1/set_orbit autopilot_interface_msgs/srv/SetOrbit '{east: 1500.0, north: 0.0, altitude: 250.0, radius: 200.0}' # relative to Home
+ros2 service call /Drone1/set_orbit autopilot_interface_msgs/srv/SetOrbit '{east: 500.0, north: 0.0, altitude: 150.0, radius: 200.0}' # relative to Home
 
 # QUAD ONLY
 
