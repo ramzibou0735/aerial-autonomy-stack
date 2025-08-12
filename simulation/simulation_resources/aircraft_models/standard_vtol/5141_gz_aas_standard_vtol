@@ -170,7 +170,7 @@ param set-default UXRCE_DDS_SYNCT 0 # This lets PX4 SITL keep using Gazebo simul
 param set-default MPC_XY_CRUISE 3.0 # Limit the VTOL's multicopter mode position controller speed
 
 # Configure "Hold" behaviour
-param set-default NAV_LOITER_RAD 400 # Default radius for Hold mode and MAV_CMD_DO_REPOSITION
+param set-default NAV_LOITER_RAD 500 # Default radius for Hold mode and MAV_CMD_DO_REPOSITION
 param set-default VTO_LOITER_ALT 150 # Altitude relative to home at which vehicle will loiter in Hold mode
 
 # Configure "Offboard" failsafe behaviour

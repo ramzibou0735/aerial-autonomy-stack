@@ -116,7 +116,7 @@ PX4Interface::PX4Interface() : Node("px4_interface"),
 // Callbacks for subscribers (reentrant group)
 void PX4Interface::status_callback(const VehicleStatus::SharedPtr msg)
 {
-    std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // Use unique_lock for data writes
+    std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
     if (target_system_id_ == -1)
     {
         target_system_id_ = msg->system_id; // get target_system_id from PX4's MAV_SYS_ID once
@@ -135,7 +135,7 @@ void PX4Interface::status_callback(const VehicleStatus::SharedPtr msg)
 }
 void PX4Interface::global_position_callback(const VehicleGlobalPosition::SharedPtr msg)
 {
-    std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // Use unique_lock for data writes
+    std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
     lat_ = msg->lat;
     lon_ = msg->lon;
     alt_ = msg->alt; // AMSL
@@ -146,7 +146,7 @@ void PX4Interface::global_position_callback(const VehicleGlobalPosition::SharedP
 }
 void PX4Interface::local_position_callback(const VehicleLocalPosition::SharedPtr msg)
 {
-    std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // Use unique_lock for data writes
+    std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
     xy_valid_ = msg->xy_valid;
     z_valid_ = msg->z_valid;
     v_xy_valid_ = msg->v_xy_valid;
@@ -169,7 +169,7 @@ void PX4Interface::local_position_callback(const VehicleLocalPosition::SharedPtr
 }
 void PX4Interface::odometry_callback(const VehicleOdometry::SharedPtr msg)
 {
-    std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // Use unique_lock for data writes
+    std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
     pose_frame_ = msg->pose_frame; // 1:  NED earth-fixed frame, 2: FRD world-fixed frame, arbitrary heading
     velocity_frame_ = msg->velocity_frame; // 1:  NED earth-fixed frame, 2: FRD world-fixed frame, arbitrary heading, 3: FRD body-fixed frame
     position_ = msg->position;
@@ -179,12 +179,12 @@ void PX4Interface::odometry_callback(const VehicleOdometry::SharedPtr msg)
 }
 void PX4Interface::airspeed_callback(const AirspeedValidated::SharedPtr msg)
 {
-    std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // Use unique_lock for data writes
+    std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
     true_airspeed_m_s_ = msg->true_airspeed_m_s;
 }
 void PX4Interface::vehicle_command_ack_callback(const VehicleCommandAck::SharedPtr msg)
 {
-    std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // Use unique_lock for data writes
+    std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
     command_ack_ = msg->command;
     command_ack_result_ = msg->result;
     command_ack_from_external_ = msg->from_external;
@@ -193,7 +193,7 @@ void PX4Interface::vehicle_command_ack_callback(const VehicleCommandAck::SharedP
 // Callbacks for timers (reentrant group)
 void PX4Interface::px4_interface_printout_callback()
 {
-    std::shared_lock<std::shared_mutex> lock(subs_data_mutex_); // Use shared_lock for data reads
+    std::shared_lock<std::shared_mutex> lock(node_data_mutex_); // Use shared_lock for data reads
     RCLCPP_INFO(get_logger(),
                 "Vehicle status:\n"
                 "\ttarget_system_id: %d\n"
@@ -260,7 +260,7 @@ void PX4Interface::offboard_control_loop_callback()
 {
     offboard_loop_count_++; // Counter to monitor the rate of the offboard loop
 
-    std::shared_lock<std::shared_mutex> lock(subs_data_mutex_); // Use shared_lock for data reads
+    std::shared_lock<std::shared_mutex> lock(node_data_mutex_); // Use shared_lock for data reads
     if (!((aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_ATTITUDE) || (aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_RATES) || (aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_TRAJECTORY))) {
         return; // Do not publish if not in and OFFBOARD state
     }
@@ -330,8 +330,8 @@ void PX4Interface::offboard_control_loop_callback()
 void PX4Interface::set_altitude_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetAltitude::Request> request,
                         std::shared_ptr<autopilot_interface_msgs::srv::SetAltitude::Response> response)
 {
-    if ((!is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::MC_HOVER) || (is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::FW_CRUISE)) {
-        RCLCPP_INFO(this->get_logger(), "Set altitude rejected, PX4Interface is not in hover/cruise state");
+    if ((!is_vtol_) || (is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::FW_CRUISE)) {
+        RCLCPP_INFO(this->get_logger(), "Set altitude rejected, PX4Interface is not in a fixed-wing cruise state (for quads, use /set_reposition)");
         response->success = false;
         return;
     }
@@ -358,6 +358,9 @@ void PX4Interface::set_speed_callback(const std::shared_ptr<autopilot_interface_
         response->success = false;
         return;
     }
+    if (!is_vtol_) {
+        RCLCPP_WARN(this->get_logger(), "For quads, the change of speed will affect the next (e.g. /set_reposition) service/action");
+    }
     RCLCPP_INFO(this->get_logger(), "New requested speed is: %.2f", request->speed);
     do_change_speed(request->speed);
     response->success = true;
@@ -376,7 +379,7 @@ void PX4Interface::set_orbit_callback(const std::shared_ptr<autopilot_interface_
         response->success = false;
         return;
     }
-    std::shared_lock<std::shared_mutex> lock(subs_data_mutex_); // Use shared_lock for data reads
+    std::shared_lock<std::shared_mutex> lock(node_data_mutex_); // Use shared_lock for data reads
     double desired_east = request->east;
     double desired_north = request->north;
     double desired_alt = request->altitude;
@@ -392,7 +395,7 @@ void PX4Interface::set_reposition_callback(const std::shared_ptr<autopilot_inter
                         std::shared_ptr<autopilot_interface_msgs::srv::SetReposition::Response> response)
 {
     if ((is_vtol_) || (!is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::MC_HOVER)) {
-        RCLCPP_INFO(this->get_logger(), "Set reposition rejected, PX4Interface is not in a quad hover state (for VTOLs, use set_orbit)");
+        RCLCPP_INFO(this->get_logger(), "Set reposition rejected, PX4Interface is not in a quad hover state (for VTOLs, use /set_orbit)");
         response->success = false;
         return;
     }
@@ -401,7 +404,7 @@ void PX4Interface::set_reposition_callback(const std::shared_ptr<autopilot_inter
         response->success = false;
         return;
     }
-    std::shared_lock<std::shared_mutex> lock(subs_data_mutex_); // Use shared_lock for data reads
+    std::shared_lock<std::shared_mutex> lock(node_data_mutex_); // Use shared_lock for data reads
     double desired_east = request->east;
     double desired_north = request->north;
     double desired_alt = request->altitude;
@@ -447,7 +450,7 @@ void PX4Interface::land_handle_accepted(const std::shared_ptr<rclcpp_action::Ser
     rclcpp::Rate landing_loop_rate(100);
     while (landing) {
         landing_loop_rate.sleep();
-        std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // Reading data written by subs but also writing the FSM state
+        std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Reading data written by subs but also writing the FSM state
 
         if (goal_handle->is_canceling()) { // Check if there is a cancel request
             abort_action(); // Sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to MC_HOVER or FW_CRUISE
@@ -505,8 +508,8 @@ void PX4Interface::land_handle_accepted(const std::shared_ptr<rclcpp_action::Ser
                 double distance_from_exit_in_meters;
                 geod.Inverse(lat_, lon_, exit_lat, exit_lon, distance_from_exit_in_meters);
                 if (distance_from_exit_in_meters < 30.0 && std::abs(alt_ - (home_alt_ + loiter_alt_low)) < 10.0) { // HARDCODED: thresholds of 30m xy and 10m z, exit from the loiter tangentially if altitude requirement met
-                    auto [des_lat, des_lon] = lat_lon_from_polar(home_lat_, home_lon_, 600.0, vtol_transition_heading); // HARDCODED: reposition 600m behind home, must be greater than NAV_LOITER_RAD (e.g. 400m)
-                    do_reposition(des_lat, des_lon, landing_altitude);
+                    auto [des_lat, des_lon] = lat_lon_from_polar(home_lat_, home_lon_, 600.0, vtol_transition_heading); // HARDCODED: reposition 600m behind home, must be greater than NAV_LOITER_RAD (e.g. 500m)
+                    do_reposition(des_lat, des_lon, landing_altitude, NAN); // NOTE: this is only to give the VTOL a waypoint on the other side of the landing area
                     aircraft_fsm_state_ = PX4InterfaceState::FW_LANDING_APPROACH;
                     feedback->message = "Exiting the landing loiter";
                     goal_handle->publish_feedback(feedback);
@@ -522,7 +525,7 @@ void PX4Interface::land_handle_accepted(const std::shared_ptr<rclcpp_action::Ser
                     goal_handle->publish_feedback(feedback);
                 }
             } else if (aircraft_fsm_state_ == PX4InterfaceState::VTOL_LANDING_TRANSITION && !in_transition_mode_ && vehicle_type_ == px4_msgs::msg::VehicleStatus::VEHICLE_TYPE_ROTARY_WING) {
-                do_reposition(home_lat_, home_lon_, landing_altitude);
+                do_reposition(home_lat_, home_lon_, landing_altitude, NAN); // NOTE: the VTOL is in quad mode
                 aircraft_fsm_state_ = PX4InterfaceState::RTL;
                 feedback->message = "Repositioning in MC mode";
                 goal_handle->publish_feedback(feedback);
@@ -579,7 +582,7 @@ void PX4Interface::offboard_handle_accepted(const std::shared_ptr<rclcpp_action:
     rclcpp::Rate offboard_loop_rate(100);
     while (offboarding) {
         offboard_loop_rate.sleep();
-        std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // Reading data written by subs but also writing the FSM state
+        std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Reading data written by subs but also writing the FSM state
 
         if (goal_handle->is_canceling()) { // Check if there is a cancel request
             abort_action(); // Sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to MC_HOVER or FW_CRUISE
@@ -649,7 +652,7 @@ rclcpp_action::GoalResponse PX4Interface::takeoff_handle_goal(const rclcpp_actio
         RCLCPP_INFO(this->get_logger(), "Another service/action is active");
         return rclcpp_action::GoalResponse::REJECT;
     }
-    std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // Use unique_lock for data writes
+    std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
     home_lat_ = lat_;
     home_lon_ = lon_;
     home_alt_ = alt_;
@@ -679,7 +682,7 @@ void PX4Interface::takeoff_handle_accepted(const std::shared_ptr<rclcpp_action::
     rclcpp::Rate takeoff_loop_rate(100);
     while (taking_off) {
         takeoff_loop_rate.sleep();
-        std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // Reading data written by subs but also writing the FSM state
+        std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Reading data written by subs but also writing the FSM state
 
         if (goal_handle->is_canceling()) { // Check if there is a cancel request
             abort_action(); // Sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to MC_HOVER or FW_CRUISE
@@ -789,7 +792,7 @@ void PX4Interface::do_change_speed(double speed)
 {
     send_vehicle_command(
         178,  // VEHICLE_CMD_DO_CHANGE_SPEED
-        0.0,  // Speed type: airspeed
+        0.0,  // Speed type: 0: airspeed, 1: ground speed, 2: climb speed, 3: descend speed
         speed,  // Speed setpoint
         0.0, 0.0, 0.0, 0.0, 0.0,  // Unused parameters
         0  // Confirmation
@@ -801,7 +804,7 @@ void PX4Interface::do_orbit(double lat, double lon, double alt, double r, double
         34,  // VEHICLE_CMD_DO_ORBIT
         r,   // Orbit radius
         NAN,  // Orbit speed (Tangential Velocity. NaN: Use vehicle default velocity, or current velocity if already orbiting. m/s)
-        0.0,  // Yaw behavior: along the orbit for VTOLs, towards the center for quads
+        0.0,  // Yaw behavior: 0: towards the center of the orbit (for quads, not VTOLs), 1: initial, 2: uncontrolled, 3: tangent, 4: rc, 5: unchanged
         loops,  // Number of loops (0 for forever)
         lat,  // Target latitude
         lon,  // Target longitude
@@ -814,7 +817,7 @@ void PX4Interface::do_reposition(double lat, double lon, double alt, double head
     send_vehicle_command(
         192,  // MAV_CMD_DO_REPOSITION
         0.0, 0.0, 0.0, // Unused parameters
-        heading, // Heaiding in radians, only used for quads
+        heading, // Heading in radians, only used for quads
         lat,  // Latitude
         lon,  // Longitude
         home_alt_ + alt,  // Altitude
@@ -890,8 +893,8 @@ void PX4Interface::send_vehicle_command(int command, double param1, double param
 }
 void PX4Interface::abort_action()
 {
-    // std::unique_lock<std::shared_mutex> lock(subs_data_mutex_); // Reading data written by subs but also writing the FSM state
-    do_reposition(home_lat_, home_lon_, 100.0); // HARDCODED: reposition to 100m above home
+    // std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Reading data written by subs but also writing the FSM state
+    do_reposition(home_lat_, home_lon_, 100.0, NAN); // HARDCODED: reposition to 100m above home, for VTOLs the loiter radius is parameter NAV_LOITER_RAD
     if (vehicle_type_ == px4_msgs::msg::VehicleStatus::VEHICLE_TYPE_ROTARY_WING) {
         aircraft_fsm_state_ = PX4InterfaceState::MC_HOVER;
     } else if (vehicle_type_ == px4_msgs::msg::VehicleStatus::VEHICLE_TYPE_FIXED_WING) {

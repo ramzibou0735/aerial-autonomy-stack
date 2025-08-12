@@ -181,32 +181,16 @@ docker exec -it aircraft-container tmux attach
 ## TODOs
 
 PX4 Interface Open Tasks
-- Set altitude interrupts reposition for quads (reasonable, make it for vtol only?), also resets yaw
-  - make sure vertical reposition keeps yaw
-- Set speed only affects next reposition for quads (reasonable, add warning)
+- Make sure purely vertical repositions keeps yaw for quads
 - Orbit working questionably for quads: tangential speed should be specified, altitude in reached but not kept(?), does not exit mode automatically
-    Use these to improve commands with 1.16
-        # used as param1 in DO_CHANGE_SPEED command
-        uint8 SPEED_TYPE_AIRSPEED = 0
-        uint8 SPEED_TYPE_GROUNDSPEED = 1
-        uint8 SPEED_TYPE_CLIMB_SPEED = 2
-        uint8 SPEED_TYPE_DESCEND_SPEED = 3
-
-        # used as param3 in CMD_DO_ORBIT
-        uint8 ORBIT_YAW_BEHAVIOUR_HOLD_FRONT_TO_CIRCLE_CENTER = 0
-        uint8 ORBIT_YAW_BEHAVIOUR_HOLD_INITIAL_HEADING = 1
-        uint8 ORBIT_YAW_BEHAVIOUR_UNCONTROLLED = 2
-        uint8 ORBIT_YAW_BEHAVIOUR_HOLD_FRONT_TANGENT_TO_CIRCLE = 3
-        uint8 ORBIT_YAW_BEHAVIOUR_RC_CONTROLLED = 4
-        uint8 ORBIT_YAW_BEHAVIOUR_UNCHANGED = 5
-
-- Double check mutex and sleep use in px4_interface
-- Rename mutex
+- Create smaller deployment image on Orin
 
 - Implement ardupilot/mavros interface (check if 4.6.2 is still the latest stable release)
+
+- Double check mutex and sleep use in px4_interface
+- Consider removing set_altitude from PX4Interface (redundant)
 - Make sure that for all maps, all vehicles, a simple autonomous takeoff + loiter + landing example works with up to 3 vehicles
 - Update deployment to latest JetPack
-- Create smaller deployment image
 
 ### Known Issues
 
