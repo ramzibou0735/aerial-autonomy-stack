@@ -183,6 +183,8 @@ docker exec -it aircraft-container tmux attach
 PX4 Interface Open Tasks
 
 - Orbit working questionably for quads: tangential speed should be specified, altitude in reached but not kept(?), does not exit mode automatically
+  - removing loops (param4)
+  - check vel (param2) and yaw (param3)
 - Create smaller deployment image on Orin
 - Implement ardupilot/mavros interface (check if 4.6.2 is still the latest stable release)
 

@@ -386,8 +386,7 @@ void PX4Interface::set_orbit_callback(const std::shared_ptr<autopilot_interface_
     double desired_r = request->radius;
     RCLCPP_INFO(this->get_logger(), "New requested orbit East-North %.2f %.2f Alt. %.2f Radius %.2f", desired_east, desired_north, desired_alt, desired_r);
     auto [des_lat, des_lon] = lat_lon_from_cartesian(home_lat_, home_lon_, desired_east, desired_north);
-    double desired_loops = 0.0; // 0: Orbit forever
-    do_orbit(des_lat, des_lon, desired_alt, desired_r, desired_loops);
+    do_orbit(des_lat, des_lon, desired_alt, desired_r);
     response->success = true;
     active_srv_or_act_flag_.store(false);
 }
@@ -798,14 +797,14 @@ void PX4Interface::do_change_speed(double speed)
         0  // Confirmation
     );
 }
-void PX4Interface::do_orbit(double lat, double lon, double alt, double r, double loops)
+void PX4Interface::do_orbit(double lat, double lon, double alt, double r)
 {
     send_vehicle_command(
         34,  // VEHICLE_CMD_DO_ORBIT
-        r,   // Orbit radius
+        r,   // Orbit radius (positive: CW, negative: CCW)
         NAN,  // Orbit speed (Tangential Velocity. NaN: Use vehicle default velocity, or current velocity if already orbiting. m/s)
-        0.0,  // Yaw behavior: 0: towards the center of the orbit (for quads, not VTOLs), 1: initial, 2: uncontrolled, 3: tangent, 4: rc, 5: unchanged
-        loops,  // Number of loops (0 for forever)
+        0,  // Yaw behavior: 0: towards the center of the orbit (for quads, not VTOLs), 1: initial, 2: uncontrolled, 3: tangent, 4: rc, 5: unchanged
+        NAN,  // Number of loops in MAVLINK but unused in PX4
         lat,  // Target latitude
         lon,  // Target longitude
         home_alt_ + alt,  // Altitude
