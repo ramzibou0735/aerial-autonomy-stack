@@ -181,8 +181,10 @@ docker exec -it aircraft-container tmux attach
 ## TODOs
 
 PX4 Interface Open Tasks
-- Make sure purely vertical repositions keeps yaw for quads
+- Change info to err/warn
+
 - Orbit working questionably for quads: tangential speed should be specified, altitude in reached but not kept(?), does not exit mode automatically
+
 - Create smaller deployment image on Orin
 
 - Implement ardupilot/mavros interface (check if 4.6.2 is still the latest stable release)

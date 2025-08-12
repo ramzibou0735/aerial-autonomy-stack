@@ -894,12 +894,13 @@ void PX4Interface::send_vehicle_command(int command, double param1, double param
 void PX4Interface::abort_action()
 {
     // std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Reading data written by subs but also writing the FSM state
-    do_reposition(home_lat_, home_lon_, 100.0, NAN); // HARDCODED: reposition to 100m above home, for VTOLs the loiter radius is parameter NAV_LOITER_RAD
     if (vehicle_type_ == px4_msgs::msg::VehicleStatus::VEHICLE_TYPE_ROTARY_WING) {
+        do_reposition(lat_, lon_, 100.0, NAN); // HARDCODED: for quads, hover at 100m in place
         aircraft_fsm_state_ = PX4InterfaceState::MC_HOVER;
     } else if (vehicle_type_ == px4_msgs::msg::VehicleStatus::VEHICLE_TYPE_FIXED_WING) {
+        do_reposition(home_lat_, home_lon_, 100.0, NAN); // HARDCODED: for VTOLs, reposition to 100m above home, the loiter radius is parameter NAV_LOITER_RAD
         aircraft_fsm_state_ = PX4InterfaceState::FW_CRUISE;
-    } // TODO: if a VTOL errenously ended in the MC_HOVER state, it would not be recoverable by PX4Interface (land via QGC)
+    } // TODO: if a VTOL errenously ended in the MC_HOVER state, it would not be recoverable by PX4Interface as an explicit transition is not exposed (land via QGC)
     active_srv_or_act_flag_.store(false);
 }
 
