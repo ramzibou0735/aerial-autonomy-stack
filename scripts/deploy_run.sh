@@ -43,5 +43,11 @@ docker run -d -t \
 echo "Now attach with: docker exec -it aircraft-container tmux attach"
 echo "If MODE=dev, attach with: docker exec -it aircraft-container bash"
 
+# Check ONNX runtimes
+# MODE=dev HEADLESS=false ./deploy_run.sh
+# docker exec -it aircraft-container bash
+# python3 -c "import onnxruntime as ort; print(ort.__version__); print(ort.get_available_providers())"
+# tmuxinator start -p /aircraft.yml.erb
+
 # docker stop $(docker ps -q) # Stop all containers
 # docker container prune # Remove stopped containers
