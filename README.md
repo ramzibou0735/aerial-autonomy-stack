@@ -54,9 +54,9 @@ cd ~/git/aerial-autonomy-stack
 ### Build the Docker Images
 
 > [!WARNING]
-> Building from scratch requires a stable internet connection (`Ctrl + c` and restart if needed)
+> The build script creates two ~20GB images (including lots of tools and artifacts for development)
 > 
-> The build script creates two ~20GB images with lots of tools and artifacts for development
+> Building from scratch requires a good/stable internet connection (restart if necessary)
 
 ```sh
 # Clone external repos (in github_clones/) and build the Docker images
