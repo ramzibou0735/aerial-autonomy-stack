@@ -25,8 +25,9 @@
       
       # Required for state estimation and control
       - imu               # IMU data
+      - altitude          # Fused altitude data
       - global_position   # GPS data
       - local_position    # Odometry data
       - setpoint_position # For sending position commands
       - setpoint_velocity # For sending velocity commands
-      - altitude          # Fused altitude data
+      - setpoint_accel    # For sending acceleration commands

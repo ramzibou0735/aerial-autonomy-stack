@@ -2,35 +2,45 @@
 
 CLI Tests:
 
-Switch to guided mode
-ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'GUIDED'}"
+QUAD
 
-Arm (this does not work with the virtual joystick, find a workaround)
-ros2 service call /mavros/cmd/arming mavros_msgs/srv/CommandBool "{value: true}"
+    Switch to guided mode
+    ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'GUIDED'}"
 
-Takeoff
-ros2 service call /mavros/cmd/takeoff mavros_msgs/srv/CommandTOL "{altitude: 10.0}"
+    Arm (ARMING_CHECK to avoid the virtual joystick interfering, wait for position fix)
+    ros2 service call /mavros/cmd/arming mavros_msgs/srv/CommandBool "{value: true}"
 
-Reposition
-ros2 topic pub --once /mavros/setpoint_position/local geometry_msgs/msg/PoseStamped '{header: {frame_id: "map"}, pose: {position: {x: 5.0, y: 5.0, z: 10.0}}}'
+    Takeoff
+    ros2 service call /mavros/cmd/takeoff mavros_msgs/srv/CommandTOL "{altitude: 10.0}"
 
-Velocity reference
-ros2 topic pub --rate 10 --times 50 /mavros/setpoint_velocity/cmd_vel_unstamped geometry_msgs/msg/Twist '{linear: {x: 2.0}}'
+    Reposition
+    ros2 topic pub --once /mavros/setpoint_position/local geometry_msgs/msg/PoseStamped '{header: {frame_id: "map"}, pose: {position: {x: 5.0, y: 5.0, z: 10.0}}}'
 
-Land
-ros2 service call /mavros/cmd/land mavros_msgs/srv/CommandTOL "{}"
+    Change altitude (186) is unsupported, use reposition instead
+    ros2 service call /mavros/cmd/command mavros_msgs/srv/CommandLong "{command: 178, param1: 1.0, param2: 10.0}"
 
-Orbit (not working)
-ros2 service call /mavros/cmd/command mavros_msgs/srv/CommandLong "{command: 34, param1: 50.0, param2: 15.0, param3: 0.0, param4: .nan, param5: 45.5477315433, param6: 8.938851933, param7: 250.0}"
+    Change speed (0: airspeed, 1: ground speed)
+    ros2 service call /mavros/cmd/command mavros_msgs/srv/CommandLong "{command: 178, param1: 1.0, param2: 10.0}"
 
-Change altitude (not working)
-ros2 service call /mavros/cmd/command mavros_msgs/srv/CommandLong "{command: 186, param1: 250.0, param2: 1}"
+    Orbit (34) is unsupported, use MODE CIRCLE instead (how to set roi, radius, altitude, tangential speed?)
+    ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'CIRCLE'}"
+        Set ROI (where the drone points, however, to move the drone it does not seem to work TEST AGAIN USING CIRCLE OPTIONS)
+        ros2 service call /mavros/cmd/command mavros_msgs/srv/CommandLong "{command: 201, param5: 45.5677, param6: 9.1388, param7: 80.0}"
+        Radius and speed are governed by CIRCLE_RADIUS (centimeters), CIRCLE_RATE (deg/sec, NOT WORKING?) parameters (also CIRCLE_OPTIONS)
+        ros2 service call /mavros/param/set mavros_msgs/srv/ParamSetV2 '{param_id: "CIRCLE_RADIUS", value: {type: 3, double_value: 2000.0}}'
+        ros2 service call /mavros/param/set mavros_msgs/srv/ParamSetV2 '{param_id: "CIRCLE_RATE", value: {type: 2, integer_value: 15}}'
+        ros2 service call /mavros/param/set mavros_msgs/srv/ParamSetV2 '{param_id: "CIRCLE_OPTIONS", value: {type: 2, integer_value: 9}}'
 
-Change speed (to do)
-178
+    Velocity reference
+    ros2 topic pub --rate 10 --times 50 /mavros/setpoint_velocity/cmd_vel_unstamped geometry_msgs/msg/Twist '{linear: {x: 2.0}}'
 
-Change param (not working)
-ros2 service call /mavros/param/set mavros_msgs/srv/ParamSet '{param_id: "ARMING_CHECK", value: {integer: 0, real: 0.0}}'
+    Acceleration reference
+    ros2 topic pub --rate 10 --times 50 /mavros/setpoint_accel/accel geometry_msgs/msg/Vector3Stamped '{header: {frame_id: "map"}, vector: {x: 1.5, y: 0.0, z: 0.0}}'
+
+    Land
+    ros2 service call /mavros/cmd/land mavros_msgs/srv/CommandTOL "{}"
+
+VTOL: TODO
 
 VTOL takeoff (not working)
 ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'QSTABILIZE'}"
@@ -39,9 +49,6 @@ ros2 service call /mavros/cmd/arming mavros_msgs/srv/CommandBool "{value: true}"
 ros2 service call /mavros/cmd/takeoff mavros_msgs/srv/CommandTOL "{altitude: 40.0}"
 # Push forward at 15 m/s for 10 seconds to ensure a transition
 ros2 topic pub --rate 20 --times 200 /mavros/setpoint_velocity/cmd_vel_unstamped geometry_msgs/msg/Twist '{linear: {x: 15.0}}'
-
-VTOL landing (not tried)
-ros2 service call /mavros/cmd/land mavros_msgs/srv/CommandTOL "{}"
 
 TODO
 
