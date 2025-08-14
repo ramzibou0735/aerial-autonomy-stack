@@ -180,7 +180,8 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- Implement ardupilot/mavros interface
+- Replace zephyr for a traditional quad plane vtol
+- Implement ardupilot/mavros interface (consider changing Orbit to an action)
 - Double check mutex and sleep use in px4_interface
 - Consider removing set_altitude from PX4Interface (redundant)
 - Make sure that for all maps, all vehicles, a simple autonomous takeoff + loiter + landing example works with up to 3 vehicles
@@ -188,6 +189,7 @@ docker exec -it aircraft-container tmux attach
 
 ### Known Issues
 
+- For symmetry, it would be nice to ditch MAVROS for ArduPilot's DDS: https://ardupilot.org/dev/docs/ros2-interfaces.html
 - Must adjust orientation of the lidar and frame of the lidar odometry for VTOLs
 - In yolo_inference_node.py, cannot open GPU accelerated (nvh264dec) GStreamer pipeline with cv2.VideoCapture, might need to recompile OpenCV to have both CUDA and GStreamer support (or use python3-gi gir1.2-gst-plugins-base-1.0 gir1.2-gstreamer-1.0 and circumbent OpenCV)
 - ROS2 action cancellation from CLI does not work (File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 723, in wait_for_ready_callbacks - return next(self._cb_iter) - ValueError: generator already executing), use cancellable_action.py instead

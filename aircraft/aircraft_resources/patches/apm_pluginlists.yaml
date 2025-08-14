@@ -18,8 +18,12 @@
     #   - 'sys_*'
 
     plugin_allowlist:
+      # Check https://github.com/mavlink/mavros/blob/ros2/mavros/mavros_plugins.xml
+
       # Essential plugins
       - sys_status        # Handles connection status and heartbeats
+      - sys_time          # For system time info
+      - home_position     # Home information
       - command           # For sending commands/services (arming, mode changes)
       - param             # For getting/setting parameters
       
@@ -31,3 +35,5 @@
       - setpoint_position # For sending position commands
       - setpoint_velocity # For sending velocity commands
       - setpoint_accel    # For sending acceleration commands
+      - waypoint          # For mission manipulation
+      - rc_io             # For RC override
