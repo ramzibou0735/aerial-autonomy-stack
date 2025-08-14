@@ -30,9 +30,9 @@ windows:
       panes:
         - > 
           chmod +x /simulation_resources/aircraft_models/_create_ardupilot_models.sh &&
-          /simulation_resources/aircraft_models/_create_ardupilot_models.sh <%= num_drones %> /simulation_resources/aircraft_models/<%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'zephyr_with_ardupilot' %> &&
+          /simulation_resources/aircraft_models/_create_ardupilot_models.sh <%= num_drones %> /simulation_resources/aircraft_models/<%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'skywalker_x8' %> &&
           chmod +x /simulation_resources/simulation_worlds/_create_ardupilot_world.sh &&
-          /simulation_resources/simulation_worlds/_create_ardupilot_world.sh <%= num_drones %> <%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'zephyr_with_ardupilot' %> /simulation_resources/simulation_worlds/<%= world %>.sdf &&
+          /simulation_resources/simulation_worlds/_create_ardupilot_world.sh <%= num_drones %> <%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'skywalker_x8' %> /simulation_resources/simulation_worlds/<%= world %>.sdf &&
           GZ_SIM_SYSTEM_PLUGIN_PATH=/git/ardupilot_gazebo/build:$GZ_SIM_SYSTEM_PLUGIN_PATH 
           GZ_SIM_RESOURCE_PATH=/simulation_resources/aircraft_models:/simulation_resources/simulation_worlds:$GZ_SIM_RESOURCE_PATH 
           GZ_SIM_PHYSICS_ENGINE_PATH=$GZ_SIM_PHYSICS_ENGINE_PATH:/usr/lib/x86_64-linux-gnu/gz-physics-7/engine-plugins/
@@ -78,15 +78,15 @@ windows:
           --out=udp:127.0.0.1:<%= 14550 + i %>
           --out=udp:127.0.0.1:<%= 14540 + i %>
           --out=udp:42.42.1.<%= i + 1 %>:<%= 22530 + i %>
-          --add-param-file=/simulation_resources/aircraft_models/<%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'zephyr_with_ardupilot' %>_<%= i + 1 %>/ardupilot-4.6.params
+          --add-param-file=/simulation_resources/aircraft_models/<%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'skywalker_x8' %>_<%= i + 1 %>/ardupilot-4.6.params
         - "ROS_DOMAIN_ID=<%= i + 1 %> ros2 run ros_gz_bridge parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock"
         <% if lidar == 'true' %>
-        - "ROS_DOMAIN_ID=<%= i + 1 %> ros2 run ros_gz_bridge parameter_bridge /world/<%= world %>/model/<%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'zephyr_with_ardupilot' %>_<%= i + 1 %>/model/<%= drone_type == 'quad' ? 'iris' : 'zephyr' %>/model/simple_lidar/link/lidar/base_link/sensor/lidar3d/scan/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked --ros-args -r /world/<%= world %>/model/<%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'zephyr_with_ardupilot' %>_<%= i + 1 %>/model/<%= drone_type == 'quad' ? 'iris' : 'zephyr' %>/model/simple_lidar/link/lidar/base_link/sensor/lidar3d/scan/points:=/lidar_points"
+        - "ROS_DOMAIN_ID=<%= i + 1 %> ros2 run ros_gz_bridge parameter_bridge /world/<%= world %>/model/<%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'skywalker_x8' %>_<%= i + 1 %>/model/<%= drone_type == 'quad' ? 'iris' : 'skywalker_x8' %>/model/simple_lidar/link/lidar/base_link/sensor/lidar3d/scan/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked --ros-args -r /world/<%= world %>/model/<%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'skywalker_x8' %>_<%= i + 1 %>/model/<%= drone_type == 'quad' ? 'iris' : 'skywalker_x8' %>/model/simple_lidar/link/lidar/base_link/sensor/lidar3d/scan/points:=/lidar_points"
         <% end %>
         <% if camera == 'true' %>
         - >
           python3 /simulation_resources/comms/gz_to_gst_image_bridge.py 
-          --gz_topic /world/<%= world %>/model/<%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'zephyr_with_ardupilot' %>_<%= i + 1 %>/model/<%= drone_type == 'quad' ? 'iris' : 'zephyr' %>/model/simple_camera/link/mono_cam/base_link/sensor/imager/image
+          --gz_topic /world/<%= world %>/model/<%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'skywalker_x8' %>_<%= i + 1 %>/model/<%= drone_type == 'quad' ? 'iris' : 'skywalker_x8' %>/model/simple_camera/link/mono_cam/base_link/sensor/imager/image
           --ip 42.42.1.<%= i + 1 %> --port 5600
         <% end %>
   <% end %>

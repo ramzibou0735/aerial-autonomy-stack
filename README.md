@@ -181,6 +181,11 @@ docker exec -it aircraft-container tmux attach
 ## TODOs
 
 - Replace zephyr for a traditional quad plane vtol
+    https://github.com/ArduPilot/SITL_Models/blob/master/Gazebo/docs/SkywalkerX8.md
+    https://github.com/ArduPilot/SITL_Models/blob/master/Gazebo/launch/sonoma-skywalker_x8_quad.sh
+    https://github.com/ArduPilot/SITL_Models/blob/master/Gazebo/worlds/skywalker_x8_quad_runway.sdf
+    revise -f <%= drone_type == 'quad' ? 'gazebo-iris' : 'gazebo-zephyr' %> 
+    revise sensors for x8
 - Implement ardupilot/mavros interface (consider changing Orbit to an action)
 - Double check mutex and sleep use in px4_interface
 - Consider removing set_altitude from PX4Interface (redundant)
