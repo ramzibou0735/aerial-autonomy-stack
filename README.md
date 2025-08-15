@@ -10,7 +10,7 @@
 
 ## Feature Highlights
 
-- Support for multiple **quadrotors and VTOLs** based on **PX4 or ArduPilot**
+- Support for multiple **quadrotors and VTOLs** based on either **PX4 or ArduPilot**
 - **ROS2**-based autopilot interfaces (*via* XRCE-DDS and MAVROS)
 - Support for **YOLOv8** (with ONNX GPU Runtimes) and **Lidar Odometry** (with [KISS-ICP](https://github.com/PRBonn/kiss-icp))
 - **Dockerized simulation** based on [`nvcr.io/nvidia/cuda:12.8.1-cudnn-runtime-ubuntu22.04`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/cuda/tags)
