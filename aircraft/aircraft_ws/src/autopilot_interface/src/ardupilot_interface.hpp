@@ -44,9 +44,25 @@ ros2 service call /mavros/cmd/land mavros_msgs/srv/CommandTOL "{}"
 
 VTOL
 
-ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'FBWA'}"
+TAKEOFF
+
+ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'QLOITER'}"
 ros2 service call /mavros/cmd/arming mavros_msgs/srv/CommandBool "{value: true}"
 
+Cannot change altitude/takeoff if not with the virtualy joystick
+
+CRUISE
+
+WORK BUT CANNOT DO MUCH WITH THEM
+ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'FBWA'}"
+ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'GUIDED'}"
+ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'CIRCLE'}"
+
+Must figure out how to do oribt/reposition/mission, at it works from QGC
+
+LANDING
+
+AUTO triggers RTL, QLAND also works
 
 [WIP]
 
