@@ -7,7 +7,7 @@ QUAD
 Switch to guided mode
 ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'GUIDED'}"
 
-Arm (ARMING_CHECK to avoid the virtual joystick interfering, wait for position fix)
+Arm (ARMING_CHECK to avoid the virtual joystick interfering, wait for position lock)
 ros2 service call /mavros/cmd/arming mavros_msgs/srv/CommandBool "{value: true}"
 
 Takeoff
@@ -44,7 +44,7 @@ ros2 service call /mavros/cmd/land mavros_msgs/srv/CommandTOL "{}"
 
 VTOL
 
-TAKEOFF
+Takeoff
 
 ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'QLOITER'}"
 ros2 service call /mavros/cmd/arming mavros_msgs/srv/CommandBool "{value: true}"
@@ -53,7 +53,7 @@ ros2 service call /mavros/cmd/takeoff mavros_msgs/srv/CommandTOL "{altitude: 50.
 ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'CRUISE'}" # Or FBWB to transition to FW at 10m/s
 ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'GUIDED'}" # Or CIRCLE to start loitering
 
-(TODO) CRUISE
+(TODO) Cruise
 
 Must figure out how to do oribt/reposition/mission, at it works from QGC
 
@@ -70,7 +70,7 @@ ros2 service call /mavros/cmd/command mavros_msgs/srv/CommandLong "{command: 192
 NOT WORKING
 ros2 topic pub --once /mavros/setpoint_position/global geographic_msgs/msg/GeoPoseStamped '{header: {frame_id: "map"}, pose: {position: {latitude: 45.5677, longitude: 9.1388, altitude: 250.0}}}'
 
-LANDING
+Land
 
 ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'QRTL'}" # FW return to home, transition, and land
 
