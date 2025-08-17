@@ -47,5 +47,6 @@ Some additional features are highly desirable but were deemed premature for a mi
 
 - Support for [SPARK-FAST-LIO](https://github.com/MIT-SPARK/spark-fast-lio)/[SuperOdom](https://github.com/superxslam/SuperOdom)
 - Support for [Betaflight SITL](https://betaflight.com/docs/development/SITL) interfaced *via* [MultiWii Serial Protocol (MSP)](https://github.com/betaflight/betaflight/tree/master/src/main/msp)
+- Support for [ArduPilot's DDS interface](https://ardupilot.org/dev/docs/ros2-interfaces.html)
 - Support for [JSBSim](https://github.com/JSBSim-Team/jsbsim) flight dynamics
 - Support for a [Isaac Sim](https://github.com/isaac-sim/IsaacSim) higher fidelity rendering

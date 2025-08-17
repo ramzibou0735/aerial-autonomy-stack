@@ -55,20 +55,28 @@ ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'GUIDE
 
 (TODO) Cruise
 
-Must figure out how to do oribt/reposition/mission, at it works from QGC
-
-UNSUPPORTED (altitude, orbit)
-ros2 service call /mavros/cmd/command mavros_msgs/srv/CommandLong "{command: 186, param1: 300.0, param2: 1.0}"
-ros2 service call /mavros/cmd/command mavros_msgs/srv/CommandLong "{command: 34, param1: 200.0, param2: 14.0, param3: 0.0, param4: 10.0, param5: 45.5677, param6: 9.1388, param7: 250.0}" 
-
-ACCEPTED BUT DOING NOTHING (change speed)
+ACCEPTED BUT DOING NOTHING (change speed, possibly vehicle configuration limitation, does not work from QGC either)
 ros2 service call /mavros/cmd/command mavros_msgs/srv/CommandLong "{command: 178, param1: 0.0, param2: 19.0}"
 
-UNSUPPORTED BUT OK WHEN FROM QGC (reposition)
-ros2 service call /mavros/cmd/command mavros_msgs/srv/CommandLong "{command: 192, param5: 45.5677, param6: 9.1388, param7: 250.0}" 
+# Upload and start a WP mission
+ros2 service call /mavros/mission/push mavros_msgs/srv/WaypointPush "{start_index: 0, waypoints: [ \
+  {frame: 3, command: 16, is_current: true, autocontinue: true, x_lat: 0.0, y_long: 0.0, z_alt: 0.0}, \
+  {frame: 3, command: 16, is_current: false, autocontinue: true, x_lat: 45.5677, y_long: 9.1388, z_alt: 250.0}, \
+  {frame: 3, command: 16, is_current: false, autocontinue: true, x_lat: 45.5677, y_long: 8.9388, z_alt: 250.0} \
+  ]}"
+ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'AUTO'}"
+ros2 service call /mavros/cmd/command mavros_msgs/srv/CommandLong "{command: 300}"
+ros2 service call /mavros/mission/set_current mavros_msgs/srv/WaypointSetCurrent "{wp_seq: 2}" # Advance waypoint
 
-NOT WORKING
-ros2 topic pub --once /mavros/setpoint_position/global geographic_msgs/msg/GeoPoseStamped '{header: {frame_id: "map"}, pose: {position: {latitude: 45.5677, longitude: 9.1388, altitude: 250.0}}}'
+WORKING but needs to find how to set the radius for VTOL
+ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'CIRCLE'}"
+
+UNSUPPORTED BUT OK WHEN FROM QGC IN GUIDED MODE (reposition, altitude)
+ros2 service call /mavros/cmd/command mavros_msgs/srv/CommandLong "{command: 192, param5: 45.5677, param6: 9.1388, param7: 250.0}" 
+ros2 service call /mavros/cmd/command mavros_msgs/srv/CommandLong "{command: 186, param1: 300.0, param2: 1.0}"
+
+UNSUPPORTED (orbit)
+ros2 service call /mavros/cmd/command mavros_msgs/srv/CommandLong "{command: 34, param1: 200.0, param2: 14.0, param3: 0.0, param4: 10.0, param5: 45.5677, param6: 9.1388, param7: 250.0}" 
 
 Land
 
