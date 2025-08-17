@@ -671,7 +671,7 @@
     <include>
       <uri>model://sensor_camera</uri>
       <name>simple_camera</name>
-      <pose>.525 0 0 0 0 0</pose>
+      <pose>.45 0 0 0 0 0</pose>
     </include>
     <joint name="CameraJoint" type="fixed">
       <parent>base_link</parent>
@@ -681,7 +681,7 @@
     <include>
       <uri>model://sensor_lidar</uri>
       <name>simple_lidar</name>
-      <pose degrees="true">0 0 -0.08 180 0 0</pose>
+      <pose degrees="true">0 0 -0.1 180 0 0</pose>
     </include>
     <joint name="LidarJoint" type="fixed">
       <parent>base_link</parent>

@@ -180,13 +180,10 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- Replace zephyr for a traditional quad plane vtol
-  revise -f <%= drone_type == 'quad' ? 'gazebo-iris' : 'gazebo-zephyr' %>  to only use with quad
-    revise sensors topics for x8
+- ArduPilot quad plane vtol
     figure out takeoff altitude
     figure out orbits
     (figure out velocity references)
-    remove zephyr
 
 - Implement ardupilot/mavros interface (consider changing Orbit to an action)
 
@@ -195,7 +192,7 @@ docker exec -it aircraft-container tmux attach
 
 - Create vision/control node
 
-- Make sure that for all maps, all vehicles, a simple autonomous takeoff + loiter + landing example works with up to 3 vehicles
+- Make sure that for all maps, all vehicles, a simple autonomous takeoff + loiter + landing example works with up to 3 vehicles with cam/lidar
 - Create smaller deployment image on Orin
 
 ### Known Issues
