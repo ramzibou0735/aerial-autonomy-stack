@@ -181,9 +181,24 @@ docker exec -it aircraft-container tmux attach
 ## TODOs
 
 - ArduPilot quad plane vtol
-    figure out takeoff altitude
-    figure out orbits
-    (figure out velocity references)
+    figure out orbits, altitude, speed
+    figure out pos/velocity(/accel) references
+
+- ArduPilot SITL
+    streamline param loading with -f, --add-param-file
+    use alti instead of x8 (?)
+
+    "gazebo-iris": {
+                "waf_target": "bin/arducopter",
+                "default_params_filename": ["default_params/copter.parm",
+                                            "default_params/gazebo-iris.parm"],
+                "external": True,
+            },
+    "gazebo-zephyr": {
+                "waf_target": "bin/arduplane",
+                "default_params_filename": "default_params/gazebo-zephyr.parm",
+                "external": True,
+            },
 
 - Implement ardupilot/mavros interface (consider changing Orbit to an action)
 
@@ -192,7 +207,7 @@ docker exec -it aircraft-container tmux attach
 
 - Create vision/control node
 
-- Make sure that for all maps, all vehicles, a simple autonomous takeoff + loiter + landing example works with up to 3 vehicles with cam/lidar
+- Make sure that for all maps, all vehicles, a simple autonomous takeoff + loiter + landing example works with up to 3 vehicles with sensors
 
 ### Known Issues
 

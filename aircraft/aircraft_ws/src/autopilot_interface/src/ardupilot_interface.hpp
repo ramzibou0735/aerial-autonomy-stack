@@ -48,50 +48,35 @@ TAKEOFF
 
 ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'QLOITER'}"
 ros2 service call /mavros/cmd/arming mavros_msgs/srv/CommandBool "{value: true}"
+ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'GUIDED'}" # Important
+ros2 service call /mavros/cmd/takeoff mavros_msgs/srv/CommandTOL "{altitude: 50.0}"
+ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'CRUISE'}" # Or FBWB to transition to FW at 10m/s
+ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'GUIDED'}" # Or CIRCLE to start loitering
 
-Cannot change altitude/takeoff if not with the virtualy joystick
-
-CRUISE
-
-WORK BUT CANNOT DO MUCH WITH THEM
-ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'FBWA'}"
-ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'GUIDED'}"
-ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'CIRCLE'}"
+(TODO) CRUISE
 
 Must figure out how to do oribt/reposition/mission, at it works from QGC
-
-LANDING
-
-AUTO triggers RTL, QLAND also works
-
-[WIP]
-
-NOT WORKING
-    ros2 topic pub --once /mavros/rc/override mavros_msgs/msg/OverrideRCIn '{channels: [0, 0, 2000, 0, 0, 0, 0, 0]}'
-    ros2 topic pub --rate 10 --times 50 /mavros/rc/override mavros_msgs/msg/OverrideRCIn '{channels: [0, 0, 1800, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}'
-
-    ros2 topic pub --once /mavros/setpoint_position/global geographic_msgs/msg/GeoPoseStamped '{header: {frame_id: "map"}, pose: {position: {latitude: 45.5677, longitude: 9.1388, altitude: 250.0}}}'
-
-ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'CIRCLE'}"
-ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'GUIDED'}"
 
 UNSUPPORTED (altitude, orbit)
 ros2 service call /mavros/cmd/command mavros_msgs/srv/CommandLong "{command: 186, param1: 300.0, param2: 1.0}"
 ros2 service call /mavros/cmd/command mavros_msgs/srv/CommandLong "{command: 34, param1: 200.0, param2: 14.0, param3: 0.0, param4: 10.0, param5: 45.5677, param6: 9.1388, param7: 250.0}" 
 
-ACCEPTED BUT DOING NOTHING
+ACCEPTED BUT DOING NOTHING (change speed)
 ros2 service call /mavros/cmd/command mavros_msgs/srv/CommandLong "{command: 178, param1: 0.0, param2: 19.0}"
 
-UNSUPPORTED BUT OK WHEN FROM QGC?
+UNSUPPORTED BUT OK WHEN FROM QGC (reposition)
 ros2 service call /mavros/cmd/command mavros_msgs/srv/CommandLong "{command: 192, param5: 45.5677, param6: 9.1388, param7: 250.0}" 
 
-(not working)
-ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'QSTABILIZE'}"
-try: ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'QLOITER'}"
-ros2 service call /mavros/cmd/arming mavros_msgs/srv/CommandBool "{value: true}"
-ros2 service call /mavros/cmd/takeoff mavros_msgs/srv/CommandTOL "{altitude: 40.0}"
-# Push forward at 15 m/s for 10 seconds to ensure a transition
-ros2 topic pub --rate 20 --times 200 /mavros/setpoint_velocity/cmd_vel_unstamped geometry_msgs/msg/Twist '{linear: {x: 15.0}}'
+NOT WORKING
+ros2 topic pub --once /mavros/setpoint_position/global geographic_msgs/msg/GeoPoseStamped '{header: {frame_id: "map"}, pose: {position: {latitude: 45.5677, longitude: 9.1388, altitude: 250.0}}}'
+
+LANDING
+
+ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'QRTL'}" # FW return to home, transition, and land
+
+Alternatively
+ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'RTL'}" # Return to loiter over home
+ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'QLAND'}" # Transition back to quad and loiter
 
 ---
 
