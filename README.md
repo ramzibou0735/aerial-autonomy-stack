@@ -193,7 +193,6 @@ docker exec -it aircraft-container tmux attach
 - Create vision/control node
 
 - Make sure that for all maps, all vehicles, a simple autonomous takeoff + loiter + landing example works with up to 3 vehicles with cam/lidar
-- Create smaller deployment image on Orin
 
 ### Known Issues
 
