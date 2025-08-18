@@ -181,8 +181,11 @@ docker exec -it aircraft-container tmux attach
 ## TODOs
 
 - ArduPilot quad plane vtol
-    figure out orbits, altitude, speed (if needed, through mission wp in AUTO mode)
-    figure out pos/velocity(/accel) references
+    (?) figure out vtol speed change
+    think of how to use altitude (and/or removing set altitude from px4)
+    (?) figure out pos/velocity(/accel) references
+
+Map out the possible interfaces across autopilots and frames
 
 - ArduPilot SITL
     streamline param loading with -f, --add-param-file
