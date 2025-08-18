@@ -2,7 +2,7 @@
 
 *Aerial autonomy stack* (AAS) is a software stack to:
 
-1. **Develop** drone autonomy with ROS2
+1. **Develop** end-to-end drone autonomy with ROS2
 2. **Simulate** vision and control in software-in-the-loop, with YOLOv8 and PX4/ArduPilot
 3. **Deploy** in real drones with NVIDIA Orin/JetPack
 
@@ -219,7 +219,7 @@ Map out the possible interfaces across autopilots and frames
 - Cannot use **/.git in .dockerignore because PX4 and ArduPilot use it in their build
 - PX4 messages 1.16 have VehicleStatus on MESSAGE_VERSION = 1, topic fmu/out/vehicle_status_v1
 - QGC does not save roll and pitch in the telemetry bar for PX4 VTOLs (MAV_TYPE 22)
-- QGC is started with a virtual joystick (with no-spring throttle for VTOLs and centered throttle for quads), this is reflective of real-life but note that this counts as "RC loss" when switching focus from one autopilot instance to another
+- QGC is started with a virtual joystick (with low throttle for VTOLs and centered throttle for quads), this is reflective of real-life but note that this counts as "RC loss" when switching focus from one autopilot instance to another
 
 
 
