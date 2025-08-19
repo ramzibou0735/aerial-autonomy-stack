@@ -180,6 +180,28 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
+Alti sh launch
+(cd sitl/alti_transition_quad && $PLANE -S --model JSON --speedup 1 --slave 0 --instance 0 --sysid 1 --defaults $PLANE_DEFAULTS) &
+Alti world
+  <world name="runway">
+    <plugin filename="gz-sim-physics-system"
+      name="gz::sim::systems::Physics">
+    </plugin>
+    <plugin filename="gz-sim-user-commands-system"
+      name="gz::sim::systems::UserCommands">
+    </plugin>
+    <plugin filename="gz-sim-scene-broadcaster-system"
+      name="gz::sim::systems::SceneBroadcaster">
+    </plugin>
+    <plugin filename="gz-sim-imu-system"
+      name="gz::sim::systems::Imu">
+    </plugin>
+    ...
+    <include>
+      <pose degrees="true">0 0 0.35 0 0 90</pose>
+      <uri>model://alti_transition_quad</uri>
+    </include>
+
 - ArduPilot quad plane vtol
     (?) figure out vtol speed change
     think of how to use altitude (and/or removing set altitude from px4)
