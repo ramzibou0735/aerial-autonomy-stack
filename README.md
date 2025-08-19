@@ -180,45 +180,44 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-Alti sh launch
-(cd sitl/alti_transition_quad && $PLANE -S --model JSON --speedup 1 --slave 0 --instance 0 --sysid 1 --defaults $PLANE_DEFAULTS) &
+Revise choice of ARMING_CHECK 60 for ArduVehicles
 
-revise choice of ARMING_CHECK 60 for ArduVehicles
-Alti: [14:58:15.162 ] Critical: PreArm: AHRS: not using configured AHRS type
+Check Alti SITL launch
+  (cd sitl/alti_transition_quad && $PLANE -S --model JSON --speedup 1 --slave 0 --instance 0 --sysid 1 --defaults $PLANE_DEFAULTS) &
+
+  group_sim.add_option("", "--auto-sysid",
+                     default=False,
+                     action='store_true',
+                     help="Set SYSID_THISMAV based upon instance number")
+
+group_sim.add_option("", "--sysid",
+                     type='int',
+                     default=None,
+                     help="Set SYSID_THISMAV")
+
+group_sim.add_option("-I", "--instance",
+                     default=0,
+                     type='int',
+                     help="instance of simulator")
+
 
 - ArduPilot quad plane vtol
     (?) figure out vtol speed change
-    think of how to use altitude (and/or removing set altitude from px4)
     (?) figure out pos/velocity(/accel) references
 
-MAKE NOTE OF THIS
-- ArduPilot SITL
-    streamline param loading with -f, --add-param-file
-    use alti instead of x8 (?)
-    "gazebo-iris": {
-                "waf_target": "bin/arducopter",
-                "default_params_filename": ["default_params/copter.parm",
-                                            "default_params/gazebo-iris.parm"],
-                "external": True,
-            },
-    "gazebo-zephyr": {
-                "waf_target": "bin/arduplane",
-                "default_params_filename": "default_params/gazebo-zephyr.parm",
-                "external": True,
-            },
 
+- Remove set_altitude from PX4Interface
 - Map out the possible interfaces across autopilots and frames
-- Implement ardupilot/mavros interface (consider changing Orbit to an action)
-- Consider removing set_altitude from PX4Interface (redundant)
+- Implement ardupilot/mavros interface (changing Orbit to an action because of Ardupilots quad circle)
 
 - Double check mutex and sleep use in px4_interface
+- Make sure that for all maps, all vehicles, a simple autonomous takeoff + loiter + landing example works with up to 3 vehicles with sensors
 
 - Create vision/control node
 
-- Make sure that for all maps, all vehicles, a simple autonomous takeoff + loiter + landing example works with up to 3 vehicles with sensors
-
 ### Known Issues
 
+- ArduPilot SITL for Iris uses option -f that also sets "external": True, this is not the case for the Alti Transition from ArduPilot/SITL_Models 
 - Must adjust orientation of the lidar and frame of the lidar odometry for VTOLs
 - In yolo_inference_node.py, cannot open GPU accelerated (nvh264dec) GStreamer pipeline with cv2.VideoCapture, might need to recompile OpenCV to have both CUDA and GStreamer support (or use python3-gi gir1.2-gst-plugins-base-1.0 gir1.2-gstreamer-1.0 and circumbent OpenCV)
 - ROS2 action cancellation from CLI does not work (File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 723, in wait_for_ready_callbacks - return next(self._cb_iter) - ValueError: generator already executing), use cancellable_action.py instead
