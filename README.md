@@ -182,33 +182,16 @@ docker exec -it aircraft-container tmux attach
 
 Alti sh launch
 (cd sitl/alti_transition_quad && $PLANE -S --model JSON --speedup 1 --slave 0 --instance 0 --sysid 1 --defaults $PLANE_DEFAULTS) &
-Alti world
-  <world name="runway">
-    <plugin filename="gz-sim-physics-system"
-      name="gz::sim::systems::Physics">
-    </plugin>
-    <plugin filename="gz-sim-user-commands-system"
-      name="gz::sim::systems::UserCommands">
-    </plugin>
-    <plugin filename="gz-sim-scene-broadcaster-system"
-      name="gz::sim::systems::SceneBroadcaster">
-    </plugin>
-    <plugin filename="gz-sim-imu-system"
-      name="gz::sim::systems::Imu">
-    </plugin>
-    ...
-    <include>
-      <pose degrees="true">0 0 0.35 0 0 90</pose>
-      <uri>model://alti_transition_quad</uri>
-    </include>
+
+revise choice of ARMING_CHECK 60 for ArduVehicles
+Alti: [14:58:15.162 ] Critical: PreArm: AHRS: not using configured AHRS type
 
 - ArduPilot quad plane vtol
     (?) figure out vtol speed change
     think of how to use altitude (and/or removing set altitude from px4)
     (?) figure out pos/velocity(/accel) references
 
-Map out the possible interfaces across autopilots and frames
-
+MAKE NOTE OF THIS
 - ArduPilot SITL
     streamline param loading with -f, --add-param-file
     use alti instead of x8 (?)
@@ -224,10 +207,11 @@ Map out the possible interfaces across autopilots and frames
                 "external": True,
             },
 
+- Map out the possible interfaces across autopilots and frames
 - Implement ardupilot/mavros interface (consider changing Orbit to an action)
+- Consider removing set_altitude from PX4Interface (redundant)
 
 - Double check mutex and sleep use in px4_interface
-- Consider removing set_altitude from PX4Interface (redundant)
 
 - Create vision/control node
 

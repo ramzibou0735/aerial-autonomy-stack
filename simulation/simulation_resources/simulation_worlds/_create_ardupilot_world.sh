@@ -15,8 +15,8 @@ case "$BASE_MODEL_NAME" in
   iris_with_ardupilot)
     MODEL_POSE_STRING="0.195 0 0 0"
     ;;
-  skywalker_x8)
-    MODEL_POSE_STRING="0.422 0 0 0"
+  alti_transition_quad)
+    MODEL_POSE_STRING="0.35 0 0 0"
     ;;
   *)
     # Use the default for any other model
