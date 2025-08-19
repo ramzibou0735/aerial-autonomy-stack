@@ -181,12 +181,11 @@ docker exec -it aircraft-container tmux attach
 ## TODOs
 
 - ArduPilot quad plane vtol
-    (?) figure out vtol speed change
     (?) figure out pos/velocity(/accel) references
 
-- Remove set_altitude from PX4Interface
 - Map out the possible interfaces across autopilots and frames
-- Implement ardupilot/mavros interface (changing Orbit to an action because of Ardupilots quad circle)
+  - Remove set_altitude from PX4Interface
+  - Implement ardupilot/mavros interface (changing Orbit to an action because of Ardupilots quad circle)
 
 - Double check mutex and sleep use in px4_interface
 - Make sure that for all maps, all vehicles, a simple autonomous takeoff + loiter + landing example works with up to 3 vehicles with sensors
@@ -195,6 +194,7 @@ docker exec -it aircraft-container tmux attach
 
 ### Known Issues
 
+- Command 178 MAV_CMD_DO_CHANGE_SPEED is accepted but not effective in changing speed for VTOL
 - ArduPilot SITL for Iris uses option -f that also sets "external": True, this is not the case for the Alti Transition from ArduPilot/SITL_Models 
 - Must adjust orientation of the lidar and frame of the lidar odometry for VTOLs
 - In yolo_inference_node.py, cannot open GPU accelerated (nvh264dec) GStreamer pipeline with cv2.VideoCapture, might need to recompile OpenCV to have both CUDA and GStreamer support (or use python3-gi gir1.2-gst-plugins-base-1.0 gir1.2-gstreamer-1.0 and circumbent OpenCV)
