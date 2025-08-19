@@ -180,12 +180,10 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- ArduPilot quad plane vtol
-    (?) figure out pos/velocity(/accel) references
-
 - Map out the possible interfaces across autopilots and frames
   - Remove set_altitude from PX4Interface
-  - Implement ardupilot/mavros interface (changing Orbit to an action because of Ardupilots quad circle)
+  - Change Orbit to an action to use ArduCopter circle mode'
+  - Offboard actions, including a proper/neat way to establish the references (rates, att, traj for px4 quad, vtols; vel, accel for ardu quads)
 
 - Double check mutex and sleep use in px4_interface
 - Make sure that for all maps, all vehicles, a simple autonomous takeoff + loiter + landing example works with up to 3 vehicles with sensors
