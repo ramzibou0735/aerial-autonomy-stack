@@ -76,6 +76,7 @@ windows:
           <% end %>
           --model JSON
           -I <%= i %>
+          --sysid <%= i + 1 %>
           -l $(awk -F "[><]" "/<spherical_coordinates>/,/<\/spherical_coordinates>/" /simulation_resources/simulation_worlds/<%= world %>.sdf | awk -F "[><]" "/latitude_deg/ {print \$3}"),$(awk -F "[><]" "/<spherical_coordinates>/,/<\/spherical_coordinates>/" /simulation_resources/simulation_worlds/<%= world %>.sdf | awk -F "[><]" "/longitude_deg/ {print \$3}"),$(awk -F "[><]" "/<spherical_coordinates>/,/<\/spherical_coordinates>/" /simulation_resources/simulation_worlds/<%= world %>.sdf | awk -F "[><]" "/elevation/ {print \$3}"),0          
           --out=udp:127.0.0.1:<%= 14550 + i %>
           --out=udp:127.0.0.1:<%= 14540 + i %>

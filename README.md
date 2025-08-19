@@ -180,31 +180,9 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-Revise choice of ARMING_CHECK 60 for ArduVehicles
-
-Check Alti SITL launch
-  (cd sitl/alti_transition_quad && $PLANE -S --model JSON --speedup 1 --slave 0 --instance 0 --sysid 1 --defaults $PLANE_DEFAULTS) &
-
-  group_sim.add_option("", "--auto-sysid",
-                     default=False,
-                     action='store_true',
-                     help="Set SYSID_THISMAV based upon instance number")
-
-group_sim.add_option("", "--sysid",
-                     type='int',
-                     default=None,
-                     help="Set SYSID_THISMAV")
-
-group_sim.add_option("-I", "--instance",
-                     default=0,
-                     type='int',
-                     help="instance of simulator")
-
-
 - ArduPilot quad plane vtol
     (?) figure out vtol speed change
     (?) figure out pos/velocity(/accel) references
-
 
 - Remove set_altitude from PX4Interface
 - Map out the possible interfaces across autopilots and frames

@@ -49,12 +49,4 @@ for i in $(seq 1 $NUM_DRONES); do
     DEST_PARAMS="${NEW_MODEL_DIR}/ardupilot-4.6.params"
     cp "${BASE_MODEL_PATH}/ardupilot-4.6.params" "$DEST_PARAMS"
 
-    if grep -q "SYSID_THISMAV" "$DEST_PARAMS"; then
-        # If SYSID_THISMAV exists, replace its value
-        sed -i "s/SYSID_THISMAV.*/SYSID_THISMAV $i/g" "$DEST_PARAMS"
-    else
-        # If SYSID_THISMAV doesn't exist, add it to the end of the file
-        echo "SYSID_THISMAV $i" >> "$DEST_PARAMS"
-    fi
-
 done
