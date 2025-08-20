@@ -378,8 +378,17 @@ python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal
 #include "rclcpp/executors/multi_threaded_executor.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
 
-#include "geometry_msgs/msg/vector3.hpp"
 #include <GeographicLib/Geodesic.hpp>
+
+#include "geometry_msgs/msg/vector3.hpp"
+#include <geometry_msgs/msg/pose_stamped.hpp>
+
+#include <mavros_msgs/msg/state.hpp>
+#include <mavros_msgs/msg/vfr_hud.hpp>
+#include <mavros_msgs/msg/status_text.hpp>
+
+#include <nav_msgs/msg/odometry.hpp>
+#include <sensor_msgs/msg/nav_sat_fix.hpp>
 
 #include "autopilot_interface_msgs/srv/set_altitude.hpp"
 #include "autopilot_interface_msgs/srv/set_speed.hpp"
@@ -390,6 +399,9 @@ python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal
 #include "autopilot_interface_msgs/action/offboard.hpp"
 #include "autopilot_interface_msgs/action/takeoff.hpp"
 
+using namespace mavros_msgs::msg;
+using namespace nav_msgs::msg;
+using namespace sensor_msgs::msg;
 using namespace GeographicLib;
 using namespace std::chrono_literals;  // for time literals (e.g. 1s)
 
@@ -430,18 +442,18 @@ private:
     // rclcpp::Time last_offboard_rate_check_time_;
 
     // Callback groups
-    // rclcpp::CallbackGroup::SharedPtr callback_group_timer_;
-    // rclcpp::CallbackGroup::SharedPtr callback_group_subscriber_;
+    rclcpp::CallbackGroup::SharedPtr callback_group_timer_;
+    rclcpp::CallbackGroup::SharedPtr callback_group_subscriber_;
     // rclcpp::CallbackGroup::SharedPtr callback_group_service_;
     // rclcpp::CallbackGroup::SharedPtr callback_group_action_;
 
     // Node timers
-    // rclcpp::TimerBase::SharedPtr px4_interface_printout_timer_;
+    rclcpp::TimerBase::SharedPtr ardupilot_interface_printout_timer_;
     // rclcpp::TimerBase::SharedPtr offboard_control_loop_timer_;
 
     // MAVROS subscribers
     // rclcpp::Subscription<VehicleStatus>::SharedPtr vehicle_status_sub_;
-    // rclcpp::Subscription<VehicleGlobalPosition>::SharedPtr vehicle_global_position_sub_;
+    rclcpp::Subscription<NavSatFix>::SharedPtr vehicle_global_position_sub_;
     // rclcpp::Subscription<VehicleLocalPosition>::SharedPtr vehicle_local_position_sub_;
     // rclcpp::Subscription<VehicleOdometry>::SharedPtr vehicle_odometry_sub_;
     // rclcpp::Subscription<AirspeedValidated>::SharedPtr airspeed_validated_sub_;
@@ -450,7 +462,7 @@ private:
     // Subscribers variables
     // int target_system_id_, arming_state_, vehicle_type_;
     // bool is_vtol_, is_vtol_tailsitter_, in_transition_mode_, in_transition_to_fw_, pre_flight_checks_pass_;
-    // double lat_, lon_, alt_, alt_ellipsoid_;
+    double lat_, lon_, alt_ellipsoid_;
     // bool xy_valid_, z_valid_, v_xy_valid_, v_z_valid_, xy_global_, z_global_;
     // double x_, y_, z_, heading_, vx_, vy_, vz_;
     // double ref_lat_, ref_lon_, ref_alt_;
@@ -483,11 +495,11 @@ private:
     // rclcpp_action::Server<autopilot_interface_msgs::action::Takeoff>::SharedPtr takeoff_action_server_;
 
     // Callbacks for timers
-    // void px4_interface_printout_callback();
+    void ardupilot_interface_printout_callback();
     // void offboard_control_loop_callback();
 
     // Callbacks for MAVROS subscribers
-    // void global_position_callback(const VehicleGlobalPosition::SharedPtr msg);
+    void global_position_callback(const NavSatFix::SharedPtr msg);
     // void local_position_callback(const VehicleLocalPosition::SharedPtr msg);
     // void odometry_callback(const VehicleOdometry::SharedPtr msg);
     // void status_callback(const VehicleStatus::SharedPtr msg);

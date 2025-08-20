@@ -180,14 +180,15 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
+- Implement MAVROS subscribers to ardupilot_interface
+  Find non-ellipsoid altitude
+
 - Map out the possible interfaces across autopilots and frames
   - Remove set_altitude from PX4Interface
   - Change Orbit to an action to use ArduCopter circle mode'
   - Offboard actions, including a proper/neat way to establish the references (rates, att, traj for px4 quad, vtols; vel, accel for ardu quads)
 
 - Determine how to send rates, attitude, trajectory, velocity, acceleration references for Offboard/Guided modes
-
-- Implement MAVROS subscribers to ardupilot_interface
 
 - Implement ardupilot_interface actions
 - Implement ardupilot_interface service

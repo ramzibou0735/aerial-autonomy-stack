@@ -47,8 +47,9 @@ python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal
 #include "rclcpp/executors/multi_threaded_executor.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
 
-#include "geometry_msgs/msg/vector3.hpp"
 #include <GeographicLib/Geodesic.hpp>
+
+#include "geometry_msgs/msg/vector3.hpp"
 
 #include <px4_msgs/msg/vehicle_status.hpp>
 #include <px4_msgs/msg/vehicle_command_ack.hpp>

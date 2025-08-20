@@ -9,6 +9,8 @@ find_package(px4_msgs REQUIRED)
 find_package(mavros_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
 find_package(autopilot_interface_msgs REQUIRED)
 
 # Add the CMake module path
@@ -32,6 +34,8 @@ ament_target_dependencies(ardupilot_interface
                           rclcpp_action
                           mavros_msgs
                           geometry_msgs
+                          nav_msgs
+                          sensor_msgs
                           autopilot_interface_msgs
                           )
 

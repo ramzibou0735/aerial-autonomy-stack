@@ -22,6 +22,8 @@
   <depend>autopilot_interface_msgs</depend>
   <depend>px4_msgs</depend>
   <depend>mavros_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>sensor_msgs</depend>
   <depend>geographiclib</depend>
 
   <export>
