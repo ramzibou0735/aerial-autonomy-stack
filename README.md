@@ -180,6 +180,8 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
+- Add MAVROS subscribers to ardupilot_interface
+
 - Map out the possible interfaces across autopilots and frames
   - Remove set_altitude from PX4Interface
   - Change Orbit to an action to use ArduCopter circle mode'
