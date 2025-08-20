@@ -173,6 +173,11 @@ WORKDIR /ros2_ws_github
 # Explicitly use bash, not sh, to source and build the workspace
 RUN bash -c "source /opt/ros/humble/setup.bash && colcon build --symlink-install"
 
+# Add pymavlink for debugging and testing
+RUN pip3 install --no-cache-dir --upgrade pip \
+    && pip3 install --no-cache-dir --resume-retries 5 pymavlink
+# Check with $ python3 -c "import pymavlink; print(pymavlink.__version__)"
+
 # Install Zenoh
 RUN echo "deb [trusted=yes] https://download.eclipse.org/zenoh/debian-repo/ /" | sudo tee -a /etc/apt/sources.list > /dev/null
 RUN apt-get update && \
