@@ -328,6 +328,36 @@ SERVICES
 /mavros/wind/set_parameters
 /mavros/wind/set_parameters_atomically
 
+TODO: summarize actions and services for ArduPilo
+
+# QUAD TAKEOFF AND LANDING ACTIONS
+
+python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal /Drone1/takeoff_action autopilot_interface_msgs/action/Takeoff '{takeoff_altitude: 40.0}'"
+python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal /Drone1/land_action autopilot_interface_msgs/action/Land '{landing_altitude: 60.0}'"
+
+# VTOL TAKEOFF AND LANDING ACTIONS
+
+python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal /Drone1/takeoff_action autopilot_interface_msgs/action/Takeoff '{takeoff_altitude: 40.0, vtol_transition_heading: 330.0, vtol_loiter_nord: 200.0, vtol_loiter_east: 100.0, vtol_loiter_alt: 120.0}'"
+python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal /Drone1/land_action autopilot_interface_msgs/action/Land '{landing_altitude: 60.0, vtol_transition_heading: 60.0}'"
+
+# QUADS AND VTOLS SERVICES
+
+ros2 service call /Drone1/set_orbit autopilot_interface_msgs/srv/SetOrbit '{east: 500.0, north: 0.0, altitude: 150.0, radius: 200.0}' # relative to Home
+ros2 service call /Drone1/set_speed autopilot_interface_msgs/srv/SetSpeed '{speed: 15.0}' # Note: always limited by the autopilot params, for quads applies from the next command
+
+# QUAD ONLY SERVICES
+
+ros2 service call /Drone1/set_reposition autopilot_interface_msgs/srv/SetReposition '{east: 100.0, north: 200.0, altitude: 60.0}' # relative to Home
+
+# VTOL ONLY SERVICES
+
+ros2 service call /Drone1/set_altitude autopilot_interface_msgs/srv/SetAltitude '{altitude: 100.0}' # relative to Home
+
+# OFFBOARD ACTION (ATTITUDE: 0, RATES: 1, TRAJECTORY: 2) - implement your custom controller in PX4Interface:: offboard_control_loop_callback
+
+python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal /Drone1/offboard_action autopilot_interface_msgs/action/Offboard '{offboard_setpoint_type: 1, max_duration_sec: 2.0}'"
+
+
 */
 #ifndef AUTOPILOT_INTERFACE__ARDUPILOT_INTERFACE_HPP_
 #define AUTOPILOT_INTERFACE__ARDUPILOT_INTERFACE_HPP_
