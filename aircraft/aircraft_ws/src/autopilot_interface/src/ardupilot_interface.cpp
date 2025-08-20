@@ -5,7 +5,7 @@ ArdupilotInterface::ArdupilotInterface() : Node("ardupilot_interface"),
     // offboard_loop_frequency(50), offboard_loop_count_(0), last_offboard_loop_count_(0),
     // target_system_id_(-1), arming_state_(-1), vehicle_type_(-1),
     // is_vtol_(false), is_vtol_tailsitter_(false), in_transition_mode_(false), in_transition_to_fw_(false), pre_flight_checks_pass_(false),
-    lat_(NAN), lon_(NAN), alt_ellipsoid_(NAN),
+    lat_(NAN), lon_(NAN), alt_(NAN), alt_ellipsoid_(NAN),
     // xy_valid_(false), z_valid_(false), v_xy_valid_(false), v_z_valid_(false), xy_global_(false), z_global_(false),
     // x_(NAN), y_(NAN), z_(NAN), heading_(NAN), vx_(NAN), vy_(NAN), vz_(NAN), ref_lat_(NAN), ref_lon_(NAN), ref_alt_(NAN),
     // pose_frame_(-1), velocity_frame_(-1), true_airspeed_m_s_(NAN),
@@ -65,9 +65,9 @@ ArdupilotInterface::ArdupilotInterface() : Node("ardupilot_interface"),
     vehicle_global_position_sub_= this->create_subscription<NavSatFix>(
         "/mavros/global_position/global", qos_profile_sub,
         std::bind(&ArdupilotInterface::global_position_callback, this, std::placeholders::_1), subscriber_options);
-    // vehicle_local_position_sub_= this->create_subscription<VehicleLocalPosition>(
-    //     "fmu/out/vehicle_local_position", qos_profile_sub,
-    //     std::bind(&PX4Interface::local_position_callback, this, std::placeholders::_1), subscriber_options);
+    vehicle_local_position_sub_= this->create_subscription<PoseStamped>(
+        "/mavros/local_position/pose", qos_profile_sub,
+        std::bind(&ArdupilotInterface::local_position_callback, this, std::placeholders::_1), subscriber_options);
     // vehicle_odometry_sub_= this->create_subscription<VehicleOdometry>(
     //     "fmu/out/vehicle_odometry", qos_profile_sub,
     //     std::bind(&PX4Interface::odometry_callback, this, std::placeholders::_1), subscriber_options);
@@ -81,16 +81,27 @@ ArdupilotInterface::ArdupilotInterface() : Node("ardupilot_interface"),
     //     "fmu/out/vehicle_command_ack", qos_profile_sub,
     //     std::bind(&PX4Interface::vehicle_command_ack_callback, this, std::placeholders::_1), subscriber_options);
     // 
-    // For vehicle_local_position:
-    // Subscribe to /mavros/local_position/pose (message type geometry_msgs/msg/PoseStamped).
-    // For vehicle_odometry:
-    // Subscribe to /mavros/local_position/odom (message type nav_msgs/msg/Odometry).
     // For vehicle_status:
     // Subscribe to /mavros/state (message type mavros_msgs/msg/State).
     // For airspeed_validated:
     // Subscribe to /mavros/vfr_hud (message type mavros_msgs/msg/VfrHud). The airspeed field is in this message.
     // For vehicle_command_ack:
     // Subscribe to /mavros/statustext/recv (message type mavros_msgs/msg/StatusText). You will need to parse the text of these messages to check for acknowledgments.
+    //
+    // For vehicle_local_position:
+    // Subscribe to /mavros/local_position/pose (message type geometry_msgs/msg/PoseStamped).
+    // For vehicle_odometry:
+    // Subscribe to /mavros/local_position/odom (message type nav_msgs/msg/Odometry).
+    // check /mavros/home_position/home
+    // /mavros/global_position/rel_alt
+    // /mavros/local_position/accel
+    // /mavros/local_position/odom
+    // /mavros/local_position/pose
+    // /mavros/local_position/pose_cov
+    // /mavros/local_position/velocity_body
+    // /mavros/local_position/velocity_body_cov
+    // /mavros/local_position/velocity_local
+
 
     // // Services
     // set_altitude_service_ = this->create_service<autopilot_interface_msgs::srv::SetAltitude>(
@@ -149,32 +160,33 @@ void ArdupilotInterface::global_position_callback(const NavSatFix::SharedPtr msg
 {
     std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
     lat_ = msg->latitude;
-    lon_ = msg->longitude; 
+    lon_ = msg->longitude;
+    // alt_ = ???; // AMSL
     alt_ellipsoid_ = msg->altitude; // Positive is above the WGS 84 ellipsoid
 }
-// void PX4Interface::local_position_callback(const VehicleLocalPosition::SharedPtr msg)
-// {
-//     std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
-//     xy_valid_ = msg->xy_valid;
-//     z_valid_ = msg->z_valid;
-//     v_xy_valid_ = msg->v_xy_valid;
-//     v_z_valid_ = msg->v_z_valid;
-//     // Position in local NED frame
-//     x_ = msg->x; // N
-//     y_= msg->y; // E
-//     z_ = msg->z; // D
-//     heading_ = msg->heading; // Euler yaw angle transforming the tangent plane relative to NED earth-fixed frame, -PI..+PI,  (radians)
-//     // Velocity in NED frame
-//     vx_ = msg->vx;
-//     vy_ = msg->vy;
-//     vz_ = msg->vz;
-//     // Position of reference point (local NED frame origin) in global (GPS / WGS84) frame
-//     xy_global_ = msg->xy_global; // Validity of reference
-//     z_global_ = msg->z_global; // Validity of reference
-//     ref_lat_ = msg->ref_lat;
-//     ref_lon_ = msg->ref_lon;
-//     ref_alt_ = msg->ref_alt; // AMSL
-// }
+void ArdupilotInterface::local_position_callback(const PoseStamped::SharedPtr msg)
+{
+    std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+    // xy_valid_ = msg->xy_valid;
+    // z_valid_ = msg->z_valid;
+    // v_xy_valid_ = msg->v_xy_valid;
+    // v_z_valid_ = msg->v_z_valid;
+    // // Position in local NED frame
+    // x_ = msg->x; // N
+    // y_= msg->y; // E
+    // z_ = msg->z; // D
+    // heading_ = msg->heading; // Euler yaw angle transforming the tangent plane relative to NED earth-fixed frame, -PI..+PI,  (radians)
+    // // Velocity in NED frame
+    // vx_ = msg->vx;
+    // vy_ = msg->vy;
+    // vz_ = msg->vz;
+    // // Position of reference point (local NED frame origin) in global (GPS / WGS84) frame
+    // xy_global_ = msg->xy_global; // Validity of reference
+    // z_global_ = msg->z_global; // Validity of reference
+    // ref_lat_ = msg->ref_lat;
+    // ref_lon_ = msg->ref_lon;
+    // ref_alt_ = msg->ref_alt; // AMSL
+}
 // void PX4Interface::odometry_callback(const VehicleOdometry::SharedPtr msg)
 // {
 //     std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
@@ -220,8 +232,8 @@ void ArdupilotInterface::ardupilot_interface_printout_callback()
     //             (pre_flight_checks_pass_ ? "true" : "false"));
     RCLCPP_INFO(get_logger(),
                 "Global position:\n"
-                "\tlatitude: %.5f, longitude: %.5f, altitude ellipsoid: %.2f",
-                lat_, lon_, alt_ellipsoid_);
+                "\tlatitude: %.5f, longitude: %.5f, altitude AMSL: %.2f, altitude ellipsoid: %.2f",
+                lat_, lon_, alt_, alt_ellipsoid_);
     // RCLCPP_INFO(get_logger(),
     //             "Local position:\n"
     //             "\tNED position: %.2f %.2f %.2f (XY valid %s, Z valid %s)\n"

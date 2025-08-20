@@ -1,6 +1,6 @@
 /*
 
-CLI Tests:
+CLI:
 
 QUAD
 
@@ -79,7 +79,7 @@ Alternatively
 ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'RTL'}" # Return to loiter over home
 ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'QLAND'}" # Transition back to quad and loiter
 
-No reference setpoints
+No reference setpoints for ArduPilot VTOLs
 
 ---
 
@@ -150,213 +150,34 @@ TOPICS
 /mavros/timesync_status
 /mavros/wind_estimation
 
-SERVICES
-
-/mavros/cmd/arming                                                                                                   
-/mavros/cmd/command                                                                                                  
-/mavros/cmd/command_int                                                                                              
-/mavros/cmd/describe_parameters                                                                                      
-/mavros/cmd/get_parameter_types                                                                                      
-/mavros/cmd/get_parameters                                                                                           
-/mavros/cmd/land                                                                                                     
-/mavros/cmd/land_local                                                                                               
-/mavros/cmd/list_parameters                                                                                          
-/mavros/cmd/set_home                                                                                                 
-/mavros/cmd/set_parameters                                                                                           
-/mavros/cmd/set_parameters_atomically                                                                                
-/mavros/cmd/takeoff                                                                                                  
-/mavros/cmd/takeoff_local                                                                                            
-/mavros/cmd/trigger_control                                                                                          
-/mavros/cmd/trigger_interval                                                                                         
-/mavros/cmd/vtol_transition                                                                                          
-/mavros/geofence/clear                                                                                               
-/mavros/geofence/describe_parameters                                                                                 
-/mavros/geofence/get_parameter_types                                                                                 
-/mavros/geofence/get_parameters                                                                                      
-/mavros/geofence/list_parameters                                                                                     
-/mavros/geofence/pull                                                                                                
-/mavros/geofence/push                                                                                                
-/mavros/geofence/set_parameters                                                                                      
-/mavros/geofence/set_parameters_atomically                                                                           
-/mavros/global_position/describe_parameters                                                                          
-/mavros/global_position/get_parameter_types                                                                          
-/mavros/global_position/get_parameters                                                                               
-/mavros/global_position/list_parameters                                                                              
-/mavros/global_position/set_parameters                                                                               
-/mavros/global_position/set_parameters_atomically                                                                    
-/mavros/home_position/describe_parameters                                                                            
-/mavros/home_position/get_parameter_types                                                                            
-/mavros/home_position/get_parameters                                                                                 
-/mavros/home_position/list_parameters                                                                                
-/mavros/home_position/req_update                                                                                     
-/mavros/home_position/set_parameters                                                                                 
-/mavros/home_position/set_parameters_atomically                                                                      
-/mavros/imu/describe_parameters                                                                                      
-/mavros/imu/get_parameter_types                                                                                      
-/mavros/imu/get_parameters                                                                                           
-/mavros/imu/list_parameters                                                                                          
-/mavros/imu/set_parameters                                                                                           
-/mavros/imu/set_parameters_atomically                                                                                
-/mavros/local_position/describe_parameters                                                                           
-/mavros/local_position/get_parameter_types                                                                           
-/mavros/local_position/get_parameters                                                                                
-/mavros/local_position/list_parameters                                                                               
-/mavros/local_position/set_parameters                                                                                
-/mavros/local_position/set_parameters_atomically                                                                     
-/mavros/manual_control/describe_parameters                                                                           
-/mavros/manual_control/get_parameter_types                                                                           
-/mavros/manual_control/get_parameters                                                                                
-/mavros/manual_control/list_parameters                                                                               
-/mavros/manual_control/set_parameters                                                                                
-/mavros/manual_control/set_parameters_atomically                                                                     
-/mavros/mavros/describe_parameters                                                                                   
-/mavros/mavros/get_parameter_types                                                                                   
-/mavros/mavros/get_parameters                                                                                        
-/mavros/mavros/list_parameters                                                                                       
-/mavros/mavros/set_parameters                                                                                        
-/mavros/mavros/set_parameters_atomically                                                                             
-/mavros/mavros_node/describe_parameters                                                                              
-/mavros/mavros_node/get_parameter_types                                                                              
-/mavros/mavros_node/get_parameters         
-/mavros/mavros_node/list_parameters
-/mavros/mavros_node/set_parameters
-/mavros/mavros_node/set_parameters_atomically
-/mavros/mavros_router/add_endpoint
-/mavros/mavros_router/del_endpoint
-/mavros/mavros_router/describe_parameters
-/mavros/mavros_router/get_parameter_types
-/mavros/mavros_router/get_parameters
-/mavros/mavros_router/list_parameters
-/mavros/mavros_router/set_parameters
-/mavros/mavros_router/set_parameters_atomically
-/mavros/mission/clear
-/mavros/mission/describe_parameters
-/mavros/mission/get_parameter_types
-/mavros/mission/get_parameters
-/mavros/mission/list_parameters
-/mavros/mission/pull
-/mavros/mission/push
-/mavros/mission/set_current
-/mavros/mission/set_parameters
-/mavros/mission/set_parameters_atomically
-/mavros/nav_controller_output/describe_parameters
-/mavros/nav_controller_output/get_parameter_types
-/mavros/nav_controller_output/get_parameters
-/mavros/nav_controller_output/list_parameters
-/mavros/nav_controller_output/set_parameters
-/mavros/nav_controller_output/set_parameters_atomically
-/mavros/param/describe_parameters
-/mavros/param/get_parameter_types
-/mavros/param/get_parameters
-/mavros/param/list_parameters 
-/mavros/param/pull
-/mavros/param/set
-/mavros/param/set_parameters
-/mavros/param/set_parameters_atomically
-/mavros/rallypoint/clear
-/mavros/rallypoint/describe_parameters
-/mavros/rallypoint/get_parameter_types
-/mavros/rallypoint/get_parameters
-/mavros/rallypoint/list_parameters
-/mavros/rallypoint/pull
-/mavros/rallypoint/push
-/mavros/rallypoint/set_parameters
-/mavros/rallypoint/set_parameters_atomically
-/mavros/rc/describe_parameters
-/mavros/rc/get_parameter_types
-/mavros/rc/get_parameters
-/mavros/rc/list_parameters
-/mavros/rc/set_parameters
-/mavros/rc/set_parameters_atomically
-/mavros/set_message_interval
-/mavros/set_mode
-/mavros/set_stream_rate
-/mavros/setpoint_accel/describe_parameters
-/mavros/setpoint_accel/get_parameter_types
-/mavros/setpoint_accel/get_parameters
-/mavros/setpoint_accel/list_parameters
-/mavros/setpoint_accel/set_parameters
-/mavros/setpoint_accel/set_parameters_atomically
-/mavros/setpoint_attitude/describe_parameters
-/mavros/setpoint_attitude/get_parameter_types
-/mavros/setpoint_attitude/get_parameters
-/mavros/setpoint_attitude/list_parameters
-/mavros/setpoint_attitude/set_parameters
-/mavros/setpoint_attitude/set_parameters_atomically
-/mavros/setpoint_position/describe_parameters
-/mavros/setpoint_position/get_parameter_types
-/mavros/setpoint_position/get_parameters
-/mavros/setpoint_position/list_parameters
-/mavros/setpoint_position/set_parameters
-/mavros/setpoint_position/set_parameters_atomically
-/mavros/setpoint_raw/describe_parameters
-/mavros/setpoint_raw/get_parameter_types
-/mavros/setpoint_raw/get_parameters
-/mavros/setpoint_raw/list_parameters
-/mavros/setpoint_raw/set_parameters
-/mavros/setpoint_raw/set_parameters_atomically
-/mavros/setpoint_trajectory/describe_parameters
-/mavros/setpoint_trajectory/get_parameter_types
-/mavros/setpoint_trajectory/get_parameters
-/mavros/setpoint_trajectory/list_parameters
-/mavros/setpoint_trajectory/reset
-/mavros/setpoint_trajectory/set_parameters
-/mavros/setpoint_trajectory/set_parameters_atomically
-/mavros/setpoint_velocity/describe_parameters
-/mavros/setpoint_velocity/get_parameter_types
-/mavros/setpoint_velocity/get_parameters
-/mavros/setpoint_velocity/list_parameters
-/mavros/setpoint_velocity/set_parameters
-/mavros/setpoint_velocity/set_parameters_atomically
-/mavros/sys/describe_parameters
-/mavros/sys/get_parameter_types
-/mavros/sys/get_parameters
-/mavros/sys/list_parameters
-/mavros/sys/set_parameters
-/mavros/sys/set_parameters_atomically
-/mavros/time/describe_parameters
-/mavros/time/get_parameter_types
-/mavros/time/get_parameters
-/mavros/time/list_parameters
-/mavros/time/set_parameters
-/mavros/time/set_parameters_atomically
-/mavros/vehicle_info_get
-/mavros/wind/describe_parameters
-/mavros/wind/get_parameter_types
-/mavros/wind/get_parameters
-/mavros/wind/list_parameters
-/mavros/wind/set_parameters
-/mavros/wind/set_parameters_atomically
-
-TODO: summarize actions and services for ArduPilo
+TODO: summarize actions and services for ArduPilot
 
 # QUAD TAKEOFF AND LANDING ACTIONS
 
-python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal /Drone1/takeoff_action autopilot_interface_msgs/action/Takeoff '{takeoff_altitude: 40.0}'"
-python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal /Drone1/land_action autopilot_interface_msgs/action/Land '{landing_altitude: 60.0}'"
+...
+...
 
 # VTOL TAKEOFF AND LANDING ACTIONS
 
-python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal /Drone1/takeoff_action autopilot_interface_msgs/action/Takeoff '{takeoff_altitude: 40.0, vtol_transition_heading: 330.0, vtol_loiter_nord: 200.0, vtol_loiter_east: 100.0, vtol_loiter_alt: 120.0}'"
-python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal /Drone1/land_action autopilot_interface_msgs/action/Land '{landing_altitude: 60.0, vtol_transition_heading: 60.0}'"
+...
+...
 
 # QUADS AND VTOLS SERVICES
 
-ros2 service call /Drone1/set_orbit autopilot_interface_msgs/srv/SetOrbit '{east: 500.0, north: 0.0, altitude: 150.0, radius: 200.0}' # relative to Home
-ros2 service call /Drone1/set_speed autopilot_interface_msgs/srv/SetSpeed '{speed: 15.0}' # Note: always limited by the autopilot params, for quads applies from the next command
+...
+...
 
 # QUAD ONLY SERVICES
 
-ros2 service call /Drone1/set_reposition autopilot_interface_msgs/srv/SetReposition '{east: 100.0, north: 200.0, altitude: 60.0}' # relative to Home
+...
 
 # VTOL ONLY SERVICES
 
-ros2 service call /Drone1/set_altitude autopilot_interface_msgs/srv/SetAltitude '{altitude: 100.0}' # relative to Home
+...
 
-# OFFBOARD ACTION (ATTITUDE: 0, RATES: 1, TRAJECTORY: 2) - implement your custom controller in PX4Interface:: offboard_control_loop_callback
+# OFFBOARD ACTION (ACCELERATION: 0, VELOCITY: 1) - implement your custom controller in PX4Interface:: offboard_control_loop_callback
 
-python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal /Drone1/offboard_action autopilot_interface_msgs/action/Offboard '{offboard_setpoint_type: 1, max_duration_sec: 2.0}'"
-
+...
 
 */
 #ifndef AUTOPILOT_INTERFACE__ARDUPILOT_INTERFACE_HPP_
@@ -399,6 +220,7 @@ python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal
 #include "autopilot_interface_msgs/action/offboard.hpp"
 #include "autopilot_interface_msgs/action/takeoff.hpp"
 
+using namespace geometry_msgs::msg;
 using namespace mavros_msgs::msg;
 using namespace nav_msgs::msg;
 using namespace sensor_msgs::msg;
@@ -454,7 +276,7 @@ private:
     // MAVROS subscribers
     // rclcpp::Subscription<VehicleStatus>::SharedPtr vehicle_status_sub_;
     rclcpp::Subscription<NavSatFix>::SharedPtr vehicle_global_position_sub_;
-    // rclcpp::Subscription<VehicleLocalPosition>::SharedPtr vehicle_local_position_sub_;
+    rclcpp::Subscription<PoseStamped>::SharedPtr vehicle_local_position_sub_;
     // rclcpp::Subscription<VehicleOdometry>::SharedPtr vehicle_odometry_sub_;
     // rclcpp::Subscription<AirspeedValidated>::SharedPtr airspeed_validated_sub_;
     // rclcpp::Subscription<VehicleCommandAck>::SharedPtr vehicle_command_ack_sub_;
@@ -462,7 +284,7 @@ private:
     // Subscribers variables
     // int target_system_id_, arming_state_, vehicle_type_;
     // bool is_vtol_, is_vtol_tailsitter_, in_transition_mode_, in_transition_to_fw_, pre_flight_checks_pass_;
-    double lat_, lon_, alt_ellipsoid_;
+    double lat_, lon_, alt_, alt_ellipsoid_;
     // bool xy_valid_, z_valid_, v_xy_valid_, v_z_valid_, xy_global_, z_global_;
     // double x_, y_, z_, heading_, vx_, vy_, vz_;
     // double ref_lat_, ref_lon_, ref_alt_;
@@ -500,7 +322,7 @@ private:
 
     // Callbacks for MAVROS subscribers
     void global_position_callback(const NavSatFix::SharedPtr msg);
-    // void local_position_callback(const VehicleLocalPosition::SharedPtr msg);
+    void local_position_callback(const PoseStamped::SharedPtr msg);
     // void odometry_callback(const VehicleOdometry::SharedPtr msg);
     // void status_callback(const VehicleStatus::SharedPtr msg);
     // void airspeed_callback(const AirspeedValidated::SharedPtr msg);
