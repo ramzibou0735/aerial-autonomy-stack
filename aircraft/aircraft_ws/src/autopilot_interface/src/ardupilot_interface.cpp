@@ -80,28 +80,6 @@ ArdupilotInterface::ArdupilotInterface() : Node("ardupilot_interface"),
     // vehicle_command_ack_sub_ = this->create_subscription<VehicleCommandAck>(
     //     "fmu/out/vehicle_command_ack", qos_profile_sub,
     //     std::bind(&PX4Interface::vehicle_command_ack_callback, this, std::placeholders::_1), subscriber_options);
-    // 
-    // For vehicle_status:
-    // Subscribe to /mavros/state (message type mavros_msgs/msg/State).
-    // For airspeed_validated:
-    // Subscribe to /mavros/vfr_hud (message type mavros_msgs/msg/VfrHud). The airspeed field is in this message.
-    // For vehicle_command_ack:
-    // Subscribe to /mavros/statustext/recv (message type mavros_msgs/msg/StatusText). You will need to parse the text of these messages to check for acknowledgments.
-    //
-    // For vehicle_local_position:
-    // Subscribe to /mavros/local_position/pose (message type geometry_msgs/msg/PoseStamped).
-    // For vehicle_odometry:
-    // Subscribe to /mavros/local_position/odom (message type nav_msgs/msg/Odometry).
-    // check /mavros/home_position/home
-    // /mavros/global_position/rel_alt
-    // /mavros/local_position/accel
-    // /mavros/local_position/odom
-    // /mavros/local_position/pose
-    // /mavros/local_position/pose_cov
-    // /mavros/local_position/velocity_body
-    // /mavros/local_position/velocity_body_cov
-    // /mavros/local_position/velocity_local
-
 
     // // Services
     // set_altitude_service_ = this->create_service<autopilot_interface_msgs::srv::SetAltitude>(
@@ -137,25 +115,6 @@ ArdupilotInterface::ArdupilotInterface() : Node("ardupilot_interface"),
 }
 
 // Callbacks for subscribers (reentrant group)
-// void PX4Interface::status_callback(const VehicleStatus::SharedPtr msg)
-// {
-//     std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
-//     if (target_system_id_ == -1)
-//     {
-//         target_system_id_ = msg->system_id; // get target_system_id from PX4's MAV_SYS_ID once
-//         RCLCPP_WARN(get_logger(), "target_system_id (MAV_SYS_ID) saved as: %d", target_system_id_);
-//     }
-//     arming_state_ = msg->arming_state; // DISARMED = 1, ARMED = 2
-//     vehicle_type_ = msg->vehicle_type; // ROTARY_WING = 1, FIXED_WING = 2 (ROVER = 3)
-//     is_vtol_ = msg->is_vtol; // bool
-//     is_vtol_tailsitter_ = msg->is_vtol_tailsitter; // bool
-//     in_transition_mode_ = msg->in_transition_mode; // bool
-//     in_transition_to_fw_ = msg->in_transition_to_fw; // bool
-//     pre_flight_checks_pass_ = msg->pre_flight_checks_pass; // bool
-//     if ((aircraft_fsm_state_ != PX4InterfaceState::STARTED) && (arming_state_ == 1)) {
-//         aircraft_fsm_state_ = PX4InterfaceState::STARTED; // Reset PX4 interface state after a disarm (hoping the vehicle is ok)
-//     }
-// }
 void ArdupilotInterface::global_position_callback(const NavSatFix::SharedPtr msg)
 {
     std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
@@ -196,6 +155,25 @@ void ArdupilotInterface::local_position_callback(const Odometry::SharedPtr msg)
 //     q_ = msg->q;
 //     velocity_ = msg->velocity;
 //     angular_velocity_ = msg->angular_velocity;
+// }
+// void PX4Interface::status_callback(const VehicleStatus::SharedPtr msg)
+// {
+//     std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+//     if (target_system_id_ == -1)
+//     {
+//         target_system_id_ = msg->system_id; // get target_system_id from PX4's MAV_SYS_ID once
+//         RCLCPP_WARN(get_logger(), "target_system_id (MAV_SYS_ID) saved as: %d", target_system_id_);
+//     }
+//     arming_state_ = msg->arming_state; // DISARMED = 1, ARMED = 2
+//     vehicle_type_ = msg->vehicle_type; // ROTARY_WING = 1, FIXED_WING = 2 (ROVER = 3)
+//     is_vtol_ = msg->is_vtol; // bool
+//     is_vtol_tailsitter_ = msg->is_vtol_tailsitter; // bool
+//     in_transition_mode_ = msg->in_transition_mode; // bool
+//     in_transition_to_fw_ = msg->in_transition_to_fw; // bool
+//     pre_flight_checks_pass_ = msg->pre_flight_checks_pass; // bool
+//     if ((aircraft_fsm_state_ != PX4InterfaceState::STARTED) && (arming_state_ == 1)) {
+//         aircraft_fsm_state_ = PX4InterfaceState::STARTED; // Reset PX4 interface state after a disarm (hoping the vehicle is ok)
+//     }
 // }
 // void PX4Interface::airspeed_callback(const AirspeedValidated::SharedPtr msg)
 // {

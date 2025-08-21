@@ -114,25 +114,6 @@ PX4Interface::PX4Interface() : Node("px4_interface"),
 }
 
 // Callbacks for subscribers (reentrant group)
-void PX4Interface::status_callback(const VehicleStatus::SharedPtr msg)
-{
-    std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
-    if (target_system_id_ == -1)
-    {
-        target_system_id_ = msg->system_id; // get target_system_id from PX4's MAV_SYS_ID once
-        RCLCPP_WARN(get_logger(), "target_system_id (MAV_SYS_ID) saved as: %d", target_system_id_);
-    }
-    arming_state_ = msg->arming_state; // DISARMED = 1, ARMED = 2
-    vehicle_type_ = msg->vehicle_type; // ROTARY_WING = 1, FIXED_WING = 2 (ROVER = 3)
-    is_vtol_ = msg->is_vtol; // bool
-    is_vtol_tailsitter_ = msg->is_vtol_tailsitter; // bool
-    in_transition_mode_ = msg->in_transition_mode; // bool
-    in_transition_to_fw_ = msg->in_transition_to_fw; // bool
-    pre_flight_checks_pass_ = msg->pre_flight_checks_pass; // bool
-    if ((aircraft_fsm_state_ != PX4InterfaceState::STARTED) && (arming_state_ == 1)) {
-        aircraft_fsm_state_ = PX4InterfaceState::STARTED; // Reset PX4 interface state after a disarm (hoping the vehicle is ok)
-    }
-}
 void PX4Interface::global_position_callback(const VehicleGlobalPosition::SharedPtr msg)
 {
     std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
@@ -176,6 +157,25 @@ void PX4Interface::odometry_callback(const VehicleOdometry::SharedPtr msg)
     q_ = msg->q;
     velocity_ = msg->velocity;
     angular_velocity_ = msg->angular_velocity;
+}
+void PX4Interface::status_callback(const VehicleStatus::SharedPtr msg)
+{
+    std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+    if (target_system_id_ == -1)
+    {
+        target_system_id_ = msg->system_id; // get target_system_id from PX4's MAV_SYS_ID once
+        RCLCPP_WARN(get_logger(), "target_system_id (MAV_SYS_ID) saved as: %d", target_system_id_);
+    }
+    arming_state_ = msg->arming_state; // DISARMED = 1, ARMED = 2
+    vehicle_type_ = msg->vehicle_type; // ROTARY_WING = 1, FIXED_WING = 2 (ROVER = 3)
+    is_vtol_ = msg->is_vtol; // bool
+    is_vtol_tailsitter_ = msg->is_vtol_tailsitter; // bool
+    in_transition_mode_ = msg->in_transition_mode; // bool
+    in_transition_to_fw_ = msg->in_transition_to_fw; // bool
+    pre_flight_checks_pass_ = msg->pre_flight_checks_pass; // bool
+    if ((aircraft_fsm_state_ != PX4InterfaceState::STARTED) && (arming_state_ == 1)) {
+        aircraft_fsm_state_ = PX4InterfaceState::STARTED; // Reset PX4 interface state after a disarm (hoping the vehicle is ok)
+    }
 }
 void PX4Interface::airspeed_callback(const AirspeedValidated::SharedPtr msg)
 {

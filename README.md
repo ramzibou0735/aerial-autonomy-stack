@@ -182,23 +182,26 @@ docker exec -it aircraft-container tmux attach
 
 - Implement MAVROS subscribers to ardupilot_interface
 
+/mavros/global_position/global
+    NavSatFix
 /mavros/local_position/odom 
     nav_msgs/msg/Odometry
     (alternatives /mavros/global_position/local nav_msgs/msg/Odometry AND /mavros/local_position/pose geometry_msgs/msg/PoseStamped)
 
-
-/mavros/vfr_hud
-  mavros_msgs/msg/VfrHud
+TODO
 
 /mavros/global_position/local
   nav_msgs/msg/Odometry
 
-/mavros/home_position/home 
-    mavros_msgs/msg/HomePosition
-
 /mavros/local_position/velocity_body
     geometry_msgs/msg/TwistStamped
     (alternative /mavros/local_position/velocity_local geometry_msgs/msg/TwistStamped)
+
+/mavros/vfr_hud
+  mavros_msgs/msg/VfrHud
+
+/mavros/home_position/home 
+    mavros_msgs/msg/HomePosition
 
 /mavros/state
     mavros_msgs/msg/State

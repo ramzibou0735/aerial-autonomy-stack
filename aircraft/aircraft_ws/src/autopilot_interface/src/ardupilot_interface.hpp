@@ -178,10 +178,10 @@ private:
     // rclcpp::TimerBase::SharedPtr offboard_control_loop_timer_;
 
     // MAVROS subscribers
-    // rclcpp::Subscription<VehicleStatus>::SharedPtr vehicle_status_sub_;
     rclcpp::Subscription<NavSatFix>::SharedPtr vehicle_global_position_sub_;
     rclcpp::Subscription<Odometry>::SharedPtr vehicle_local_position_sub_;
     // rclcpp::Subscription<VehicleOdometry>::SharedPtr vehicle_odometry_sub_;
+    // rclcpp::Subscription<VehicleStatus>::SharedPtr vehicle_status_sub_;
     // rclcpp::Subscription<AirspeedValidated>::SharedPtr airspeed_validated_sub_;
     // rclcpp::Subscription<VehicleCommandAck>::SharedPtr vehicle_command_ack_sub_;
 
