@@ -180,8 +180,6 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- Change Orbit service to an action
-
 - Implement ardupilot_interface services
   speed
   reposition

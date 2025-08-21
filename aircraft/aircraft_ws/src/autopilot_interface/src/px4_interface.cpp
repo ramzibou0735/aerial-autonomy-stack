@@ -85,9 +85,6 @@ PX4Interface::PX4Interface() : Node("px4_interface"),
     set_speed_service_ = this->create_service<autopilot_interface_msgs::srv::SetSpeed>(
         "set_speed", std::bind(&PX4Interface::set_speed_callback, this, std::placeholders::_1, std::placeholders::_2),
         rmw_qos_profile_services_default, callback_group_service_);
-    set_orbit_service_ = this->create_service<autopilot_interface_msgs::srv::SetOrbit>(
-        "set_orbit", std::bind(&PX4Interface::set_orbit_callback, this, std::placeholders::_1, std::placeholders::_2),
-        rmw_qos_profile_services_default, callback_group_service_);
     set_reposition_service_ = this->create_service<autopilot_interface_msgs::srv::SetReposition>(
         "set_reposition", std::bind(&PX4Interface::set_reposition_callback, this, std::placeholders::_1, std::placeholders::_2),
         rmw_qos_profile_services_default, callback_group_service_);
@@ -107,6 +104,11 @@ PX4Interface::PX4Interface() : Node("px4_interface"),
             std::bind(&PX4Interface::offboard_handle_goal, this, std::placeholders::_1, std::placeholders::_2),
             std::bind(&PX4Interface::offboard_handle_cancel, this, std::placeholders::_1),
             std::bind(&PX4Interface::offboard_handle_accepted, this, std::placeholders::_1),
+            rcl_action_server_get_default_options(), callback_group_action_);
+    orbit_action_server_ = rclcpp_action::create_server<autopilot_interface_msgs::action::Orbit>(this, "orbit_action",
+            std::bind(&PX4Interface::orbit_handle_goal, this, std::placeholders::_1, std::placeholders::_2),
+            std::bind(&PX4Interface::orbit_handle_cancel, this, std::placeholders::_1),
+            std::bind(&PX4Interface::orbit_handle_accepted, this, std::placeholders::_1),
             rcl_action_server_get_default_options(), callback_group_action_);
 }
 
@@ -345,41 +347,11 @@ void PX4Interface::set_speed_callback(const std::shared_ptr<autopilot_interface_
     response->success = true;
     active_srv_or_act_flag_.store(false);
 }
-void PX4Interface::set_orbit_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetOrbit::Request> request,
-                        std::shared_ptr<autopilot_interface_msgs::srv::SetOrbit::Response> response)
-{
-    if ((!is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::MC_HOVER) || (is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::FW_CRUISE)) {
-        RCLCPP_ERROR(this->get_logger(), "Set orbit rejected, PX4Interface is not in hover/cruise state");
-        response->success = false;
-        return;
-    }
-    if (active_srv_or_act_flag_.exchange(true)) { 
-        RCLCPP_ERROR(this->get_logger(), "Another service/action is active");
-        response->success = false;
-        return;
-    }
-    std::shared_lock<std::shared_mutex> lock(node_data_mutex_); // Use shared_lock for data reads
-    double desired_east = request->east;
-    double desired_north = request->north;
-    double desired_alt = request->altitude;
-    double desired_r = request->radius;
-    RCLCPP_INFO(this->get_logger(), "New requested orbit East-North %.2f %.2f Alt. %.2f Radius %.2f", desired_east, desired_north, desired_alt, desired_r);
-    auto [des_lat, des_lon] = lat_lon_from_cartesian(home_lat_, home_lon_, desired_east, desired_north);
-    if (!is_vtol_) {
-        do_orbit(des_lat, des_lon, desired_alt, desired_r, 5.0); // HARDCODED: 5m/s orbit tangential speed for quads
-        RCLCPP_WARN(this->get_logger(), "For quads, the orbit speed is fixed to 5m/s");
-        aircraft_fsm_state_ = PX4InterfaceState::MC_ORBIT; // For quads, this is a flight mode change, keep track of it
-    } else if (is_vtol_) {
-        do_orbit(des_lat, des_lon, desired_alt, desired_r, NAN);
-    }
-    response->success = true;
-    active_srv_or_act_flag_.store(false);
-}
 void PX4Interface::set_reposition_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetReposition::Request> request,
                         std::shared_ptr<autopilot_interface_msgs::srv::SetReposition::Response> response)
 {
     if ((is_vtol_) || (!is_vtol_ && !(aircraft_fsm_state_ == PX4InterfaceState::MC_HOVER || aircraft_fsm_state_ == PX4InterfaceState::MC_ORBIT))) {
-        RCLCPP_ERROR(this->get_logger(), "Set reposition rejected, PX4Interface is not in a quad hover/orbit state (for VTOLs, use /set_orbit)");
+        RCLCPP_ERROR(this->get_logger(), "Set reposition rejected, PX4Interface is not in a quad hover/orbit state (for VTOLs, use /orbit_action)");
         response->success = false;
         return;
     }
@@ -622,6 +594,73 @@ void PX4Interface::offboard_handle_accepted(const std::shared_ptr<rclcpp_action:
             // Send change mode for 1 sec, 1sec after the beginning of the reference stream
             do_set_mode(6, 0); // Offboard (PX4_CUSTOM_MAIN_MODE 6 no sub mode)
         }
+    }
+    result->success = true;
+    goal_handle->succeed(result);
+    active_srv_or_act_flag_.store(false);
+    return;
+}
+//
+rclcpp_action::GoalResponse PX4Interface::orbit_handle_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const autopilot_interface_msgs::action::Orbit::Goal> goal)
+{
+    RCLCPP_INFO(this->get_logger(), "orbit_handle_goal");
+    if ((!is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::MC_HOVER) || (is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::FW_CRUISE)) {
+        RCLCPP_ERROR(this->get_logger(), "Orbit rejected, PX4Interface is not in hover/cruise state");
+        return rclcpp_action::GoalResponse::REJECT;
+    }
+    if (active_srv_or_act_flag_.exchange(true)) { 
+        RCLCPP_ERROR(this->get_logger(), "Another service/action is active");
+        return rclcpp_action::GoalResponse::REJECT;
+    }
+    return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
+}
+rclcpp_action::CancelResponse PX4Interface::orbit_handle_cancel(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Orbit>> goal_handle)
+{
+    RCLCPP_INFO(this->get_logger(), "orbit_handle_cancel");
+    return rclcpp_action::CancelResponse::ACCEPT;
+}
+void PX4Interface::orbit_handle_accepted(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Orbit>> goal_handle)
+{
+    RCLCPP_INFO(this->get_logger(), "orbit_handle_accepted");
+    const auto goal = goal_handle->get_goal();
+    auto result = std::make_shared<autopilot_interface_msgs::action::Orbit::Result>();
+    auto feedback = std::make_shared<autopilot_interface_msgs::action::Orbit::Feedback>();
+
+    double desired_east = goal->east;
+    double desired_north = goal->north;
+    double desired_alt = goal->altitude;
+    double desired_r = goal->radius;
+
+    bool orbiting = true;
+    rclcpp::Rate orbit_loop_rate(100);
+    while (orbiting) {
+        orbit_loop_rate.sleep();
+        std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Reading data written by subs but also writing the FSM state
+
+        if (goal_handle->is_canceling()) { // Check if there is a cancel request
+            abort_action(); // Sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to MC_HOVER or FW_CRUISE
+            feedback->message = "Canceling orbit";
+            goal_handle->publish_feedback(feedback);
+            result->success = false;
+            goal_handle->canceled(result);
+            RCLCPP_WARN(this->get_logger(), "Orbit canceled");
+            return;
+        }
+
+        RCLCPP_INFO(this->get_logger(), "New requested orbit East-North %.2f %.2f Alt. %.2f Radius %.2f", desired_east, desired_north, desired_alt, desired_r);
+        auto [des_lat, des_lon] = lat_lon_from_cartesian(home_lat_, home_lon_, desired_east, desired_north);
+        if (!is_vtol_) {
+            do_orbit(des_lat, des_lon, desired_alt, desired_r, 5.0); // HARDCODED: 5m/s orbit tangential speed for quads
+            RCLCPP_WARN(this->get_logger(), "For quads, the orbit speed is fixed to 5m/s");
+            aircraft_fsm_state_ = PX4InterfaceState::MC_ORBIT; // For quads, this is a flight mode change, keep track of it
+        } else if (is_vtol_) {
+            do_orbit(des_lat, des_lon, desired_alt, desired_r, NAN);
+        }
+        goal_handle->publish_feedback(feedback);
+        feedback->message = "Orbit sent";
+        goal_handle->publish_feedback(feedback);
+
+        orbiting = false;
     }
     result->success = true;
     goal_handle->succeed(result);

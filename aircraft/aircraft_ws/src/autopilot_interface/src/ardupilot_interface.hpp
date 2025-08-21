@@ -119,7 +119,6 @@ No reference setpoints for ArduPilot VTOLs
 #include <sensor_msgs/msg/nav_sat_fix.hpp>
 
 #include "autopilot_interface_msgs/srv/set_speed.hpp"
-#include "autopilot_interface_msgs/srv/set_orbit.hpp"
 #include "autopilot_interface_msgs/srv/set_reposition.hpp"
 
 #include "autopilot_interface_msgs/action/land.hpp"

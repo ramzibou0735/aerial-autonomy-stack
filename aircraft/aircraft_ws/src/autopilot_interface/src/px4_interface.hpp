@@ -1,27 +1,24 @@
 /*
 
-# QUAD TAKEOFF AND LANDING ACTIONS
+# TAKEOFF AND LANDING ACTIONS (quad parameters examples)
 
 python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal /Drone1/takeoff_action autopilot_interface_msgs/action/Takeoff '{takeoff_altitude: 40.0}'"
 python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal /Drone1/land_action autopilot_interface_msgs/action/Land '{landing_altitude: 60.0}'"
 
-# VTOL TAKEOFF AND LANDING ACTIONS
+# TAKEOFF AND LANDING ACTIONS (vtol parameters example)
 
 python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal /Drone1/takeoff_action autopilot_interface_msgs/action/Takeoff '{takeoff_altitude: 40.0, vtol_transition_heading: 330.0, vtol_loiter_nord: 200.0, vtol_loiter_east: 100.0, vtol_loiter_alt: 120.0}'"
 python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal /Drone1/land_action autopilot_interface_msgs/action/Land '{landing_altitude: 60.0, vtol_transition_heading: 60.0}'"
 
-# QUADS AND VTOLS SERVICES
+# ORBIT AND OFFBOARD (refs: attitude = 0, rates = 1, trajectory = 2) ACTIONS 
 
-ros2 service call /Drone1/set_orbit autopilot_interface_msgs/srv/SetOrbit '{east: 500.0, north: 0.0, altitude: 150.0, radius: 200.0}' # relative to Home
-ros2 service call /Drone1/set_speed autopilot_interface_msgs/srv/SetSpeed '{speed: 15.0}' # Note: always limited by the autopilot params, for quads applies from the next command
-
-# QUAD ONLY SERVICES
-
-ros2 service call /Drone1/set_reposition autopilot_interface_msgs/srv/SetReposition '{east: 100.0, north: 200.0, altitude: 60.0}' # relative to Home
-
-# OFFBOARD ACTION (ATTITUDE: 0, RATES: 1, TRAJECTORY: 2) - implement your custom controller in PX4Interface:: offboard_control_loop_callback
-
+python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal /Drone1/orbit_action autopilot_interface_msgs/action/Orbit '{east: 500.0, north: 0.0, altitude: 150.0, radius: 200.0}'"
 python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal /Drone1/offboard_action autopilot_interface_msgs/action/Offboard '{offboard_setpoint_type: 1, max_duration_sec: 2.0}'"
+
+# SET SPEED (always limited by the autopilot params, for quads applies from the next command) and REPOSITION (quad only) SERVICES
+
+ros2 service call /Drone1/set_speed autopilot_interface_msgs/srv/SetSpeed '{speed: 15.0}' 
+ros2 service call /Drone1/set_reposition autopilot_interface_msgs/srv/SetReposition '{east: 100.0, north: 200.0, altitude: 60.0}' # relative to Home
 
  */
 #ifndef AUTOPILOT_INTERFACE__PX4_INTERFACE_HPP_
@@ -61,11 +58,11 @@ python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal
 #include <px4_msgs/msg/trajectory_setpoint.hpp>
 
 #include "autopilot_interface_msgs/srv/set_speed.hpp"
-#include "autopilot_interface_msgs/srv/set_orbit.hpp"
 #include "autopilot_interface_msgs/srv/set_reposition.hpp"
 
 #include "autopilot_interface_msgs/action/land.hpp"
 #include "autopilot_interface_msgs/action/offboard.hpp"
+#include "autopilot_interface_msgs/action/orbit.hpp"
 #include "autopilot_interface_msgs/action/takeoff.hpp"
 
 using namespace px4_msgs::msg;
@@ -152,12 +149,12 @@ private:
 
     // Node Services
     rclcpp::Service<autopilot_interface_msgs::srv::SetSpeed>::SharedPtr set_speed_service_;
-    rclcpp::Service<autopilot_interface_msgs::srv::SetOrbit>::SharedPtr set_orbit_service_;
     rclcpp::Service<autopilot_interface_msgs::srv::SetReposition>::SharedPtr set_reposition_service_;
 
     // Node Actions
     rclcpp_action::Server<autopilot_interface_msgs::action::Land>::SharedPtr land_action_server_;
     rclcpp_action::Server<autopilot_interface_msgs::action::Offboard>::SharedPtr offboard_action_server_;
+    rclcpp_action::Server<autopilot_interface_msgs::action::Orbit>::SharedPtr orbit_action_server_;
     rclcpp_action::Server<autopilot_interface_msgs::action::Takeoff>::SharedPtr takeoff_action_server_;
 
     // Callbacks for timers
@@ -175,8 +172,6 @@ private:
     // Callbacks for non-blocking services
     void set_speed_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetSpeed::Request> request,
                             std::shared_ptr<autopilot_interface_msgs::srv::SetSpeed::Response> response);
-    void set_orbit_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetOrbit::Request> request,
-                            std::shared_ptr<autopilot_interface_msgs::srv::SetOrbit::Response> response);
     void set_reposition_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetReposition::Request> request,
                             std::shared_ptr<autopilot_interface_msgs::srv::SetReposition::Response> response);
 
@@ -188,6 +183,10 @@ private:
     rclcpp_action::GoalResponse offboard_handle_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const autopilot_interface_msgs::action::Offboard::Goal> goal);
     rclcpp_action::CancelResponse offboard_handle_cancel(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Offboard>> goal_handle);
     void offboard_handle_accepted(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Offboard>> goal_handle);
+    //
+    rclcpp_action::GoalResponse orbit_handle_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const autopilot_interface_msgs::action::Orbit::Goal> goal);
+    rclcpp_action::CancelResponse orbit_handle_cancel(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Orbit>> goal_handle);
+    void orbit_handle_accepted(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Orbit>> goal_handle);
     //
     rclcpp_action::GoalResponse takeoff_handle_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const autopilot_interface_msgs::action::Takeoff::Goal> goal);
     rclcpp_action::CancelResponse takeoff_handle_cancel(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Takeoff>> goal_handle);

@@ -10,7 +10,7 @@ import yaml
 import importlib
 from threading import Thread
 
-from autopilot_interface_msgs.action import Land, Offboard, Takeoff
+from autopilot_interface_msgs.action import Land, Offboard, Takeoff, Orbit
 
 class CancellableClient(Node):
     def __init__(self, action_type, action_name):
@@ -50,7 +50,7 @@ class CancellableClient(Node):
             self.get_logger().info('Goal rejected :(')
             return
         self._goal_handle = goal_handle
-        self.get_logger().info('Goal accepted! Press Enter in the other terminal to cancel.')
+        self.get_logger().info('Goal accepted! Press Enter to cancel (or exit this script once the action is completed).')
 
     def feedback_callback(self, feedback):
         if hasattr(feedback.feedback, 'message'):
@@ -70,6 +70,7 @@ def main(args=None):
         'autopilot_interface_msgs/action/Takeoff': Takeoff,
         'autopilot_interface_msgs/action/Land': Land,
         'autopilot_interface_msgs/action/Offboard': Offboard,
+        'autopilot_interface_msgs/action/Orbit': Orbit,
     }
     if action_type_str not in ACTION_TYPE_MAP:
         print(f"Error: Unsupported action type '{action_type_str}'")

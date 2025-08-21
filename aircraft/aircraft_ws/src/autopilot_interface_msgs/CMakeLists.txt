@@ -14,12 +14,12 @@ rosidl_generate_interfaces(${PROJECT_NAME}
 
   "action/Land.action"
   "action/Offboard.action"
+  "action/Orbit.action"
   "action/Takeoff.action"
 
   "msg/Template.msg"
 
   "srv/SetSpeed.srv"
-  "srv/SetOrbit.srv"
   "srv/SetReposition.srv"
 
   DEPENDENCIES
