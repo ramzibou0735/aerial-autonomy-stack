@@ -6,10 +6,8 @@ ArdupilotInterface::ArdupilotInterface() : Node("ardupilot_interface"),
     // target_system_id_(-1), arming_state_(-1), vehicle_type_(-1),
     // is_vtol_(false), is_vtol_tailsitter_(false), in_transition_mode_(false), in_transition_to_fw_(false), pre_flight_checks_pass_(false),
     lat_(NAN), lon_(NAN), alt_(NAN), alt_ellipsoid_(NAN),
-    // xy_valid_(false), z_valid_(false), v_xy_valid_(false), v_z_valid_(false), xy_global_(false), z_global_(false),
-    // x_(NAN), y_(NAN), z_(NAN), heading_(NAN), vx_(NAN), vy_(NAN), vz_(NAN), ref_lat_(NAN), ref_lon_(NAN), ref_alt_(NAN),
-    // pose_frame_(-1), velocity_frame_(-1), true_airspeed_m_s_(NAN),
-    // command_ack_(-1), command_ack_result_(-1), command_ack_from_external_(false),
+    x_(NAN), y_(NAN), z_(NAN),  vx_(NAN), vy_(NAN), vz_(NAN), ref_lat_(NAN), ref_lon_(NAN), ref_alt_(NAN),
+    true_airspeed_m_s_(NAN), heading_(NAN),
     home_lat_(NAN), home_lon_(NAN), home_alt_(NAN)
 {
     RCLCPP_INFO(this->get_logger(), "ArduPilot Interfacing!");
@@ -21,11 +19,11 @@ ArdupilotInterface::ArdupilotInterface() : Node("ardupilot_interface"),
         RCLCPP_INFO(this->get_logger(), "Simulation time is disabled.");
     }
     // last_offboard_rate_check_time_ = this->get_clock()->now(); // Monitor the rate of offboard control loop
-    // // Initialize the arrays
-    // position_.fill(NAN);
-    // q_.fill(NAN);
-    // velocity_.fill(NAN);
-    // angular_velocity_.fill(NAN);
+    // Initialize the arrays
+    position_.fill(NAN);
+    q_.fill(NAN);
+    velocity_.fill(NAN);
+    angular_velocity_.fill(NAN);
 
     // // Publishers
     // rclcpp::QoS qos_profile_pub(10);  // Depth of 10
@@ -86,25 +84,25 @@ ArdupilotInterface::ArdupilotInterface() : Node("ardupilot_interface"),
 
     // TEST (THIS SEGFAULTS IF STARTED TOO EARLY)
     // Wait for the service to be available
-    while (!vehicle_info_client_->wait_for_service(1s)) {
-        if (!rclcpp::ok()) {
-            RCLCPP_ERROR(this->get_logger(), "Interrupted while waiting for the service. Exiting.");
-            return;
-        }
-        RCLCPP_INFO(this->get_logger(), "Service not available, waiting again...");
-    }
-    auto request = std::make_shared<mavros_msgs::srv::VehicleInfoGet::Request>();
-    // Send the request and attach a callback to handle the response
-    vehicle_info_client_->async_send_request(request,
-        [this](rclcpp::Client<mavros_msgs::srv::VehicleInfoGet>::SharedFuture future) {
-            auto response = future.get();
-            RCLCPP_INFO(this->get_logger(), "Sys id: %d, Autopilot: %d",
-                response->vehicles[0].sysid,
-                response->vehicles[0].autopilot);
-            // target_system_id_ = response->vehicles[0].sysid;
-            // vehicle_type_ = response->vehicles[0].type; // MAV_TYPE, CODES TBD, NOT CHANGING WITH TRANSITION AS IN PX4, rename
-                                                        // set is_vtol_ accordingly, remove is_vtol_tailsitter_
-        });
+    // while (!vehicle_info_client_->wait_for_service(1s)) {
+    //     if (!rclcpp::ok()) {
+    //         RCLCPP_ERROR(this->get_logger(), "Interrupted while waiting for the service. Exiting.");
+    //         return;
+    //     }
+    //     RCLCPP_INFO(this->get_logger(), "Service not available, waiting again...");
+    // }
+    // auto request = std::make_shared<mavros_msgs::srv::VehicleInfoGet::Request>();
+    // // Send the request and attach a callback to handle the response
+    // vehicle_info_client_->async_send_request(request,
+    //     [this](rclcpp::Client<mavros_msgs::srv::VehicleInfoGet>::SharedFuture future) {
+    //         auto response = future.get();
+    //         RCLCPP_INFO(this->get_logger(), "Sys id: %d, Autopilot: %d",
+    //             response->vehicles[0].sysid,
+    //             response->vehicles[0].autopilot);
+    //         // target_system_id_ = response->vehicles[0].sysid;
+    //         // vehicle_type_ = response->vehicles[0].type; // MAV_TYPE, CODES TBD, NOT CHANGING WITH TRANSITION AS IN PX4, rename
+    //                                                     // set is_vtol_ accordingly, remove is_vtol_tailsitter_
+    //     });
 
     // // Services
     // set_altitude_service_ = this->create_service<autopilot_interface_msgs::srv::SetAltitude>(
@@ -150,7 +148,6 @@ void ArdupilotInterface::global_position_global_sub_callback(const NavSatFix::Sh
 void ArdupilotInterface::local_position_odom_callback(const Odometry::SharedPtr msg)
 {
     std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
-    // TODO
     position_[0] = msg->pose.pose.position.x; // ENU
     position_[1] = msg->pose.pose.position.y;
     position_[2] = msg->pose.pose.position.z;
@@ -161,14 +158,13 @@ void ArdupilotInterface::local_position_odom_callback(const Odometry::SharedPtr 
     velocity_[0] = msg->twist.twist.linear.x; // Body frame
     velocity_[1] = msg->twist.twist.linear.y;
     velocity_[2] = msg->twist.twist.linear.z;
-    angular_velocity_[0] = msg->twist.twist.angular.x;
+    angular_velocity_[0] = msg->twist.twist.angular.x; // TODO: double check
     angular_velocity_[1] = msg->twist.twist.angular.y;
     angular_velocity_[2] = msg->twist.twist.angular.z;
 }
 void ArdupilotInterface::global_position_local_callback(const Odometry::SharedPtr msg)
 {
     std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
-    // TODO
     // Position (ENU -> NED)
     x_ = msg->pose.pose.position.y;  // N <- E
     y_ = msg->pose.pose.position.x;  // E <- N
@@ -181,7 +177,6 @@ void ArdupilotInterface::global_position_local_callback(const Odometry::SharedPt
 void ArdupilotInterface::vfr_hud_callback(const VfrHud::SharedPtr msg)
 {
     std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
-    // TODO
     alt_ = msg->altitude; // MSL
     heading_ = msg->heading; // degrees 0..360
     true_airspeed_m_s_ = msg->airspeed; // m/s
@@ -189,50 +184,19 @@ void ArdupilotInterface::vfr_hud_callback(const VfrHud::SharedPtr msg)
 void ArdupilotInterface::home_position_home_callback(const HomePosition::SharedPtr msg)
 {
     std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
-    // TODO
-    ref_lat_ = msg->geo.latitude // geodetic coordinates in WGS-84 datum
-    ref_lon_ = msg->geo.longitude // geodetic coordinates in WGS-84 datum
-    ref_alt_ = msg->geo.altitude // ellipsoid altitude
+    ref_lat_ = msg->geo.latitude; // geodetic coordinates in WGS-84 datum
+    ref_lon_ = msg->geo.longitude; // geodetic coordinates in WGS-84 datum
+    ref_alt_ = msg->geo.altitude; // ellipsoid altitude
 }
 void ArdupilotInterface::state_callback(const State::SharedPtr msg)
 {
     std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
     // TODO
     // add string for msg->mode, remove in_transition_mode_; in_transition_to_fw_
-    arming_state_ = msg->armed // this is bool now, rename
-    pre_flight_checks_pass_ = msg->system_status // MAV_STATE, not bool, this is a string, rename the variable
+    // arming_state_ = msg->armed // this is bool now, rename
+    // pre_flight_checks_pass_ = msg->system_status // MAV_STATE, not bool, this is a string, rename the variable
     // remove command_ack_; command_ack_result_; command_ack_from_external_
 }
-// Old local position callback variables
-    // xy_valid_ = msg->xy_valid;
-    // z_valid_ = msg->z_valid;
-    // v_xy_valid_ = msg->v_xy_valid;
-    // v_z_valid_ = msg->v_z_valid;
-    // // Position in local NED frame
-    // x_ = msg->x; // N
-    // y_= msg->y; // E
-    // z_ = msg->z; // D
-    // heading_ = msg->heading; // Euler yaw angle transforming the tangent plane relative to NED earth-fixed frame, -PI..+PI,  (radians)
-    // // Velocity in NED frame
-    // vx_ = msg->vx;
-    // vy_ = msg->vy;
-    // vz_ = msg->vz;
-    // // Position of reference point (local NED frame origin) in global (GPS / WGS84) frame
-    // xy_global_ = msg->xy_global; // Validity of reference
-    // z_global_ = msg->z_global; // Validity of reference
-    // ref_lat_ = msg->ref_lat;
-    // ref_lon_ = msg->ref_lon;
-    // ref_alt_ = msg->ref_alt; // AMSL
-// void PX4Interface::odometry_callback(const VehicleOdometry::SharedPtr msg)
-// {
-//     std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
-//     pose_frame_ = msg->pose_frame; // 1:  NED earth-fixed frame, 2: FRD world-fixed frame, arbitrary heading
-//     velocity_frame_ = msg->velocity_frame; // 1:  NED earth-fixed frame, 2: FRD world-fixed frame, arbitrary heading, 3: FRD body-fixed frame
-//     position_ = msg->position;
-//     q_ = msg->q;
-//     velocity_ = msg->velocity;
-//     angular_velocity_ = msg->angular_velocity;
-// }
 // void PX4Interface::status_callback(const VehicleStatus::SharedPtr msg)
 // {
 //     std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
@@ -251,18 +215,6 @@ void ArdupilotInterface::state_callback(const State::SharedPtr msg)
 //     if ((aircraft_fsm_state_ != PX4InterfaceState::STARTED) && (arming_state_ == 1)) {
 //         aircraft_fsm_state_ = PX4InterfaceState::STARTED; // Reset PX4 interface state after a disarm (hoping the vehicle is ok)
 //     }
-// }
-// void PX4Interface::airspeed_callback(const AirspeedValidated::SharedPtr msg)
-// {
-//     std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
-//     true_airspeed_m_s_ = msg->true_airspeed_m_s;
-// }
-// void PX4Interface::vehicle_command_ack_callback(const VehicleCommandAck::SharedPtr msg)
-// {
-//     std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
-//     command_ack_ = msg->command;
-//     command_ack_result_ = msg->result;
-//     command_ack_from_external_ = msg->from_external;
 // }
 
 // Callbacks for timers (reentrant group)
@@ -289,38 +241,32 @@ void ArdupilotInterface::ardupilot_interface_printout_callback()
                 "Global position:\n"
                 "\tlatitude: %.5f, longitude: %.5f, altitude AMSL: %.2f, altitude ellipsoid: %.2f",
                 lat_, lon_, alt_, alt_ellipsoid_);
-    // RCLCPP_INFO(get_logger(),
-    //             "Local position:\n"
-    //             "\tNED position: %.2f %.2f %.2f (XY valid %s, Z valid %s)\n"
-    //             "\tNED velocity: %.2f %.2f %.2f (V_XY valid %s, V_Z valid %s)\n"
-    //             "\theading: %.2f\n"
-    //             "\treference latitude: %.5f, longitude: %.5f, altitude AMSL: %.2f (XY valid %s, Z valid %s)",
-    //             x_, y_, z_, (xy_valid_ ? "true" : "false"), (z_valid_ ? "true" : "false"),
-    //             vx_, vy_, vz_, (v_xy_valid_ ? "true" : "false"), (v_z_valid_ ? "true" : "false"),
-    //             heading_ * 180.0 / M_PI,
-    //             ref_lat_, ref_lon_, ref_alt_, (xy_global_ ? "true" : "false"), (z_global_ ? "true" : "false"));
-    // RCLCPP_INFO(get_logger(),
-    //             "Odometry:\n"
-    //             "\tpose_frame: %.d, velocity_frame %d\n"
-    //             "\tposition: %.2f %.2f %.2f\n"
-    //             "\tquaternion: %.2f %.2f %.2f %.2f\n"
-    //             "\tvelocity: %.2f %.2f %.2f\n"
-    //             "\tangular_velocity: %.2f %.2f %.2f", 
-    //             pose_frame_, velocity_frame_,
-    //             position_[0], position_[1], position_[2],
-    //             q_[0], q_[1], q_[2], q_[3],
-    //             velocity_[0], velocity_[1], velocity_[2],
-    //             angular_velocity_[0] * 180.0 / M_PI, angular_velocity_[1] * 180.0 / M_PI, angular_velocity_[2] * 180.0 / M_PI);
-    // RCLCPP_INFO(get_logger(),
-    //             "Airspeed validated:\n"
-    //             "\ttrue_airspeed_m_s: %.2f",
-    //             true_airspeed_m_s_);
-    // RCLCPP_INFO(get_logger(),
-    //             "Command Ack:\n"
-    //             "\tcommand: %d (result %d from_external %s)",
-    //             command_ack_, command_ack_result_, (command_ack_from_external_ ? "true" : "false"));
-    // RCLCPP_INFO(this->get_logger(), 
-    //             "Current node time:\n\t%.2f seconds", this->get_clock()->now().seconds());
+    RCLCPP_INFO(get_logger(),
+                "Local position:\n"
+                "\tNED position: %.2f %.2f %.2f\n"
+                "\tNED velocity: %.2f %.2f %.2f\n"
+                "\theading: %.2f\n"
+                "\treference latitude: %.5f, longitude: %.5f, ellipsoid altitude: %.2f",
+                x_, y_, z_,
+                vx_, vy_, vz_,
+                heading_,
+                ref_lat_, ref_lon_, ref_alt_);
+    RCLCPP_INFO(get_logger(),
+                "Odometry:\n"
+                "\tENU position: %.2f %.2f %.2f\n"
+                "\tquaternion: %.2f %.2f %.2f %.2f\n"
+                "\tFrame velocity: %.2f %.2f %.2f\n"
+                "\tangular_velocity: %.2f %.2f %.2f", 
+                position_[0], position_[1], position_[2],
+                q_[0], q_[1], q_[2], q_[3],
+                velocity_[0], velocity_[1], velocity_[2],
+                angular_velocity_[0] * 180.0 / M_PI, angular_velocity_[1] * 180.0 / M_PI, angular_velocity_[2] * 180.0 / M_PI);
+    RCLCPP_INFO(get_logger(),
+                "Airspeed:\n"
+                "\ttrue_airspeed_m_s: %.2f",
+                true_airspeed_m_s_);
+    RCLCPP_INFO(this->get_logger(), 
+                "Current node time:\n\t%.2f seconds", this->get_clock()->now().seconds());
     // auto now = this->get_clock()->now();
     // double elapsed_sec = (now - last_offboard_rate_check_time_).seconds();
     // if (elapsed_sec > 0) {

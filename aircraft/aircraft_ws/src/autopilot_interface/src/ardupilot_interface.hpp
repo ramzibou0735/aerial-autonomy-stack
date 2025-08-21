@@ -196,18 +196,13 @@ private:
     // int target_system_id_, arming_state_, vehicle_type_;
     // bool is_vtol_, is_vtol_tailsitter_, in_transition_mode_, in_transition_to_fw_, pre_flight_checks_pass_;
     double lat_, lon_, alt_, alt_ellipsoid_;
-    // bool xy_valid_, z_valid_, v_xy_valid_, v_z_valid_, xy_global_, z_global_;
-    // double x_, y_, z_, heading_, vx_, vy_, vz_;
-    // double ref_lat_, ref_lon_, ref_alt_;
-    // int pose_frame_, velocity_frame_;
-    // std::array<float, 3> position_;
-    // std::array<float, 4> q_;
-    // std::array<float, 3> velocity_;
-    // std::array<float, 3> angular_velocity_;
-    // double true_airspeed_m_s_;
-    // int command_ack_;
-    // int command_ack_result_;
-    // bool command_ack_from_external_;
+    double x_, y_, z_, vx_, vy_, vz_;
+    double ref_lat_, ref_lon_, ref_alt_;
+    std::array<float, 3> position_;
+    std::array<float, 4> q_;
+    std::array<float, 3> velocity_;
+    std::array<float, 3> angular_velocity_;
+    double true_airspeed_m_s_, heading_;
 
     // MAVROS publishers
     // rclcpp::Publisher<VehicleCommand>::SharedPtr command_pub_;
