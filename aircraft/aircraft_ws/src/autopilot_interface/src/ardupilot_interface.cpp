@@ -101,6 +101,9 @@ ArdupilotInterface::ArdupilotInterface() : Node("ardupilot_interface"),
             RCLCPP_INFO(this->get_logger(), "Sys id: %d, Autopilot: %d",
                 response->vehicles[0].sysid,
                 response->vehicles[0].autopilot);
+            // target_system_id_ = response->vehicles[0].sysid;
+            // vehicle_type_ = response->vehicles[0].type; // MAV_TYPE, CODES TBD, NOT CHANGING WITH TRANSITION AS IN PX4, rename
+                                                        // set is_vtol_ accordingly, remove is_vtol_tailsitter_
         });
 
     // // Services
@@ -142,33 +145,63 @@ void ArdupilotInterface::global_position_global_sub_callback(const NavSatFix::Sh
     std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
     lat_ = msg->latitude;
     lon_ = msg->longitude;
-    // alt_ = TODO; // AMSL
     alt_ellipsoid_ = msg->altitude; // Positive is above the WGS 84 ellipsoid
 }
 void ArdupilotInterface::local_position_odom_callback(const Odometry::SharedPtr msg)
 {
     std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
     // TODO
+    position_[0] = msg->pose.pose.position.x; // ENU
+    position_[1] = msg->pose.pose.position.y;
+    position_[2] = msg->pose.pose.position.z;
+    q_[0] = msg->pose.pose.orientation.w;
+    q_[1] = msg->pose.pose.orientation.x;
+    q_[2] = msg->pose.pose.orientation.y;
+    q_[3] = msg->pose.pose.orientation.z;
+    velocity_[0] = msg->twist.twist.linear.x; // Body frame
+    velocity_[1] = msg->twist.twist.linear.y;
+    velocity_[2] = msg->twist.twist.linear.z;
+    angular_velocity_[0] = msg->twist.twist.angular.x;
+    angular_velocity_[1] = msg->twist.twist.angular.y;
+    angular_velocity_[2] = msg->twist.twist.angular.z;
 }
 void ArdupilotInterface::global_position_local_callback(const Odometry::SharedPtr msg)
 {
     std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
     // TODO
+    // Position (ENU -> NED)
+    x_ = msg->pose.pose.position.y;  // N <- E
+    y_ = msg->pose.pose.position.x;  // E <- N
+    z_ = -msg->pose.pose.position.z; // D <- -U
+    // Velocity (ENU -> NED)
+    vx_ = msg->twist.twist.linear.y;  // N <- E
+    vy_ = msg->twist.twist.linear.x;  // E <- N
+    vz_ = -msg->twist.twist.linear.z; // D <- -U
 }
 void ArdupilotInterface::vfr_hud_callback(const VfrHud::SharedPtr msg)
 {
     std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
     // TODO
+    alt_ = msg->altitude; // MSL
+    heading_ = msg->heading; // degrees 0..360
+    true_airspeed_m_s_ = msg->airspeed; // m/s
 }
 void ArdupilotInterface::home_position_home_callback(const HomePosition::SharedPtr msg)
 {
     std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
     // TODO
+    ref_lat_ = msg->geo.latitude // geodetic coordinates in WGS-84 datum
+    ref_lon_ = msg->geo.longitude // geodetic coordinates in WGS-84 datum
+    ref_alt_ = msg->geo.altitude // ellipsoid altitude
 }
 void ArdupilotInterface::state_callback(const State::SharedPtr msg)
 {
     std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
     // TODO
+    // add string for msg->mode, remove in_transition_mode_; in_transition_to_fw_
+    arming_state_ = msg->armed // this is bool now, rename
+    pre_flight_checks_pass_ = msg->system_status // MAV_STATE, not bool, this is a string, rename the variable
+    // remove command_ack_; command_ack_result_; command_ack_from_external_
 }
 // Old local position callback variables
     // xy_valid_ = msg->xy_valid;
