@@ -179,25 +179,21 @@ void ArdupilotInterface::state_callback(const State::SharedPtr msg)
 
 // Callbacks for timers (reentrant group)
 void ArdupilotInterface::ardupilot_interface_printout_callback()
-{
-    // check for mav_state_ first
-    auto request = std::make_shared<mavros_msgs::srv::VehicleInfoGet::Request>();
-    vehicle_info_client_->async_send_request(request,
-        [this](rclcpp::Client<mavros_msgs::srv::VehicleInfoGet>::SharedFuture future) {
-            auto response = future.get();
-            RCLCPP_INFO(this->get_logger(), "Sys id: %d, mav type: %d", response->vehicles[0].sysid, response->vehicles[0].type);
-            // target_system_id_ = response->vehicles[0].sysid;
-            // mav_type_ = response->vehicles[0].type; // MAV_TYPE, CODES TBD, NOT CHANGING WITH TRANSITION AS IN PX4
-            //
-            // std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
-            // if (target_system_id_ == -1)
-            // {
-            //     target_system_id_ = msg->system_id; // get target_system_id from PX4's MAV_SYS_ID once
-            //     RCLCPP_WARN(get_logger(), "target_system_id (MAV_SYS_ID) saved as: %d", target_system_id_);
-            // }
-        });
-    
+{   
     std::shared_lock<std::shared_mutex> lock(node_data_mutex_); // Use shared_lock for data reads
+
+    // Once the vehicle is in standby, retrieve for SYSID_THISMAV and MAV_TYPE if they are not already set
+    if ((mav_state_ == 3) && ((target_system_id_ == -1) || (mav_type_ == -1))) {
+        auto request = std::make_shared<mavros_msgs::srv::VehicleInfoGet::Request>();
+        vehicle_info_client_->async_send_request(request,
+            [this](rclcpp::Client<mavros_msgs::srv::VehicleInfoGet>::SharedFuture future) {
+                auto response = future.get();
+                std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+                target_system_id_ = response->vehicles[0].sysid; // SYSID_THISMAV
+                mav_type_ = response->vehicles[0].type; // MAV_TYPE (1: fixed-wing/vtol, 2: quad)
+            });
+    }
+
     RCLCPP_INFO(get_logger(),
                 "Vehicle status:\n"
                 "\ttarget_system_id: %d\n"
