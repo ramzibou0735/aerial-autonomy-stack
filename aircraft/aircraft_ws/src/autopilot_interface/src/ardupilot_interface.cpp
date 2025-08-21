@@ -71,9 +71,6 @@ ArdupilotInterface::ArdupilotInterface() : Node("ardupilot_interface"),
     mavros_global_position_local_sub_ = this->create_subscription<Odometry>(
         "/mavros/global_position/local", qos_profile_sub,
         std::bind(&ArdupilotInterface::global_position_local_callback, this, std::placeholders::_1), subscriber_options);
-    mavros_local_position_velocity_body_sub_ = this->create_subscription<TwistStamped>(
-        "/mavros/local_position/velocity_body", qos_profile_sub,
-        std::bind(&ArdupilotInterface::local_position_velocity_body_callback, this, std::placeholders::_1), subscriber_options);
     mavros_vfr_hud_sub_ = this->create_subscription<VfrHud>(
         "/mavros/vfr_hud", qos_profile_sub,
         std::bind(&ArdupilotInterface::vfr_hud_callback, this, std::placeholders::_1), subscriber_options);
@@ -151,32 +148,9 @@ void ArdupilotInterface::global_position_global_sub_callback(const NavSatFix::Sh
 void ArdupilotInterface::local_position_odom_callback(const Odometry::SharedPtr msg)
 {
     std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
-    // xy_valid_ = msg->xy_valid;
-    // z_valid_ = msg->z_valid;
-    // v_xy_valid_ = msg->v_xy_valid;
-    // v_z_valid_ = msg->v_z_valid;
-    // // Position in local NED frame
-    // x_ = msg->x; // N
-    // y_= msg->y; // E
-    // z_ = msg->z; // D
-    // heading_ = msg->heading; // Euler yaw angle transforming the tangent plane relative to NED earth-fixed frame, -PI..+PI,  (radians)
-    // // Velocity in NED frame
-    // vx_ = msg->vx;
-    // vy_ = msg->vy;
-    // vz_ = msg->vz;
-    // // Position of reference point (local NED frame origin) in global (GPS / WGS84) frame
-    // xy_global_ = msg->xy_global; // Validity of reference
-    // z_global_ = msg->z_global; // Validity of reference
-    // ref_lat_ = msg->ref_lat;
-    // ref_lon_ = msg->ref_lon;
-    // ref_alt_ = msg->ref_alt; // AMSL
-}
-void ArdupilotInterface::global_position_local_callback(const Odometry::SharedPtr msg)
-{
-    std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
     // TODO
 }
-void ArdupilotInterface::local_position_velocity_body_callback(const TwistStamped::SharedPtr msg)
+void ArdupilotInterface::global_position_local_callback(const Odometry::SharedPtr msg)
 {
     std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
     // TODO
@@ -196,6 +170,26 @@ void ArdupilotInterface::state_callback(const State::SharedPtr msg)
     std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
     // TODO
 }
+// Old local position callback variables
+    // xy_valid_ = msg->xy_valid;
+    // z_valid_ = msg->z_valid;
+    // v_xy_valid_ = msg->v_xy_valid;
+    // v_z_valid_ = msg->v_z_valid;
+    // // Position in local NED frame
+    // x_ = msg->x; // N
+    // y_= msg->y; // E
+    // z_ = msg->z; // D
+    // heading_ = msg->heading; // Euler yaw angle transforming the tangent plane relative to NED earth-fixed frame, -PI..+PI,  (radians)
+    // // Velocity in NED frame
+    // vx_ = msg->vx;
+    // vy_ = msg->vy;
+    // vz_ = msg->vz;
+    // // Position of reference point (local NED frame origin) in global (GPS / WGS84) frame
+    // xy_global_ = msg->xy_global; // Validity of reference
+    // z_global_ = msg->z_global; // Validity of reference
+    // ref_lat_ = msg->ref_lat;
+    // ref_lon_ = msg->ref_lon;
+    // ref_alt_ = msg->ref_alt; // AMSL
 // void PX4Interface::odometry_callback(const VehicleOdometry::SharedPtr msg)
 // {
 //     std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes

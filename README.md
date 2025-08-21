@@ -312,7 +312,13 @@ pre_flight_checks_pass_ = msg->pre_flight_checks_pass; // bool
 - Change Orbit service to an action
 
 - Implement ardupilot_interface services
+  speed
+  reposition
 - Implement ardupilot_interface actions
+  takeoff
+  landing
+  orbit
+  offboard
 
 - Determine how to inteactively send rates, attitude, trajectory, velocity, acceleration references for Offboard/Guided modes
 

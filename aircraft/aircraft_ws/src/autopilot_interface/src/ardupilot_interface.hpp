@@ -185,7 +185,6 @@ private:
     rclcpp::Subscription<NavSatFix>::SharedPtr mavros_global_position_global_sub_;
     rclcpp::Subscription<Odometry>::SharedPtr mavros_local_position_odom_sub_;
     rclcpp::Subscription<Odometry>::SharedPtr mavros_global_position_local_sub_;
-    rclcpp::Subscription<TwistStamped>::SharedPtr mavros_local_position_velocity_body_sub_;
     rclcpp::Subscription<VfrHud>::SharedPtr mavros_vfr_hud_sub_;
     rclcpp::Subscription<HomePosition>::SharedPtr mavros_home_position_home_sub_;
     rclcpp::Subscription<State>::SharedPtr mavros_state_sub_;
@@ -236,7 +235,6 @@ private:
     void global_position_global_sub_callback(const NavSatFix::SharedPtr msg);
     void local_position_odom_callback(const Odometry::SharedPtr msg);
     void global_position_local_callback(const Odometry::SharedPtr msg);
-    void local_position_velocity_body_callback(const TwistStamped::SharedPtr msg);
     void vfr_hud_callback(const VfrHud::SharedPtr msg);
     void home_position_home_callback(const HomePosition::SharedPtr msg);
     void state_callback(const State::SharedPtr msg);
