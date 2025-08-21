@@ -192,6 +192,65 @@ docker exec -it aircraft-container tmux attach
   orbit
   offboard
 
+---
+
+# Takeoff
+ros2 service call /mavros/cmd/arming mavros_msgs/srv/CommandBool "{value: true}"
+ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'GUIDED'}"
+ros2 service call /mavros/cmd/takeoff mavros_msgs/srv/CommandTOL "{altitude: 40.0}"
+  # Quad
+  -
+  # VTOL
+  ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'CRUISE'}" # Or FBWB to transition to FW at 10m/s
+  ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'GUIDED'}" # Or CIRCLE to start loitering
+
+# Landing
+  # Quad
+  ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'RTL'}"
+  ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'GUIDED'}"
+  ros2 service call /mavros/cmd/land mavros_msgs/srv/CommandTOL "{}"
+  # VTOL
+  ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'QRTL'}" # FW return to home, transition, and land
+
+# Orbit
+  # Quad
+  ros2 topic pub --once /mavros/setpoint_position/local geometry_msgs/msg/PoseStamped '{header: {frame_id: "map"}, pose: {position: {x: 5.0, y: 5.0, z: 10.0}, orientation: {x: 0.0, y: 0.0, z: 0.707, w: 0.707}}}'
+  ros2 service call /mavros/param/set mavros_msgs/srv/ParamSetV2 '{param_id: "CIRCLE_OPTIONS", value: {type: 2, integer_value: 8}}'
+  ros2 service call /mavros/param/set mavros_msgs/srv/ParamSetV2 '{param_id: "CIRCLE_RADIUS", value: {type: 3, double_value: 2000.0}}'
+  ros2 service call /mavros/param/set mavros_msgs/srv/ParamSetV2 '{param_id: "CIRCLE_RATE", value: {type: 2, integer_value: 15}}'
+  ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'CIRCLE'}"
+  # VTOL
+  # Upload and start a WP mission (first waypoint (id 0) is dummy, 16 is wp, 17 is loiter unlimted, frame 3 is global with alt w.r.t. home)
+  ros2 service call /mavros/mission/push mavros_msgs/srv/WaypointPush "{start_index: 0, waypoints: [ \
+    {frame: 3, command: 16, is_current: true, autocontinue: true, x_lat: 0.0, y_long: 0.0, z_alt: 0.0}, \
+    {frame: 3, command: 16, is_current: false, autocontinue: true, x_lat: 45.5470, y_long: 8.940, z_alt: 250.0}, \
+    {frame: 3, command: 17, is_current: false, autocontinue: true, param3: 300.0, x_lat: 45.5479, y_long: 8.949, z_alt: 250.0} \
+    ]}"
+  ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'AUTO'}"
+  ros2 service call /mavros/cmd/command mavros_msgs/srv/CommandLong "{command: 300}"
+  ros2 service call /mavros/mission/set_current mavros_msgs/srv/WaypointSetCurrent "{wp_seq: 1}" # Advance waypoint
+
+# Offboard
+  # Quad
+  ros2 topic pub --rate 10 --times 50 /mavros/setpoint_velocity/cmd_vel_unstamped geometry_msgs/msg/Twist '{linear: {x: 2.0, y: 0.0, z: 0.0}}'
+  ros2 topic pub --rate 10 --times 50 /mavros/setpoint_accel/accel geometry_msgs/msg/Vector3Stamped '{header: {frame_id: "map"}, vector: {x: 1.5, y: 0.0, z: 0.0}}'
+  # VTOL
+  -
+
+# Set Speed
+  # Quad
+  ros2 service call /mavros/cmd/command mavros_msgs/srv/CommandLong "{command: 178, param1: 1.0, param2: 10.0}"
+  # VTOL
+  ros2 service call /mavros/cmd/command mavros_msgs/srv/CommandLong "{command: 178, param1: 0.0, param2: 10.0}"
+
+# Set Reposition
+  # Quad
+  ros2 topic pub --once /mavros/setpoint_position/local geometry_msgs/msg/PoseStamped '{header: {frame_id: "map"}, pose: {position: {x: 5.0, y: 5.0, z: 10.0}, orientation: {x: 0.0, y: 0.0, z: 0.707, w: 0.707}}}'
+  # VTOL
+  -
+
+---
+
 - Determine how to inteactively send rates, attitude, trajectory, velocity, acceleration references for Offboard/Guided modes
 - Create and implement vision/control node
 
