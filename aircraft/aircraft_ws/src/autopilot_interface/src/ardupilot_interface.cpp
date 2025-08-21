@@ -65,8 +65,8 @@ ArdupilotInterface::ArdupilotInterface() : Node("ardupilot_interface"),
     vehicle_global_position_sub_= this->create_subscription<NavSatFix>(
         "/mavros/global_position/global", qos_profile_sub,
         std::bind(&ArdupilotInterface::global_position_callback, this, std::placeholders::_1), subscriber_options);
-    vehicle_local_position_sub_= this->create_subscription<PoseStamped>(
-        "/mavros/local_position/pose", qos_profile_sub,
+    vehicle_local_position_sub_= this->create_subscription<Odometry>(
+        "/mavros/local_position/odom", qos_profile_sub,
         std::bind(&ArdupilotInterface::local_position_callback, this, std::placeholders::_1), subscriber_options);
     // vehicle_odometry_sub_= this->create_subscription<VehicleOdometry>(
     //     "fmu/out/vehicle_odometry", qos_profile_sub,
@@ -164,7 +164,7 @@ void ArdupilotInterface::global_position_callback(const NavSatFix::SharedPtr msg
     // alt_ = ???; // AMSL
     alt_ellipsoid_ = msg->altitude; // Positive is above the WGS 84 ellipsoid
 }
-void ArdupilotInterface::local_position_callback(const PoseStamped::SharedPtr msg)
+void ArdupilotInterface::local_position_callback(const Odometry::SharedPtr msg)
 {
     std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
     // xy_valid_ = msg->xy_valid;

@@ -182,6 +182,131 @@ docker exec -it aircraft-container tmux attach
 
 - Implement MAVROS subscribers to ardupilot_interface
 
+/mavros/local_position/odom 
+    nav_msgs/msg/Odometry
+    (alternatives /mavros/global_position/local nav_msgs/msg/Odometry AND /mavros/local_position/pose geometry_msgs/msg/PoseStamped)
+
+
+/mavros/vfr_hud
+  mavros_msgs/msg/VfrHud
+
+/mavros/global_position/local
+  nav_msgs/msg/Odometry
+
+/mavros/home_position/home 
+    mavros_msgs/msg/HomePosition
+
+/mavros/local_position/velocity_body
+    geometry_msgs/msg/TwistStamped
+    (alternative /mavros/local_position/velocity_local geometry_msgs/msg/TwistStamped)
+
+/mavros/state
+    mavros_msgs/msg/State
+
+finally ros2 service call /mavros/vehicle_info_get mavros_msgs/srv/VehicleInfoGet
+
+----------------
+alt_ = ???; // AMSL
+    /mavros/vfr_hud 
+    Type: mavros_msgs/msg/VfrHud
+
+//  xy_valid_ = msg->xy_valid;
+// z_valid_ = msg->z_valid;
+// v_xy_valid_ = msg->v_xy_valid;
+// v_z_valid_ = msg->v_z_valid;
+// Position in local NED frame
+x_ = msg->x; // N
+y_= msg->y; // E
+z_ = msg->z; // D
+    /mavros/global_position/local
+    nav_msgs/msg/Odometry
+heading_ = msg->heading; // Euler yaw angle transforming the tangent plane relative to NED earth-fixed frame, -PI..+PI,  (radians)
+    /mavros/global_position/compass_hdg 
+    std_msgs/msg/Float64
+    also in
+    /mavros/vfr_hud 
+    Type: mavros_msgs/msg/VfrHud
+// Velocity in NED frame
+vx_ = msg->vx;
+vy_ = msg->vy;
+vz_ = msg->vz;
+    see /mavros/global_position/local
+    nav_msgs/msg/Odometry ?
+// Angular velocity in NED frame
+// Position of reference point (local NED frame origin) in global (GPS / WGS84) frame
+// xy_global_ = msg->xy_global; // Validity of reference
+// z_global_ = msg->z_global; // Validity of reference
+ref_lat_ = msg->ref_lat;
+ref_lon_ = msg->ref_lon;
+ref_alt_ = msg->ref_alt; // AMSL
+    /mavros/home_position/home 
+    mavros_msgs/msg/HomePosition
+    but altitude is ellipsoid
+
+// pose_frame_ = msg->pose_frame; // 1:  NED earth-fixed frame, 2: FRD world-fixed frame, arbitrary heading
+// velocity_frame_ = msg->velocity_frame; // 1:  NED earth-fixed frame, 2: FRD world-fixed frame, arbitrary heading, 3: FRD body-fixed frame
+position_ = msg->position;
+q_ = msg->q;
+    /mavros/global_position/local
+    nav_msgs/msg/Odometry
+
+    but also (probably better)
+    /mavros/local_position/odom 
+    nav_msgs/msg/Odometry
+    although the twist part is different (is is the lin/ang vel???)
+
+    as well as (only position and quat)
+    /mavros/local_position/pose
+    geometry_msgs/msg/PoseStamped
+
+velocity_ = msg->velocity;
+angular_velocity_ = msg->angular_velocity;
+
+    /mavros/local_position/velocity_body
+    geometry_msgs/msg/TwistStamped
+    (is this the same twist as local_position/odom ???)
+
+    what is the difference with:
+    /mavros/local_position/velocity_local
+
+
+true_airspeed_m_s_ = msg->true_airspeed_m_s;
+    /mavros/vfr_hud 
+    Type: mavros_msgs/msg/VfrHud
+
+command_ack_ = msg->command;
+command_ack_result_ = msg->result;
+command_ack_from_external_ = msg->from_external;
+    mode from mavros_msgs/msg/State is probably more interesting
+
+target_system_id_ = msg->system_id; // get target_system_id from PX4's MAV_SYS_ID once
+    see ros2 service call /mavros/vehicle_info_get
+
+arming_state_ = msg->arming_state; // DISARMED = 1, ARMED = 2
+    /mavros/state
+    mavros_msgs/msg/State
+    (incldes mode too)
+
+vehicle_type_ = msg->vehicle_type; // ROTARY_WING = 1, FIXED_WING = 2 (ROVER = 3)
+is_vtol_ = msg->is_vtol; // bool
+is_vtol_tailsitter_ = msg->is_vtol_tailsitter; // bool
+in_transition_mode_ = msg->in_transition_mode; // bool
+in_transition_to_fw_ = msg->in_transition_to_fw; // bool
+    ros2 service call /mavros/vehicle_info_get mavros_msgs/srv/VehicleInfoGet
+    requester: making request: mavros_msgs.srv.VehicleInfoGet_Request(sysid=0, compid=0, get_all=False)
+    response:
+    mavros_msgs.srv.VehicleInfoGet_Response(success=True, vehicles=[mavros_msgs.msg.VehicleInfo(header=std_msgs.msg.Header(
+        stamp=builtin_interfaces.msg.Time(sec=2254, nanosec=211000000), frame_id=''), available_info=3, sysid=1, compid=1, autopilot=3, type=2, 
+        system_status=4, base_mode=217, custom_mode=4, mode='GUIDED', mode_id=4, capabilities=64495, flight_sw_version=67502847,
+        middleware_sw_version=0, os_sw_version=0, board_version=0, flight_custom_version='3939643464626531', vendor_id=0, product_id=0, uid=0)])
+
+pre_flight_checks_pass_ = msg->pre_flight_checks_pass; // bool
+    can use MAV_STATE in
+    /mavros/state
+    mavros_msgs/msg/State
+
+----------------
+
 - Remove set_altitude from PX4Interface
 - Change Orbit to an action
 

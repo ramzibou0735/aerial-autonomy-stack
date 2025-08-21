@@ -29,7 +29,6 @@
       
       # Required for state estimation and control
       - imu               # IMU data
-      - altitude          # Fused altitude data
       - global_position   # GPS data
       - local_position    # Odometry data
       - setpoint_position # For sending position commands
@@ -37,3 +36,4 @@
       - setpoint_accel    # For sending acceleration commands
       - waypoint          # For mission manipulation
       - rc_io             # For RC override
+      - vfr_hud           # For airspeed and altitude info

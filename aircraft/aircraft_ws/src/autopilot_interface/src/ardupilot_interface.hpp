@@ -81,104 +81,6 @@ ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'QLAND
 
 No reference setpoints for ArduPilot VTOLs
 
----
-
-TOPICS
-
-/mavros/battery
-/mavros/estimator_status
-/mavros/extended_state
-/mavros/geofence/fences
-/mavros/global_position/compass_hdg
-/mavros/global_position/global
-/mavros/global_position/gp_lp_offset
-/mavros/global_position/gp_origin
-/mavros/global_position/local
-/mavros/global_position/raw/fix
-/mavros/global_position/raw/gps_vel
-/mavros/global_position/raw/satellites
-/mavros/global_position/rel_alt
-/mavros/global_position/set_gp_origin
-/mavros/home_position/home
-/mavros/home_position/set
-/mavros/imu/data
-/mavros/imu/data_raw
-/mavros/imu/diff_pressure
-/mavros/imu/mag
-/mavros/imu/static_pressure
-/mavros/imu/temperature_baro
-/mavros/imu/temperature_imu
-/mavros/local_position/accel
-/mavros/local_position/odom
-/mavros/local_position/pose
-/mavros/local_position/pose_cov
-/mavros/local_position/velocity_body
-/mavros/local_position/velocity_body_cov
-/mavros/local_position/velocity_local
-/mavros/manual_control/control
-/mavros/manual_control/send
-/mavros/mission/reached
-/mavros/mission/waypoints
-/mavros/nav_controller_output/output
-/mavros/param/event
-/mavros/rallypoint/rallypoints
-/mavros/rc/in
-/mavros/rc/out
-/mavros/rc/override
-/mavros/setpoint_accel/accel
-/mavros/setpoint_attitude/cmd_vel
-/mavros/setpoint_attitude/thrust
-/mavros/setpoint_position/global
-/mavros/setpoint_position/global_to_local
-/mavros/setpoint_position/local
-/mavros/setpoint_raw/attitude
-/mavros/setpoint_raw/global
-/mavros/setpoint_raw/local
-/mavros/setpoint_raw/target_attitude
-/mavros/setpoint_raw/target_global
-/mavros/setpoint_raw/target_local
-/mavros/setpoint_trajectory/desired
-/mavros/setpoint_trajectory/local
-/mavros/setpoint_velocity/cmd_vel
-/mavros/setpoint_velocity/cmd_vel_unstamped
-/mavros/state
-/mavros/status_event
-/mavros/statustext/recv
-/mavros/statustext/send
-/mavros/sys_status
-/mavros/time_reference
-/mavros/timesync_status
-/mavros/wind_estimation
-
-TODO: summarize actions and services for ArduPilot
-
-# QUAD TAKEOFF AND LANDING ACTIONS
-
-...
-...
-
-# VTOL TAKEOFF AND LANDING ACTIONS
-
-...
-...
-
-# QUADS AND VTOLS SERVICES
-
-...
-...
-
-# QUAD ONLY SERVICES
-
-...
-
-# VTOL ONLY SERVICES
-
-...
-
-# OFFBOARD ACTION (ACCELERATION: 0, VELOCITY: 1) - implement your custom controller in PX4Interface:: offboard_control_loop_callback
-
-...
-
 */
 #ifndef AUTOPILOT_INTERFACE__ARDUPILOT_INTERFACE_HPP_
 #define AUTOPILOT_INTERFACE__ARDUPILOT_INTERFACE_HPP_
@@ -203,12 +105,14 @@ TODO: summarize actions and services for ArduPilot
 
 #include "geometry_msgs/msg/vector3.hpp"
 #include <geometry_msgs/msg/pose_stamped.hpp>
+#include <geometry_msgs/msg/twist_stamped.hpp>
 
+#include <mavros_msgs/msg/home_position.hpp>
 #include <mavros_msgs/msg/state.hpp>
 #include <mavros_msgs/msg/vfr_hud.hpp>
-#include <mavros_msgs/msg/status_text.hpp>
 
 #include <nav_msgs/msg/odometry.hpp>
+
 #include <sensor_msgs/msg/nav_sat_fix.hpp>
 
 #include "autopilot_interface_msgs/srv/set_altitude.hpp"
@@ -276,7 +180,7 @@ private:
     // MAVROS subscribers
     // rclcpp::Subscription<VehicleStatus>::SharedPtr vehicle_status_sub_;
     rclcpp::Subscription<NavSatFix>::SharedPtr vehicle_global_position_sub_;
-    rclcpp::Subscription<PoseStamped>::SharedPtr vehicle_local_position_sub_;
+    rclcpp::Subscription<Odometry>::SharedPtr vehicle_local_position_sub_;
     // rclcpp::Subscription<VehicleOdometry>::SharedPtr vehicle_odometry_sub_;
     // rclcpp::Subscription<AirspeedValidated>::SharedPtr airspeed_validated_sub_;
     // rclcpp::Subscription<VehicleCommandAck>::SharedPtr vehicle_command_ack_sub_;
@@ -322,7 +226,7 @@ private:
 
     // Callbacks for MAVROS subscribers
     void global_position_callback(const NavSatFix::SharedPtr msg);
-    void local_position_callback(const PoseStamped::SharedPtr msg);
+    void local_position_callback(const Odometry::SharedPtr msg);
     // void odometry_callback(const VehicleOdometry::SharedPtr msg);
     // void status_callback(const VehicleStatus::SharedPtr msg);
     // void airspeed_callback(const AirspeedValidated::SharedPtr msg);
