@@ -183,14 +183,16 @@ docker exec -it aircraft-container tmux attach
 - Implement ardupilot_interface services
   speed
   reposition
-- Implement ardupilot_interface actions
+
+- Implement ardupilot_interface basic actions
   takeoff
   landing
+
+- Implement ardupilot_interface advanced actions
   orbit
   offboard
 
 - Determine how to inteactively send rates, attitude, trajectory, velocity, acceleration references for Offboard/Guided modes
-
 - Create and implement vision/control node
 
 - Double check mutex and sleep use in px4_interface

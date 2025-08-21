@@ -123,6 +123,7 @@ No reference setpoints for ArduPilot VTOLs
 
 #include "autopilot_interface_msgs/action/land.hpp"
 #include "autopilot_interface_msgs/action/offboard.hpp"
+#include "autopilot_interface_msgs/action/orbit.hpp"
 #include "autopilot_interface_msgs/action/takeoff.hpp"
 
 using namespace geometry_msgs::msg;
@@ -210,12 +211,12 @@ private:
 
     // Node Services
     // rclcpp::Service<autopilot_interface_msgs::srv::SetSpeed>::SharedPtr set_speed_service_;
-    // rclcpp::Service<autopilot_interface_msgs::srv::SetOrbit>::SharedPtr set_orbit_service_;
     // rclcpp::Service<autopilot_interface_msgs::srv::SetReposition>::SharedPtr set_reposition_service_;
 
     // Node Actions
     // rclcpp_action::Server<autopilot_interface_msgs::action::Land>::SharedPtr land_action_server_;
     // rclcpp_action::Server<autopilot_interface_msgs::action::Offboard>::SharedPtr offboard_action_server_;
+    // rclcpp_action::Server<autopilot_interface_msgs::action::Orbit>::SharedPtr orbit_action_server_;
     // rclcpp_action::Server<autopilot_interface_msgs::action::Takeoff>::SharedPtr takeoff_action_server_;
 
     // Callbacks for timers
@@ -233,8 +234,6 @@ private:
     // Callbacks for non-blocking services
     // void set_speed_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetSpeed::Request> request,
     //                         std::shared_ptr<autopilot_interface_msgs::srv::SetSpeed::Response> response);
-    // void set_orbit_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetOrbit::Request> request,
-    //                         std::shared_ptr<autopilot_interface_msgs::srv::SetOrbit::Response> response);
     // void set_reposition_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetReposition::Request> request,
     //                         std::shared_ptr<autopilot_interface_msgs::srv::SetReposition::Response> response);
 
@@ -246,6 +245,10 @@ private:
     // rclcpp_action::GoalResponse offboard_handle_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const autopilot_interface_msgs::action::Offboard::Goal> goal);
     // rclcpp_action::CancelResponse offboard_handle_cancel(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Offboard>> goal_handle);
     // void offboard_handle_accepted(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Offboard>> goal_handle);
+    // //
+    // rclcpp_action::GoalResponse orbit_handle_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const autopilot_interface_msgs::action::Orbit::Goal> goal);
+    // rclcpp_action::CancelResponse orbit_handle_cancel(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Orbit>> goal_handle);
+    // void orbit_handle_accepted(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Orbit>> goal_handle);
     // //
     // rclcpp_action::GoalResponse takeoff_handle_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const autopilot_interface_msgs::action::Takeoff::Goal> goal);
     // rclcpp_action::CancelResponse takeoff_handle_cancel(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Takeoff>> goal_handle);
