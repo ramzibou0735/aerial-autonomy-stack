@@ -309,12 +309,12 @@ pre_flight_checks_pass_ = msg->pre_flight_checks_pass; // bool
 ----------------
 
 - Remove set_altitude from PX4Interface
-- Change Orbit to an action
+- Change Orbit service to an action
 
 - Implement ardupilot_interface services
 - Implement ardupilot_interface actions
 
-- Determine how to send rates, attitude, trajectory, velocity, acceleration references for Offboard/Guided modes
+- Determine how to inteactively send rates, attitude, trajectory, velocity, acceleration references for Offboard/Guided modes
 
 - Create and implement vision/control node
 

@@ -84,6 +84,28 @@ ArdupilotInterface::ArdupilotInterface() : Node("ardupilot_interface"),
         "/mavros/state", qos_profile_sub,
         std::bind(&ArdupilotInterface::state_callback, this, std::placeholders::_1), subscriber_options);
 
+    // MAVROS service clients
+    vehicle_info_client_ = this->create_client<VehicleInfoGet>("/mavros/vehicle_info_get");
+
+    // TEST (THIS SEGFAULTS IF STARTED TOO EARLY)
+    // Wait for the service to be available
+    while (!vehicle_info_client_->wait_for_service(1s)) {
+        if (!rclcpp::ok()) {
+            RCLCPP_ERROR(this->get_logger(), "Interrupted while waiting for the service. Exiting.");
+            return;
+        }
+        RCLCPP_INFO(this->get_logger(), "Service not available, waiting again...");
+    }
+    auto request = std::make_shared<mavros_msgs::srv::VehicleInfoGet::Request>();
+    // Send the request and attach a callback to handle the response
+    vehicle_info_client_->async_send_request(request,
+        [this](rclcpp::Client<mavros_msgs::srv::VehicleInfoGet>::SharedFuture future) {
+            auto response = future.get();
+            RCLCPP_INFO(this->get_logger(), "Sys id: %d, Autopilot: %d",
+                response->vehicles[0].sysid,
+                response->vehicles[0].autopilot);
+        });
+
     // // Services
     // set_altitude_service_ = this->create_service<autopilot_interface_msgs::srv::SetAltitude>(
     //     "set_altitude", std::bind(&PX4Interface::set_altitude_callback, this, std::placeholders::_1, std::placeholders::_2),

@@ -109,7 +109,10 @@ No reference setpoints for ArduPilot VTOLs
 
 #include <mavros_msgs/msg/home_position.hpp>
 #include <mavros_msgs/msg/state.hpp>
+#include <mavros_msgs/msg/vehicle_info.hpp>
 #include <mavros_msgs/msg/vfr_hud.hpp>
+
+#include <mavros_msgs/srv/vehicle_info_get.hpp>
 
 #include <nav_msgs/msg/odometry.hpp>
 
@@ -126,6 +129,7 @@ No reference setpoints for ArduPilot VTOLs
 
 using namespace geometry_msgs::msg;
 using namespace mavros_msgs::msg;
+using namespace mavros_msgs::srv;
 using namespace nav_msgs::msg;
 using namespace sensor_msgs::msg;
 using namespace GeographicLib;
@@ -185,6 +189,9 @@ private:
     rclcpp::Subscription<VfrHud>::SharedPtr mavros_vfr_hud_sub_;
     rclcpp::Subscription<HomePosition>::SharedPtr mavros_home_position_home_sub_;
     rclcpp::Subscription<State>::SharedPtr mavros_state_sub_;
+
+    // MAVROS service clients
+    rclcpp::Client<VehicleInfoGet>::SharedPtr vehicle_info_client_;
 
     // Subscribers variables
     // int target_system_id_, arming_state_, vehicle_type_;
