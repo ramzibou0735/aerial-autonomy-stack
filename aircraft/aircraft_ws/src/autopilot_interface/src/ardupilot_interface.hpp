@@ -191,10 +191,12 @@ private:
 
     // MAVROS service clients
     rclcpp::Client<VehicleInfoGet>::SharedPtr vehicle_info_client_;
+    // TODO
 
     // Subscribers variables
-    // int target_system_id_, arming_state_, vehicle_type_;
-    // bool is_vtol_, is_vtol_tailsitter_, in_transition_mode_, in_transition_to_fw_, pre_flight_checks_pass_;
+    int target_system_id_, mav_state_, mav_type_;
+    bool armed_flag_;
+    std::string ardupilot_mode_;
     double lat_, lon_, alt_, alt_ellipsoid_;
     double x_, y_, z_, vx_, vy_, vz_;
     double ref_lat_, ref_lon_, ref_alt_;
@@ -205,11 +207,8 @@ private:
     double true_airspeed_m_s_, heading_;
 
     // MAVROS publishers
-    // rclcpp::Publisher<VehicleCommand>::SharedPtr command_pub_;
-    // rclcpp::Publisher<OffboardControlMode>::SharedPtr offboard_mode_pub_;
-    // rclcpp::Publisher<VehicleAttitudeSetpoint>::SharedPtr attitude_ref_pub_;
-    // rclcpp::Publisher<VehicleRatesSetpoint>::SharedPtr rates_ref_pub_;
     // rclcpp::Publisher<TrajectorySetpoint>::SharedPtr trajectory_ref_pub_;
+    // TODO
 
     // Node Services
     // rclcpp::Service<autopilot_interface_msgs::srv::SetAltitude>::SharedPtr set_altitude_service_;

@@ -3,8 +3,8 @@
 ArdupilotInterface::ArdupilotInterface() : Node("ardupilot_interface"),
     active_srv_or_act_flag_(false), aircraft_fsm_state_(ArdupilotInterfaceState::STARTED), 
     offboard_loop_frequency(50), offboard_loop_count_(0), last_offboard_loop_count_(0),
-    // target_system_id_(-1), arming_state_(-1), vehicle_type_(-1),
-    // is_vtol_(false), is_vtol_tailsitter_(false), in_transition_mode_(false), in_transition_to_fw_(false), pre_flight_checks_pass_(false),
+    target_system_id_(-1), mav_state_(-1), mav_type_(-1),
+    armed_flag_(false), ardupilot_mode_(""),
     lat_(NAN), lon_(NAN), alt_(NAN), alt_ellipsoid_(NAN),
     x_(NAN), y_(NAN), z_(NAN),  vx_(NAN), vy_(NAN), vz_(NAN), ref_lat_(NAN), ref_lon_(NAN), ref_alt_(NAN),
     true_airspeed_m_s_(NAN), heading_(NAN),
@@ -25,14 +25,11 @@ ArdupilotInterface::ArdupilotInterface() : Node("ardupilot_interface"),
     velocity_.fill(NAN);
     angular_velocity_.fill(NAN);
 
-    // // Publishers
+    // MAVROS Publishers
     // rclcpp::QoS qos_profile_pub(10);  // Depth of 10
     // qos_profile_pub.durability(rclcpp::DurabilityPolicy::TransientLocal);  // Or rclcpp::DurabilityPolicy::Volatile
-    // command_pub_ = this->create_publisher<VehicleCommand>("fmu/in/vehicle_command", qos_profile_pub);
-    // offboard_mode_pub_ = this->create_publisher<OffboardControlMode>("fmu/in/offboard_control_mode", qos_profile_pub);
-    // attitude_ref_pub_ = this->create_publisher<VehicleAttitudeSetpoint>("fmu/in/vehicle_attitude_setpoint", qos_profile_pub);
-    // rates_ref_pub_ = this->create_publisher<VehicleRatesSetpoint>("fmu/in/vehicle_rates_setpoint", qos_profile_pub);
     // trajectory_ref_pub_ = this->create_publisher<TrajectorySetpoint>("fmu/in/trajectory_setpoint", qos_profile_pub);
+    // TODO
 
     // Create callback groups (Reentrant or MutuallyExclusive)
     callback_group_timer_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant); // Timed callbacks in parallel
@@ -81,28 +78,7 @@ ArdupilotInterface::ArdupilotInterface() : Node("ardupilot_interface"),
 
     // MAVROS service clients
     vehicle_info_client_ = this->create_client<VehicleInfoGet>("/mavros/vehicle_info_get");
-
-    // TEST (THIS SEGFAULTS IF STARTED TOO EARLY)
-    // Wait for the service to be available
-    // while (!vehicle_info_client_->wait_for_service(1s)) {
-    //     if (!rclcpp::ok()) {
-    //         RCLCPP_ERROR(this->get_logger(), "Interrupted while waiting for the service. Exiting.");
-    //         return;
-    //     }
-    //     RCLCPP_INFO(this->get_logger(), "Service not available, waiting again...");
-    // }
-    // auto request = std::make_shared<mavros_msgs::srv::VehicleInfoGet::Request>();
-    // // Send the request and attach a callback to handle the response
-    // vehicle_info_client_->async_send_request(request,
-    //     [this](rclcpp::Client<mavros_msgs::srv::VehicleInfoGet>::SharedFuture future) {
-    //         auto response = future.get();
-    //         RCLCPP_INFO(this->get_logger(), "Sys id: %d, Autopilot: %d",
-    //             response->vehicles[0].sysid,
-    //             response->vehicles[0].autopilot);
-    //         // target_system_id_ = response->vehicles[0].sysid;
-    //         // vehicle_type_ = response->vehicles[0].type; // MAV_TYPE, CODES TBD, NOT CHANGING WITH TRANSITION AS IN PX4, rename
-    //                                                     // set is_vtol_ accordingly, remove is_vtol_tailsitter_
-    //     });
+    // TODO
 
     // // Services
     // set_altitude_service_ = this->create_service<autopilot_interface_msgs::srv::SetAltitude>(
@@ -161,6 +137,7 @@ void ArdupilotInterface::local_position_odom_callback(const Odometry::SharedPtr 
     angular_velocity_[0] = msg->twist.twist.angular.x; // TODO: double check
     angular_velocity_[1] = msg->twist.twist.angular.y;
     angular_velocity_[2] = msg->twist.twist.angular.z;
+    // See also topics /mavros/local_position/velocity_body, /mavros/local_position/velocity_local
 }
 void ArdupilotInterface::global_position_local_callback(const Odometry::SharedPtr msg)
 {
@@ -178,7 +155,7 @@ void ArdupilotInterface::vfr_hud_callback(const VfrHud::SharedPtr msg)
 {
     std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
     alt_ = msg->altitude; // MSL
-    heading_ = msg->heading; // degrees 0..360
+    heading_ = msg->heading; // degrees 0..360, also in /mavros/global_position/compass_hdg
     true_airspeed_m_s_ = msg->airspeed; // m/s
 }
 void ArdupilotInterface::home_position_home_callback(const HomePosition::SharedPtr msg)
@@ -191,52 +168,46 @@ void ArdupilotInterface::home_position_home_callback(const HomePosition::SharedP
 void ArdupilotInterface::state_callback(const State::SharedPtr msg)
 {
     std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
-    // TODO
-    // add string for msg->mode, remove in_transition_mode_; in_transition_to_fw_
-    // arming_state_ = msg->armed // this is bool now, rename
-    // pre_flight_checks_pass_ = msg->system_status // MAV_STATE, not bool, this is a string, rename the variable
-    // remove command_ack_; command_ack_result_; command_ack_from_external_
+    //add string for msg->mode, remove in_transition_mode_; in_transition_to_fw_
+    armed_flag_ = msg->armed;
+    mav_state_ = msg->system_status; // MAV_STATE: MAV_STATE_CALIBRATING = 2, MAV_STATE_STANDBY = 3, MAV_STATE_ACTIVE = 4 (0: unkown, 5,6: failsafe, 8: flight termination, 1,7: boot)
+    ardupilot_mode_ = msg->mode; // See https://github.com/mavlink/mavros/blob/ros2/mavros_msgs/msg/State.msg
+    if ((aircraft_fsm_state_ != ArdupilotInterfaceState::STARTED) && (mav_state_ == 3)) {
+        aircraft_fsm_state_ = ArdupilotInterfaceState::STARTED; // Reset ArduPilot interface state when in standby
+    }
 }
-// void ArdupilotInterface::status_callback(const VehicleStatus::SharedPtr msg)
-// {
-//     std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
-//     if (target_system_id_ == -1)
-//     {
-//         target_system_id_ = msg->system_id; // get target_system_id from PX4's MAV_SYS_ID once
-//         RCLCPP_WARN(get_logger(), "target_system_id (MAV_SYS_ID) saved as: %d", target_system_id_);
-//     }
-//     arming_state_ = msg->arming_state; // DISARMED = 1, ARMED = 2
-//     vehicle_type_ = msg->vehicle_type; // ROTARY_WING = 1, FIXED_WING = 2 (ROVER = 3)
-//     is_vtol_ = msg->is_vtol; // bool
-//     is_vtol_tailsitter_ = msg->is_vtol_tailsitter; // bool
-//     in_transition_mode_ = msg->in_transition_mode; // bool
-//     in_transition_to_fw_ = msg->in_transition_to_fw; // bool
-//     pre_flight_checks_pass_ = msg->pre_flight_checks_pass; // bool
-//     if ((aircraft_fsm_state_ != ArdupilotInterfaceState::STARTED) && (arming_state_ == 1)) {
-//         aircraft_fsm_state_ = ArdupilotInterfaceState::STARTED; // Reset PX4 interface state after a disarm (hoping the vehicle is ok)
-//     }
-// }
 
 // Callbacks for timers (reentrant group)
 void ArdupilotInterface::ardupilot_interface_printout_callback()
 {
+    // check for mav_state_ first
+    auto request = std::make_shared<mavros_msgs::srv::VehicleInfoGet::Request>();
+    vehicle_info_client_->async_send_request(request,
+        [this](rclcpp::Client<mavros_msgs::srv::VehicleInfoGet>::SharedFuture future) {
+            auto response = future.get();
+            RCLCPP_INFO(this->get_logger(), "Sys id: %d, mav type: %d", response->vehicles[0].sysid, response->vehicles[0].type);
+            // target_system_id_ = response->vehicles[0].sysid;
+            // mav_type_ = response->vehicles[0].type; // MAV_TYPE, CODES TBD, NOT CHANGING WITH TRANSITION AS IN PX4
+            //
+            // std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+            // if (target_system_id_ == -1)
+            // {
+            //     target_system_id_ = msg->system_id; // get target_system_id from PX4's MAV_SYS_ID once
+            //     RCLCPP_WARN(get_logger(), "target_system_id (MAV_SYS_ID) saved as: %d", target_system_id_);
+            // }
+        });
+    
     std::shared_lock<std::shared_mutex> lock(node_data_mutex_); // Use shared_lock for data reads
-    // RCLCPP_INFO(get_logger(),
-    //             "Vehicle status:\n"
-    //             "\ttarget_system_id: %d\n"
-    //             "\tarming_state: %d\n"
-    //             "\tvehicle_type (MC:1, FW:2): %d\n"
-    //             "\tis_vtol: %s\n"
-    //             "\tis_vtol_tailsitter: %s\n"
-    //             "\tin_transition_mode: %s\n"
-    //             "\tin_transition_to_fw: %s\n"
-    //             "\tpre_flight_checks_pass: %s",
-    //             target_system_id_, arming_state_, vehicle_type_,
-    //             (is_vtol_ ? "true" : "false"),
-    //             (is_vtol_tailsitter_ ? "true" : "false"),
-    //             (in_transition_mode_ ? "true" : "false"),
-    //             (in_transition_to_fw_ ? "true" : "false"),
-    //             (pre_flight_checks_pass_ ? "true" : "false"));
+    RCLCPP_INFO(get_logger(),
+                "Vehicle status:\n"
+                "\ttarget_system_id: %d\n"
+                "\tmav_type (1: fixed-wing/vtol, 2: quad): %d\n"
+                "\tmav_state (3: standby/ready, 4: active/flying): %d\n"
+                "\tarmed: %s\n"
+                "\tardupilot flight mode: %s",
+                target_system_id_, mav_type_, mav_state_,
+                (armed_flag_ ? "true" : "false"),
+                ardupilot_mode_.c_str());
     RCLCPP_INFO(get_logger(),
                 "Global position:\n"
                 "\tlatitude: %.5f, longitude: %.5f, altitude AMSL: %.2f, altitude ellipsoid: %.2f",
