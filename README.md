@@ -180,9 +180,6 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- Implement MAVROS subscribers to ardupilot_interface
-
-- Remove set_altitude from PX4Interface
 - Change Orbit service to an action
 
 - Implement ardupilot_interface services

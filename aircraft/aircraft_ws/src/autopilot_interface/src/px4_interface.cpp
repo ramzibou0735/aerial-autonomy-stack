@@ -82,9 +82,6 @@ PX4Interface::PX4Interface() : Node("px4_interface"),
         std::bind(&PX4Interface::vehicle_command_ack_callback, this, std::placeholders::_1), subscriber_options);
 
     // Services
-    set_altitude_service_ = this->create_service<autopilot_interface_msgs::srv::SetAltitude>(
-        "set_altitude", std::bind(&PX4Interface::set_altitude_callback, this, std::placeholders::_1, std::placeholders::_2),
-        rmw_qos_profile_services_default, callback_group_service_);
     set_speed_service_ = this->create_service<autopilot_interface_msgs::srv::SetSpeed>(
         "set_speed", std::bind(&PX4Interface::set_speed_callback, this, std::placeholders::_1, std::placeholders::_2),
         rmw_qos_profile_services_default, callback_group_service_);
@@ -327,24 +324,6 @@ void PX4Interface::offboard_control_loop_callback()
 }
 
 // Callbacks for non-blocking services (reentrant callback group, active_srv_or_act_flag_ acting as semaphore)
-void PX4Interface::set_altitude_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetAltitude::Request> request,
-                        std::shared_ptr<autopilot_interface_msgs::srv::SetAltitude::Response> response)
-{
-    if ((!is_vtol_) || (is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::FW_CRUISE)) {
-        RCLCPP_ERROR(this->get_logger(), "Set altitude rejected, PX4Interface is not in a fixed-wing cruise state (for quads, use /set_reposition)");
-        response->success = false;
-        return;
-    }
-    if (active_srv_or_act_flag_.exchange(true)) { 
-        RCLCPP_ERROR(this->get_logger(), "Another service/action is active");
-        response->success = false;
-        return;
-    }
-    RCLCPP_INFO(this->get_logger(), "New requested altitude is: %.2f", request->altitude);
-    do_change_altitude(request->altitude);
-    response->success = true;
-    active_srv_or_act_flag_.store(false);
-}
 void PX4Interface::set_speed_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetSpeed::Request> request,
                         std::shared_ptr<autopilot_interface_msgs::srv::SetSpeed::Response> response)
 {    
@@ -791,7 +770,7 @@ void PX4Interface::do_takeoff(double alt, double yaw) {
         );
     }
 }
-void PX4Interface::do_change_altitude(double alt)
+void PX4Interface::do_change_altitude(double alt) // UNUSED
 {
     send_vehicle_command(
         186,  // VEHICLE_CMD_DO_CHANGE_ALTITUDE

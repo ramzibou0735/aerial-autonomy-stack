@@ -118,7 +118,6 @@ No reference setpoints for ArduPilot VTOLs
 
 #include <sensor_msgs/msg/nav_sat_fix.hpp>
 
-#include "autopilot_interface_msgs/srv/set_altitude.hpp"
 #include "autopilot_interface_msgs/srv/set_speed.hpp"
 #include "autopilot_interface_msgs/srv/set_orbit.hpp"
 #include "autopilot_interface_msgs/srv/set_reposition.hpp"
@@ -211,7 +210,6 @@ private:
     // TODO
 
     // Node Services
-    // rclcpp::Service<autopilot_interface_msgs::srv::SetAltitude>::SharedPtr set_altitude_service_;
     // rclcpp::Service<autopilot_interface_msgs::srv::SetSpeed>::SharedPtr set_speed_service_;
     // rclcpp::Service<autopilot_interface_msgs::srv::SetOrbit>::SharedPtr set_orbit_service_;
     // rclcpp::Service<autopilot_interface_msgs::srv::SetReposition>::SharedPtr set_reposition_service_;
@@ -234,8 +232,6 @@ private:
     void state_callback(const State::SharedPtr msg);
 
     // Callbacks for non-blocking services
-    // void set_altitude_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetAltitude::Request> request,
-    //                         std::shared_ptr<autopilot_interface_msgs::srv::SetAltitude::Response> response);
     // void set_speed_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetSpeed::Request> request,
     //                         std::shared_ptr<autopilot_interface_msgs::srv::SetSpeed::Response> response);
     // void set_orbit_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetOrbit::Request> request,

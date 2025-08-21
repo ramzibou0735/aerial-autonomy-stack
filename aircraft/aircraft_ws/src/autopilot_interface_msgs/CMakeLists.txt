@@ -18,7 +18,6 @@ rosidl_generate_interfaces(${PROJECT_NAME}
 
   "msg/Template.msg"
 
-  "srv/SetAltitude.srv"
   "srv/SetSpeed.srv"
   "srv/SetOrbit.srv"
   "srv/SetReposition.srv"

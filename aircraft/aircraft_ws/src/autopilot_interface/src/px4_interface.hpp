@@ -19,10 +19,6 @@ ros2 service call /Drone1/set_speed autopilot_interface_msgs/srv/SetSpeed '{spee
 
 ros2 service call /Drone1/set_reposition autopilot_interface_msgs/srv/SetReposition '{east: 100.0, north: 200.0, altitude: 60.0}' # relative to Home
 
-# VTOL ONLY SERVICES
-
-ros2 service call /Drone1/set_altitude autopilot_interface_msgs/srv/SetAltitude '{altitude: 100.0}' # relative to Home
-
 # OFFBOARD ACTION (ATTITUDE: 0, RATES: 1, TRAJECTORY: 2) - implement your custom controller in PX4Interface:: offboard_control_loop_callback
 
 python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal /Drone1/offboard_action autopilot_interface_msgs/action/Offboard '{offboard_setpoint_type: 1, max_duration_sec: 2.0}'"
@@ -64,7 +60,6 @@ python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal
 #include <px4_msgs/msg/vehicle_rates_setpoint.hpp>
 #include <px4_msgs/msg/trajectory_setpoint.hpp>
 
-#include "autopilot_interface_msgs/srv/set_altitude.hpp"
 #include "autopilot_interface_msgs/srv/set_speed.hpp"
 #include "autopilot_interface_msgs/srv/set_orbit.hpp"
 #include "autopilot_interface_msgs/srv/set_reposition.hpp"
@@ -156,7 +151,6 @@ private:
     rclcpp::Publisher<TrajectorySetpoint>::SharedPtr trajectory_ref_pub_;
 
     // Node Services
-    rclcpp::Service<autopilot_interface_msgs::srv::SetAltitude>::SharedPtr set_altitude_service_;
     rclcpp::Service<autopilot_interface_msgs::srv::SetSpeed>::SharedPtr set_speed_service_;
     rclcpp::Service<autopilot_interface_msgs::srv::SetOrbit>::SharedPtr set_orbit_service_;
     rclcpp::Service<autopilot_interface_msgs::srv::SetReposition>::SharedPtr set_reposition_service_;
@@ -179,8 +173,6 @@ private:
     void vehicle_command_ack_callback(const VehicleCommandAck::SharedPtr msg);
 
     // Callbacks for non-blocking services
-    void set_altitude_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetAltitude::Request> request,
-                            std::shared_ptr<autopilot_interface_msgs::srv::SetAltitude::Response> response);
     void set_speed_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetSpeed::Request> request,
                             std::shared_ptr<autopilot_interface_msgs::srv::SetSpeed::Response> response);
     void set_orbit_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetOrbit::Request> request,

@@ -81,9 +81,6 @@ ArdupilotInterface::ArdupilotInterface() : Node("ardupilot_interface"),
     // TODO
 
     // // Services
-    // set_altitude_service_ = this->create_service<autopilot_interface_msgs::srv::SetAltitude>(
-    //     "set_altitude", std::bind(&ArdupilotInterface::set_altitude_callback, this, std::placeholders::_1, std::placeholders::_2),
-    //     rmw_qos_profile_services_default, callback_group_service_);
     // set_speed_service_ = this->create_service<autopilot_interface_msgs::srv::SetSpeed>(
     //     "set_speed", std::bind(&ArdupilotInterface::set_speed_callback, this, std::placeholders::_1, std::placeholders::_2),
     //     rmw_qos_profile_services_default, callback_group_service_);
@@ -315,24 +312,6 @@ void ArdupilotInterface::offboard_control_loop_callback()
 }
 
 // // Callbacks for non-blocking services (reentrant callback group, active_srv_or_act_flag_ acting as semaphore)
-// void ArdupilotInterface::set_altitude_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetAltitude::Request> request,
-//                         std::shared_ptr<autopilot_interface_msgs::srv::SetAltitude::Response> response)
-// {
-//     if ((!is_vtol_) || (is_vtol_ && aircraft_fsm_state_ != ArdupilotInterfaceState::FW_CRUISE)) {
-//         RCLCPP_ERROR(this->get_logger(), "Set altitude rejected, ArdupilotInterface is not in a fixed-wing cruise state (for quads, use /set_reposition)");
-//         response->success = false;
-//         return;
-//     }
-//     if (active_srv_or_act_flag_.exchange(true)) { 
-//         RCLCPP_ERROR(this->get_logger(), "Another service/action is active");
-//         response->success = false;
-//         return;
-//     }
-//     RCLCPP_INFO(this->get_logger(), "New requested altitude is: %.2f", request->altitude);
-//     do_change_altitude(request->altitude);
-//     response->success = true;
-//     active_srv_or_act_flag_.store(false);
-// }
 // void ArdupilotInterface::set_speed_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetSpeed::Request> request,
 //                         std::shared_ptr<autopilot_interface_msgs::srv::SetSpeed::Response> response)
 // {    
