@@ -62,24 +62,27 @@ ArdupilotInterface::ArdupilotInterface() : Node("ardupilot_interface"),
     qos_profile_sub.reliability(rclcpp::ReliabilityPolicy::BestEffort);
 
     // MAVROS subscribers
-    vehicle_global_position_sub_= this->create_subscription<NavSatFix>(
+    mavros_global_position_global_sub_= this->create_subscription<NavSatFix>(
         "/mavros/global_position/global", qos_profile_sub,
-        std::bind(&ArdupilotInterface::global_position_callback, this, std::placeholders::_1), subscriber_options);
-    vehicle_local_position_sub_= this->create_subscription<Odometry>(
+        std::bind(&ArdupilotInterface::global_position_global_sub_callback, this, std::placeholders::_1), subscriber_options);
+    mavros_local_position_odom_sub_= this->create_subscription<Odometry>(
         "/mavros/local_position/odom", qos_profile_sub,
-        std::bind(&ArdupilotInterface::local_position_callback, this, std::placeholders::_1), subscriber_options);
-    // vehicle_odometry_sub_= this->create_subscription<VehicleOdometry>(
-    //     "fmu/out/vehicle_odometry", qos_profile_sub,
-    //     std::bind(&PX4Interface::odometry_callback, this, std::placeholders::_1), subscriber_options);
-    // vehicle_status_sub_ = this->create_subscription<VehicleStatus>(
-    //     "fmu/out/vehicle_status_v1", qos_profile_sub,
-    //     std::bind(&PX4Interface::status_callback, this, std::placeholders::_1), subscriber_options);
-    // airspeed_validated_sub_ = this->create_subscription<AirspeedValidated>(
-    //     "fmu/out/airspeed_validated", qos_profile_sub,
-    //     std::bind(&PX4Interface::airspeed_callback, this, std::placeholders::_1), subscriber_options);
-    // vehicle_command_ack_sub_ = this->create_subscription<VehicleCommandAck>(
-    //     "fmu/out/vehicle_command_ack", qos_profile_sub,
-    //     std::bind(&PX4Interface::vehicle_command_ack_callback, this, std::placeholders::_1), subscriber_options);
+        std::bind(&ArdupilotInterface::local_position_odom_callback, this, std::placeholders::_1), subscriber_options);
+    mavros_global_position_local_sub_ = this->create_subscription<Odometry>(
+        "/mavros/global_position/local", qos_profile_sub,
+        std::bind(&ArdupilotInterface::global_position_local_callback, this, std::placeholders::_1), subscriber_options);
+    mavros_local_position_velocity_body_sub_ = this->create_subscription<TwistStamped>(
+        "/mavros/local_position/velocity_body", qos_profile_sub,
+        std::bind(&ArdupilotInterface::local_position_velocity_body_callback, this, std::placeholders::_1), subscriber_options);
+    mavros_vfr_hud_sub_ = this->create_subscription<VfrHud>(
+        "/mavros/vfr_hud", qos_profile_sub,
+        std::bind(&ArdupilotInterface::vfr_hud_callback, this, std::placeholders::_1), subscriber_options);
+    mavros_home_position_home_sub_ = this->create_subscription<HomePosition>(
+        "/mavros/home_position/home", qos_profile_sub,
+        std::bind(&ArdupilotInterface::home_position_home_callback, this, std::placeholders::_1), subscriber_options);
+    mavros_state_sub_ = this->create_subscription<State>(
+        "/mavros/state", qos_profile_sub,
+        std::bind(&ArdupilotInterface::state_callback, this, std::placeholders::_1), subscriber_options);
 
     // // Services
     // set_altitude_service_ = this->create_service<autopilot_interface_msgs::srv::SetAltitude>(
@@ -115,15 +118,15 @@ ArdupilotInterface::ArdupilotInterface() : Node("ardupilot_interface"),
 }
 
 // Callbacks for subscribers (reentrant group)
-void ArdupilotInterface::global_position_callback(const NavSatFix::SharedPtr msg)
+void ArdupilotInterface::global_position_global_sub_callback(const NavSatFix::SharedPtr msg)
 {
     std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
     lat_ = msg->latitude;
     lon_ = msg->longitude;
-    // alt_ = ???; // AMSL
+    // alt_ = TODO; // AMSL
     alt_ellipsoid_ = msg->altitude; // Positive is above the WGS 84 ellipsoid
 }
-void ArdupilotInterface::local_position_callback(const Odometry::SharedPtr msg)
+void ArdupilotInterface::local_position_odom_callback(const Odometry::SharedPtr msg)
 {
     std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
     // xy_valid_ = msg->xy_valid;
@@ -145,6 +148,31 @@ void ArdupilotInterface::local_position_callback(const Odometry::SharedPtr msg)
     // ref_lat_ = msg->ref_lat;
     // ref_lon_ = msg->ref_lon;
     // ref_alt_ = msg->ref_alt; // AMSL
+}
+void ArdupilotInterface::global_position_local_callback(const Odometry::SharedPtr msg)
+{
+    std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+    // TODO
+}
+void ArdupilotInterface::local_position_velocity_body_callback(const TwistStamped::SharedPtr msg)
+{
+    std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+    // TODO
+}
+void ArdupilotInterface::vfr_hud_callback(const VfrHud::SharedPtr msg)
+{
+    std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+    // TODO
+}
+void ArdupilotInterface::home_position_home_callback(const HomePosition::SharedPtr msg)
+{
+    std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+    // TODO
+}
+void ArdupilotInterface::state_callback(const State::SharedPtr msg)
+{
+    std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+    // TODO
 }
 // void PX4Interface::odometry_callback(const VehicleOdometry::SharedPtr msg)
 // {

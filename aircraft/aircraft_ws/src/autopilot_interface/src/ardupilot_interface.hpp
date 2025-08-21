@@ -178,12 +178,13 @@ private:
     // rclcpp::TimerBase::SharedPtr offboard_control_loop_timer_;
 
     // MAVROS subscribers
-    rclcpp::Subscription<NavSatFix>::SharedPtr vehicle_global_position_sub_;
-    rclcpp::Subscription<Odometry>::SharedPtr vehicle_local_position_sub_;
-    // rclcpp::Subscription<VehicleOdometry>::SharedPtr vehicle_odometry_sub_;
-    // rclcpp::Subscription<VehicleStatus>::SharedPtr vehicle_status_sub_;
-    // rclcpp::Subscription<AirspeedValidated>::SharedPtr airspeed_validated_sub_;
-    // rclcpp::Subscription<VehicleCommandAck>::SharedPtr vehicle_command_ack_sub_;
+    rclcpp::Subscription<NavSatFix>::SharedPtr mavros_global_position_global_sub_;
+    rclcpp::Subscription<Odometry>::SharedPtr mavros_local_position_odom_sub_;
+    rclcpp::Subscription<Odometry>::SharedPtr mavros_global_position_local_sub_;
+    rclcpp::Subscription<TwistStamped>::SharedPtr mavros_local_position_velocity_body_sub_;
+    rclcpp::Subscription<VfrHud>::SharedPtr mavros_vfr_hud_sub_;
+    rclcpp::Subscription<HomePosition>::SharedPtr mavros_home_position_home_sub_;
+    rclcpp::Subscription<State>::SharedPtr mavros_state_sub_;
 
     // Subscribers variables
     // int target_system_id_, arming_state_, vehicle_type_;
@@ -225,12 +226,13 @@ private:
     // void offboard_control_loop_callback();
 
     // Callbacks for MAVROS subscribers
-    void global_position_callback(const NavSatFix::SharedPtr msg);
-    void local_position_callback(const Odometry::SharedPtr msg);
-    // void odometry_callback(const VehicleOdometry::SharedPtr msg);
-    // void status_callback(const VehicleStatus::SharedPtr msg);
-    // void airspeed_callback(const AirspeedValidated::SharedPtr msg);
-    // void vehicle_command_ack_callback(const VehicleCommandAck::SharedPtr msg);
+    void global_position_global_sub_callback(const NavSatFix::SharedPtr msg);
+    void local_position_odom_callback(const Odometry::SharedPtr msg);
+    void global_position_local_callback(const Odometry::SharedPtr msg);
+    void local_position_velocity_body_callback(const TwistStamped::SharedPtr msg);
+    void vfr_hud_callback(const VfrHud::SharedPtr msg);
+    void home_position_home_callback(const HomePosition::SharedPtr msg);
+    void state_callback(const State::SharedPtr msg);
 
     // Callbacks for non-blocking services
     // void set_altitude_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetAltitude::Request> request,

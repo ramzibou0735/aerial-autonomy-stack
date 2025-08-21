@@ -188,8 +188,6 @@ docker exec -it aircraft-container tmux attach
     nav_msgs/msg/Odometry
     (alternatives /mavros/global_position/local nav_msgs/msg/Odometry AND /mavros/local_position/pose geometry_msgs/msg/PoseStamped)
 
-TODO
-
 /mavros/global_position/local
   nav_msgs/msg/Odometry
 
