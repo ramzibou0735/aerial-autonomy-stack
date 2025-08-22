@@ -255,6 +255,8 @@ docker exec -it aircraft-container tmux attach
 
 ---
 
+- Implement do_abort for ArdupilotInterface
+
 - Determine how to inteactively send rates, attitude, trajectory, velocity, acceleration references for Offboard/Guided modes
 - Create and implement vision/control node
 
