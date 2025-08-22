@@ -26,10 +26,11 @@ ArdupilotInterface::ArdupilotInterface() : Node("ardupilot_interface"),
     angular_velocity_.fill(NAN);
 
     // MAVROS Publishers
-    // rclcpp::QoS qos_profile_pub(10);  // Depth of 10
-    // qos_profile_pub.durability(rclcpp::DurabilityPolicy::TransientLocal);  // Or rclcpp::DurabilityPolicy::Volatile
-    // trajectory_ref_pub_ = this->create_publisher<TrajectorySetpoint>("fmu/in/trajectory_setpoint", qos_profile_pub);
-    // TODO
+    rclcpp::QoS qos_profile_pub(10);  // Depth of 10
+    qos_profile_pub.durability(rclcpp::DurabilityPolicy::TransientLocal);  // Or rclcpp::DurabilityPolicy::Volatile
+    setpoint_accel_pub_= this->create_publisher<Vector3Stamped>("/mavros/setpoint_accel/accel", qos_profile_pub);
+    setpoint_vel_pub_= this->create_publisher<TwistStamped>("/mavros/setpoint_velocity/cmd_vel", qos_profile_pub);
+    setpoint_pos_pub_= this->create_publisher<GeoPoseStamped>("/mavros/setpoint_position/global", qos_profile_pub);
 
     // Create callback groups (Reentrant or MutuallyExclusive)
     callback_group_timer_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant); // Timed callbacks in parallel
@@ -78,7 +79,14 @@ ArdupilotInterface::ArdupilotInterface() : Node("ardupilot_interface"),
 
     // MAVROS service clients
     vehicle_info_client_ = this->create_client<VehicleInfoGet>("/mavros/vehicle_info_get");
-    // TODO
+    arming_client_ = this->create_client<CommandBool>("/mavros/cmd/arming");
+    command_long_client_ = this->create_client<CommandLong>("/mavros/cmd/command");
+    takeoff_client_ = this->create_client<CommandTOL>("/mavros/cmd/takeoff");
+    landing_client_ = this->create_client<CommandTOL>("/mavros/cmd/land");
+    set_param_client_ = this->create_client<ParamSetV2>("/mavros/param/set");
+    set_mode_client_ = this->create_client<SetMode>("/mavros/set_mode");
+    wp_push_client_ = this->create_client<WaypointPush>("/mavros/mission/push");
+    set_wp_client_ = this->create_client<WaypointSetCurrent>("/mavros/mission/set_current");
 
     // Services
     set_speed_service_ = this->create_service<autopilot_interface_msgs::srv::SetSpeed>(
@@ -317,21 +325,25 @@ void ArdupilotInterface::offboard_control_loop_callback()
 void ArdupilotInterface::set_speed_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetSpeed::Request> request,
                         std::shared_ptr<autopilot_interface_msgs::srv::SetSpeed::Response> response)
 {    
-    // if ((!is_vtol_ && aircraft_fsm_state_ != ArdupilotInterfaceState::MC_HOVER) || (is_vtol_ && aircraft_fsm_state_ != ArdupilotInterfaceState::FW_CRUISE)) {
-    //     RCLCPP_ERROR(this->get_logger(), "Set speed rejected, ArdupilotInterface is not in hover/cruise state");
-    //     response->success = false;
-    //     return;
-    // }
+    if ((mav_type_ == 2 && aircraft_fsm_state_ != ArdupilotInterfaceState::MC_HOVER) || (mav_type_ == 1 && aircraft_fsm_state_ != ArdupilotInterfaceState::FW_CRUISE)) {
+        RCLCPP_ERROR(this->get_logger(), "Set speed rejected, ArdupilotInterface is not in hover/cruise state");
+        response->success = false;
+        return;
+    }
     if (active_srv_or_act_flag_.exchange(true)) { 
         RCLCPP_ERROR(this->get_logger(), "Another service/action is active");
         response->success = false;
         return;
     }
-    // if (!is_vtol_) {
-    //     RCLCPP_WARN(this->get_logger(), "For quads, the change of speed will affect the next (e.g. /set_reposition) service/action");
-    // }
+    if (mav_type_ == 1) {
+        RCLCPP_WARN(this->get_logger(), "The change of speed setpoint is ineffective in fixed-wing flight");
+    }
     RCLCPP_INFO(this->get_logger(), "New requested speed is: %.2f", request->speed);
-    // do_change_speed(request->speed);
+    if (mav_type_ == 1) {
+        // do_change_speed(request->speed);
+    } else if (mav_type_ == 2) {
+        // do_change_speed(request->speed);
+    }
     response->success = true;
     active_srv_or_act_flag_.store(false);
 }
