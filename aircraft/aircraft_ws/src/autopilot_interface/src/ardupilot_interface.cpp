@@ -325,7 +325,7 @@ void ArdupilotInterface::offboard_control_loop_callback()
 void ArdupilotInterface::set_speed_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetSpeed::Request> request,
                         std::shared_ptr<autopilot_interface_msgs::srv::SetSpeed::Response> response)
 {    
-    if ((mav_type_ == 2 && aircraft_fsm_state_ != ArdupilotInterfaceState::MC_HOVER) || (mav_type_ == 1 && aircraft_fsm_state_ != ArdupilotInterfaceState::FW_CRUISE)) {
+    if (((mav_type_ == 2) && aircraft_fsm_state_ != ArdupilotInterfaceState::MC_HOVER) || ((mav_type_ == 1) && aircraft_fsm_state_ != ArdupilotInterfaceState::FW_CRUISE)) {
         RCLCPP_ERROR(this->get_logger(), "Set speed rejected, ArdupilotInterface is not in hover/cruise state");
         response->success = false;
         return;
@@ -354,11 +354,11 @@ void ArdupilotInterface::set_speed_callback(const std::shared_ptr<autopilot_inte
 void ArdupilotInterface::set_reposition_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetReposition::Request> request,
                         std::shared_ptr<autopilot_interface_msgs::srv::SetReposition::Response> response)
 {
-    // if ((is_vtol_) || (!is_vtol_ && !(aircraft_fsm_state_ == ArdupilotInterfaceState::MC_HOVER || aircraft_fsm_state_ == ArdupilotInterfaceState::MC_ORBIT))) {
-    //     RCLCPP_ERROR(this->get_logger(), "Set reposition rejected, ArdupilotInterface is not in a quad hover/orbit state (for VTOLs, use /orbit_action)");
-    //     response->success = false;
-    //     return;
-    // }
+    if ((mav_type_ == 1) || ((mav_type_ == 2) && !(aircraft_fsm_state_ == ArdupilotInterfaceState::MC_HOVER || aircraft_fsm_state_ == ArdupilotInterfaceState::MC_ORBIT))) {
+        RCLCPP_ERROR(this->get_logger(), "Set reposition rejected, ArdupilotInterface is not in a quad hover/orbit state (for VTOLs, use /orbit_action)");
+        response->success = false;
+        return;
+    }
     if (active_srv_or_act_flag_.exchange(true)) { 
         RCLCPP_ERROR(this->get_logger(), "Another service/action is active");
         response->success = false;
@@ -376,7 +376,19 @@ void ArdupilotInterface::set_reposition_callback(const std::shared_ptr<autopilot
     auto [des_lat, des_lon] = lat_lon_from_cartesian(home_lat_, home_lon_, desired_east, desired_north);
     double distance, heading;
     geod.Inverse(lat_, lon_, des_lat, des_lon, distance, heading);
-    // do_reposition(des_lat, des_lon, desired_alt, fmod(heading + 360.0, 360.0) / 180.0 * M_PI);
+    double heading_rad = fmod(heading + 360.0, 360.0) / 180.0 * M_PI;
+    for (int i = 0; i < 5; ++i) { // HARDCODED: send N times for robustness
+        auto msg = geographic_msgs::msg::GeoPoseStamped();
+        msg.header.stamp = this->get_clock()->now();
+        msg.header.frame_id = "map";
+        msg.pose.position.latitude = des_lat;
+        msg.pose.position.longitude = des_lon;
+        msg.pose.position.altitude = home_alt_ + desired_alt; // Altitude is in MSL - TODO: check
+        msg.pose.orientation.w = heading_rad / 2.0; // TODO: check
+        msg.pose.orientation.z = heading_rad / 2.0; // TODO: check
+        setpoint_pos_pub_->publish(msg);
+        std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Add a small delay between publishes
+    }
     response->success = true;
     active_srv_or_act_flag_.store(false);
 }
