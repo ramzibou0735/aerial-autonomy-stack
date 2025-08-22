@@ -195,12 +195,13 @@ docker exec -it aircraft-container tmux attach
 ---
 
 # Takeoff
-ros2 service call /mavros/cmd/arming mavros_msgs/srv/CommandBool "{value: true}"
-ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'GUIDED'}"
-ros2 service call /mavros/cmd/takeoff mavros_msgs/srv/CommandTOL "{altitude: 40.0}"
   # Quad
-  -
+  ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'GUIDED'}"
+  ros2 service call /mavros/cmd/arming mavros_msgs/srv/CommandBool "{value: true}"
+  ros2 service call /mavros/cmd/takeoff mavros_msgs/srv/CommandTOL "{altitude: 40.0}"
   # VTOL
+  ros2 service call /mavros/cmd/arming mavros_msgs/srv/CommandBool "{value: true}"
+  ros2 service call /mavros/cmd/takeoff mavros_msgs/srv/CommandTOL "{altitude: 40.0}"
   ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'CRUISE'}" # Or FBWB to transition to FW at 10m/s
   ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'GUIDED'}" # Or CIRCLE to start loitering
 
@@ -214,7 +215,7 @@ ros2 service call /mavros/cmd/takeoff mavros_msgs/srv/CommandTOL "{altitude: 40.
 
 # Orbit
   # Quad
-  ros2 topic pub --once /mavros/setpoint_position/local geometry_msgs/msg/PoseStamped '{header: {frame_id: "map"}, pose: {position: {x: 5.0, y: 5.0, z: 10.0}, orientation: {x: 0.0, y: 0.0, z: 0.707, w: 0.707}}}'
+  ros2 topic pub --once /mavros/setpoint_position/global geographic_msgs/msg/GeoPoseStamped '{header: {frame_id: "map"},pose: {position: {latitude: 45.5470, longitude: 8.940, altitude: 300.0}, orientation: {x: 0.0, y: 0.0, z: 0.707, w: 0.707}}}'
   ros2 service call /mavros/param/set mavros_msgs/srv/ParamSetV2 '{param_id: "CIRCLE_OPTIONS", value: {type: 2, integer_value: 8}}'
   ros2 service call /mavros/param/set mavros_msgs/srv/ParamSetV2 '{param_id: "CIRCLE_RADIUS", value: {type: 3, double_value: 2000.0}}'
   ros2 service call /mavros/param/set mavros_msgs/srv/ParamSetV2 '{param_id: "CIRCLE_RATE", value: {type: 2, integer_value: 15}}'
@@ -232,8 +233,10 @@ ros2 service call /mavros/cmd/takeoff mavros_msgs/srv/CommandTOL "{altitude: 40.
 
 # Offboard
   # Quad
-  ros2 topic pub --rate 10 --times 50 /mavros/setpoint_velocity/cmd_vel_unstamped geometry_msgs/msg/Twist '{linear: {x: 2.0, y: 0.0, z: 0.0}}'
-  ros2 topic pub --rate 10 --times 50 /mavros/setpoint_accel/accel geometry_msgs/msg/Vector3Stamped '{header: {frame_id: "map"}, vector: {x: 1.5, y: 0.0, z: 0.0}}'
+  ros2 topic pub --rate 10 --times 50 /mavros/setpoint_accel/accel geometry_msgs/msg/Vector3Stamped '{header: {frame_id: "map"}, vector: {x: 1.5, y: 0.0, z: 0.0}}' # WORLD FRAME (ENU) WITH YAW ALIGNMENT
+  ros2 topic pub --rate 10 --times 50 /mavros/setpoint_velocity/cmd_vel geometry_msgs/msg/TwistStamped '{header: {frame_id: "map"}, twist: {linear: {x: 2.0, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.0}}}' # WORLD FRAME (ENU) WITHOUT YAW ALIGNMENT
+  Or 
+  ros2 topic pub --rate 10 --times 50 /mavros/setpoint_velocity/cmd_vel_unstamped geometry_msgs/msg/Twist '{linear: {x: 2.0, y: 0.0, z: 0.0}}' # LOCAL FRAME
   # VTOL
   -
 
@@ -245,7 +248,8 @@ ros2 service call /mavros/cmd/takeoff mavros_msgs/srv/CommandTOL "{altitude: 40.
 
 # Set Reposition
   # Quad
-  ros2 topic pub --once /mavros/setpoint_position/local geometry_msgs/msg/PoseStamped '{header: {frame_id: "map"}, pose: {position: {x: 5.0, y: 5.0, z: 10.0}, orientation: {x: 0.0, y: 0.0, z: 0.707, w: 0.707}}}'
+  GeoPose (altitude over MSL)
+  ros2 topic pub --once /mavros/setpoint_position/global geographic_msgs/msg/GeoPoseStamped '{header: {frame_id: "map"},pose: {position: {latitude: 45.5470, longitude: 8.940, altitude: 300.0}, orientation: {x: 0.0, y: 0.0, z: 0.707, w: 0.707}}}'
   # VTOL
   -
 

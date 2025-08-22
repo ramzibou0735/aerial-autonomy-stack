@@ -24,8 +24,12 @@ TODO
 
 #include <GeographicLib/Geodesic.hpp>
 
+#include <geographic_msgs/msg/geo_pose_stamped.hpp>
+
 #include "geometry_msgs/msg/vector3.hpp"
+#include <geometry_msgs/msg/vector3_stamped.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
+#include <geometry_msgs/msg/twist.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
 
 #include <mavros_msgs/msg/home_position.hpp>
@@ -34,6 +38,13 @@ TODO
 #include <mavros_msgs/msg/vfr_hud.hpp>
 
 #include <mavros_msgs/srv/vehicle_info_get.hpp>
+#include <mavros_msgs/srv/command_bool.hpp>
+#include <mavros_msgs/srv/command_long.hpp>
+#include <mavros_msgs/srv/command_tol.hpp>
+#include <mavros_msgs/srv/param_set_v2.hpp>
+#include <mavros_msgs/srv/set_mode.hpp>
+#include <mavros_msgs/srv/waypoint_push.hpp>
+#include <mavros_msgs/srv/waypoint_set_current.hpp>
 
 #include <nav_msgs/msg/odometry.hpp>
 
@@ -53,6 +64,7 @@ using namespace mavros_msgs::srv;
 using namespace nav_msgs::msg;
 using namespace sensor_msgs::msg;
 using namespace GeographicLib;
+using namespace geographic_msgs::msg;
 using namespace std::chrono_literals;  // for time literals (e.g. 1s)
 
 enum class ArdupilotInterfaceState {
@@ -111,7 +123,13 @@ private:
 
     // MAVROS service clients
     rclcpp::Client<VehicleInfoGet>::SharedPtr vehicle_info_client_;
-    // TODO
+    rclcpp::Client<CommandBool>::SharedPtr arming_client_;
+    rclcpp::Client<CommandLong>::SharedPtr command_long_client_;
+    rclcpp::Client<CommandTOL>::SharedPtr takeoff_landing_client_;
+    rclcpp::Client<ParamSetV2>::SharedPtr set_param_client_;
+    rclcpp::Client<SetMode>::SharedPtr set_mode_client_;
+    rclcpp::Client<WaypointPush>::SharedPtr wp_push_client_;
+    rclcpp::Client<WaypointSetCurrent>::SharedPtr set_wp_client_;
 
     // Subscribers variables
     int target_system_id_, mav_state_, mav_type_;
@@ -127,8 +145,9 @@ private:
     double true_airspeed_m_s_, heading_;
 
     // MAVROS publishers
-    // rclcpp::Publisher<TrajectorySetpoint>::SharedPtr trajectory_ref_pub_;
-    // TODO
+    rclcpp::Publisher<Vector3Stamped>::SharedPtr setpoint_accel_pub_;
+    rclcpp::Publisher<TwistStamped>::SharedPtr setpoint_vel_pub_; // Drone frame message rclcpp::Publisher<Twist>::SharedPtr setpoint_vel_pub_;
+    rclcpp::Publisher<GeoPoseStamped>::SharedPtr setpoint_pos_pub_; // Cartesian/local message rclcpp::Publisher<PoseStamped>::SharedPtr setpoint_pos_pub_;
 
     // Node Services
     rclcpp::Service<autopilot_interface_msgs::srv::SetSpeed>::SharedPtr set_speed_service_;
