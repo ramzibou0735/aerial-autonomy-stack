@@ -180,13 +180,17 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- Implement ardupilot_interface services
-  speed
-  reposition
-
 - Implement ardupilot_interface basic actions
   takeoff
   landing
+
+ros2 action send_goal /Drone1/takeoff_action autopilot_interface_msgs/action/Takeoff '{takeoff_altitude: 40.0}' --feedback
+
+ros2 action send_goal /Drone1/takeoff_action autopilot_interface_msgs/action/Takeoff '{takeoff_altitude: 40.0, vtol_transition_heading: 330.0, vtol_loiter_nord: 200.0, vtol_loiter_east: 100.0, vtol_loiter_alt: 120.0}'  --feedback
+
+ros2 action send_goal /Drone1/land_action autopilot_interface_msgs/action/Land '{landing_altitude: 60.0}' --feedback
+
+ros2 action send_goal /Drone1/land_action autopilot_interface_msgs/action/Land '{landing_altitude: 60.0, vtol_transition_heading: 60.0}' --feedback
 
 - Implement ardupilot_interface advanced actions
   orbit
@@ -256,6 +260,7 @@ docker exec -it aircraft-container tmux attach
 ---
 
 - Implement do_abort for ArdupilotInterface
+- Reset ArdupilotInterfaceState::STARTED after a landing
 
 - Determine how to inteactively send rates, attitude, trajectory, velocity, acceleration references for Offboard/Guided modes
 - Create and implement vision/control node
