@@ -725,7 +725,7 @@ void ArdupilotInterface::takeoff_handle_accepted(const std::shared_ptr<rclcpp_ac
     double vtol_loiter_alt = goal->vtol_loiter_alt;
 
     bool taking_off = true;
-    uint64_t time_of_vtol_transition_us_ = -1;
+    uint64_t time_of_last_srv_req_ = this->get_clock()->now().nanoseconds() / 1000;  // Convert to microseconds
     rclcpp::Rate takeoff_loop_rate(100);
     while (taking_off) {
         takeoff_loop_rate.sleep();
@@ -741,76 +741,108 @@ void ArdupilotInterface::takeoff_handle_accepted(const std::shared_ptr<rclcpp_ac
             return;
         }
 
+        uint64_t current_time_us = this->get_clock()->now().nanoseconds() / 1000;  // Convert to microseconds
+
         if (mav_type_ == 2) { // Multicopter
-            if (aircraft_fsm_state_ == ArdupilotInterfaceState::STARTED) {
+            if ((aircraft_fsm_state_ == ArdupilotInterfaceState::STARTED) && (current_time_us > (time_of_last_srv_req_ + 0.1 * 1000000))) {
                 auto set_mode_request = std::make_shared<mavros_msgs::srv::SetMode::Request>();
                 set_mode_request->custom_mode = "GUIDED";
+                feedback->message = "Requesting mode";
+                goal_handle->publish_feedback(feedback);
+                time_of_last_srv_req_ = current_time_us;
                 set_mode_client_->async_send_request(set_mode_request,
-                    [this](rclcpp::Client<mavros_msgs::srv::SetMode>::SharedFuture future) {
+                    [this, feedback, goal_handle](rclcpp::Client<mavros_msgs::srv::SetMode>::SharedFuture future) {
                         if (future.get()->mode_sent) {
+                            feedback->message = "Request mode success";
+                            goal_handle->publish_feedback(feedback);
                             std::unique_lock<std::shared_mutex> lock(node_data_mutex_);
                             aircraft_fsm_state_ = ArdupilotInterfaceState::GUIDED_PRETAKEOFF;
+                        } else {
+                            feedback->message = "Request mode failed";
+                            goal_handle->publish_feedback(feedback);
                         }
                     });
-            } else if (aircraft_fsm_state_ == ArdupilotInterfaceState::GUIDED_PRETAKEOFF) {
+            } else if ((aircraft_fsm_state_ == ArdupilotInterfaceState::GUIDED_PRETAKEOFF) && (current_time_us > (time_of_last_srv_req_ + 0.1 * 1000000))) {
                 auto arm_request = std::make_shared<mavros_msgs::srv::CommandBool::Request>();
                 arm_request->value = true;
+                feedback->message = "Requesting arming";
+                goal_handle->publish_feedback(feedback);
+                time_of_last_srv_req_ = current_time_us;
                 arming_client_->async_send_request(arm_request,
-                    [this](rclcpp::Client<mavros_msgs::srv::CommandBool>::SharedFuture future) {
+                    [this, feedback, goal_handle](rclcpp::Client<mavros_msgs::srv::CommandBool>::SharedFuture future) {
                         if (future.get()->success) {
+                            feedback->message = "Request arming success";
+                            goal_handle->publish_feedback(feedback);
                             std::unique_lock<std::shared_mutex> lock(node_data_mutex_);
                             aircraft_fsm_state_ = ArdupilotInterfaceState::ARMED;
+                        } else {
+                            feedback->message = "Request arming failed";
+                            goal_handle->publish_feedback(feedback);
                         }
                     });
-            } else if (aircraft_fsm_state_ == ArdupilotInterfaceState::ARMED) {
+            } else if ((aircraft_fsm_state_ == ArdupilotInterfaceState::ARMED) && (current_time_us > (time_of_last_srv_req_ + 0.1 * 1000000))) {
                 auto takeoff_request = std::make_shared<mavros_msgs::srv::CommandTOL::Request>();
                 takeoff_request->altitude = takeoff_altitude;
+                feedback->message = "Requesting takeoff";
+                goal_handle->publish_feedback(feedback);
+                time_of_last_srv_req_ = current_time_us;
                 takeoff_client_->async_send_request(takeoff_request,
-                    [this](rclcpp::Client<mavros_msgs::srv::CommandTOL>::SharedFuture future) {
+                    [this, feedback, goal_handle](rclcpp::Client<mavros_msgs::srv::CommandTOL>::SharedFuture future) {
                         if (future.get()->success) {
+                            feedback->message = "Request takeoff success";
+                            goal_handle->publish_feedback(feedback);
                             std::unique_lock<std::shared_mutex> lock(node_data_mutex_);
                             aircraft_fsm_state_ = ArdupilotInterfaceState::MC_HOVER;
+                        } else {
+                            feedback->message = "Request takeoff failed";
+                            goal_handle->publish_feedback(feedback);
                         }
                     });
             } else if (aircraft_fsm_state_ == ArdupilotInterfaceState::MC_HOVER) {
+                feedback->message = "MC takeoff completed";
+                goal_handle->publish_feedback(feedback);
                 taking_off = false;
             }
         } else if (mav_type_ == 1) { // Fixed-wing/VTOL
-            // ros2 service call /mavros/cmd/arming mavros_msgs/srv/CommandBool "{value: true}"
-            // ros2 service call /mavros/cmd/takeoff mavros_msgs/srv/CommandTOL "{altitude: 40.0}"
-            // ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'CRUISE'}" # Or FBWB to transition to FW at 10m/s
-            // ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'GUIDED'}" # Or CIRCLE to start loitering
-            // ros2 service call /mavros/mission/push mavros_msgs/srv/WaypointPush "{start_index: 0, waypoints: [ \
-            //     {frame: 3, command: 16, is_current: true, autocontinue: true, x_lat: 0.0, y_long: 0.0, z_alt: 0.0}, \
-            //     {frame: 3, command: 16, is_current: false, autocontinue: true, x_lat: 45.5470, y_long: 8.940, z_alt: 250.0}, \
-            //     {frame: 3, command: 17, is_current: false, autocontinue: true, param3: 300.0, x_lat: 45.5479, y_long: 8.949, z_alt: 250.0} \
-            //     ]}"
-            // ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'AUTO'}"
-            // ros2 service call /mavros/cmd/command mavros_msgs/srv/CommandLong "{command: 300}"
-            // ros2 service call /mavros/mission/set_current mavros_msgs/srv/WaypointSetCurrent "{wp_seq: 1}" # Advance waypoint
-
-            // uint64_t current_time_us = this->get_clock()->now().nanoseconds() / 1000;  // Convert to microseconds
             // if (aircraft_fsm_state_ == ArdupilotInterfaceState::STARTED) {
-            //     do_takeoff(takeoff_altitude, vtol_transition_heading);
-            //     aircraft_fsm_state_ = ArdupilotInterfaceState::MC_TAKEOFF;
-            //     feedback->message = "Taking off in MC mode";
-            //     goal_handle->publish_feedback(feedback);
-            // } else if (aircraft_fsm_state_ == ArdupilotInterfaceState::MC_TAKEOFF) {
-            //     if (vehicle_type_ == px4_msgs::msg::VehicleStatus::VEHICLE_TYPE_FIXED_WING) {
-            //         aircraft_fsm_state_ = ArdupilotInterfaceState::VTOL_TAKEOFF_TRANSITION;
-            //         time_of_vtol_transition_us_ = current_time_us;
-            //         feedback->message = "Transitioned to FW";
-            //         goal_handle->publish_feedback(feedback);
-            //     }
-            // } else if (aircraft_fsm_state_ == ArdupilotInterfaceState::VTOL_TAKEOFF_TRANSITION && 
-            //     (current_time_us > (time_of_vtol_transition_us_ + 10.0 * 1000000))) { // HARDCODED: wait 10 seconds after transition
-            //     auto [des_lat, des_lon] = lat_lon_from_cartesian(home_lat_, home_lon_, vtol_loiter_east, vtol_loiter_nord);
-            //     do_orbit(des_lat, des_lon, vtol_loiter_alt, 200.0, NAN); // HARDCODED: 200m loiter radius
-            //     aircraft_fsm_state_ = ArdupilotInterfaceState::FW_CRUISE;
-            //     taking_off = false;
-            //     feedback->message = "Takeoff loiter sent";
-            //     goal_handle->publish_feedback(feedback);
+            //     auto arm_request = std::make_shared<mavros_msgs::srv::CommandBool::Request>();
+            //     arm_request->value = true;
+            //     arming_client_->async_send_request(arm_request,
+            //         [this](rclcpp::Client<mavros_msgs::srv::CommandBool>::SharedFuture future) {
+            //             if (future.get()->success) {
+            //                 std::unique_lock<std::shared_mutex> lock(node_data_mutex_);
+            //                 aircraft_fsm_state_ = ArdupilotInterfaceState::ARMED;
+            //             }
+            //         });
+            // } else if (aircraft_fsm_state_ == ArdupilotInterfaceState::ARMED) {
+            //     auto takeoff_request = std::make_shared<mavros_msgs::srv::CommandTOL::Request>();
+            //     takeoff_request->altitude = takeoff_altitude;
+            //     takeoff_client_->async_send_request(takeoff_request,
+            //         [this](rclcpp::Client<mavros_msgs::srv::CommandTOL>::SharedFuture future) {
+            //             if (future.get()->success) {
+            //                 std::unique_lock<std::shared_mutex> lock(node_data_mutex_);
+            //                 aircraft_fsm_state_ = ArdupilotInterfaceState::TBD;
+            //             }
+            //         });
+            // } else if (aircraft_fsm_state_ == ArdupilotInterfaceState::TBD) {
+            //     // ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'CRUISE'}"
             // }
+            // } else if (aircraft_fsm_state_ == ArdupilotInterfaceState::TBD) {
+            //     // ros2 service call /mavros/mission/push mavros_msgs/srv/WaypointPush "{start_index: 0, waypoints: [ \
+            //     //     {frame: 3, command: 16, is_current: true, autocontinue: true, x_lat: 0.0, y_long: 0.0, z_alt: 0.0}, \
+            //     //     {frame: 3, command: 16, is_current: false, autocontinue: true, x_lat: 45.5470, y_long: 8.940, z_alt: 250.0}, \
+            //     //     {frame: 3, command: 17, is_current: false, autocontinue: true, param3: 300.0, x_lat: 45.5479, y_long: 8.949, z_alt: 250.0} \
+            //     //     ]}"
+            // } else if (aircraft_fsm_state_ == ArdupilotInterfaceState::TBD) {
+            //     // ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'AUTO'}"
+            // } else if (aircraft_fsm_state_ == ArdupilotInterfaceState::TBD) {
+            //     // ros2 service call /mavros/cmd/command mavros_msgs/srv/CommandLong "{command: 300}"
+            // } else if (aircraft_fsm_state_ == ArdupilotInterfaceState::TBD) {
+            //     // ros2 service call /mavros/mission/set_current mavros_msgs/srv/WaypointSetCurrent "{wp_seq: 1}"
+            // } else if (aircraft_fsm_state_ == ArdupilotInterfaceState::TBD) {
+            //     taking_off = false;
+            // }
+
         }
     }
     result->success = true;
