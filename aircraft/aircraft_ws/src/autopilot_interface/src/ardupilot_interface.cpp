@@ -34,8 +34,8 @@ ArdupilotInterface::ArdupilotInterface() : Node("ardupilot_interface"),
     // Create callback groups (Reentrant or MutuallyExclusive)
     callback_group_timer_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant); // Timed callbacks in parallel
     callback_group_subscriber_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant); // Listen to subscribers in parallel
-    // callback_group_service_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant); // Services are parallel but refused if active_srv_or_act_flag_ is true
-    // callback_group_action_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant); // Actions are parallel but refused if active_srv_or_act_flag_ is true
+    callback_group_service_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant); // Services are parallel but refused if active_srv_or_act_flag_ is true
+    callback_group_action_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant); // Actions are parallel but refused if active_srv_or_act_flag_ is true
 
     // Timers
     ardupilot_interface_printout_timer_ = this->create_wall_timer(
@@ -80,35 +80,35 @@ ArdupilotInterface::ArdupilotInterface() : Node("ardupilot_interface"),
     vehicle_info_client_ = this->create_client<VehicleInfoGet>("/mavros/vehicle_info_get");
     // TODO
 
-    // // Services
-    // set_speed_service_ = this->create_service<autopilot_interface_msgs::srv::SetSpeed>(
-    //     "set_speed", std::bind(&ArdupilotInterface::set_speed_callback, this, std::placeholders::_1, std::placeholders::_2),
-    //     rmw_qos_profile_services_default, callback_group_service_);
-    // set_reposition_service_ = this->create_service<autopilot_interface_msgs::srv::SetReposition>(
-    //     "set_reposition", std::bind(&ArdupilotInterface::set_reposition_callback, this, std::placeholders::_1, std::placeholders::_2),
-    //     rmw_qos_profile_services_default, callback_group_service_);
+    // Services
+    set_speed_service_ = this->create_service<autopilot_interface_msgs::srv::SetSpeed>(
+        "set_speed", std::bind(&ArdupilotInterface::set_speed_callback, this, std::placeholders::_1, std::placeholders::_2),
+        rmw_qos_profile_services_default, callback_group_service_);
+    set_reposition_service_ = this->create_service<autopilot_interface_msgs::srv::SetReposition>(
+        "set_reposition", std::bind(&ArdupilotInterface::set_reposition_callback, this, std::placeholders::_1, std::placeholders::_2),
+        rmw_qos_profile_services_default, callback_group_service_);
 
-    // // Actions
-    // land_action_server_ = rclcpp_action::create_server<autopilot_interface_msgs::action::Land>(this, "land_action",
-    //         std::bind(&ArdupilotInterface::land_handle_goal, this, std::placeholders::_1, std::placeholders::_2),
-    //         std::bind(&ArdupilotInterface::land_handle_cancel, this, std::placeholders::_1),
-    //         std::bind(&ArdupilotInterface::land_handle_accepted, this, std::placeholders::_1),
-    //         rcl_action_server_get_default_options(), callback_group_action_);
-    // takeoff_action_server_ = rclcpp_action::create_server<autopilot_interface_msgs::action::Takeoff>(this, "takeoff_action",
-    //         std::bind(&ArdupilotInterface::takeoff_handle_goal, this, std::placeholders::_1, std::placeholders::_2),
-    //         std::bind(&ArdupilotInterface::takeoff_handle_cancel, this, std::placeholders::_1),
-    //         std::bind(&ArdupilotInterface::takeoff_handle_accepted, this, std::placeholders::_1),
-    //         rcl_action_server_get_default_options(), callback_group_action_);
-    // orbit_action_server_ = rclcpp_action::create_server<autopilot_interface_msgs::action::Orbit>(this, "orbit_action",
-    //         std::bind(&ArdupilotInterface::orbit_handle_goal, this, std::placeholders::_1, std::placeholders::_2),
-    //         std::bind(&ArdupilotInterface::orbit_handle_cancel, this, std::placeholders::_1),
-    //         std::bind(&ArdupilotInterface::orbit_handle_accepted, this, std::placeholders::_1),
-    //         rcl_action_server_get_default_options(), callback_group_action_);
-    // offboard_action_server_ = rclcpp_action::create_server<autopilot_interface_msgs::action::Offboard>(this, "offboard_action",
-    //         std::bind(&ArdupilotInterface::offboard_handle_goal, this, std::placeholders::_1, std::placeholders::_2),
-    //         std::bind(&ArdupilotInterface::offboard_handle_cancel, this, std::placeholders::_1),
-    //         std::bind(&ArdupilotInterface::offboard_handle_accepted, this, std::placeholders::_1),
-    //         rcl_action_server_get_default_options(), callback_group_action_);
+    // Actions
+    land_action_server_ = rclcpp_action::create_server<autopilot_interface_msgs::action::Land>(this, "land_action",
+            std::bind(&ArdupilotInterface::land_handle_goal, this, std::placeholders::_1, std::placeholders::_2),
+            std::bind(&ArdupilotInterface::land_handle_cancel, this, std::placeholders::_1),
+            std::bind(&ArdupilotInterface::land_handle_accepted, this, std::placeholders::_1),
+            rcl_action_server_get_default_options(), callback_group_action_);
+    takeoff_action_server_ = rclcpp_action::create_server<autopilot_interface_msgs::action::Takeoff>(this, "takeoff_action",
+            std::bind(&ArdupilotInterface::takeoff_handle_goal, this, std::placeholders::_1, std::placeholders::_2),
+            std::bind(&ArdupilotInterface::takeoff_handle_cancel, this, std::placeholders::_1),
+            std::bind(&ArdupilotInterface::takeoff_handle_accepted, this, std::placeholders::_1),
+            rcl_action_server_get_default_options(), callback_group_action_);
+    orbit_action_server_ = rclcpp_action::create_server<autopilot_interface_msgs::action::Orbit>(this, "orbit_action",
+            std::bind(&ArdupilotInterface::orbit_handle_goal, this, std::placeholders::_1, std::placeholders::_2),
+            std::bind(&ArdupilotInterface::orbit_handle_cancel, this, std::placeholders::_1),
+            std::bind(&ArdupilotInterface::orbit_handle_accepted, this, std::placeholders::_1),
+            rcl_action_server_get_default_options(), callback_group_action_);
+    offboard_action_server_ = rclcpp_action::create_server<autopilot_interface_msgs::action::Offboard>(this, "offboard_action",
+            std::bind(&ArdupilotInterface::offboard_handle_goal, this, std::placeholders::_1, std::placeholders::_2),
+            std::bind(&ArdupilotInterface::offboard_handle_cancel, this, std::placeholders::_1),
+            std::bind(&ArdupilotInterface::offboard_handle_accepted, this, std::placeholders::_1),
+            rcl_action_server_get_default_options(), callback_group_action_);
 
 }
 
@@ -313,450 +313,450 @@ void ArdupilotInterface::offboard_control_loop_callback()
     // }
 }
 
-// // Callbacks for non-blocking services (reentrant callback group, active_srv_or_act_flag_ acting as semaphore)
-// void ArdupilotInterface::set_speed_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetSpeed::Request> request,
-//                         std::shared_ptr<autopilot_interface_msgs::srv::SetSpeed::Response> response)
-// {    
-//     if ((!is_vtol_ && aircraft_fsm_state_ != ArdupilotInterfaceState::MC_HOVER) || (is_vtol_ && aircraft_fsm_state_ != ArdupilotInterfaceState::FW_CRUISE)) {
-//         RCLCPP_ERROR(this->get_logger(), "Set speed rejected, ArdupilotInterface is not in hover/cruise state");
-//         response->success = false;
-//         return;
-//     }
-//     if (active_srv_or_act_flag_.exchange(true)) { 
-//         RCLCPP_ERROR(this->get_logger(), "Another service/action is active");
-//         response->success = false;
-//         return;
-//     }
-//     if (!is_vtol_) {
-//         RCLCPP_WARN(this->get_logger(), "For quads, the change of speed will affect the next (e.g. /set_reposition) service/action");
-//     }
-//     RCLCPP_INFO(this->get_logger(), "New requested speed is: %.2f", request->speed);
-//     do_change_speed(request->speed);
-//     response->success = true;
-//     active_srv_or_act_flag_.store(false);
-// }
-// void ArdupilotInterface::set_reposition_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetReposition::Request> request,
-//                         std::shared_ptr<autopilot_interface_msgs::srv::SetReposition::Response> response)
-// {
-//     if ((is_vtol_) || (!is_vtol_ && !(aircraft_fsm_state_ == ArdupilotInterfaceState::MC_HOVER || aircraft_fsm_state_ == ArdupilotInterfaceState::MC_ORBIT))) {
-//         RCLCPP_ERROR(this->get_logger(), "Set reposition rejected, ArdupilotInterface is not in a quad hover/orbit state (for VTOLs, use /orbit_action)");
-//         response->success = false;
-//         return;
-//     }
-//     if (active_srv_or_act_flag_.exchange(true)) { 
-//         RCLCPP_ERROR(this->get_logger(), "Another service/action is active");
-//         response->success = false;
-//         return;
-//     }
-//     std::shared_lock<std::shared_mutex> lock(node_data_mutex_); // Use shared_lock for data reads
-//     if (aircraft_fsm_state_ == ArdupilotInterfaceState::MC_ORBIT) {
-//         do_set_mode(4, 3); // If in an Orbit mode, switch to Hold mode
-//         aircraft_fsm_state_ = ArdupilotInterfaceState::MC_HOVER;
-//     }
-//     double desired_east = request->east;
-//     double desired_north = request->north;
-//     double desired_alt = request->altitude;
-//     RCLCPP_INFO(this->get_logger(), "New requested reposition East-North %.2f %.2f Alt. %.2f", desired_east, desired_north, desired_alt);
-//     auto [des_lat, des_lon] = lat_lon_from_cartesian(home_lat_, home_lon_, desired_east, desired_north);
-//     double distance, heading;
-//     geod.Inverse(lat_, lon_, des_lat, des_lon, distance, heading);
-//     do_reposition(des_lat, des_lon, desired_alt, fmod(heading + 360.0, 360.0) / 180.0 * M_PI);
-//     response->success = true;
-//     active_srv_or_act_flag_.store(false);
-// }
+// Callbacks for non-blocking services (reentrant callback group, active_srv_or_act_flag_ acting as semaphore)
+void ArdupilotInterface::set_speed_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetSpeed::Request> request,
+                        std::shared_ptr<autopilot_interface_msgs::srv::SetSpeed::Response> response)
+{    
+    // if ((!is_vtol_ && aircraft_fsm_state_ != ArdupilotInterfaceState::MC_HOVER) || (is_vtol_ && aircraft_fsm_state_ != ArdupilotInterfaceState::FW_CRUISE)) {
+    //     RCLCPP_ERROR(this->get_logger(), "Set speed rejected, ArdupilotInterface is not in hover/cruise state");
+    //     response->success = false;
+    //     return;
+    // }
+    if (active_srv_or_act_flag_.exchange(true)) { 
+        RCLCPP_ERROR(this->get_logger(), "Another service/action is active");
+        response->success = false;
+        return;
+    }
+    // if (!is_vtol_) {
+    //     RCLCPP_WARN(this->get_logger(), "For quads, the change of speed will affect the next (e.g. /set_reposition) service/action");
+    // }
+    RCLCPP_INFO(this->get_logger(), "New requested speed is: %.2f", request->speed);
+    // do_change_speed(request->speed);
+    response->success = true;
+    active_srv_or_act_flag_.store(false);
+}
+void ArdupilotInterface::set_reposition_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetReposition::Request> request,
+                        std::shared_ptr<autopilot_interface_msgs::srv::SetReposition::Response> response)
+{
+    // if ((is_vtol_) || (!is_vtol_ && !(aircraft_fsm_state_ == ArdupilotInterfaceState::MC_HOVER || aircraft_fsm_state_ == ArdupilotInterfaceState::MC_ORBIT))) {
+    //     RCLCPP_ERROR(this->get_logger(), "Set reposition rejected, ArdupilotInterface is not in a quad hover/orbit state (for VTOLs, use /orbit_action)");
+    //     response->success = false;
+    //     return;
+    // }
+    if (active_srv_or_act_flag_.exchange(true)) { 
+        RCLCPP_ERROR(this->get_logger(), "Another service/action is active");
+        response->success = false;
+        return;
+    }
+    std::shared_lock<std::shared_mutex> lock(node_data_mutex_); // Use shared_lock for data reads
+    // if (aircraft_fsm_state_ == ArdupilotInterfaceState::MC_ORBIT) {
+    //     do_set_mode(4, 3); // If in an Orbit mode, switch to Hold mode
+    //     aircraft_fsm_state_ = ArdupilotInterfaceState::MC_HOVER;
+    // }
+    double desired_east = request->east;
+    double desired_north = request->north;
+    double desired_alt = request->altitude;
+    RCLCPP_INFO(this->get_logger(), "New requested reposition East-North %.2f %.2f Alt. %.2f", desired_east, desired_north, desired_alt);
+    auto [des_lat, des_lon] = lat_lon_from_cartesian(home_lat_, home_lon_, desired_east, desired_north);
+    double distance, heading;
+    geod.Inverse(lat_, lon_, des_lat, des_lon, distance, heading);
+    // do_reposition(des_lat, des_lon, desired_alt, fmod(heading + 360.0, 360.0) / 180.0 * M_PI);
+    response->success = true;
+    active_srv_or_act_flag_.store(false);
+}
 
-// // Callbacks for actions (reentrant callback group, to be able to handle_goal and handle_cancel at the same time)
-// rclcpp_action::GoalResponse ArdupilotInterface::land_handle_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const autopilot_interface_msgs::action::Land::Goal> goal)
-// {
-//     RCLCPP_INFO(this->get_logger(), "land_handle_goal");
-//     if ((!is_vtol_ && !(aircraft_fsm_state_ == ArdupilotInterfaceState::MC_HOVER || aircraft_fsm_state_ == ArdupilotInterfaceState::MC_ORBIT)) || (is_vtol_ && aircraft_fsm_state_ != ArdupilotInterfaceState::FW_CRUISE)) {
-//         RCLCPP_ERROR(this->get_logger(), "Landing rejected, ArdupilotInterface is not in hover/orbit/cruise state");
-//         return rclcpp_action::GoalResponse::REJECT;
-//     }
-//     if (active_srv_or_act_flag_.exchange(true)) { 
-//         RCLCPP_ERROR(this->get_logger(), "Another service/action is active");
-//         return rclcpp_action::GoalResponse::REJECT;
-//     }
-//     return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
-// }
-// rclcpp_action::CancelResponse ArdupilotInterface::land_handle_cancel(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Land>> goal_handle)
-// {
-//     RCLCPP_INFO(this->get_logger(), "land_handle_cancel");
-//     return rclcpp_action::CancelResponse::ACCEPT;
-// }
-// void ArdupilotInterface::land_handle_accepted(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Land>> goal_handle)
-// {
-//     RCLCPP_INFO(this->get_logger(), "land_handle_accepted");
-//     const auto goal = goal_handle->get_goal();
-//     auto result = std::make_shared<autopilot_interface_msgs::action::Land::Result>();
-//     auto feedback = std::make_shared<autopilot_interface_msgs::action::Land::Feedback>();
+// Callbacks for actions (reentrant callback group, to be able to handle_goal and handle_cancel at the same time)
+rclcpp_action::GoalResponse ArdupilotInterface::land_handle_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const autopilot_interface_msgs::action::Land::Goal> goal)
+{
+    RCLCPP_INFO(this->get_logger(), "land_handle_goal");
+    // if ((!is_vtol_ && !(aircraft_fsm_state_ == ArdupilotInterfaceState::MC_HOVER || aircraft_fsm_state_ == ArdupilotInterfaceState::MC_ORBIT)) || (is_vtol_ && aircraft_fsm_state_ != ArdupilotInterfaceState::FW_CRUISE)) {
+    //     RCLCPP_ERROR(this->get_logger(), "Landing rejected, ArdupilotInterface is not in hover/orbit/cruise state");
+    //     return rclcpp_action::GoalResponse::REJECT;
+    // }
+    if (active_srv_or_act_flag_.exchange(true)) { 
+        RCLCPP_ERROR(this->get_logger(), "Another service/action is active");
+        return rclcpp_action::GoalResponse::REJECT;
+    }
+    return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
+}
+rclcpp_action::CancelResponse ArdupilotInterface::land_handle_cancel(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Land>> goal_handle)
+{
+    RCLCPP_INFO(this->get_logger(), "land_handle_cancel");
+    return rclcpp_action::CancelResponse::ACCEPT;
+}
+void ArdupilotInterface::land_handle_accepted(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Land>> goal_handle)
+{
+    RCLCPP_INFO(this->get_logger(), "land_handle_accepted");
+    const auto goal = goal_handle->get_goal();
+    auto result = std::make_shared<autopilot_interface_msgs::action::Land::Result>();
+    auto feedback = std::make_shared<autopilot_interface_msgs::action::Land::Feedback>();
 
-//     double landing_altitude = goal->landing_altitude;
-//     double vtol_transition_heading = goal->vtol_transition_heading;
+    double landing_altitude = goal->landing_altitude;
+    double vtol_transition_heading = goal->vtol_transition_heading;
 
-//     bool landing = true;
-//     rclcpp::Rate landing_loop_rate(100);
-//     while (landing) {
-//         landing_loop_rate.sleep();
-//         std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Reading data written by subs but also writing the FSM state
+    bool landing = true;
+    rclcpp::Rate landing_loop_rate(100);
+    while (landing) {
+        landing_loop_rate.sleep();
+        std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Reading data written by subs but also writing the FSM state
 
-//         if (goal_handle->is_canceling()) { // Check if there is a cancel request
-//             abort_action(); // Sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to MC_HOVER or FW_CRUISE
-//             feedback->message = "Canceling landing";
-//             goal_handle->publish_feedback(feedback);
-//             result->success = false;
-//             goal_handle->canceled(result);
-//             RCLCPP_WARN(this->get_logger(), "Landing canceled");
-//             return;
-//         }
+        if (goal_handle->is_canceling()) { // Check if there is a cancel request
+            // abort_action(); // Sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to MC_HOVER or FW_CRUISE
+            feedback->message = "Canceling landing";
+            goal_handle->publish_feedback(feedback);
+            result->success = false;
+            goal_handle->canceled(result);
+            RCLCPP_WARN(this->get_logger(), "Landing canceled");
+            return;
+        }
 
-//         if (is_vtol_ == false) {
-//             if (aircraft_fsm_state_ == ArdupilotInterfaceState::MC_ORBIT) {
-//                 do_set_mode(4, 3); // If in an Orbit mode, switch to Hold mode
-//                 aircraft_fsm_state_ = ArdupilotInterfaceState::MC_HOVER;
-//             }
-//             if (aircraft_fsm_state_ == ArdupilotInterfaceState::MC_HOVER) {
-//                 double distance, heading;
-//                 geod.Inverse(lat_, lon_, home_lat_, home_lon_, distance, heading);
-//                 do_reposition(home_lat_, home_lon_, landing_altitude, fmod(heading + 360.0, 360.0) / 180.0 * M_PI);
-//                 aircraft_fsm_state_ = ArdupilotInterfaceState::RTL;
-//                 feedback->message = "Returning home in MC mode";
-//                 goal_handle->publish_feedback(feedback);
-//             } else if (aircraft_fsm_state_ == ArdupilotInterfaceState::RTL) {
-//                 double distance_from_home_in_meters;
-//                 geod.Inverse(lat_, lon_, home_lat_, home_lon_, distance_from_home_in_meters);
-//                 if (distance_from_home_in_meters < 3.0) { // HARDCODED: distance from home for landing
-//                     do_land();
-//                     aircraft_fsm_state_ = ArdupilotInterfaceState::MC_LANDING;
-//                     landing = false;
-//                     feedback->message = "Final MC mode descent";
-//                     goal_handle->publish_feedback(feedback);
-//                 }
-//             }  
-//         } else if (is_vtol_ == true) {
-//             double loiter_alt_low = 65.0; // HARDCODED
-//             double pre_landing_loiter_radius = 150.0; // HARDCODED
-//             double pre_landing_loiter_distance = 300.0; // HARDCODED
-//             double angle_correction_deg = atan(pre_landing_loiter_radius/pre_landing_loiter_distance) * 180.0 / M_PI;
-//             if (aircraft_fsm_state_ == ArdupilotInterfaceState::FW_CRUISE) {
-//                 double loiter_alt_hi = 150.0; // HARDCODED
-//                 auto [des_lat, des_lon] = lat_lon_from_polar(home_lat_, home_lon_, pre_landing_loiter_distance, vtol_transition_heading + 180.0 - angle_correction_deg);
-//                 do_orbit(des_lat, des_lon, loiter_alt_hi, pre_landing_loiter_radius, NAN);
-//                 aircraft_fsm_state_ = ArdupilotInterfaceState::FW_LANDING_LOITER;
-//                 feedback->message = "Going to landing loiter";
-//                 goal_handle->publish_feedback(feedback);
-//             } else if (aircraft_fsm_state_ == ArdupilotInterfaceState::FW_LANDING_LOITER) {
-//                 auto [des_lat, des_lon] = lat_lon_from_polar(home_lat_, home_lon_, pre_landing_loiter_distance, vtol_transition_heading + 180.0 - angle_correction_deg);
-//                 double distance_from_loiter_in_meters;
-//                 geod.Inverse(lat_, lon_, des_lat, des_lon, distance_from_loiter_in_meters);
-//                 if (distance_from_loiter_in_meters < (pre_landing_loiter_radius + 50.0) && distance_from_loiter_in_meters > (pre_landing_loiter_radius - 50.0)) { // HARDCODED: 100m wide ring
-//                     do_orbit(des_lat, des_lon, loiter_alt_low, pre_landing_loiter_radius, NAN);
-//                     aircraft_fsm_state_ = ArdupilotInterfaceState::FW_LANDING_DESCENT;
-//                     feedback->message = "Starting the descent loiter";
-//                     goal_handle->publish_feedback(feedback);
-//                 }
-//             } else if (aircraft_fsm_state_ == ArdupilotInterfaceState::FW_LANDING_DESCENT) {
-//                 auto [exit_lat, exit_lon] = lat_lon_from_polar(home_lat_, home_lon_, pre_landing_loiter_distance, vtol_transition_heading + 180.0);
-//                 double distance_from_exit_in_meters;
-//                 geod.Inverse(lat_, lon_, exit_lat, exit_lon, distance_from_exit_in_meters);
-//                 if (distance_from_exit_in_meters < 30.0 && std::abs(alt_ - (home_alt_ + loiter_alt_low)) < 10.0) { // HARDCODED: thresholds of 30m xy and 10m z, exit from the loiter tangentially if altitude requirement met
-//                     auto [des_lat, des_lon] = lat_lon_from_polar(home_lat_, home_lon_, 600.0, vtol_transition_heading); // HARDCODED: reposition 600m behind home, must be greater than NAV_LOITER_RAD (e.g. 500m)
-//                     do_reposition(des_lat, des_lon, landing_altitude, NAN); // NOTE: this is only to give the VTOL a waypoint on the other side of the landing area
-//                     aircraft_fsm_state_ = ArdupilotInterfaceState::FW_LANDING_APPROACH;
-//                     feedback->message = "Exiting the landing loiter";
-//                     goal_handle->publish_feedback(feedback);
-//                 }
-//             } else if (aircraft_fsm_state_ == ArdupilotInterfaceState::FW_LANDING_APPROACH) {
-//                 double distance_from_home_in_meters;
-//                 geod.Inverse(lat_, lon_, home_lat_, home_lon_, distance_from_home_in_meters);
-//                 double landing_transition_distance = 120.0; // HARDCODED: distance from home to start the transition, affected by the platforms's cruise speed, mass, wind
-//                 if (distance_from_home_in_meters < landing_transition_distance) {
-//                     do_vtol_transition(3.0); // 3 is MAV_VTOL_STATE_MC
-//                     aircraft_fsm_state_ = ArdupilotInterfaceState::VTOL_LANDING_TRANSITION;
-//                     feedback->message = "Transitioning to MC mode";
-//                     goal_handle->publish_feedback(feedback);
-//                 }
-//             } else if (aircraft_fsm_state_ == ArdupilotInterfaceState::VTOL_LANDING_TRANSITION && !in_transition_mode_ && vehicle_type_ == px4_msgs::msg::VehicleStatus::VEHICLE_TYPE_ROTARY_WING) {
-//                 do_reposition(home_lat_, home_lon_, landing_altitude, NAN); // NOTE: the VTOL is in quad mode
-//                 aircraft_fsm_state_ = ArdupilotInterfaceState::RTL;
-//                 feedback->message = "Repositioning in MC mode";
-//                 goal_handle->publish_feedback(feedback);
-//             } else if (aircraft_fsm_state_ == ArdupilotInterfaceState::RTL) {
-//                 double distance_from_home_in_meters;
-//                 geod.Inverse(lat_, lon_, home_lat_, home_lon_, distance_from_home_in_meters);
-//                 if (distance_from_home_in_meters < 3.0) { // HARDCODED: distance from home for landing
-//                     do_land();
-//                     aircraft_fsm_state_ = ArdupilotInterfaceState::MC_LANDING;
-//                     landing = false;
-//                     feedback->message = "Final MC mode descent";
-//                     goal_handle->publish_feedback(feedback);
-//                 }
-//             }
-//         }
-//     }
-//     result->success = true;
-//     goal_handle->succeed(result);
-//     active_srv_or_act_flag_.store(false);
-//     return;
-// }
-// //
-// rclcpp_action::GoalResponse ArdupilotInterface::offboard_handle_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const autopilot_interface_msgs::action::Offboard::Goal> goal)
-// {
-//     RCLCPP_INFO(this->get_logger(), "offboard_handle_goal");
-//     if ((!is_vtol_ && aircraft_fsm_state_ != ArdupilotInterfaceState::MC_HOVER) || (is_vtol_ && aircraft_fsm_state_ != ArdupilotInterfaceState::FW_CRUISE)) {
-//         RCLCPP_ERROR(this->get_logger(), "Offboard rejected, ArdupilotInterface is not in hover/cruise state");
-//         return rclcpp_action::GoalResponse::REJECT;
-//     }
-//     if (active_srv_or_act_flag_.exchange(true)) { 
-//         RCLCPP_ERROR(this->get_logger(), "Another service/action is active");
-//         return rclcpp_action::GoalResponse::REJECT;
-//     }
-//     return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
-// }
-// rclcpp_action::CancelResponse ArdupilotInterface::offboard_handle_cancel(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Offboard>> goal_handle)
-// {
-//     RCLCPP_INFO(this->get_logger(), "offboard_handle_cancel");
-//     return rclcpp_action::CancelResponse::ACCEPT;
-// }
-// void ArdupilotInterface::offboard_handle_accepted(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Offboard>> goal_handle)
-// {
-//     RCLCPP_INFO(this->get_logger(), "offboard_handle_accepted");
-//     const auto goal = goal_handle->get_goal();
-//     auto result = std::make_shared<autopilot_interface_msgs::action::Offboard::Result>();
-//     auto feedback = std::make_shared<autopilot_interface_msgs::action::Offboard::Feedback>();
+        // if (is_vtol_ == false) {
+        //     if (aircraft_fsm_state_ == ArdupilotInterfaceState::MC_ORBIT) {
+        //         do_set_mode(4, 3); // If in an Orbit mode, switch to Hold mode
+        //         aircraft_fsm_state_ = ArdupilotInterfaceState::MC_HOVER;
+        //     }
+        //     if (aircraft_fsm_state_ == ArdupilotInterfaceState::MC_HOVER) {
+        //         double distance, heading;
+        //         geod.Inverse(lat_, lon_, home_lat_, home_lon_, distance, heading);
+        //         do_reposition(home_lat_, home_lon_, landing_altitude, fmod(heading + 360.0, 360.0) / 180.0 * M_PI);
+        //         aircraft_fsm_state_ = ArdupilotInterfaceState::RTL;
+        //         feedback->message = "Returning home in MC mode";
+        //         goal_handle->publish_feedback(feedback);
+        //     } else if (aircraft_fsm_state_ == ArdupilotInterfaceState::RTL) {
+        //         double distance_from_home_in_meters;
+        //         geod.Inverse(lat_, lon_, home_lat_, home_lon_, distance_from_home_in_meters);
+        //         if (distance_from_home_in_meters < 3.0) { // HARDCODED: distance from home for landing
+        //             do_land();
+        //             aircraft_fsm_state_ = ArdupilotInterfaceState::MC_LANDING;
+        //             landing = false;
+        //             feedback->message = "Final MC mode descent";
+        //             goal_handle->publish_feedback(feedback);
+        //         }
+        //     }  
+        // } else if (is_vtol_ == true) {
+        //     double loiter_alt_low = 65.0; // HARDCODED
+        //     double pre_landing_loiter_radius = 150.0; // HARDCODED
+        //     double pre_landing_loiter_distance = 300.0; // HARDCODED
+        //     double angle_correction_deg = atan(pre_landing_loiter_radius/pre_landing_loiter_distance) * 180.0 / M_PI;
+        //     if (aircraft_fsm_state_ == ArdupilotInterfaceState::FW_CRUISE) {
+        //         double loiter_alt_hi = 150.0; // HARDCODED
+        //         auto [des_lat, des_lon] = lat_lon_from_polar(home_lat_, home_lon_, pre_landing_loiter_distance, vtol_transition_heading + 180.0 - angle_correction_deg);
+        //         do_orbit(des_lat, des_lon, loiter_alt_hi, pre_landing_loiter_radius, NAN);
+        //         aircraft_fsm_state_ = ArdupilotInterfaceState::FW_LANDING_LOITER;
+        //         feedback->message = "Going to landing loiter";
+        //         goal_handle->publish_feedback(feedback);
+        //     } else if (aircraft_fsm_state_ == ArdupilotInterfaceState::FW_LANDING_LOITER) {
+        //         auto [des_lat, des_lon] = lat_lon_from_polar(home_lat_, home_lon_, pre_landing_loiter_distance, vtol_transition_heading + 180.0 - angle_correction_deg);
+        //         double distance_from_loiter_in_meters;
+        //         geod.Inverse(lat_, lon_, des_lat, des_lon, distance_from_loiter_in_meters);
+        //         if (distance_from_loiter_in_meters < (pre_landing_loiter_radius + 50.0) && distance_from_loiter_in_meters > (pre_landing_loiter_radius - 50.0)) { // HARDCODED: 100m wide ring
+        //             do_orbit(des_lat, des_lon, loiter_alt_low, pre_landing_loiter_radius, NAN);
+        //             aircraft_fsm_state_ = ArdupilotInterfaceState::FW_LANDING_DESCENT;
+        //             feedback->message = "Starting the descent loiter";
+        //             goal_handle->publish_feedback(feedback);
+        //         }
+        //     } else if (aircraft_fsm_state_ == ArdupilotInterfaceState::FW_LANDING_DESCENT) {
+        //         auto [exit_lat, exit_lon] = lat_lon_from_polar(home_lat_, home_lon_, pre_landing_loiter_distance, vtol_transition_heading + 180.0);
+        //         double distance_from_exit_in_meters;
+        //         geod.Inverse(lat_, lon_, exit_lat, exit_lon, distance_from_exit_in_meters);
+        //         if (distance_from_exit_in_meters < 30.0 && std::abs(alt_ - (home_alt_ + loiter_alt_low)) < 10.0) { // HARDCODED: thresholds of 30m xy and 10m z, exit from the loiter tangentially if altitude requirement met
+        //             auto [des_lat, des_lon] = lat_lon_from_polar(home_lat_, home_lon_, 600.0, vtol_transition_heading); // HARDCODED: reposition 600m behind home, must be greater than NAV_LOITER_RAD (e.g. 500m)
+        //             do_reposition(des_lat, des_lon, landing_altitude, NAN); // NOTE: this is only to give the VTOL a waypoint on the other side of the landing area
+        //             aircraft_fsm_state_ = ArdupilotInterfaceState::FW_LANDING_APPROACH;
+        //             feedback->message = "Exiting the landing loiter";
+        //             goal_handle->publish_feedback(feedback);
+        //         }
+        //     } else if (aircraft_fsm_state_ == ArdupilotInterfaceState::FW_LANDING_APPROACH) {
+        //         double distance_from_home_in_meters;
+        //         geod.Inverse(lat_, lon_, home_lat_, home_lon_, distance_from_home_in_meters);
+        //         double landing_transition_distance = 120.0; // HARDCODED: distance from home to start the transition, affected by the platforms's cruise speed, mass, wind
+        //         if (distance_from_home_in_meters < landing_transition_distance) {
+        //             do_vtol_transition(3.0); // 3 is MAV_VTOL_STATE_MC
+        //             aircraft_fsm_state_ = ArdupilotInterfaceState::VTOL_LANDING_TRANSITION;
+        //             feedback->message = "Transitioning to MC mode";
+        //             goal_handle->publish_feedback(feedback);
+        //         }
+        //     } else if (aircraft_fsm_state_ == ArdupilotInterfaceState::VTOL_LANDING_TRANSITION && !in_transition_mode_ && vehicle_type_ == px4_msgs::msg::VehicleStatus::VEHICLE_TYPE_ROTARY_WING) {
+        //         do_reposition(home_lat_, home_lon_, landing_altitude, NAN); // NOTE: the VTOL is in quad mode
+        //         aircraft_fsm_state_ = ArdupilotInterfaceState::RTL;
+        //         feedback->message = "Repositioning in MC mode";
+        //         goal_handle->publish_feedback(feedback);
+        //     } else if (aircraft_fsm_state_ == ArdupilotInterfaceState::RTL) {
+        //         double distance_from_home_in_meters;
+        //         geod.Inverse(lat_, lon_, home_lat_, home_lon_, distance_from_home_in_meters);
+        //         if (distance_from_home_in_meters < 3.0) { // HARDCODED: distance from home for landing
+        //             do_land();
+        //             aircraft_fsm_state_ = ArdupilotInterfaceState::MC_LANDING;
+        //             landing = false;
+        //             feedback->message = "Final MC mode descent";
+        //             goal_handle->publish_feedback(feedback);
+        //         }
+        //     }
+        // }
+    }
+    result->success = true;
+    goal_handle->succeed(result);
+    active_srv_or_act_flag_.store(false);
+    return;
+}
+//
+rclcpp_action::GoalResponse ArdupilotInterface::offboard_handle_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const autopilot_interface_msgs::action::Offboard::Goal> goal)
+{
+    RCLCPP_INFO(this->get_logger(), "offboard_handle_goal");
+    // if ((!is_vtol_ && aircraft_fsm_state_ != ArdupilotInterfaceState::MC_HOVER) || (is_vtol_ && aircraft_fsm_state_ != ArdupilotInterfaceState::FW_CRUISE)) {
+    //     RCLCPP_ERROR(this->get_logger(), "Offboard rejected, ArdupilotInterface is not in hover/cruise state");
+    //     return rclcpp_action::GoalResponse::REJECT;
+    // }
+    if (active_srv_or_act_flag_.exchange(true)) { 
+        RCLCPP_ERROR(this->get_logger(), "Another service/action is active");
+        return rclcpp_action::GoalResponse::REJECT;
+    }
+    return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
+}
+rclcpp_action::CancelResponse ArdupilotInterface::offboard_handle_cancel(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Offboard>> goal_handle)
+{
+    RCLCPP_INFO(this->get_logger(), "offboard_handle_cancel");
+    return rclcpp_action::CancelResponse::ACCEPT;
+}
+void ArdupilotInterface::offboard_handle_accepted(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Offboard>> goal_handle)
+{
+    RCLCPP_INFO(this->get_logger(), "offboard_handle_accepted");
+    const auto goal = goal_handle->get_goal();
+    auto result = std::make_shared<autopilot_interface_msgs::action::Offboard::Result>();
+    auto feedback = std::make_shared<autopilot_interface_msgs::action::Offboard::Feedback>();
 
-//     int offboard_setpoint_type = goal->offboard_setpoint_type;
-//     double max_duration_sec = goal->max_duration_sec;
+    int offboard_setpoint_type = goal->offboard_setpoint_type;
+    double max_duration_sec = goal->max_duration_sec;
 
-//     offboard_loop_count_ = 0;
-//     bool offboarding = true;
-//     uint64_t time_of_offboard_start_us_ = -1;
-//     rclcpp::Rate offboard_loop_rate(100);
-//     while (offboarding) {
-//         offboard_loop_rate.sleep();
-//         std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Reading data written by subs but also writing the FSM state
+    offboard_loop_count_ = 0;
+    bool offboarding = true;
+    uint64_t time_of_offboard_start_us_ = -1;
+    rclcpp::Rate offboard_loop_rate(100);
+    while (offboarding) {
+        offboard_loop_rate.sleep();
+        std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Reading data written by subs but also writing the FSM state
 
-//         if (goal_handle->is_canceling()) { // Check if there is a cancel request
-//             abort_action(); // Sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to MC_HOVER or FW_CRUISE
-//             feedback->message = "Canceling offboard";
-//             goal_handle->publish_feedback(feedback);
-//             result->success = false;
-//             goal_handle->canceled(result);
-//             RCLCPP_WARN(this->get_logger(), "Offboard canceled");
-//             return;
-//         }
+        if (goal_handle->is_canceling()) { // Check if there is a cancel request
+            // abort_action(); // Sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to MC_HOVER or FW_CRUISE
+            feedback->message = "Canceling offboard";
+            goal_handle->publish_feedback(feedback);
+            result->success = false;
+            goal_handle->canceled(result);
+            RCLCPP_WARN(this->get_logger(), "Offboard canceled");
+            return;
+        }
 
-//         uint64_t current_time_us = this->get_clock()->now().nanoseconds() / 1000;  // Convert to microseconds
-//         if (time_of_offboard_start_us_ == -1) {
-//             if (offboard_setpoint_type == autopilot_interface_msgs::action::Offboard::Goal::ATTITUDE) {
-//                 aircraft_fsm_state_ = ArdupilotInterfaceState::OFFBOARD_ATTITUDE;
-//                 feedback->message = "Offboarding with ATTITUDE setpoints";       
-//             } 
-//             else if (offboard_setpoint_type == autopilot_interface_msgs::action::Offboard::Goal::RATES) {
-//                 aircraft_fsm_state_ = ArdupilotInterfaceState::OFFBOARD_RATES;
-//                 feedback->message = "Offboarding with RATES setpoints";
-//             }
-//             else if (offboard_setpoint_type == autopilot_interface_msgs::action::Offboard::Goal::TRAJECTORY) {
-//                 aircraft_fsm_state_ = ArdupilotInterfaceState::OFFBOARD_TRAJECTORY;
-//                 feedback->message = "Offboarding with TRAJECTORY setpoints";
-//             } 
-//             else {
-//                 result->success = false;
-//                 goal_handle->canceled(result);
-//                 RCLCPP_ERROR(this->get_logger(), "Offboard type is not supported");
-//                 return;
-//             }
-//             goal_handle->publish_feedback(feedback);
-//             time_of_offboard_start_us_ = current_time_us;
-//             feedback->message = "Starting offboard control at t=" + std::to_string(time_of_offboard_start_us_) + " us";
-//             goal_handle->publish_feedback(feedback);
-//         }
-//         if (current_time_us >= (time_of_offboard_start_us_ + max_duration_sec * 1000000)) {
-//             time_of_offboard_start_us_ = -1;
-//             offboarding = false;
-//             do_set_mode(4, 3); // Auto/Loiter (PX4_CUSTOM_MAIN_MODE 4/PX4_CUSTOM_SUB_MODE_AUTO 3)
-//             aircraft_fsm_state_ = is_vtol_ ? ArdupilotInterfaceState::FW_CRUISE : ArdupilotInterfaceState::MC_HOVER;
-//             feedback->message = "Exiting offboard control at t=" + std::to_string(current_time_us) + "us, returning to loiter/hover (Hold) state";
-//             goal_handle->publish_feedback(feedback);
-//         } else if ((current_time_us >= (time_of_offboard_start_us_ + 1 * 1000000)) && (current_time_us < (time_of_offboard_start_us_ + 2 * 1000000))) {
-//             // Send change mode for 1 sec, 1sec after the beginning of the reference stream
-//             do_set_mode(6, 0); // Offboard (PX4_CUSTOM_MAIN_MODE 6 no sub mode)
-//         }
-//     }
-//     result->success = true;
-//     goal_handle->succeed(result);
-//     active_srv_or_act_flag_.store(false);
-//     return;
-// }
-// //
-// rclcpp_action::GoalResponse ArdupilotInterface::orbit_handle_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const autopilot_interface_msgs::action::Orbit::Goal> goal)
-// {
-//     RCLCPP_INFO(this->get_logger(), "orbit_handle_goal");
-//     if ((!is_vtol_ && aircraft_fsm_state_ != ArdupilotInterfaceState::MC_HOVER) || (is_vtol_ && aircraft_fsm_state_ != ArdupilotInterfaceState::FW_CRUISE)) {
-//         RCLCPP_ERROR(this->get_logger(), "Orbit rejected, ArdupilotInterface is not in hover/cruise state");
-//         return rclcpp_action::GoalResponse::REJECT;
-//     }
-//     if (active_srv_or_act_flag_.exchange(true)) { 
-//         RCLCPP_ERROR(this->get_logger(), "Another service/action is active");
-//         return rclcpp_action::GoalResponse::REJECT;
-//     }
-//     return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
-// }
-// rclcpp_action::CancelResponse ArdupilotInterface::orbit_handle_cancel(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Orbit>> goal_handle)
-// {
-//     RCLCPP_INFO(this->get_logger(), "orbit_handle_cancel");
-//     return rclcpp_action::CancelResponse::ACCEPT;
-// }
-// void ArdupilotInterface::orbit_handle_accepted(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Orbit>> goal_handle)
-// {
-//     RCLCPP_INFO(this->get_logger(), "orbit_handle_accepted");
-//     const auto goal = goal_handle->get_goal();
-//     auto result = std::make_shared<autopilot_interface_msgs::action::Orbit::Result>();
-//     auto feedback = std::make_shared<autopilot_interface_msgs::action::Orbit::Feedback>();
+        // uint64_t current_time_us = this->get_clock()->now().nanoseconds() / 1000;  // Convert to microseconds
+        // if (time_of_offboard_start_us_ == -1) {
+        //     if (offboard_setpoint_type == autopilot_interface_msgs::action::Offboard::Goal::ATTITUDE) {
+        //         aircraft_fsm_state_ = ArdupilotInterfaceState::OFFBOARD_ATTITUDE;
+        //         feedback->message = "Offboarding with ATTITUDE setpoints";       
+        //     } 
+        //     else if (offboard_setpoint_type == autopilot_interface_msgs::action::Offboard::Goal::RATES) {
+        //         aircraft_fsm_state_ = ArdupilotInterfaceState::OFFBOARD_RATES;
+        //         feedback->message = "Offboarding with RATES setpoints";
+        //     }
+        //     else if (offboard_setpoint_type == autopilot_interface_msgs::action::Offboard::Goal::TRAJECTORY) {
+        //         aircraft_fsm_state_ = ArdupilotInterfaceState::OFFBOARD_TRAJECTORY;
+        //         feedback->message = "Offboarding with TRAJECTORY setpoints";
+        //     } 
+        //     else {
+        //         result->success = false;
+        //         goal_handle->canceled(result);
+        //         RCLCPP_ERROR(this->get_logger(), "Offboard type is not supported");
+        //         return;
+        //     }
+        //     goal_handle->publish_feedback(feedback);
+        //     time_of_offboard_start_us_ = current_time_us;
+        //     feedback->message = "Starting offboard control at t=" + std::to_string(time_of_offboard_start_us_) + " us";
+        //     goal_handle->publish_feedback(feedback);
+        // }
+        // if (current_time_us >= (time_of_offboard_start_us_ + max_duration_sec * 1000000)) {
+        //     time_of_offboard_start_us_ = -1;
+        //     offboarding = false;
+        //     do_set_mode(4, 3); // Auto/Loiter (PX4_CUSTOM_MAIN_MODE 4/PX4_CUSTOM_SUB_MODE_AUTO 3)
+        //     aircraft_fsm_state_ = is_vtol_ ? ArdupilotInterfaceState::FW_CRUISE : ArdupilotInterfaceState::MC_HOVER;
+        //     feedback->message = "Exiting offboard control at t=" + std::to_string(current_time_us) + "us, returning to loiter/hover (Hold) state";
+        //     goal_handle->publish_feedback(feedback);
+        // } else if ((current_time_us >= (time_of_offboard_start_us_ + 1 * 1000000)) && (current_time_us < (time_of_offboard_start_us_ + 2 * 1000000))) {
+        //     // Send change mode for 1 sec, 1sec after the beginning of the reference stream
+        //     do_set_mode(6, 0); // Offboard (PX4_CUSTOM_MAIN_MODE 6 no sub mode)
+        // }
+    }
+    result->success = true;
+    goal_handle->succeed(result);
+    active_srv_or_act_flag_.store(false);
+    return;
+}
+//
+rclcpp_action::GoalResponse ArdupilotInterface::orbit_handle_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const autopilot_interface_msgs::action::Orbit::Goal> goal)
+{
+    RCLCPP_INFO(this->get_logger(), "orbit_handle_goal");
+    // if ((!is_vtol_ && aircraft_fsm_state_ != ArdupilotInterfaceState::MC_HOVER) || (is_vtol_ && aircraft_fsm_state_ != ArdupilotInterfaceState::FW_CRUISE)) {
+    //     RCLCPP_ERROR(this->get_logger(), "Orbit rejected, ArdupilotInterface is not in hover/cruise state");
+    //     return rclcpp_action::GoalResponse::REJECT;
+    // }
+    if (active_srv_or_act_flag_.exchange(true)) { 
+        RCLCPP_ERROR(this->get_logger(), "Another service/action is active");
+        return rclcpp_action::GoalResponse::REJECT;
+    }
+    return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
+}
+rclcpp_action::CancelResponse ArdupilotInterface::orbit_handle_cancel(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Orbit>> goal_handle)
+{
+    RCLCPP_INFO(this->get_logger(), "orbit_handle_cancel");
+    return rclcpp_action::CancelResponse::ACCEPT;
+}
+void ArdupilotInterface::orbit_handle_accepted(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Orbit>> goal_handle)
+{
+    RCLCPP_INFO(this->get_logger(), "orbit_handle_accepted");
+    const auto goal = goal_handle->get_goal();
+    auto result = std::make_shared<autopilot_interface_msgs::action::Orbit::Result>();
+    auto feedback = std::make_shared<autopilot_interface_msgs::action::Orbit::Feedback>();
 
-//     double desired_east = goal->east;
-//     double desired_north = goal->north;
-//     double desired_alt = goal->altitude;
-//     double desired_r = goal->radius;
+    double desired_east = goal->east;
+    double desired_north = goal->north;
+    double desired_alt = goal->altitude;
+    double desired_r = goal->radius;
 
-//     bool orbiting = true;
-//     rclcpp::Rate orbit_loop_rate(100);
-//     while (orbiting) {
-//         orbit_loop_rate.sleep();
-//         std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Reading data written by subs but also writing the FSM state
+    bool orbiting = true;
+    rclcpp::Rate orbit_loop_rate(100);
+    while (orbiting) {
+        orbit_loop_rate.sleep();
+        std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Reading data written by subs but also writing the FSM state
 
-//         if (goal_handle->is_canceling()) { // Check if there is a cancel request
-//             abort_action(); // Sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to MC_HOVER or FW_CRUISE
-//             feedback->message = "Canceling orbit";
-//             goal_handle->publish_feedback(feedback);
-//             result->success = false;
-//             goal_handle->canceled(result);
-//             RCLCPP_WARN(this->get_logger(), "Orbit canceled");
-//             return;
-//         }
+        if (goal_handle->is_canceling()) { // Check if there is a cancel request
+            // abort_action(); // Sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to MC_HOVER or FW_CRUISE
+            feedback->message = "Canceling orbit";
+            goal_handle->publish_feedback(feedback);
+            result->success = false;
+            goal_handle->canceled(result);
+            RCLCPP_WARN(this->get_logger(), "Orbit canceled");
+            return;
+        }
 
-//         RCLCPP_INFO(this->get_logger(), "New requested orbit East-North %.2f %.2f Alt. %.2f Radius %.2f", desired_east, desired_north, desired_alt, desired_r);
-//         auto [des_lat, des_lon] = lat_lon_from_cartesian(home_lat_, home_lon_, desired_east, desired_north);
-//         if (!is_vtol_) {
-//             do_orbit(des_lat, des_lon, desired_alt, desired_r, 5.0); // HARDCODED: 5m/s orbit tangential speed for quads
-//             RCLCPP_WARN(this->get_logger(), "For quads, the orbit speed is fixed to 5m/s");
-//             aircraft_fsm_state_ = ArdupilotInterfaceState::MC_ORBIT; // For quads, this is a flight mode change, keep track of it
-//         } else if (is_vtol_) {
-//             do_orbit(des_lat, des_lon, desired_alt, desired_r, NAN);
-//         }
-//         goal_handle->publish_feedback(feedback);
-//         feedback->message = "Orbit sent";
-//         goal_handle->publish_feedback(feedback);
+        RCLCPP_INFO(this->get_logger(), "New requested orbit East-North %.2f %.2f Alt. %.2f Radius %.2f", desired_east, desired_north, desired_alt, desired_r);
+        auto [des_lat, des_lon] = lat_lon_from_cartesian(home_lat_, home_lon_, desired_east, desired_north);
+        // if (!is_vtol_) {
+        //     do_orbit(des_lat, des_lon, desired_alt, desired_r, 5.0); // HARDCODED: 5m/s orbit tangential speed for quads
+        //     RCLCPP_WARN(this->get_logger(), "For quads, the orbit speed is fixed to 5m/s");
+        //     aircraft_fsm_state_ = ArdupilotInterfaceState::MC_ORBIT; // For quads, this is a flight mode change, keep track of it
+        // } else if (is_vtol_) {
+        //     do_orbit(des_lat, des_lon, desired_alt, desired_r, NAN);
+        // }
+        goal_handle->publish_feedback(feedback);
+        feedback->message = "Orbit sent";
+        goal_handle->publish_feedback(feedback);
 
-//         orbiting = false;
-//     }
-//     result->success = true;
-//     goal_handle->succeed(result);
-//     active_srv_or_act_flag_.store(false);
-//     return;
-// }
-// //
-// rclcpp_action::GoalResponse ArdupilotInterface::takeoff_handle_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const autopilot_interface_msgs::action::Takeoff::Goal> goal)
-// {
-//     RCLCPP_INFO(this->get_logger(), "takeoff_handle_goal");
-//     if (aircraft_fsm_state_ != ArdupilotInterfaceState::STARTED) {
-//         RCLCPP_ERROR(this->get_logger(), "Takeoff rejected, ArdupilotInterface is not in STARTED state");
-//         return rclcpp_action::GoalResponse::REJECT;
-//     }
-//     if (pre_flight_checks_pass_ != true) {
-//         RCLCPP_ERROR(this->get_logger(), "Takeoff rejected, pre_flight_checks_pass_ is false");
-//         return rclcpp_action::GoalResponse::REJECT;
-//     }
-//     if (active_srv_or_act_flag_.exchange(true)) { 
-//         RCLCPP_ERROR(this->get_logger(), "Another service/action is active");
-//         return rclcpp_action::GoalResponse::REJECT;
-//     }
-//     std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
-//     home_lat_ = lat_;
-//     home_lon_ = lon_;
-//     home_alt_ = alt_;
-//     RCLCPP_WARN(this->get_logger(), "Saved home_lat_: %.5f, home_lon_ %.5f, home_alt_ %.2f", home_lat_, home_lon_, home_alt_);
-//     return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
-// }
-// rclcpp_action::CancelResponse ArdupilotInterface::takeoff_handle_cancel(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Takeoff>> goal_handle)
-// {
-//     RCLCPP_INFO(this->get_logger(), "takeoff_handle_cancel");
-//     return rclcpp_action::CancelResponse::ACCEPT;
-// }
-// void ArdupilotInterface::takeoff_handle_accepted(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Takeoff>> goal_handle)
-// {
-//     RCLCPP_INFO(this->get_logger(), "takeoff_handle_accepted");
-//     const auto goal = goal_handle->get_goal();
-//     auto result = std::make_shared<autopilot_interface_msgs::action::Takeoff::Result>();
-//     auto feedback = std::make_shared<autopilot_interface_msgs::action::Takeoff::Feedback>();
+        orbiting = false;
+    }
+    result->success = true;
+    goal_handle->succeed(result);
+    active_srv_or_act_flag_.store(false);
+    return;
+}
+//
+rclcpp_action::GoalResponse ArdupilotInterface::takeoff_handle_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const autopilot_interface_msgs::action::Takeoff::Goal> goal)
+{
+    RCLCPP_INFO(this->get_logger(), "takeoff_handle_goal");
+    // if (aircraft_fsm_state_ != ArdupilotInterfaceState::STARTED) {
+    //     RCLCPP_ERROR(this->get_logger(), "Takeoff rejected, ArdupilotInterface is not in STARTED state");
+    //     return rclcpp_action::GoalResponse::REJECT;
+    // }
+    // if (pre_flight_checks_pass_ != true) {
+    //     RCLCPP_ERROR(this->get_logger(), "Takeoff rejected, pre_flight_checks_pass_ is false");
+    //     return rclcpp_action::GoalResponse::REJECT;
+    // }
+    if (active_srv_or_act_flag_.exchange(true)) { 
+        RCLCPP_ERROR(this->get_logger(), "Another service/action is active");
+        return rclcpp_action::GoalResponse::REJECT;
+    }
+    std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+    home_lat_ = lat_;
+    home_lon_ = lon_;
+    home_alt_ = alt_;
+    RCLCPP_WARN(this->get_logger(), "Saved home_lat_: %.5f, home_lon_ %.5f, home_alt_ %.2f", home_lat_, home_lon_, home_alt_);
+    return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
+}
+rclcpp_action::CancelResponse ArdupilotInterface::takeoff_handle_cancel(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Takeoff>> goal_handle)
+{
+    RCLCPP_INFO(this->get_logger(), "takeoff_handle_cancel");
+    return rclcpp_action::CancelResponse::ACCEPT;
+}
+void ArdupilotInterface::takeoff_handle_accepted(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Takeoff>> goal_handle)
+{
+    RCLCPP_INFO(this->get_logger(), "takeoff_handle_accepted");
+    const auto goal = goal_handle->get_goal();
+    auto result = std::make_shared<autopilot_interface_msgs::action::Takeoff::Result>();
+    auto feedback = std::make_shared<autopilot_interface_msgs::action::Takeoff::Feedback>();
 
-//     double takeoff_altitude = goal->takeoff_altitude;
-//     double vtol_transition_heading = goal->vtol_transition_heading;
-//     double vtol_loiter_nord = goal->vtol_loiter_nord;
-//     double vtol_loiter_east = goal->vtol_loiter_east;
-//     double vtol_loiter_alt = goal->vtol_loiter_alt;
+    double takeoff_altitude = goal->takeoff_altitude;
+    double vtol_transition_heading = goal->vtol_transition_heading;
+    double vtol_loiter_nord = goal->vtol_loiter_nord;
+    double vtol_loiter_east = goal->vtol_loiter_east;
+    double vtol_loiter_alt = goal->vtol_loiter_alt;
 
-//     bool taking_off = true;
-//     uint64_t time_of_vtol_transition_us_ = -1;
-//     rclcpp::Rate takeoff_loop_rate(100);
-//     while (taking_off) {
-//         takeoff_loop_rate.sleep();
-//         std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Reading data written by subs but also writing the FSM state
+    bool taking_off = true;
+    uint64_t time_of_vtol_transition_us_ = -1;
+    rclcpp::Rate takeoff_loop_rate(100);
+    while (taking_off) {
+        takeoff_loop_rate.sleep();
+        std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Reading data written by subs but also writing the FSM state
 
-//         if (goal_handle->is_canceling()) { // Check if there is a cancel request
-//             abort_action(); // Sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to MC_HOVER or FW_CRUISE
-//             feedback->message = "Canceling takeoff";
-//             goal_handle->publish_feedback(feedback);
-//             result->success = false;
-//             goal_handle->canceled(result);
-//             RCLCPP_WARN(this->get_logger(), "Takeoff canceled");
-//             return;
-//         }
+        if (goal_handle->is_canceling()) { // Check if there is a cancel request
+            // abort_action(); // Sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to MC_HOVER or FW_CRUISE
+            feedback->message = "Canceling takeoff";
+            goal_handle->publish_feedback(feedback);
+            result->success = false;
+            goal_handle->canceled(result);
+            RCLCPP_WARN(this->get_logger(), "Takeoff canceled");
+            return;
+        }
 
-//         if (is_vtol_ == false) {
-//             if (aircraft_fsm_state_ == ArdupilotInterfaceState::STARTED) {
-//                 do_takeoff(takeoff_altitude, NAN); // HARDCODED: no heading takeoff for multirotor
-//                 aircraft_fsm_state_ = ArdupilotInterfaceState::MC_TAKEOFF;
-//                 feedback->message = "Taking off in MC mode";
-//                 goal_handle->publish_feedback(feedback);
-//             } else if (aircraft_fsm_state_ == ArdupilotInterfaceState::MC_TAKEOFF) {
-//                 if ((alt_ - home_alt_) > 0.9 * takeoff_altitude) { // HARDCODED: 90% threshold for takeoff altitude
-//                     aircraft_fsm_state_ = ArdupilotInterfaceState::MC_HOVER;
-//                     taking_off = false;
-//                     feedback->message = "Takeoff completed, hovering";
-//                     goal_handle->publish_feedback(feedback);
-//                 }
-//             }
-//         } else if (is_vtol_ == true) {
-//             uint64_t current_time_us = this->get_clock()->now().nanoseconds() / 1000;  // Convert to microseconds
-//             if (aircraft_fsm_state_ == ArdupilotInterfaceState::STARTED) {
-//                 do_takeoff(takeoff_altitude, vtol_transition_heading);
-//                 aircraft_fsm_state_ = ArdupilotInterfaceState::MC_TAKEOFF;
-//                 feedback->message = "Taking off in MC mode";
-//                 goal_handle->publish_feedback(feedback);
-//             } else if (aircraft_fsm_state_ == ArdupilotInterfaceState::MC_TAKEOFF) {
-//                 if (vehicle_type_ == px4_msgs::msg::VehicleStatus::VEHICLE_TYPE_FIXED_WING) {
-//                     aircraft_fsm_state_ = ArdupilotInterfaceState::VTOL_TAKEOFF_TRANSITION;
-//                     time_of_vtol_transition_us_ = current_time_us;
-//                     feedback->message = "Transitioned to FW";
-//                     goal_handle->publish_feedback(feedback);
-//                 }
-//             } else if (aircraft_fsm_state_ == ArdupilotInterfaceState::VTOL_TAKEOFF_TRANSITION && 
-//                 (current_time_us > (time_of_vtol_transition_us_ + 10.0 * 1000000))) { // HARDCODED: wait 10 seconds after transition
-//                 auto [des_lat, des_lon] = lat_lon_from_cartesian(home_lat_, home_lon_, vtol_loiter_east, vtol_loiter_nord);
-//                 do_orbit(des_lat, des_lon, vtol_loiter_alt, 200.0, NAN); // HARDCODED: 200m loiter radius
-//                 aircraft_fsm_state_ = ArdupilotInterfaceState::FW_CRUISE;
-//                 taking_off = false;
-//                 feedback->message = "Takeoff loiter sent";
-//                 goal_handle->publish_feedback(feedback);
-//             }
-//         }
-//     }
-//     result->success = true;
-//     goal_handle->succeed(result);
-//     active_srv_or_act_flag_.store(false);
-//     return;
-// }
+        // if (is_vtol_ == false) {
+        //     if (aircraft_fsm_state_ == ArdupilotInterfaceState::STARTED) {
+        //         do_takeoff(takeoff_altitude, NAN); // HARDCODED: no heading takeoff for multirotor
+        //         aircraft_fsm_state_ = ArdupilotInterfaceState::MC_TAKEOFF;
+        //         feedback->message = "Taking off in MC mode";
+        //         goal_handle->publish_feedback(feedback);
+        //     } else if (aircraft_fsm_state_ == ArdupilotInterfaceState::MC_TAKEOFF) {
+        //         if ((alt_ - home_alt_) > 0.9 * takeoff_altitude) { // HARDCODED: 90% threshold for takeoff altitude
+        //             aircraft_fsm_state_ = ArdupilotInterfaceState::MC_HOVER;
+        //             taking_off = false;
+        //             feedback->message = "Takeoff completed, hovering";
+        //             goal_handle->publish_feedback(feedback);
+        //         }
+        //     }
+        // } else if (is_vtol_ == true) {
+        //     uint64_t current_time_us = this->get_clock()->now().nanoseconds() / 1000;  // Convert to microseconds
+        //     if (aircraft_fsm_state_ == ArdupilotInterfaceState::STARTED) {
+        //         do_takeoff(takeoff_altitude, vtol_transition_heading);
+        //         aircraft_fsm_state_ = ArdupilotInterfaceState::MC_TAKEOFF;
+        //         feedback->message = "Taking off in MC mode";
+        //         goal_handle->publish_feedback(feedback);
+        //     } else if (aircraft_fsm_state_ == ArdupilotInterfaceState::MC_TAKEOFF) {
+        //         if (vehicle_type_ == px4_msgs::msg::VehicleStatus::VEHICLE_TYPE_FIXED_WING) {
+        //             aircraft_fsm_state_ = ArdupilotInterfaceState::VTOL_TAKEOFF_TRANSITION;
+        //             time_of_vtol_transition_us_ = current_time_us;
+        //             feedback->message = "Transitioned to FW";
+        //             goal_handle->publish_feedback(feedback);
+        //         }
+        //     } else if (aircraft_fsm_state_ == ArdupilotInterfaceState::VTOL_TAKEOFF_TRANSITION && 
+        //         (current_time_us > (time_of_vtol_transition_us_ + 10.0 * 1000000))) { // HARDCODED: wait 10 seconds after transition
+        //         auto [des_lat, des_lon] = lat_lon_from_cartesian(home_lat_, home_lon_, vtol_loiter_east, vtol_loiter_nord);
+        //         do_orbit(des_lat, des_lon, vtol_loiter_alt, 200.0, NAN); // HARDCODED: 200m loiter radius
+        //         aircraft_fsm_state_ = ArdupilotInterfaceState::FW_CRUISE;
+        //         taking_off = false;
+        //         feedback->message = "Takeoff loiter sent";
+        //         goal_handle->publish_feedback(feedback);
+        //     }
+        // }
+    }
+    result->success = true;
+    goal_handle->succeed(result);
+    active_srv_or_act_flag_.store(false);
+    return;
+}
 
 std::pair<double, double> ArdupilotInterface::lat_lon_from_cartesian(double ref_lat, double ref_lon, double x_offset, double y_offset)
 {
