@@ -335,15 +335,19 @@ void ArdupilotInterface::set_speed_callback(const std::shared_ptr<autopilot_inte
         response->success = false;
         return;
     }
-    if (mav_type_ == 1) {
-        RCLCPP_WARN(this->get_logger(), "The change of speed setpoint is ineffective in fixed-wing flight");
+    auto command_request = std::make_shared<mavros_msgs::srv::CommandLong::Request>();
+    command_request->command = 178; // MAV_CMD_DO_CHANGE_SPEED
+    if (mav_type_ == 1) { // Fixed-wing/VTOL
+        command_request->param1 = 0.0; // Airspeed
+    } else if (mav_type_ == 2) { // Multicopter
+        command_request->param1 = 1.0; // Ground Speed
     }
-    RCLCPP_INFO(this->get_logger(), "New requested speed is: %.2f", request->speed);
-    if (mav_type_ == 1) {
-        // do_change_speed(request->speed);
-    } else if (mav_type_ == 2) {
-        // do_change_speed(request->speed);
-    }
+    command_request->param2 = request->speed; // The desired speed in m/s
+    command_long_client_->async_send_request(command_request, // Asynchronously send the service request
+        [this](rclcpp::Client<mavros_msgs::srv::CommandLong>::SharedFuture future) {
+                auto result = future.get(); // Check result asynchronously
+                RCLCPP_INFO(this->get_logger(), "set_speed sent, success: %s, result: %d", result->success ? "true" : "false", result->result);
+        });
     response->success = true;
     active_srv_or_act_flag_.store(false);
 }
