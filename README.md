@@ -180,12 +180,14 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- Add heading in ardupilot VTOL takeoff(use local position setpoint?)
+- Add altitude in ardupilot VTOL/quad landing
+  write RTL_ALT for quad INTEGER centimeters (warn that it will not lower if already higher)
+  write Q_RTL_ALT for vtol INTEGER meters
 
-- Add altitude in ardupilot VTOL/quad landing (param?)
-- Add heading in ardupilot VTOL landing (with loiter descent)
+- 8p Add heading in ardupilot VTOL takeoff(use local position setpoint?)
+- 9p Add heading in ardupilot VTOL landing (with loiter descent)
 
-- Implement ardupilot VTOL orbit
+- 11p Implement ardupilot VTOL orbit
 
   # VTOL
   # Upload and start a WP mission (first waypoint (id 0) is dummy, 16 is wp, 17 is loiter unlimted, frame 3 is global with alt w.r.t. home)

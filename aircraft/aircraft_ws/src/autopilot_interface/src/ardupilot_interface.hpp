@@ -18,7 +18,7 @@ python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal
 # SET SPEED (always limited by the autopilot params, for quads applies from the next command, not effective on VTOLs) and REPOSITION (quad only) SERVICES
 
 ros2 service call /Drone1/set_speed autopilot_interface_msgs/srv/SetSpeed '{speed: 3.0}' 
-ros2 service call /Drone1/set_reposition autopilot_interface_msgs/srv/SetReposition '{east: 100.0, north: 200.0, altitude: 60.0}' # relative to Home
+ros2 service call /Drone1/set_reposition autopilot_interface_msgs/srv/SetReposition '{east: 50.0, north: 100.0, altitude: 60.0}' # relative to Home
 
 */
 #ifndef AUTOPILOT_INTERFACE__ARDUPILOT_INTERFACE_HPP_
