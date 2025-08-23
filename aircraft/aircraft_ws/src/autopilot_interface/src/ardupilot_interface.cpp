@@ -808,29 +808,176 @@ void ArdupilotInterface::takeoff_handle_accepted(const std::shared_ptr<rclcpp_ac
                 taking_off = false;
             }
         } else if (mav_type_ == 1) { // Fixed-wing/VTOL
-            // if (current_fsm_state == ArdupilotInterfaceState::STARTED) {
-            //     arm
-            // } else if (current_fsm_state == ArdupilotInterfaceState::ARMED) {
-            //     takeoff to altitde
-            // } else if (current_fsm_state == ArdupilotInterfaceState::TBD) {
-            //     // ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'CRUISE'}"
-            // }
-            // } else if (current_fsm_state == ArdupilotInterfaceState::TBD) {
-            //     // ros2 service call /mavros/mission/push mavros_msgs/srv/WaypointPush "{start_index: 0, waypoints: [ \
-            //     //     {frame: 3, command: 16, is_current: true, autocontinue: true, x_lat: 0.0, y_long: 0.0, z_alt: 0.0}, \
-            //     //     {frame: 3, command: 16, is_current: false, autocontinue: true, x_lat: 45.5470, y_long: 8.940, z_alt: 250.0}, \
-            //     //     {frame: 3, command: 17, is_current: false, autocontinue: true, param3: 300.0, x_lat: 45.5479, y_long: 8.949, z_alt: 250.0} \
-            //     //     ]}"
-            // } else if (current_fsm_state == ArdupilotInterfaceState::TBD) {
-            //     // ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'AUTO'}"
-            // } else if (current_fsm_state == ArdupilotInterfaceState::TBD) {
-            //     // ros2 service call /mavros/cmd/command mavros_msgs/srv/CommandLong "{command: 300}"
-            // } else if (current_fsm_state == ArdupilotInterfaceState::TBD) {
-            //     // ros2 service call /mavros/mission/set_current mavros_msgs/srv/WaypointSetCurrent "{wp_seq: 1}"
-            // } else if (current_fsm_state == ArdupilotInterfaceState::TBD) {
-            //     taking_off = false;
-            // }
-
+            if ((current_fsm_state == ArdupilotInterfaceState::STARTED) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))) {
+                auto arm_request = std::make_shared<mavros_msgs::srv::CommandBool::Request>();
+                arm_request->value = true;
+                feedback->message = "Requesting arming";
+                goal_handle->publish_feedback(feedback);
+                time_of_last_srv_req_us_ = current_time_us;
+                arming_client_->async_send_request(arm_request,
+                    [this, feedback, goal_handle](rclcpp::Client<mavros_msgs::srv::CommandBool>::SharedFuture future) {
+                        if (future.get()->success) {
+                            feedback->message = "Request arming success";
+                            goal_handle->publish_feedback(feedback);
+                            std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+                            aircraft_fsm_state_ = ArdupilotInterfaceState::ARMED;
+                        } else {
+                            feedback->message = "Request arming failed";
+                            goal_handle->publish_feedback(feedback);
+                        }
+                    });
+            } else if ((current_fsm_state == ArdupilotInterfaceState::ARMED) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))) {
+                auto set_mode_request = std::make_shared<mavros_msgs::srv::SetMode::Request>();
+                set_mode_request->custom_mode = "GUIDED";
+                feedback->message = "Requesting mode";
+                goal_handle->publish_feedback(feedback);
+                time_of_last_srv_req_us_ = current_time_us;
+                set_mode_client_->async_send_request(set_mode_request,
+                    [this, feedback, goal_handle](rclcpp::Client<mavros_msgs::srv::SetMode>::SharedFuture future) {
+                        if (future.get()->mode_sent) {
+                            feedback->message = "Request mode success";
+                            goal_handle->publish_feedback(feedback);
+                            std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+                            aircraft_fsm_state_ = ArdupilotInterfaceState::GUIDED_PRETAKEOFF;
+                        } else {
+                            feedback->message = "Request mode failed";
+                            goal_handle->publish_feedback(feedback);
+                        }
+                    });
+            } else if ((current_fsm_state == ArdupilotInterfaceState::GUIDED_PRETAKEOFF) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))) {
+                auto takeoff_request = std::make_shared<mavros_msgs::srv::CommandTOL::Request>();
+                takeoff_request->altitude = takeoff_altitude;
+                feedback->message = "Requesting takeoff";
+                goal_handle->publish_feedback(feedback);
+                time_of_last_srv_req_us_ = current_time_us;
+                takeoff_client_->async_send_request(takeoff_request,
+                    [this, feedback, goal_handle](rclcpp::Client<mavros_msgs::srv::CommandTOL>::SharedFuture future) {
+                        if (future.get()->success) {
+                            feedback->message = "Request takeoff success";
+                            goal_handle->publish_feedback(feedback);
+                            std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+                            aircraft_fsm_state_ = ArdupilotInterfaceState::VTOL_TAKEOFF_MC;
+                        } else {
+                            feedback->message = "Request takeoff failed";
+                            goal_handle->publish_feedback(feedback);
+                        }
+                    });
+            // TODO: add heading
+            } else if ((current_fsm_state == ArdupilotInterfaceState::VTOL_TAKEOFF_MC) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))
+                        && (std::abs(alt_ - (home_alt_ + takeoff_altitude)) < 2.0)) { // HARDCODED: 2m altitude threshold
+                auto set_mode_request = std::make_shared<mavros_msgs::srv::SetMode::Request>();
+                set_mode_request->custom_mode = "CRUISE";
+                feedback->message = "Requesting mode";
+                goal_handle->publish_feedback(feedback);
+                time_of_last_srv_req_us_ = current_time_us;
+                set_mode_client_->async_send_request(set_mode_request,
+                    [this, feedback, goal_handle](rclcpp::Client<mavros_msgs::srv::SetMode>::SharedFuture future) {
+                        if (future.get()->mode_sent) {
+                            feedback->message = "Request mode success";
+                            goal_handle->publish_feedback(feedback);
+                            std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+                            aircraft_fsm_state_ = ArdupilotInterfaceState::VTOL_TAKEOFF_TRANSITION;
+                        } else {
+                            feedback->message = "Request mode failed";
+                            goal_handle->publish_feedback(feedback);
+                        }
+                    });
+            // HARDCODED: 10s wait in CRUISE mode before sending the VTOL takeoff loiter mission
+            } else if ((current_fsm_state == ArdupilotInterfaceState::VTOL_TAKEOFF_TRANSITION) && (current_time_us > (time_of_last_srv_req_us_ + 10.0 * 1000000))) {
+                auto mission_request = std::make_shared<mavros_msgs::srv::WaypointPush::Request>();
+                mavros_msgs::msg::Waypoint wp1; // Create the first waypoint (dummy)
+                wp1.frame = 3;
+                wp1.command = 16; // NAV_WAYPOINT
+                wp1.is_current = true;
+                wp1.autocontinue = true;
+                wp1.x_lat = 0.0;
+                wp1.y_long = 0.0;
+                wp1.z_alt = 0.0;
+                mission_request->waypoints.push_back(wp1);
+                mavros_msgs::msg::Waypoint wp2; // Create the second waypoint (loiter)
+                wp2.frame = 3;
+                wp2.command = 17; // NAV_LOITER_UNLIM
+                wp2.is_current = false;
+                wp2.autocontinue = true;
+                wp2.param3 = 300.0;
+                wp2.x_lat = 45.5479;
+                wp2.y_long = 8.949;
+                wp2.z_alt = 250.0; // TODO: determine altitude reference
+                mission_request->waypoints.push_back(wp2);
+                feedback->message = "Requesting mission upload";
+                goal_handle->publish_feedback(feedback);
+                time_of_last_srv_req_us_ = current_time_us;
+                wp_push_client_->async_send_request(mission_request,
+                    [this, feedback, goal_handle](rclcpp::Client<mavros_msgs::srv::WaypointPush>::SharedFuture future) {
+                        if (future.get()->success) {
+                            feedback->message = "Request mission upload success";
+                            goal_handle->publish_feedback(feedback);
+                            std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+                            aircraft_fsm_state_ = ArdupilotInterfaceState::VTOL_TAKEOFF_MISSION_UPLOADED;
+                        } else {
+                            feedback->message = "Request mission upload failed";
+                            goal_handle->publish_feedback(feedback);
+                        }
+                    });
+            } else if ((current_fsm_state == ArdupilotInterfaceState::VTOL_TAKEOFF_MISSION_UPLOADED) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))) {
+                auto set_mode_request = std::make_shared<mavros_msgs::srv::SetMode::Request>();
+                set_mode_request->custom_mode = "AUTO";
+                feedback->message = "Requesting mode";
+                goal_handle->publish_feedback(feedback);
+                time_of_last_srv_req_us_ = current_time_us;
+                set_mode_client_->async_send_request(set_mode_request,
+                    [this, feedback, goal_handle](rclcpp::Client<mavros_msgs::srv::SetMode>::SharedFuture future) {
+                        if (future.get()->mode_sent) {
+                            feedback->message = "Request mode success";
+                            goal_handle->publish_feedback(feedback);
+                            std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+                            aircraft_fsm_state_ = ArdupilotInterfaceState::VTOL_TAKEOFF_MISSION_MODE;
+                        } else {
+                            feedback->message = "Request mode failed";
+                            goal_handle->publish_feedback(feedback);
+                        }
+                    });
+            } else if ((current_fsm_state == ArdupilotInterfaceState::VTOL_TAKEOFF_MISSION_MODE) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))) {
+                auto command_request = std::make_shared<mavros_msgs::srv::CommandLong::Request>();
+                command_request->command = 300; // MAV_CMD_MISSION_START
+                feedback->message = "Requesting mission start";
+                goal_handle->publish_feedback(feedback);
+                time_of_last_srv_req_us_ = current_time_us;
+                command_long_client_->async_send_request(command_request,
+                    [this, feedback, goal_handle](rclcpp::Client<mavros_msgs::srv::CommandLong>::SharedFuture future) {
+                        if (future.get()->success) {
+                            feedback->message = "Request mission start success";
+                            goal_handle->publish_feedback(feedback);
+                            std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+                            aircraft_fsm_state_ = ArdupilotInterfaceState::VTOL_TAKEOFF_MISSION_STARTED;
+                        } else {
+                            feedback->message = "Request mission start failed";
+                            goal_handle->publish_feedback(feedback);
+                        }
+                    });
+            } else if ((current_fsm_state == ArdupilotInterfaceState::VTOL_TAKEOFF_MISSION_STARTED) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))) {
+                auto set_current_request = std::make_shared<mavros_msgs::srv::WaypointSetCurrent::Request>();
+                set_current_request->wp_seq = 1;
+                feedback->message = "Requesting to set current waypoint to loiter position";
+                goal_handle->publish_feedback(feedback);
+                time_of_last_srv_req_us_ = current_time_us;
+                set_wp_client_->async_send_request(set_current_request,
+                    [this, feedback, goal_handle](rclcpp::Client<mavros_msgs::srv::WaypointSetCurrent>::SharedFuture future) {
+                        if (future.get()->success) {
+                            feedback->message = "Request to set current waypoint success";
+                            goal_handle->publish_feedback(feedback);
+                            std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+                            aircraft_fsm_state_ = ArdupilotInterfaceState::FW_CRUISE;
+                        } else {
+                            feedback->message = "Request to set current waypoint failed";
+                            goal_handle->publish_feedback(feedback);
+                        }
+                    });
+            } else if ((current_fsm_state == ArdupilotInterfaceState::FW_CRUISE) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))) {
+                feedback->message = "VTOL takeoff completed";
+                goal_handle->publish_feedback(feedback);
+                taking_off = false;
+            }
         }
     }
     result->success = true;

@@ -259,6 +259,7 @@ ros2 action send_goal /Drone1/land_action autopilot_interface_msgs/action/Land '
 
 ---
 
+- Add heading in VTOL takeoff and landing
 - Implement do_abort for ArdupilotInterface
 - Reset ArdupilotInterfaceState::STARTED after a landing
 
