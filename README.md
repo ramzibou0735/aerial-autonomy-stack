@@ -182,7 +182,6 @@ docker exec -it aircraft-container tmux attach
 
 - Add heading in ardupilot VTOL takeoff(use local position setpoint?)
 
-- Add heading in ardupilot quad RTL (use local position setpoint or param?)
 - Add altitude in ardupilot VTOL/quad landing (param?)
 - Add heading in ardupilot VTOL landing (with loiter descent)
 
