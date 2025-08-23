@@ -180,25 +180,15 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- wrong heading in ardu quad reposition
 - need to reset to qloiter after vtol landing for a new vtol takeoff (or send mode on takeoff)
+
 - Add heading in ardupilot VTOL takeoff(use local position setpoint?)
 - Add heading in ardupilot quad RTL (use local position setpoint or param?)
 - Add altitude in ardupilot VTOL/quad landing (param?)
 - Add heading in ardupilot VTOL landing (with loiter descent)
 
+- Implement ardupilot VTOL orbit
 
-
-
-- Implement ardupilot orbit
-
-# Orbit
-  # Quad
-  ros2 topic pub --once /mavros/setpoint_position/global geographic_msgs/msg/GeoPoseStamped '{header: {frame_id: "map"},pose: {position: {latitude: 45.5470, longitude: 8.940, altitude: 300.0}, orientation: {x: 0.0, y: 0.0, z: 0.707, w: 0.707}}}'
-  ros2 service call /mavros/param/set mavros_msgs/srv/ParamSetV2 '{param_id: "CIRCLE_OPTIONS", value: {type: 2, integer_value: 8}}'
-  ros2 service call /mavros/param/set mavros_msgs/srv/ParamSetV2 '{param_id: "CIRCLE_RADIUS", value: {type: 3, double_value: 2000.0}}'
-  ros2 service call /mavros/param/set mavros_msgs/srv/ParamSetV2 '{param_id: "CIRCLE_RATE", value: {type: 2, integer_value: 15}}'
-  ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'CIRCLE'}"
   # VTOL
   # Upload and start a WP mission (first waypoint (id 0) is dummy, 16 is wp, 17 is loiter unlimted, frame 3 is global with alt w.r.t. home)
   ros2 service call /mavros/mission/push mavros_msgs/srv/WaypointPush "{start_index: 0, waypoints: [ \
@@ -209,6 +199,16 @@ docker exec -it aircraft-container tmux attach
   ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'AUTO'}"
   ros2 service call /mavros/cmd/command mavros_msgs/srv/CommandLong "{command: 300}"
   ros2 service call /mavros/mission/set_current mavros_msgs/srv/WaypointSetCurrent "{wp_seq: 1}" # Advance waypoint
+
+- Implement ardupilot QUAD orbit
+
+  # Quad
+  ros2 topic pub --once /mavros/setpoint_position/global geographic_msgs/msg/GeoPoseStamped '{header: {frame_id: "map"},pose: {position: {latitude: 45.5470, longitude: 8.940, altitude: 300.0}, orientation: {x: 0.0, y: 0.0, z: 0.707, w: 0.707}}}'
+  ros2 service call /mavros/param/set mavros_msgs/srv/ParamSetV2 '{param_id: "CIRCLE_OPTIONS", value: {type: 2, integer_value: 8}}'
+  ros2 service call /mavros/param/set mavros_msgs/srv/ParamSetV2 '{param_id: "CIRCLE_RADIUS", value: {type: 3, double_value: 2000.0}}'
+  ros2 service call /mavros/param/set mavros_msgs/srv/ParamSetV2 '{param_id: "CIRCLE_RATE", value: {type: 2, integer_value: 15}}'
+  ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'CIRCLE'}"
+
 
 - Implement ardupilot offboard
 

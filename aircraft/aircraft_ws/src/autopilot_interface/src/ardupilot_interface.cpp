@@ -378,17 +378,22 @@ void ArdupilotInterface::set_reposition_callback(const std::shared_ptr<autopilot
     auto [des_lat, des_lon] = lat_lon_from_cartesian(home_lat_, home_lon_, desired_east, desired_north);
     double distance, heading;
     geod.Inverse(lat_, lon_, des_lat, des_lon, distance, heading);
-    RCLCPP_INFO(this->get_logger(), "heading %f", heading);
-    double heading_rad = fmod(heading + 360.0, 360.0) / 180.0 * M_PI;
-    for (int i = 0; i < 5; ++i) { // HARDCODED: send N times for robustness
+    double yaw_enu_deg = 90.0 - heading;
+    if (yaw_enu_deg > 180.0) {
+        yaw_enu_deg -= 360.0;
+    } else if (yaw_enu_deg < -180.0) {
+        yaw_enu_deg += 360.0;
+    }  
+    double yaw_enu_rad = yaw_enu_deg * M_PI / 180.0;
+    for (int i = 0; i < 3; ++i) { // HARDCODED: send N times for robustness
         auto msg = geographic_msgs::msg::GeoPoseStamped();
         msg.header.stamp = this->get_clock()->now();
         msg.header.frame_id = "map";
         msg.pose.position.latitude = des_lat;
         msg.pose.position.longitude = des_lon;
-        msg.pose.position.altitude = home_alt_ + desired_alt; // Altitude is in MSL
-        msg.pose.orientation.w = heading_rad / 2.0; // TODO: check
-        msg.pose.orientation.z = heading_rad / 2.0; // TODO: check
+        msg.pose.position.altitude = home_alt_ + desired_alt; // Altitude in MSL/relative to takeoff
+        msg.pose.orientation.w = cos(yaw_enu_rad / 2.0);
+        msg.pose.orientation.z = sin(yaw_enu_rad / 2.0);
         setpoint_pos_pub_->publish(msg);
         std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Add a small delay between publishes
     }
