@@ -180,8 +180,6 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- Revise interface printouts
-
 - Reset ArdupilotInterfaceState::STARTED after a landing (landed state + disarm)
 - Double check that the takeoff action is take up properly (improve action acceptance checks)
 
