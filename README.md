@@ -180,19 +180,15 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- Implement ardupilot_interface basic actions
-  landing
-
-ros2 action send_goal /Drone1/land_action autopilot_interface_msgs/action/Land '{landing_altitude: 60.0}' --feedback
-
-ros2 action send_goal /Drone1/land_action autopilot_interface_msgs/action/Land '{landing_altitude: 60.0, vtol_transition_heading: 60.0}' --feedback
-
-- Implement ardupilot_interface advanced actions
-- Implement ardupilot orbit
+- Double check that the takeoff action is take up properly (improve action acceptance checks)
 - Reset ArdupilotInterfaceState::STARTED after a landing
-- Add heading in ardupilot VTOL takeoff and landing
-- Add altitude in ardupilot VTOL landing
-- Implement ardupilot offboard
+- Test speed and reposition services (check heading)
+
+- Add heading in ardupilot VTOL takeoff and landing (use local position setpoint?)
+- Add heading in ardupilot quad RTL (use local position setpoint?)
+- Add altitude in ardupilot VTOL/quad landing (?)
+
+- Implement ardupilot orbit
 
 # Orbit
   # Quad
@@ -212,14 +208,14 @@ ros2 action send_goal /Drone1/land_action autopilot_interface_msgs/action/Land '
   ros2 service call /mavros/cmd/command mavros_msgs/srv/CommandLong "{command: 300}"
   ros2 service call /mavros/mission/set_current mavros_msgs/srv/WaypointSetCurrent "{wp_seq: 1}" # Advance waypoint
 
+- Implement ardupilot offboard
+
 # Offboard
   # Quad
   ros2 topic pub --rate 10 --times 50 /mavros/setpoint_accel/accel geometry_msgs/msg/Vector3Stamped '{header: {frame_id: "map"}, vector: {x: 1.5, y: 0.0, z: 0.0}}' # WORLD FRAME (ENU) WITH YAW ALIGNMENT
   ros2 topic pub --rate 10 --times 50 /mavros/setpoint_velocity/cmd_vel geometry_msgs/msg/TwistStamped '{header: {frame_id: "map"}, twist: {linear: {x: 2.0, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.0}}}' # WORLD FRAME (ENU) WITHOUT YAW ALIGNMENT
   Or 
   ros2 topic pub --rate 10 --times 50 /mavros/setpoint_velocity/cmd_vel_unstamped geometry_msgs/msg/Twist '{linear: {x: 2.0, y: 0.0, z: 0.0}}' # LOCAL FRAME
-  # VTOL
-  -
 
 - Implement do_abort for ArdupilotInterface
 
