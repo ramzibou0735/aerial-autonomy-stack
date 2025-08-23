@@ -63,22 +63,22 @@ PX4Interface::PX4Interface() : Node("px4_interface"),
 
     // PX4 subscribers
     vehicle_global_position_sub_= this->create_subscription<VehicleGlobalPosition>(
-        "fmu/out/vehicle_global_position", qos_profile_sub,
+        "fmu/out/vehicle_global_position", qos_profile_sub, // 100Hz
         std::bind(&PX4Interface::global_position_callback, this, std::placeholders::_1), subscriber_options);
     vehicle_local_position_sub_= this->create_subscription<VehicleLocalPosition>(
-        "fmu/out/vehicle_local_position", qos_profile_sub,
+        "fmu/out/vehicle_local_position", qos_profile_sub, // 100Hz
         std::bind(&PX4Interface::local_position_callback, this, std::placeholders::_1), subscriber_options);
     vehicle_odometry_sub_= this->create_subscription<VehicleOdometry>(
-        "fmu/out/vehicle_odometry", qos_profile_sub,
+        "fmu/out/vehicle_odometry", qos_profile_sub, // 100Hz
         std::bind(&PX4Interface::odometry_callback, this, std::placeholders::_1), subscriber_options);
     vehicle_status_sub_ = this->create_subscription<VehicleStatus>(
-        "fmu/out/vehicle_status_v1", qos_profile_sub,
+        "fmu/out/vehicle_status_v1", qos_profile_sub, // 2Hz
         std::bind(&PX4Interface::status_callback, this, std::placeholders::_1), subscriber_options);
     airspeed_validated_sub_ = this->create_subscription<AirspeedValidated>(
-        "fmu/out/airspeed_validated", qos_profile_sub,
+        "fmu/out/airspeed_validated", qos_profile_sub, // 10Hz
         std::bind(&PX4Interface::airspeed_callback, this, std::placeholders::_1), subscriber_options);
     vehicle_command_ack_sub_ = this->create_subscription<VehicleCommandAck>(
-        "fmu/out/vehicle_command_ack", qos_profile_sub,
+        "fmu/out/vehicle_command_ack", qos_profile_sub, // n/a
         std::bind(&PX4Interface::vehicle_command_ack_callback, this, std::placeholders::_1), subscriber_options);
 
     // Services

@@ -180,12 +180,13 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- Reset ArdupilotInterfaceState::STARTED after a landing (landed state + disarm)
 - Double check that the takeoff action is take up properly (improve action acceptance checks)
+- Reset ArdupilotInterfaceState::STARTED after a landing (landed state + disarm)
 
-- Add heading in ardupilot VTOL takeoff and landing (use local position setpoint?)
-- Add heading in ardupilot quad RTL (use local position setpoint?)
-- Add altitude in ardupilot VTOL/quad landing (?)
+- Add heading in ardupilot VTOL takeoff(use local position setpoint?)
+- Add heading in ardupilot quad RTL (use local position setpoint or param?)
+- Add altitude in ardupilot VTOL/quad landing (param?)
+- Add heading in ardupilot VTOL landing (with loiter descent)
 
 - Test speed and reposition services (check heading)
 
