@@ -378,6 +378,7 @@ void ArdupilotInterface::set_reposition_callback(const std::shared_ptr<autopilot
     auto [des_lat, des_lon] = lat_lon_from_cartesian(home_lat_, home_lon_, desired_east, desired_north);
     double distance, heading;
     geod.Inverse(lat_, lon_, des_lat, des_lon, distance, heading);
+    RCLCPP_INFO(this->get_logger(), "heading %f", heading);
     double heading_rad = fmod(heading + 360.0, 360.0) / 180.0 * M_PI;
     for (int i = 0; i < 5; ++i) { // HARDCODED: send N times for robustness
         auto msg = geographic_msgs::msg::GeoPoseStamped();
@@ -385,7 +386,7 @@ void ArdupilotInterface::set_reposition_callback(const std::shared_ptr<autopilot
         msg.header.frame_id = "map";
         msg.pose.position.latitude = des_lat;
         msg.pose.position.longitude = des_lon;
-        msg.pose.position.altitude = home_alt_ + desired_alt; // Altitude is in MSL - TODO: check
+        msg.pose.position.altitude = home_alt_ + desired_alt; // Altitude is in MSL
         msg.pose.orientation.w = heading_rad / 2.0; // TODO: check
         msg.pose.orientation.z = heading_rad / 2.0; // TODO: check
         setpoint_pos_pub_->publish(msg);
@@ -823,9 +824,11 @@ void ArdupilotInterface::takeoff_handle_accepted(const std::shared_ptr<rclcpp_ac
                         }
                     });
             } else if (current_fsm_state == ArdupilotInterfaceState::MC_HOVER) {
-                feedback->message = "MC takeoff completed";
-                goal_handle->publish_feedback(feedback);
-                taking_off = false;
+                if ((alt_ - home_alt_) > 0.9 * takeoff_altitude) { // HARDCODED: 90% threshold for takeoff altitude
+                    feedback->message = "MC takeoff completed";
+                    goal_handle->publish_feedback(feedback);
+                    taking_off = false;
+                }
             }
         } else if (mav_type_ == 1) { // Fixed-wing/VTOL
             if ((current_fsm_state == ArdupilotInterfaceState::STARTED) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))) {

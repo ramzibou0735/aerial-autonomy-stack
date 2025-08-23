@@ -181,7 +181,6 @@ docker exec -it aircraft-container tmux attach
 ## TODOs
 
 - wrong heading in ardu quad reposition
-- wait altitude in ardu quad takeoff
 - need to reset to qloiter after vtol landing for a new vtol takeoff (or send mode on takeoff)
 - Add heading in ardupilot VTOL takeoff(use local position setpoint?)
 - Add heading in ardupilot quad RTL (use local position setpoint or param?)
