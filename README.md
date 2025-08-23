@@ -183,14 +183,6 @@ docker exec -it aircraft-container tmux attach
 - Implement ardupilot_interface basic actions
   landing
 
-# Landing
-  # Quad
-  ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'RTL'}"
-  ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'GUIDED'}"
-  ros2 service call /mavros/cmd/land mavros_msgs/srv/CommandTOL "{}"
-  # VTOL
-  ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'QRTL'}" # FW return to home, transition, and land
-
 ros2 action send_goal /Drone1/land_action autopilot_interface_msgs/action/Land '{landing_altitude: 60.0}' --feedback
 
 ros2 action send_goal /Drone1/land_action autopilot_interface_msgs/action/Land '{landing_altitude: 60.0, vtol_transition_heading: 60.0}' --feedback

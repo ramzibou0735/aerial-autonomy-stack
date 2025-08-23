@@ -397,10 +397,10 @@ void ArdupilotInterface::set_reposition_callback(const std::shared_ptr<autopilot
 rclcpp_action::GoalResponse ArdupilotInterface::land_handle_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const autopilot_interface_msgs::action::Land::Goal> goal)
 {
     RCLCPP_INFO(this->get_logger(), "land_handle_goal");
-    // if ((!is_vtol_ && !(aircraft_fsm_state_ == ArdupilotInterfaceState::MC_HOVER || aircraft_fsm_state_ == ArdupilotInterfaceState::MC_ORBIT)) || (is_vtol_ && aircraft_fsm_state_ != ArdupilotInterfaceState::FW_CRUISE)) {
-    //     RCLCPP_ERROR(this->get_logger(), "Landing rejected, ArdupilotInterface is not in hover/orbit/cruise state");
-    //     return rclcpp_action::GoalResponse::REJECT;
-    // }
+    if (((mav_type_ == 2) && !(aircraft_fsm_state_ == ArdupilotInterfaceState::MC_HOVER || aircraft_fsm_state_ == ArdupilotInterfaceState::MC_ORBIT)) || ((mav_type_ == 1) && aircraft_fsm_state_ != ArdupilotInterfaceState::FW_CRUISE)) {
+        RCLCPP_ERROR(this->get_logger(), "Landing rejected, ArdupilotInterface is not in hover/orbit/cruise state");
+        return rclcpp_action::GoalResponse::REJECT;
+    }
     if (active_srv_or_act_flag_.exchange(true)) { 
         RCLCPP_ERROR(this->get_logger(), "Another service/action is active");
         return rclcpp_action::GoalResponse::REJECT;
@@ -423,6 +423,8 @@ void ArdupilotInterface::land_handle_accepted(const std::shared_ptr<rclcpp_actio
     double vtol_transition_heading = goal->vtol_transition_heading;
 
     bool landing = true;
+    uint64_t time_of_last_srv_req_us_ = this->get_clock()->now().nanoseconds() / 1000;  // Convert to microseconds
+    ArdupilotInterfaceState current_fsm_state;
     rclcpp::Rate landing_loop_rate(100);
     while (landing) {
         landing_loop_rate.sleep();
@@ -438,89 +440,105 @@ void ArdupilotInterface::land_handle_accepted(const std::shared_ptr<rclcpp_actio
             return;
         }
 
-        // if (is_vtol_ == false) {
-        //     if (aircraft_fsm_state_ == ArdupilotInterfaceState::MC_ORBIT) {
-        //         do_set_mode(4, 3); // If in an Orbit mode, switch to Hold mode
-        //         aircraft_fsm_state_ = ArdupilotInterfaceState::MC_HOVER;
-        //     }
-        //     if (aircraft_fsm_state_ == ArdupilotInterfaceState::MC_HOVER) {
-        //         double distance, heading;
-        //         geod.Inverse(lat_, lon_, home_lat_, home_lon_, distance, heading);
-        //         do_reposition(home_lat_, home_lon_, landing_altitude, fmod(heading + 360.0, 360.0) / 180.0 * M_PI);
-        //         aircraft_fsm_state_ = ArdupilotInterfaceState::RTL;
-        //         feedback->message = "Returning home in MC mode";
-        //         goal_handle->publish_feedback(feedback);
-        //     } else if (aircraft_fsm_state_ == ArdupilotInterfaceState::RTL) {
-        //         double distance_from_home_in_meters;
-        //         geod.Inverse(lat_, lon_, home_lat_, home_lon_, distance_from_home_in_meters);
-        //         if (distance_from_home_in_meters < 3.0) { // HARDCODED: distance from home for landing
-        //             do_land();
-        //             aircraft_fsm_state_ = ArdupilotInterfaceState::MC_LANDING;
-        //             landing = false;
-        //             feedback->message = "Final MC mode descent";
-        //             goal_handle->publish_feedback(feedback);
-        //         }
-        //     }  
-        // } else if (is_vtol_ == true) {
-        //     double loiter_alt_low = 65.0; // HARDCODED
-        //     double pre_landing_loiter_radius = 150.0; // HARDCODED
-        //     double pre_landing_loiter_distance = 300.0; // HARDCODED
-        //     double angle_correction_deg = atan(pre_landing_loiter_radius/pre_landing_loiter_distance) * 180.0 / M_PI;
-        //     if (aircraft_fsm_state_ == ArdupilotInterfaceState::FW_CRUISE) {
-        //         double loiter_alt_hi = 150.0; // HARDCODED
-        //         auto [des_lat, des_lon] = lat_lon_from_polar(home_lat_, home_lon_, pre_landing_loiter_distance, vtol_transition_heading + 180.0 - angle_correction_deg);
-        //         do_orbit(des_lat, des_lon, loiter_alt_hi, pre_landing_loiter_radius, NAN);
-        //         aircraft_fsm_state_ = ArdupilotInterfaceState::FW_LANDING_LOITER;
-        //         feedback->message = "Going to landing loiter";
-        //         goal_handle->publish_feedback(feedback);
-        //     } else if (aircraft_fsm_state_ == ArdupilotInterfaceState::FW_LANDING_LOITER) {
-        //         auto [des_lat, des_lon] = lat_lon_from_polar(home_lat_, home_lon_, pre_landing_loiter_distance, vtol_transition_heading + 180.0 - angle_correction_deg);
-        //         double distance_from_loiter_in_meters;
-        //         geod.Inverse(lat_, lon_, des_lat, des_lon, distance_from_loiter_in_meters);
-        //         if (distance_from_loiter_in_meters < (pre_landing_loiter_radius + 50.0) && distance_from_loiter_in_meters > (pre_landing_loiter_radius - 50.0)) { // HARDCODED: 100m wide ring
-        //             do_orbit(des_lat, des_lon, loiter_alt_low, pre_landing_loiter_radius, NAN);
-        //             aircraft_fsm_state_ = ArdupilotInterfaceState::FW_LANDING_DESCENT;
-        //             feedback->message = "Starting the descent loiter";
-        //             goal_handle->publish_feedback(feedback);
-        //         }
-        //     } else if (aircraft_fsm_state_ == ArdupilotInterfaceState::FW_LANDING_DESCENT) {
-        //         auto [exit_lat, exit_lon] = lat_lon_from_polar(home_lat_, home_lon_, pre_landing_loiter_distance, vtol_transition_heading + 180.0);
-        //         double distance_from_exit_in_meters;
-        //         geod.Inverse(lat_, lon_, exit_lat, exit_lon, distance_from_exit_in_meters);
-        //         if (distance_from_exit_in_meters < 30.0 && std::abs(alt_ - (home_alt_ + loiter_alt_low)) < 10.0) { // HARDCODED: thresholds of 30m xy and 10m z, exit from the loiter tangentially if altitude requirement met
-        //             auto [des_lat, des_lon] = lat_lon_from_polar(home_lat_, home_lon_, 600.0, vtol_transition_heading); // HARDCODED: reposition 600m behind home, must be greater than NAV_LOITER_RAD (e.g. 500m)
-        //             do_reposition(des_lat, des_lon, landing_altitude, NAN); // NOTE: this is only to give the VTOL a waypoint on the other side of the landing area
-        //             aircraft_fsm_state_ = ArdupilotInterfaceState::FW_LANDING_APPROACH;
-        //             feedback->message = "Exiting the landing loiter";
-        //             goal_handle->publish_feedback(feedback);
-        //         }
-        //     } else if (aircraft_fsm_state_ == ArdupilotInterfaceState::FW_LANDING_APPROACH) {
-        //         double distance_from_home_in_meters;
-        //         geod.Inverse(lat_, lon_, home_lat_, home_lon_, distance_from_home_in_meters);
-        //         double landing_transition_distance = 120.0; // HARDCODED: distance from home to start the transition, affected by the platforms's cruise speed, mass, wind
-        //         if (distance_from_home_in_meters < landing_transition_distance) {
-        //             do_vtol_transition(3.0); // 3 is MAV_VTOL_STATE_MC
-        //             aircraft_fsm_state_ = ArdupilotInterfaceState::VTOL_LANDING_TRANSITION;
-        //             feedback->message = "Transitioning to MC mode";
-        //             goal_handle->publish_feedback(feedback);
-        //         }
-        //     } else if (aircraft_fsm_state_ == ArdupilotInterfaceState::VTOL_LANDING_TRANSITION && !in_transition_mode_ && vehicle_type_ == px4_msgs::msg::VehicleStatus::VEHICLE_TYPE_ROTARY_WING) {
-        //         do_reposition(home_lat_, home_lon_, landing_altitude, NAN); // NOTE: the VTOL is in quad mode
-        //         aircraft_fsm_state_ = ArdupilotInterfaceState::RTL;
-        //         feedback->message = "Repositioning in MC mode";
-        //         goal_handle->publish_feedback(feedback);
-        //     } else if (aircraft_fsm_state_ == ArdupilotInterfaceState::RTL) {
-        //         double distance_from_home_in_meters;
-        //         geod.Inverse(lat_, lon_, home_lat_, home_lon_, distance_from_home_in_meters);
-        //         if (distance_from_home_in_meters < 3.0) { // HARDCODED: distance from home for landing
-        //             do_land();
-        //             aircraft_fsm_state_ = ArdupilotInterfaceState::MC_LANDING;
-        //             landing = false;
-        //             feedback->message = "Final MC mode descent";
-        //             goal_handle->publish_feedback(feedback);
-        //         }
-        //     }
-        // }
+        {
+            std::shared_lock<std::shared_mutex> lock(node_data_mutex_);
+            current_fsm_state = aircraft_fsm_state_;
+        }
+        uint64_t current_time_us = this->get_clock()->now().nanoseconds() / 1000;  // Convert to microseconds
+
+        if (mav_type_ == 2) { // Multicopter
+            // ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'RTL'}"
+            // ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'GUIDED'}"
+            // ros2 service call /mavros/cmd/land mavros_msgs/srv/CommandTOL "{}"
+
+            // if ((current_fsm_state == ArdupilotInterfaceState::STARTED) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))) {
+            //     auto set_mode_request = std::make_shared<mavros_msgs::srv::SetMode::Request>();
+            //     set_mode_request->custom_mode = "RTL";
+            //     feedback->message = "Requesting mode";
+            //     goal_handle->publish_feedback(feedback);
+            //     time_of_last_srv_req_us_ = current_time_us;
+            //     set_mode_client_->async_send_request(set_mode_request,
+            //         [this, feedback, goal_handle](rclcpp::Client<mavros_msgs::srv::SetMode>::SharedFuture future) {
+            //             if (future.get()->mode_sent) {
+            //                 feedback->message = "Request mode success";
+            //                 goal_handle->publish_feedback(feedback);
+            //                 std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+            //                 aircraft_fsm_state_ = ArdupilotInterfaceState::GUIDED_PRETAKEOFF;
+            //             } else {
+            //                 feedback->message = "Request mode failed";
+            //                 goal_handle->publish_feedback(feedback);
+            //             }
+            //         });
+            // } else if ((current_fsm_state == ArdupilotInterfaceState::STARTED) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))) {
+            //     auto set_mode_request = std::make_shared<mavros_msgs::srv::SetMode::Request>();
+            //     set_mode_request->custom_mode = "RTL";
+            //     feedback->message = "Requesting mode";
+            //     goal_handle->publish_feedback(feedback);
+            //     time_of_last_srv_req_us_ = current_time_us;
+            //     set_mode_client_->async_send_request(set_mode_request,
+            //         [this, feedback, goal_handle](rclcpp::Client<mavros_msgs::srv::SetMode>::SharedFuture future) {
+            //             if (future.get()->mode_sent) {
+            //                 feedback->message = "Request mode success";
+            //                 goal_handle->publish_feedback(feedback);
+            //                 std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+            //                 aircraft_fsm_state_ = ArdupilotInterfaceState::GUIDED_PRETAKEOFF;
+            //             } else {
+            //                 feedback->message = "Request mode failed";
+            //                 goal_handle->publish_feedback(feedback);
+            //             }
+            //         });
+            // } else if ((current_fsm_state == ArdupilotInterfaceState::ARMED) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))) {
+            //     auto takeoff_request = std::make_shared<mavros_msgs::srv::CommandTOL::Request>();
+            //     takeoff_request->altitude = takeoff_altitude;
+            //     feedback->message = "Requesting takeoff";
+            //     goal_handle->publish_feedback(feedback);
+            //     time_of_last_srv_req_us_ = current_time_us;
+            //     takeoff_client_->async_send_request(takeoff_request,
+            //         [this, feedback, goal_handle](rclcpp::Client<mavros_msgs::srv::CommandTOL>::SharedFuture future) {
+            //             if (future.get()->success) {
+            //                 feedback->message = "Request takeoff success";
+            //                 goal_handle->publish_feedback(feedback);
+            //                 std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+            //                 aircraft_fsm_state_ = ArdupilotInterfaceState::MC_HOVER;
+            //             } else {
+            //                 feedback->message = "Request takeoff failed";
+            //                 goal_handle->publish_feedback(feedback);
+            //             }
+            //         });
+            // } else if (current_fsm_state == ArdupilotInterfaceState::MC_HOVER) {
+            //     feedback->message = "MC takeoff completed";
+            //     goal_handle->publish_feedback(feedback);
+            //     taking_off = false;
+            // }
+
+        } else if (mav_type_ == 1) { // Fixed-wing/VTOL
+            // ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'QRTL'}"
+
+            // if ((current_fsm_state == ArdupilotInterfaceState::STARTED) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))) {
+            //     auto set_mode_request = std::make_shared<mavros_msgs::srv::SetMode::Request>();
+            //     set_mode_request->custom_mode = "RTL";
+            //     feedback->message = "Requesting mode";
+            //     goal_handle->publish_feedback(feedback);
+            //     time_of_last_srv_req_us_ = current_time_us;
+            //     set_mode_client_->async_send_request(set_mode_request,
+            //         [this, feedback, goal_handle](rclcpp::Client<mavros_msgs::srv::SetMode>::SharedFuture future) {
+            //             if (future.get()->mode_sent) {
+            //                 feedback->message = "Request mode success";
+            //                 goal_handle->publish_feedback(feedback);
+            //                 std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+            //                 aircraft_fsm_state_ = ArdupilotInterfaceState::GUIDED_PRETAKEOFF;
+            //             } else {
+            //                 feedback->message = "Request mode failed";
+            //                 goal_handle->publish_feedback(feedback);
+            //             }
+            //         });
+            // } else if (current_fsm_state == ArdupilotInterfaceState::MC_HOVER) {
+            //     feedback->message = "MC takeoff completed";
+            //     goal_handle->publish_feedback(feedback);
+            //     taking_off = false;
+            // }
+
+        }
     }
     result->success = true;
     goal_handle->succeed(result);
