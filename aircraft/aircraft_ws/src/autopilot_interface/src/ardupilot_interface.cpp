@@ -428,7 +428,6 @@ void ArdupilotInterface::land_handle_accepted(const std::shared_ptr<rclcpp_actio
     rclcpp::Rate landing_loop_rate(100);
     while (landing) {
         landing_loop_rate.sleep();
-        std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Reading data written by subs but also writing the FSM state
 
         if (goal_handle->is_canceling()) { // Check if there is a cancel request
             // abort_action(); // Sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to MC_HOVER or FW_CRUISE
@@ -471,7 +470,7 @@ void ArdupilotInterface::land_handle_accepted(const std::shared_ptr<rclcpp_actio
             //         });
             // } else if ((current_fsm_state == ArdupilotInterfaceState::STARTED) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))) {
             //     auto set_mode_request = std::make_shared<mavros_msgs::srv::SetMode::Request>();
-            //     set_mode_request->custom_mode = "RTL";
+            //     set_mode_request->custom_mode = "GUIDED";
             //     feedback->message = "Requesting mode";
             //     goal_handle->publish_feedback(feedback);
             //     time_of_last_srv_req_us_ = current_time_us;
@@ -488,12 +487,12 @@ void ArdupilotInterface::land_handle_accepted(const std::shared_ptr<rclcpp_actio
             //             }
             //         });
             // } else if ((current_fsm_state == ArdupilotInterfaceState::ARMED) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))) {
-            //     auto takeoff_request = std::make_shared<mavros_msgs::srv::CommandTOL::Request>();
-            //     takeoff_request->altitude = takeoff_altitude;
+            //     auto landing_request = std::make_shared<mavros_msgs::srv::CommandTOL::Request>();
+            //     landing_request->altitude = takeoff_altitude;
             //     feedback->message = "Requesting takeoff";
             //     goal_handle->publish_feedback(feedback);
             //     time_of_last_srv_req_us_ = current_time_us;
-            //     takeoff_client_->async_send_request(takeoff_request,
+            //     landing_client_->async_send_request(landing_request,
             //         [this, feedback, goal_handle](rclcpp::Client<mavros_msgs::srv::CommandTOL>::SharedFuture future) {
             //             if (future.get()->success) {
             //                 feedback->message = "Request takeoff success";
@@ -508,36 +507,36 @@ void ArdupilotInterface::land_handle_accepted(const std::shared_ptr<rclcpp_actio
             // } else if (current_fsm_state == ArdupilotInterfaceState::MC_HOVER) {
             //     feedback->message = "MC takeoff completed";
             //     goal_handle->publish_feedback(feedback);
-            //     taking_off = false;
+            //     landing = false;
             // }
 
         } else if (mav_type_ == 1) { // Fixed-wing/VTOL
-            // ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'QRTL'}"
-
-            // if ((current_fsm_state == ArdupilotInterfaceState::STARTED) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))) {
-            //     auto set_mode_request = std::make_shared<mavros_msgs::srv::SetMode::Request>();
-            //     set_mode_request->custom_mode = "RTL";
-            //     feedback->message = "Requesting mode";
-            //     goal_handle->publish_feedback(feedback);
-            //     time_of_last_srv_req_us_ = current_time_us;
-            //     set_mode_client_->async_send_request(set_mode_request,
-            //         [this, feedback, goal_handle](rclcpp::Client<mavros_msgs::srv::SetMode>::SharedFuture future) {
-            //             if (future.get()->mode_sent) {
-            //                 feedback->message = "Request mode success";
-            //                 goal_handle->publish_feedback(feedback);
-            //                 std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
-            //                 aircraft_fsm_state_ = ArdupilotInterfaceState::GUIDED_PRETAKEOFF;
-            //             } else {
-            //                 feedback->message = "Request mode failed";
-            //                 goal_handle->publish_feedback(feedback);
-            //             }
-            //         });
-            // } else if (current_fsm_state == ArdupilotInterfaceState::MC_HOVER) {
-            //     feedback->message = "MC takeoff completed";
-            //     goal_handle->publish_feedback(feedback);
-            //     taking_off = false;
-            // }
-
+            if ((current_fsm_state == ArdupilotInterfaceState::FW_CRUISE) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))) {
+                auto set_mode_request = std::make_shared<mavros_msgs::srv::SetMode::Request>();
+                set_mode_request->custom_mode = "QRTL";
+                feedback->message = "Requesting mode";
+                goal_handle->publish_feedback(feedback);
+                time_of_last_srv_req_us_ = current_time_us;
+                set_mode_client_->async_send_request(set_mode_request,
+                    [this, feedback, goal_handle](rclcpp::Client<mavros_msgs::srv::SetMode>::SharedFuture future) {
+                        if (future.get()->mode_sent) {
+                            feedback->message = "Request mode success";
+                            goal_handle->publish_feedback(feedback);
+                            std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+                            aircraft_fsm_state_ = ArdupilotInterfaceState::VTOL_QRTL;
+                        } else {
+                            feedback->message = "Request mode failed";
+                            goal_handle->publish_feedback(feedback);
+                        }
+                    });
+            } else if ((current_fsm_state == ArdupilotInterfaceState::VTOL_QRTL) 
+                        && (std::abs(alt_ - home_alt_) < 2.0)) { // HARDCODED: 2m altitude threshold
+                feedback->message = "VTOL QRTL completed";
+                goal_handle->publish_feedback(feedback);
+                std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+                aircraft_fsm_state_ = ArdupilotInterfaceState::LANDED;
+                landing = false;
+            }
         }
     }
     result->success = true;
@@ -580,7 +579,7 @@ void ArdupilotInterface::offboard_handle_accepted(const std::shared_ptr<rclcpp_a
     rclcpp::Rate offboard_loop_rate(100);
     while (offboarding) {
         offboard_loop_rate.sleep();
-        std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Reading data written by subs but also writing the FSM state
+        // std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Reading data written by subs but also writing the FSM state
 
         if (goal_handle->is_canceling()) { // Check if there is a cancel request
             // abort_action(); // Sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to MC_HOVER or FW_CRUISE
@@ -669,7 +668,7 @@ void ArdupilotInterface::orbit_handle_accepted(const std::shared_ptr<rclcpp_acti
     rclcpp::Rate orbit_loop_rate(100);
     while (orbiting) {
         orbit_loop_rate.sleep();
-        std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Reading data written by subs but also writing the FSM state
+        // std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Reading data written by subs but also writing the FSM state
 
         if (goal_handle->is_canceling()) { // Check if there is a cancel request
             // abort_action(); // Sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to MC_HOVER or FW_CRUISE

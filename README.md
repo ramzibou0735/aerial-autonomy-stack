@@ -191,6 +191,7 @@ ros2 action send_goal /Drone1/land_action autopilot_interface_msgs/action/Land '
 - Implement ardupilot orbit
 - Reset ArdupilotInterfaceState::STARTED after a landing
 - Add heading in ardupilot VTOL takeoff and landing
+- Add altitude in ardupilot VTOL landing
 - Implement ardupilot offboard
 
 # Orbit
