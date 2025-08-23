@@ -42,7 +42,7 @@ windows:
   <% num_drones.times do |i| %>
   <% if autopilot == 'px4' %>
   - px4_sitl_<%= i + 1 %>:
-      layout: even-horizontal
+      layout: main-horizontal
       panes:
         - >
           sleep <%= (i + 1) * 3 %> &&
@@ -65,7 +65,7 @@ windows:
         <% end %>
   <% elsif autopilot == 'ardupilot' %>
   - ardupilot_sitl_<%= i + 1 %>:
-      layout: even-horizontal
+      layout: main-horizontal
       panes:
         - >
           sleep <%= (i + 1) * 3 %> &&
@@ -96,7 +96,7 @@ windows:
   <% end %>
 
   - ground_system_over_zenoh:
-      layout: even-horizontal
+      layout: even-vertical
       panes:
         - "ros2 run ros_gz_bridge parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock"
         - sleep 3 && ros2 run ground_system oracle --num-drones <%=  num_drones %> --base-port 14540 --rate 1.0 <% if simulated_time == 'true' %> --ros-args -p use_sim_time:=True<% end %>

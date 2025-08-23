@@ -180,13 +180,16 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
+- Revise interface printouts
+
+- Reset ArdupilotInterfaceState::STARTED after a landing (landed state + disarm)
 - Double check that the takeoff action is take up properly (improve action acceptance checks)
-- Reset ArdupilotInterfaceState::STARTED after a landing
-- Test speed and reposition services (check heading)
 
 - Add heading in ardupilot VTOL takeoff and landing (use local position setpoint?)
 - Add heading in ardupilot quad RTL (use local position setpoint?)
 - Add altitude in ardupilot VTOL/quad landing (?)
+
+- Test speed and reposition services (check heading)
 
 - Implement ardupilot orbit
 
@@ -218,12 +221,14 @@ docker exec -it aircraft-container tmux attach
   ros2 topic pub --rate 10 --times 50 /mavros/setpoint_velocity/cmd_vel_unstamped geometry_msgs/msg/Twist '{linear: {x: 2.0, y: 0.0, z: 0.0}}' # LOCAL FRAME
 
 - Implement do_abort for ArdupilotInterface
+- Clean up ArdupilotInterface
 
 - Determine how to inteactively send rates, attitude, trajectory, velocity, acceleration references for Offboard/Guided modes
 - Create and implement vision/control node
 
 - Double check mutex and sleep use in px4_interface and ardupilot_interface
 - Before release, make sure that for all maps, all vehicles, a simple autonomous takeoff example works with up to 3 vehicles with sensors
+- Remove PX4 MPC acceleration limit
 
 ### Known Issues
 
