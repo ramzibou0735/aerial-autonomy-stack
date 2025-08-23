@@ -16,6 +16,7 @@ That is, the challenge (and good sport) of **full-stack integration** among:
 
 - **Simplicity** (["simple is better than complex"](https://peps.python.org/pep-0020/), ["worse is better"](https://www.dreamsongs.com/RiseOfWorseIsBetter.html), and ["no fat software"](https://people.inf.ethz.ch/wirth/Articles/LeanSoftware.pdf) are the 3 slogans of the AAS)
 - [おまかせ](https://dhh.dk/2012/rails-is-omakase.html) **end-to-end**ness (from camera frames, to autopilot uORB/MAVLink commands)
+- **Recentness** (or "it's better to break things than to use Kinetic Kame in 2025")
 - **Deployment** focus
     - Clear, Dockerized split between simulation and aircraft software
     - ROS2 intra-companion board messaging
@@ -30,7 +31,7 @@ A summary of existing multi-drone flight stacks can be found in [Table II of thi
 - *Universidad Politécnica de Madrid (UPM)*'s [`aerostack2`](https://github.com/aerostack2/aerostack2) (multicopter-only)
 - *Czech Technical University in Prague (CTU)*'s [`mrs_uav_system`](https://github.com/ctu-mrs/mrs_uav_system) (ROS1, multicopter-only)
 - *Technische Universität (TU) Berlin*'s [`crazyswarm2`](https://github.com/IMRCLab/crazyswarm2) (crazyflie-only, indoor)
-- *Peking University*'s [`XTDrone`](https://github.com/robin-shaun/XTDrone) (ROS1, PX4-only)
+- *Peking University*'s [`XTDrone`](https://github.com/robin-shaun/XTDrone) (PX4-only)
 
 A summary of aerial robotics simulators can be found in [Table IV of this paper](https://arxiv.org/pdf/2311.02296), these include:
 
