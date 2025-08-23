@@ -895,14 +895,15 @@ void ArdupilotInterface::takeoff_handle_accepted(const std::shared_ptr<rclcpp_ac
                 wp1.z_alt = 0.0;
                 mission_request->waypoints.push_back(wp1);
                 mavros_msgs::msg::Waypoint wp2; // Create the second waypoint (loiter)
+                auto [des_lat, des_lon] = lat_lon_from_cartesian(home_lat_, home_lon_, vtol_loiter_east, vtol_loiter_nord);
                 wp2.frame = 3;
                 wp2.command = 17; // NAV_LOITER_UNLIM
                 wp2.is_current = false;
                 wp2.autocontinue = true;
-                wp2.param3 = 300.0;
-                wp2.x_lat = 45.5479;
-                wp2.y_long = 8.949;
-                wp2.z_alt = 250.0; // TODO: determine altitude reference
+                wp2.param3 = 200.0; // HARDCODED: 200m loiter radius
+                wp2.x_lat = des_lat;
+                wp2.y_long = des_lon;
+                wp2.z_alt = vtol_loiter_alt;               
                 mission_request->waypoints.push_back(wp2);
                 feedback->message = "Requesting mission upload";
                 goal_handle->publish_feedback(feedback);

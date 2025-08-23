@@ -181,33 +181,7 @@ docker exec -it aircraft-container tmux attach
 ## TODOs
 
 - Implement ardupilot_interface basic actions
-  takeoff
   landing
-
-ros2 action send_goal /Drone1/takeoff_action autopilot_interface_msgs/action/Takeoff '{takeoff_altitude: 40.0}' --feedback
-
-ros2 action send_goal /Drone1/takeoff_action autopilot_interface_msgs/action/Takeoff '{takeoff_altitude: 40.0, vtol_transition_heading: 330.0, vtol_loiter_nord: 200.0, vtol_loiter_east: 100.0, vtol_loiter_alt: 120.0}'  --feedback
-
-ros2 action send_goal /Drone1/land_action autopilot_interface_msgs/action/Land '{landing_altitude: 60.0}' --feedback
-
-ros2 action send_goal /Drone1/land_action autopilot_interface_msgs/action/Land '{landing_altitude: 60.0, vtol_transition_heading: 60.0}' --feedback
-
-- Implement ardupilot_interface advanced actions
-  orbit
-  offboard
-
----
-
-# Takeoff
-  # Quad
-  ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'GUIDED'}"
-  ros2 service call /mavros/cmd/arming mavros_msgs/srv/CommandBool "{value: true}"
-  ros2 service call /mavros/cmd/takeoff mavros_msgs/srv/CommandTOL "{altitude: 40.0}"
-  # VTOL
-  ros2 service call /mavros/cmd/arming mavros_msgs/srv/CommandBool "{value: true}"
-  ros2 service call /mavros/cmd/takeoff mavros_msgs/srv/CommandTOL "{altitude: 40.0}"
-  ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'CRUISE'}" # Or FBWB to transition to FW at 10m/s
-  ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'GUIDED'}" # Or CIRCLE to start loitering
 
 # Landing
   # Quad
@@ -216,6 +190,16 @@ ros2 action send_goal /Drone1/land_action autopilot_interface_msgs/action/Land '
   ros2 service call /mavros/cmd/land mavros_msgs/srv/CommandTOL "{}"
   # VTOL
   ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'QRTL'}" # FW return to home, transition, and land
+
+ros2 action send_goal /Drone1/land_action autopilot_interface_msgs/action/Land '{landing_altitude: 60.0}' --feedback
+
+ros2 action send_goal /Drone1/land_action autopilot_interface_msgs/action/Land '{landing_altitude: 60.0, vtol_transition_heading: 60.0}' --feedback
+
+- Implement ardupilot_interface advanced actions
+- Implement ardupilot orbit
+- Reset ArdupilotInterfaceState::STARTED after a landing
+- Add heading in ardupilot VTOL takeoff and landing
+- Implement ardupilot offboard
 
 # Orbit
   # Quad
@@ -244,30 +228,13 @@ ros2 action send_goal /Drone1/land_action autopilot_interface_msgs/action/Land '
   # VTOL
   -
 
-# Set Speed
-  # Quad
-  ros2 service call /mavros/cmd/command mavros_msgs/srv/CommandLong "{command: 178, param1: 1.0, param2: 10.0}"
-  # VTOL
-  ros2 service call /mavros/cmd/command mavros_msgs/srv/CommandLong "{command: 178, param1: 0.0, param2: 10.0}"
-
-# Set Reposition
-  # Quad
-  GeoPose (altitude over MSL)
-  ros2 topic pub --once /mavros/setpoint_position/global geographic_msgs/msg/GeoPoseStamped '{header: {frame_id: "map"},pose: {position: {latitude: 45.5470, longitude: 8.940, altitude: 300.0}, orientation: {x: 0.0, y: 0.0, z: 0.707, w: 0.707}}}'
-  # VTOL
-  -
-
----
-
-- Add heading in VTOL takeoff and landing
 - Implement do_abort for ArdupilotInterface
-- Reset ArdupilotInterfaceState::STARTED after a landing
 
 - Determine how to inteactively send rates, attitude, trajectory, velocity, acceleration references for Offboard/Guided modes
 - Create and implement vision/control node
 
-- Double check mutex and sleep use in px4_interface
-- Make sure that for all maps, all vehicles, a simple autonomous takeoff + loiter + landing example works with up to 3 vehicles with sensors
+- Double check mutex and sleep use in px4_interface and ardupilot_interface
+- Before release, make sure that for all maps, all vehicles, a simple autonomous takeoff example works with up to 3 vehicles with sensors
 
 ### Known Issues
 

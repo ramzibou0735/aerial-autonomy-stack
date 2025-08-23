@@ -91,7 +91,6 @@ enum class ArdupilotInterfaceState {
     STARTED,
     GUIDED_PRETAKEOFF,
     ARMED,
-    // MC_TAKEOFF,
     MC_HOVER,
     MC_ORBIT,
     VTOL_TAKEOFF_MC,
