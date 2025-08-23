@@ -180,9 +180,8 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- need to reset to qloiter after vtol landing for a new vtol takeoff (or send mode on takeoff)
-
 - Add heading in ardupilot VTOL takeoff(use local position setpoint?)
+
 - Add heading in ardupilot quad RTL (use local position setpoint or param?)
 - Add altitude in ardupilot VTOL/quad landing (param?)
 - Add heading in ardupilot VTOL landing (with loiter descent)

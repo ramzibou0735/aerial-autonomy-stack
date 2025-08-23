@@ -837,6 +837,24 @@ void ArdupilotInterface::takeoff_handle_accepted(const std::shared_ptr<rclcpp_ac
             }
         } else if (mav_type_ == 1) { // Fixed-wing/VTOL
             if ((current_fsm_state == ArdupilotInterfaceState::STARTED) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))) {
+                auto set_mode_request = std::make_shared<mavros_msgs::srv::SetMode::Request>();
+                set_mode_request->custom_mode = "QLOITER";
+                feedback->message = "Requesting mode";
+                goal_handle->publish_feedback(feedback);
+                time_of_last_srv_req_us_ = current_time_us;
+                set_mode_client_->async_send_request(set_mode_request,
+                    [this, feedback, goal_handle](rclcpp::Client<mavros_msgs::srv::SetMode>::SharedFuture future) {
+                        if (future.get()->mode_sent) {
+                            feedback->message = "Request mode success";
+                            goal_handle->publish_feedback(feedback);
+                            std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+                            aircraft_fsm_state_ = ArdupilotInterfaceState::QLOITER_PRETAKEOFF;
+                        } else {
+                            feedback->message = "Request mode failed";
+                            goal_handle->publish_feedback(feedback);
+                        }
+                    });
+            } else if ((current_fsm_state == ArdupilotInterfaceState::QLOITER_PRETAKEOFF) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))) {
                 auto arm_request = std::make_shared<mavros_msgs::srv::CommandBool::Request>();
                 arm_request->value = true;
                 feedback->message = "Requesting arming";

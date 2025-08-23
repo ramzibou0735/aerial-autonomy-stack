@@ -88,6 +88,7 @@ using namespace std::chrono_literals;  // for time literals (e.g. 1s)
 enum class ArdupilotInterfaceState {
     STARTED,
     GUIDED_PRETAKEOFF,
+    QLOITER_PRETAKEOFF,
     ARMED,
     MC_HOVER,
     MC_ORBIT,
