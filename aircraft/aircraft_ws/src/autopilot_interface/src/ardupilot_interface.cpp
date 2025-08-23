@@ -179,9 +179,9 @@ void ArdupilotInterface::state_callback(const State::SharedPtr msg)
     armed_flag_ = msg->armed;
     mav_state_ = msg->system_status; // MAV_STATE: MAV_STATE_CALIBRATING = 2, MAV_STATE_STANDBY = 3, MAV_STATE_ACTIVE = 4 (0: unkown, 5,6: failsafe, 8: flight termination, 1,7: boot)
     ardupilot_mode_ = msg->mode; // See https://github.com/mavlink/mavros/blob/ros2/mavros_msgs/msg/State.msg
-    // if ((aircraft_fsm_state_ != ArdupilotInterfaceState::STARTED) && (mav_state_ == 3)) {
-    //     aircraft_fsm_state_ = ArdupilotInterfaceState::STARTED; // Reset ArduPilot interface state when in standby
-    // } TODO
+    if ((aircraft_fsm_state_ == ArdupilotInterfaceState::LANDED) && (mav_state_ == 3)) {
+        aircraft_fsm_state_ = ArdupilotInterfaceState::STARTED; // Reset ArduPilot interface state when in standby after landing
+    }
 }
 
 // Callbacks for timers (reentrant group)
@@ -510,6 +510,7 @@ void ArdupilotInterface::land_handle_accepted(const std::shared_ptr<rclcpp_actio
                         && (std::abs(alt_ - home_alt_) < 2.0)) { // HARDCODED: 2m altitude threshold
                 feedback->message = "MC landing completed";
                 goal_handle->publish_feedback(feedback);
+                aircraft_fsm_state_ = ArdupilotInterfaceState::LANDED;
                 landing = false;
             }
         } else if (mav_type_ == 1) { // Fixed-wing/VTOL

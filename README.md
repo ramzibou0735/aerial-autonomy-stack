@@ -180,15 +180,16 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- Double check that the takeoff action is take up properly (improve action acceptance checks)
-- Reset ArdupilotInterfaceState::STARTED after a landing (landed state + disarm)
-
+- wrong heading in ardu quad reposition
+- wait altitude in ardu quad takeoff
+- need to reset to qloiter after vtol landing for a new vtol takeoff (or send mode on takeoff)
 - Add heading in ardupilot VTOL takeoff(use local position setpoint?)
 - Add heading in ardupilot quad RTL (use local position setpoint or param?)
 - Add altitude in ardupilot VTOL/quad landing (param?)
 - Add heading in ardupilot VTOL landing (with loiter descent)
 
-- Test speed and reposition services (check heading)
+
+
 
 - Implement ardupilot orbit
 
@@ -220,6 +221,7 @@ docker exec -it aircraft-container tmux attach
   ros2 topic pub --rate 10 --times 50 /mavros/setpoint_velocity/cmd_vel_unstamped geometry_msgs/msg/Twist '{linear: {x: 2.0, y: 0.0, z: 0.0}}' # LOCAL FRAME
 
 - Implement do_abort for ArdupilotInterface
+- Improve pre-flight checks for ArduPilot takeoff action
 - Clean up ArdupilotInterface
 
 - Determine how to inteactively send rates, attitude, trajectory, velocity, acceleration references for Offboard/Guided modes
@@ -231,7 +233,7 @@ docker exec -it aircraft-container tmux attach
 
 ### Known Issues
 
-- Command 178 MAV_CMD_DO_CHANGE_SPEED is accepted but not effective in changing speed for VTOL
+- Command 178 MAV_CMD_DO_CHANGE_SPEED is accepted but not effective in changing speed for ArduPilot VTOL
 - ArduPilot SITL for Iris uses option -f that also sets "external": True, this is not the case for the Alti Transition from ArduPilot/SITL_Models 
 - Must adjust orientation of the lidar and frame of the lidar odometry for VTOLs
 - In yolo_inference_node.py, cannot open GPU accelerated (nvh264dec) GStreamer pipeline with cv2.VideoCapture, might need to recompile OpenCV to have both CUDA and GStreamer support (or use python3-gi gir1.2-gst-plugins-base-1.0 gir1.2-gstreamer-1.0 and circumbent OpenCV)
