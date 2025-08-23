@@ -203,50 +203,50 @@ void ArdupilotInterface::ardupilot_interface_printout_callback()
 
     RCLCPP_INFO(get_logger(),
                 "Vehicle status:\n"
-                "\ttarget_system_id: %d\n"
-                "\tmav_type (1: fixed-wing/vtol, 2: quad): %d\n"
-                "\tmav_state (3: standby/ready, 4: active/flying): %d\n"
-                "\tarmed: %s\n"
-                "\tardupilot flight mode: %s",
+                "target_system_id: %d\n"
+                "mav_type (1: fw/vtol, 2: quad): %d\n"
+                "mav_state (3: standby, 4: active): %d\n"
+                "armed: %s\n"
+                "ardupilot flight mode: %s",
                 target_system_id_, mav_type_, mav_state_,
                 (armed_flag_ ? "true" : "false"),
                 ardupilot_mode_.c_str());
     RCLCPP_INFO(get_logger(),
                 "Global position:\n"
-                "\tlatitude: %.5f, longitude: %.5f, altitude AMSL: %.2f, altitude ellipsoid: %.2f",
+                "lat: %.5f, lon: %.5f,\nalt AMSL: %.2f, alt ell: %.2f",
                 lat_, lon_, alt_, alt_ellipsoid_);
     RCLCPP_INFO(get_logger(),
                 "Local position:\n"
-                "\tNED position: %.2f %.2f %.2f\n"
-                "\tNED velocity: %.2f %.2f %.2f\n"
-                "\theading: %.2f\n"
-                "\treference latitude: %.5f, longitude: %.5f, ellipsoid altitude: %.2f",
+                "NED pos: %.2f %.2f %.2f\n"
+                "NED vel: %.2f %.2f %.2f\n"
+                "heading: %.2f\n"
+                "ref lat: %.5f, lon: %.5f, alt ell: %.2f",
                 x_, y_, z_,
                 vx_, vy_, vz_,
                 heading_,
                 ref_lat_, ref_lon_, ref_alt_);
     RCLCPP_INFO(get_logger(),
                 "Odometry:\n"
-                "\tENU position: %.2f %.2f %.2f\n"
-                "\tquaternion: %.2f %.2f %.2f %.2f\n"
-                "\tFrame velocity: %.2f %.2f %.2f\n"
-                "\tangular_velocity: %.2f %.2f %.2f", 
+                "ENU position: %.2f %.2f %.2f\n"
+                "quaternion: %.2f %.2f %.2f %.2f\n"
+                "frame vel: %.2f %.2f %.2f\n"
+                "angular_vel: %.2f %.2f %.2f", 
                 position_[0], position_[1], position_[2],
                 q_[0], q_[1], q_[2], q_[3],
                 velocity_[0], velocity_[1], velocity_[2],
                 angular_velocity_[0] * 180.0 / M_PI, angular_velocity_[1] * 180.0 / M_PI, angular_velocity_[2] * 180.0 / M_PI);
     RCLCPP_INFO(get_logger(),
                 "Airspeed:\n"
-                "\ttrue_airspeed_m_s: %.2f",
+                "true_airspeed_m_s: %.2f",
                 true_airspeed_m_s_);
     RCLCPP_INFO(this->get_logger(), 
-                "Current node time:\n\t%.2f seconds", this->get_clock()->now().seconds());
+                "Current node time:\n%.2f seconds", this->get_clock()->now().seconds());
     auto now = this->get_clock()->now();
     double elapsed_sec = (now - last_offboard_rate_check_time_).seconds();
     if (elapsed_sec > 0) {
         double actual_rate = (offboard_loop_count_ - last_offboard_loop_count_) / elapsed_sec;
         RCLCPP_INFO(this->get_logger(), 
-                "Offboard loop rate:\n\t%.2f Hz\n\n", actual_rate);
+                "Offboard loop rate:\n%.2f Hz\n\n", actual_rate);
     }    
     last_offboard_loop_count_.store(offboard_loop_count_.load());
     last_offboard_rate_check_time_ = now;

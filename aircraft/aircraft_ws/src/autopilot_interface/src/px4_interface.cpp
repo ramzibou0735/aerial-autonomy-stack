@@ -119,7 +119,7 @@ void PX4Interface::global_position_callback(const VehicleGlobalPosition::SharedP
     lat_ = msg->lat;
     lon_ = msg->lon;
     alt_ = msg->alt; // AMSL
-    alt_ellipsoid_ = msg->alt_ellipsoid; 
+    alt_ellipsoid_ = msg->alt_ellipsoid; // TODO: double-check
     // New to v1.16
     // bool lat_lon_valid
     // bool alt_valid
@@ -193,67 +193,71 @@ void PX4Interface::vehicle_command_ack_callback(const VehicleCommandAck::SharedP
 void PX4Interface::px4_interface_printout_callback()
 {
     std::shared_lock<std::shared_mutex> lock(node_data_mutex_); // Use shared_lock for data reads
+    auto now = this->get_clock()->now();
+    double elapsed_sec = (now - last_offboard_rate_check_time_).seconds();
+    double actual_rate = NAN;
+    if (elapsed_sec > 0) {
+        actual_rate = (offboard_loop_count_ - last_offboard_loop_count_) / elapsed_sec;
+    }    
+    last_offboard_loop_count_.store(offboard_loop_count_.load());
+    last_offboard_rate_check_time_ = now;
     RCLCPP_INFO(get_logger(),
                 "Vehicle status:\n"
-                "\ttarget_system_id: %d\n"
-                "\tarming_state: %d\n"
-                "\tvehicle_type (MC:1, FW:2): %d\n"
-                "\tis_vtol: %s\n"
-                "\tis_vtol_tailsitter: %s\n"
-                "\tin_transition_mode: %s\n"
-                "\tin_transition_to_fw: %s\n"
-                "\tpre_flight_checks_pass: %s",
+                "  target_system_id: %d\n"
+                "  arming_state: %d\n"
+                "  vehicle_type (MC:1, FW:2): %d\n"
+                "  is_vtol: %s\n"
+                "  is_vtol_tailsitter: %s\n"
+                "  in_transition_mode: %s\n"
+                "  in_transition_to_fw: %s\n"
+                "  pre_flight_checks_pass: %s\n"
+                "Global position:\n"
+                "  lat: %.5f, lon: %.5f,\n"
+                "  alt AMSL: %.2f, alt ell: %.2f\n"
+                "Local position:\n"
+                "  NED pos: %.2f %.2f %.2f\n"
+                "  (XY valid %s, Z valid %s)\n"
+                "  NED vel: %.2f %.2f %.2f\n"
+                "  (V_XY valid %s, V_Z valid %s)\n"
+                "  heading: %.2f\n"
+                "  ref lat: %.5f, lon: %.5f, alt AMSL: %.2f\n"
+                "  (ref XY valid %s, ref Z valid %s)\n"
+                "Odometry:\n"
+                "  pose_frame: %.d, velocity_frame %d\n"
+                "  pos: %.2f %.2f %.2f\n"
+                "  quaternion: %.2f %.2f %.2f %.2f\n"
+                "  vel: %.2f %.2f %.2f\n"
+                "  angular_vel: %.2f %.2f %.2f\n"
+                "Airspeed validated:\n"
+                "  true_airspeed_m_s: %.2f\n"
+                "Command Ack:\n"
+                "  command: %d (result %d from_external %s)\n"
+                "Current node time:\n"
+                "  %.2f seconds\n"
+                "Offboard loop rate:\n"
+                "  %.2f Hz\n\n",
+                //
                 target_system_id_, arming_state_, vehicle_type_,
                 (is_vtol_ ? "true" : "false"),
                 (is_vtol_tailsitter_ ? "true" : "false"),
                 (in_transition_mode_ ? "true" : "false"),
                 (in_transition_to_fw_ ? "true" : "false"),
-                (pre_flight_checks_pass_ ? "true" : "false"));
-    RCLCPP_INFO(get_logger(),
-                "Global position:\n"
-                "\tlatitude: %.5f, longitude: %.5f, altitude AMSL: %.2f, altitude ellipsoid: %.2f",
-                lat_, lon_, alt_, alt_ellipsoid_);
-    RCLCPP_INFO(get_logger(),
-                "Local position:\n"
-                "\tNED position: %.2f %.2f %.2f (XY valid %s, Z valid %s)\n"
-                "\tNED velocity: %.2f %.2f %.2f (V_XY valid %s, V_Z valid %s)\n"
-                "\theading: %.2f\n"
-                "\treference latitude: %.5f, longitude: %.5f, altitude AMSL: %.2f (XY valid %s, Z valid %s)",
+                (pre_flight_checks_pass_ ? "true" : "false"),
+                lat_, lon_, alt_, alt_ellipsoid_,
                 x_, y_, z_, (xy_valid_ ? "true" : "false"), (z_valid_ ? "true" : "false"),
                 vx_, vy_, vz_, (v_xy_valid_ ? "true" : "false"), (v_z_valid_ ? "true" : "false"),
                 heading_ * 180.0 / M_PI,
-                ref_lat_, ref_lon_, ref_alt_, (xy_global_ ? "true" : "false"), (z_global_ ? "true" : "false"));
-    RCLCPP_INFO(get_logger(),
-                "Odometry:\n"
-                "\tpose_frame: %.d, velocity_frame %d\n"
-                "\tposition: %.2f %.2f %.2f\n"
-                "\tquaternion: %.2f %.2f %.2f %.2f\n"
-                "\tvelocity: %.2f %.2f %.2f\n"
-                "\tangular_velocity: %.2f %.2f %.2f", 
+                ref_lat_, ref_lon_, ref_alt_, (xy_global_ ? "true" : "false"), (z_global_ ? "true" : "false"),
                 pose_frame_, velocity_frame_,
                 position_[0], position_[1], position_[2],
                 q_[0], q_[1], q_[2], q_[3],
                 velocity_[0], velocity_[1], velocity_[2],
-                angular_velocity_[0] * 180.0 / M_PI, angular_velocity_[1] * 180.0 / M_PI, angular_velocity_[2] * 180.0 / M_PI);
-    RCLCPP_INFO(get_logger(),
-                "Airspeed validated:\n"
-                "\ttrue_airspeed_m_s: %.2f",
-                true_airspeed_m_s_);
-    RCLCPP_INFO(get_logger(),
-                "Command Ack:\n"
-                "\tcommand: %d (result %d from_external %s)",
-                command_ack_, command_ack_result_, (command_ack_from_external_ ? "true" : "false"));
-    RCLCPP_INFO(this->get_logger(), 
-                "Current node time:\n\t%.2f seconds", this->get_clock()->now().seconds());
-    auto now = this->get_clock()->now();
-    double elapsed_sec = (now - last_offboard_rate_check_time_).seconds();
-    if (elapsed_sec > 0) {
-        double actual_rate = (offboard_loop_count_ - last_offboard_loop_count_) / elapsed_sec;
-        RCLCPP_INFO(this->get_logger(), 
-                "Offboard loop rate:\n\t%.2f Hz\n\n", actual_rate);
-    }    
-    last_offboard_loop_count_.store(offboard_loop_count_.load());
-    last_offboard_rate_check_time_ = now;
+                angular_velocity_[0] * 180.0 / M_PI, angular_velocity_[1] * 180.0 / M_PI, angular_velocity_[2] * 180.0 / M_PI,
+                true_airspeed_m_s_,
+                command_ack_, command_ack_result_, (command_ack_from_external_ ? "true" : "false"),
+                this->get_clock()->now().seconds(),
+                actual_rate
+            );
 }
 void PX4Interface::offboard_control_loop_callback()
 {
