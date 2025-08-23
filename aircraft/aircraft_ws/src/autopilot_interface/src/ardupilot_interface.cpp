@@ -456,6 +456,25 @@ void ArdupilotInterface::land_handle_accepted(const std::shared_ptr<rclcpp_actio
         if (mav_type_ == 2) { // Multicopter
             if (((current_fsm_state == ArdupilotInterfaceState::MC_HOVER) || (current_fsm_state == ArdupilotInterfaceState::MC_ORBIT)) 
                     && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))) {
+                auto set_param_request = std::make_shared<mavros_msgs::srv::ParamSetV2::Request>();
+                set_param_request->param_id = "RTL_ALT"; // This is ineffective is the vehicle is already above this altitude
+                set_param_request->value.type = 2; // Integer
+                set_param_request->value.integer_value = static_cast<int64_t>(landing_altitude*100); // cm
+                feedback->message = "Requesting param set";
+                goal_handle->publish_feedback(feedback);
+                time_of_last_srv_req_us_ = current_time_us;
+                set_param_client_->async_send_request(set_param_request,
+                    [this, feedback, goal_handle](rclcpp::Client<mavros_msgs::srv::ParamSetV2>::SharedFuture future) {
+                        if (future.get()->success) {
+                            feedback->message = "Param set success";
+                            goal_handle->publish_feedback(feedback);
+                            aircraft_fsm_state_ = ArdupilotInterfaceState::MC_RTL_PARAM_SET;
+                        } else {
+                            feedback->message = "Param set failed";
+                            goal_handle->publish_feedback(feedback);
+                        }
+                    });
+            } else if ((current_fsm_state == ArdupilotInterfaceState::MC_RTL_PARAM_SET) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))) {
                 auto set_mode_request = std::make_shared<mavros_msgs::srv::SetMode::Request>();
                 set_mode_request->custom_mode = "RTL";
                 feedback->message = "Requesting mode";
@@ -521,6 +540,26 @@ void ArdupilotInterface::land_handle_accepted(const std::shared_ptr<rclcpp_actio
             }
         } else if (mav_type_ == 1) { // Fixed-wing/VTOL
             if ((current_fsm_state == ArdupilotInterfaceState::FW_CRUISE) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))) {
+            // TODO first send to loiter near home
+                auto set_param_request = std::make_shared<mavros_msgs::srv::ParamSetV2::Request>();
+                set_param_request->param_id = "Q_RTL_ALT";
+                set_param_request->value.type = 2; // Integer
+                set_param_request->value.integer_value = static_cast<int64_t>(landing_altitude);
+                feedback->message = "Requesting param set";
+                goal_handle->publish_feedback(feedback);
+                time_of_last_srv_req_us_ = current_time_us;
+                set_param_client_->async_send_request(set_param_request,
+                    [this, feedback, goal_handle](rclcpp::Client<mavros_msgs::srv::ParamSetV2>::SharedFuture future) {
+                        if (future.get()->success) {
+                            feedback->message = "Param set success";
+                            goal_handle->publish_feedback(feedback);
+                            aircraft_fsm_state_ = ArdupilotInterfaceState::VTOL_QRTL_PARAM_SET;
+                        } else {
+                            feedback->message = "Param set failed";
+                            goal_handle->publish_feedback(feedback);
+                        }
+                    });
+            } else if ((current_fsm_state == ArdupilotInterfaceState::VTOL_QRTL_PARAM_SET) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))) {
                 auto set_mode_request = std::make_shared<mavros_msgs::srv::SetMode::Request>();
                 set_mode_request->custom_mode = "QRTL";
                 feedback->message = "Requesting mode";
