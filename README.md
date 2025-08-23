@@ -184,10 +184,17 @@ docker exec -it aircraft-container tmux attach
   write RTL_ALT for quad INTEGER centimeters (warn that it will not lower if already higher)
   write Q_RTL_ALT for vtol INTEGER meters
 
-- 8p Add heading in ardupilot VTOL takeoff(use local position setpoint?)
-- 9p Add heading in ardupilot VTOL landing (with loiter descent)
+- Add heading in ardupilot VTOL takeoff
+ros2 service call /mavros/cmd/command mavros_msgs/srv/CommandLong "{command: 115, param1: 0.0, param2: 15.0, param3: -1.0, param4: 0.0}"
 
-- 11p Implement ardupilot VTOL orbit
+- Add heading in ardupilot VTOL landing (with loiter descent)
+
+
+
+
+
+
+- Implement ardupilot VTOL orbit
 
   # VTOL
   # Upload and start a WP mission (first waypoint (id 0) is dummy, 16 is wp, 17 is loiter unlimted, frame 3 is global with alt w.r.t. home)

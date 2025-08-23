@@ -893,6 +893,7 @@ void ArdupilotInterface::takeoff_handle_accepted(const std::shared_ptr<rclcpp_ac
             } else if ((current_fsm_state == ArdupilotInterfaceState::GUIDED_PRETAKEOFF) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))) {
                 auto takeoff_request = std::make_shared<mavros_msgs::srv::CommandTOL::Request>();
                 takeoff_request->altitude = takeoff_altitude;
+                takeoff_request->yaw = 2.0;
                 feedback->message = "Requesting takeoff";
                 goal_handle->publish_feedback(feedback);
                 time_of_last_srv_req_us_ = current_time_us;
