@@ -187,7 +187,7 @@ void ArdupilotInterface::state_callback(const State::SharedPtr msg)
 
 // Callbacks for timers (reentrant group)
 void ArdupilotInterface::ardupilot_interface_printout_callback()
-{   
+{
     std::shared_lock<std::shared_mutex> lock(node_data_mutex_); // Use shared_lock for data reads
 
     // Once the vehicle is in standby, retrieve for SYSID_THISMAV and MAV_TYPE if they are not already set
@@ -207,7 +207,7 @@ void ArdupilotInterface::ardupilot_interface_printout_callback()
     double actual_rate = NAN;
     if (elapsed_sec > 0) {
         actual_rate = (offboard_loop_count_ - last_offboard_loop_count_) / elapsed_sec;
-    }    
+    }
     last_offboard_loop_count_.store(offboard_loop_count_.load());
     last_offboard_rate_check_time_ = now;
     RCLCPP_INFO(get_logger(),
@@ -327,7 +327,7 @@ void ArdupilotInterface::offboard_control_loop_callback()
 // Callbacks for non-blocking services (reentrant callback group, active_srv_or_act_flag_ acting as semaphore)
 void ArdupilotInterface::set_speed_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetSpeed::Request> request,
                         std::shared_ptr<autopilot_interface_msgs::srv::SetSpeed::Response> response)
-{    
+{
     if (((mav_type_ == 2) && aircraft_fsm_state_ != ArdupilotInterfaceState::MC_HOVER) || ((mav_type_ == 1) && aircraft_fsm_state_ != ArdupilotInterfaceState::FW_CRUISE)) {
         RCLCPP_ERROR(this->get_logger(), "Set speed rejected, ArdupilotInterface is not in hover/cruise state");
         response->success = false;
@@ -367,7 +367,7 @@ void ArdupilotInterface::set_reposition_callback(const std::shared_ptr<autopilot
         response->success = false;
         return;
     }
-    
+
     // Change mode to GUIDED if in CIRCLE mode from a orbit
     while (aircraft_fsm_state_ == ArdupilotInterfaceState::MC_ORBIT) {
         auto set_mode_request = std::make_shared<mavros_msgs::srv::SetMode::Request>();
@@ -382,7 +382,7 @@ void ArdupilotInterface::set_reposition_callback(const std::shared_ptr<autopilot
                     RCLCPP_WARN(this->get_logger(), "Request mode failed");
                 }
             });
-        std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Add a small delay between service requests   
+        std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Add a small delay between service requests
     }
 
     std::shared_lock<std::shared_mutex> lock(node_data_mutex_); // Use shared_lock for data reads
@@ -398,7 +398,7 @@ void ArdupilotInterface::set_reposition_callback(const std::shared_ptr<autopilot
         yaw_enu_deg -= 360.0;
     } else if (yaw_enu_deg < -180.0) {
         yaw_enu_deg += 360.0;
-    }  
+    }
     double yaw_enu_rad = yaw_enu_deg * M_PI / 180.0;
     for (int i = 0; i < 3; ++i) { // HARDCODED: send N times for robustness
         auto msg = geographic_msgs::msg::GeoPoseStamped();
@@ -580,7 +580,7 @@ void ArdupilotInterface::land_handle_accepted(const std::shared_ptr<rclcpp_actio
                 wp2.autocontinue = true;
                 wp2.x_lat = des_lat;
                 wp2.y_long = des_lon;
-                wp2.z_alt = 150.0; // HARDCODED: waypoint altitude           
+                wp2.z_alt = 150.0; // HARDCODED: waypoint altitude
                 mission_request->waypoints.push_back(wp2);
                 mavros_msgs::msg::Waypoint wp3; // Create the third waypoint (loiter descend)
                 wp3.frame = 3;
@@ -685,7 +685,7 @@ void ArdupilotInterface::land_handle_accepted(const std::shared_ptr<rclcpp_actio
                                 goal_handle->publish_feedback(feedback);
                             }
                         });
-                }   
+                }
             } else if ((current_fsm_state == ArdupilotInterfaceState::VTOL_QRTL_PARAM_SET) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))) {
                 auto set_mode_request = std::make_shared<mavros_msgs::srv::SetMode::Request>();
                 set_mode_request->custom_mode = "QRTL";
@@ -770,7 +770,7 @@ void ArdupilotInterface::offboard_handle_accepted(const std::shared_ptr<rclcpp_a
         // if (time_of_offboard_start_us_ == -1) {
         //     if (offboard_setpoint_type == autopilot_interface_msgs::action::Offboard::Goal::ATTITUDE) {
         //         aircraft_fsm_state_ = ArdupilotInterfaceState::OFFBOARD_ATTITUDE;
-        //         feedback->message = "Offboarding with ATTITUDE setpoints";       
+        //         feedback->message = "Offboarding with ATTITUDE setpoints";
         //     } 
         //     else if (offboard_setpoint_type == autopilot_interface_msgs::action::Offboard::Goal::RATES) {
         //         aircraft_fsm_state_ = ArdupilotInterfaceState::OFFBOARD_RATES;
@@ -839,6 +839,8 @@ void ArdupilotInterface::orbit_handle_accepted(const std::shared_ptr<rclcpp_acti
     double desired_alt = goal->altitude;
     double desired_r = goal->radius;
 
+    RCLCPP_INFO(this->get_logger(), "New requested orbit East-North %.2f %.2f Alt. %.2f Radius %.2f", desired_east, desired_north, desired_alt, desired_r);
+
     bool orbiting = true;
     uint64_t time_of_last_srv_req_us_ = this->get_clock()->now().nanoseconds() / 1000;  // Convert to microseconds
     ArdupilotInterfaceState current_fsm_state;
@@ -855,10 +857,7 @@ void ArdupilotInterface::orbit_handle_accepted(const std::shared_ptr<rclcpp_acti
             RCLCPP_WARN(this->get_logger(), "Orbit canceled");
             return;
         }
-
-        RCLCPP_INFO(this->get_logger(), "New requested orbit East-North %.2f %.2f Alt. %.2f Radius %.2f", desired_east, desired_north, desired_alt, desired_r);
-        auto [des_lat, des_lon] = lat_lon_from_cartesian(home_lat_, home_lon_, desired_east, desired_north);
-
+        
         {
             std::shared_lock<std::shared_mutex> lock(node_data_mutex_);
             current_fsm_state = aircraft_fsm_state_;
@@ -866,12 +865,170 @@ void ArdupilotInterface::orbit_handle_accepted(const std::shared_ptr<rclcpp_acti
         uint64_t current_time_us = this->get_clock()->now().nanoseconds() / 1000;  // Convert to microseconds
 
         if (mav_type_ == 2) { // Multicopter
-            // TODO
-            // if (!is_vtol_) {
-            //     do_orbit(des_lat, des_lon, desired_alt, desired_r, 5.0); // HARDCODED: 5m/s orbit tangential speed for quads
-            //     RCLCPP_WARN(this->get_logger(), "For quads, the orbit speed is fixed to 5m/s");
-            //     aircraft_fsm_state_ = ArdupilotInterfaceState::MC_ORBIT; // For quads, this is a flight mode change, keep track of it
-            orbiting = false;
+            if (((current_fsm_state == ArdupilotInterfaceState::MC_HOVER) || (current_fsm_state == ArdupilotInterfaceState::MC_ORBIT)) 
+                    && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))) {
+                auto set_param_request = std::make_shared<mavros_msgs::srv::ParamSetV2::Request>();
+                set_param_request->param_id = "CIRCLE_RADIUS";
+                set_param_request->value.type = 3; // Double
+                set_param_request->value.double_value = desired_r * 100.0; // cm
+                feedback->message = "Requesting param1 set";
+                goal_handle->publish_feedback(feedback);
+                time_of_last_srv_req_us_ = current_time_us;
+                set_param_client_->async_send_request(set_param_request,
+                    [this, feedback, goal_handle](rclcpp::Client<mavros_msgs::srv::ParamSetV2>::SharedFuture future) {
+                        if (future.get()->success) {
+                            feedback->message = "Param1 set success";
+                            goal_handle->publish_feedback(feedback);
+                            std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+                            aircraft_fsm_state_ = ArdupilotInterfaceState::MC_ORBIT_PARAM1_SET;
+                        } else {
+                            feedback->message = "Param1 set failed";
+                            goal_handle->publish_feedback(feedback);
+                        }
+                    });
+            } else if ((current_fsm_state == ArdupilotInterfaceState::MC_ORBIT_PARAM1_SET) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))) {
+                auto set_param_request = std::make_shared<mavros_msgs::srv::ParamSetV2::Request>();
+                set_param_request->param_id = "CIRCLE_RATE";
+                set_param_request->value.type = 2; // Integer
+                set_param_request->value.integer_value = static_cast<int64_t>((5/desired_r)*(180.0/M_PI)); // HARDCODED: ~5m/s orbit tangential speed for quads, because the parameter is an integer, actual speed will depend on radius
+                feedback->message = "Requesting param2 set";
+                goal_handle->publish_feedback(feedback);
+                time_of_last_srv_req_us_ = current_time_us;
+                set_param_client_->async_send_request(set_param_request,
+                    [this, feedback, goal_handle](rclcpp::Client<mavros_msgs::srv::ParamSetV2>::SharedFuture future) {
+                        if (future.get()->success) {
+                            feedback->message = "Param2 set success";
+                            goal_handle->publish_feedback(feedback);
+                            std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+                            aircraft_fsm_state_ = ArdupilotInterfaceState::MC_ORBIT_PARAM2_SET;
+                        } else {
+                            feedback->message = "Param2 set failed";
+                            goal_handle->publish_feedback(feedback);
+                        }
+                    });
+            } else if ((current_fsm_state == ArdupilotInterfaceState::MC_ORBIT_PARAM2_SET) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))) {
+                auto mission_request = std::make_shared<mavros_msgs::srv::WaypointPush::Request>();
+                mavros_msgs::msg::Waypoint wp1; // Create the first waypoint (dummy)
+                wp1.frame = 3;
+                wp1.command = 16; // NAV_WAYPOINT
+                wp1.is_current = true;
+                wp1.autocontinue = true;
+                wp1.x_lat = 0.0;
+                wp1.y_long = 0.0;
+                wp1.z_alt = 0.0;
+                mission_request->waypoints.push_back(wp1);
+                mavros_msgs::msg::Waypoint wp2; // Create the second waypoint on the orbit perimeter
+                auto [center_lat, center_lon] = lat_lon_from_cartesian(home_lat_, home_lon_, desired_east, desired_north);
+                double distance_to_orbit, heading_to_orbit;
+                geod.Inverse(center_lat, center_lon, lat_, lon_, distance_to_orbit, heading_to_orbit);
+                auto [des_lat, des_lon] = lat_lon_from_polar(center_lat, center_lon, desired_r, heading_to_orbit);
+                wp2.frame = 3;
+                wp2.command = 16; // MAV_CMD_NAV_WAYPOINT
+                wp2.is_current = false;
+                wp2.autocontinue = true;
+                wp2.x_lat = des_lat;
+                wp2.y_long = des_lon;
+                wp2.z_alt = desired_alt;          
+                mission_request->waypoints.push_back(wp2);
+                feedback->message = "Requesting mission upload";
+                goal_handle->publish_feedback(feedback);
+                time_of_last_srv_req_us_ = current_time_us;
+                wp_push_client_->async_send_request(mission_request,
+                    [this, feedback, goal_handle](rclcpp::Client<mavros_msgs::srv::WaypointPush>::SharedFuture future) {
+                        if (future.get()->success) {
+                            feedback->message = "Request mission upload success";
+                            goal_handle->publish_feedback(feedback);
+                            std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+                            aircraft_fsm_state_ = ArdupilotInterfaceState::MC_ORBIT_MISSION_UPLOADED;
+                        } else {
+                            feedback->message = "Request mission upload failed";
+                            goal_handle->publish_feedback(feedback);
+                        }
+                    });
+            } else if ((current_fsm_state == ArdupilotInterfaceState::MC_ORBIT_MISSION_UPLOADED) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))) {
+                auto set_mode_request = std::make_shared<mavros_msgs::srv::SetMode::Request>();
+                set_mode_request->custom_mode = "AUTO";
+                feedback->message = "Requesting mode";
+                goal_handle->publish_feedback(feedback);
+                time_of_last_srv_req_us_ = current_time_us;
+                set_mode_client_->async_send_request(set_mode_request,
+                    [this, feedback, goal_handle](rclcpp::Client<mavros_msgs::srv::SetMode>::SharedFuture future) {
+                        if (future.get()->mode_sent) {
+                            feedback->message = "Request mode success";
+                            goal_handle->publish_feedback(feedback);
+                            std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+                            aircraft_fsm_state_ = ArdupilotInterfaceState::MC_ORBIT_MISSION_MODE;
+                        } else {
+                            feedback->message = "Request mode failed";
+                            goal_handle->publish_feedback(feedback);
+                        }
+                    });
+            } else if ((current_fsm_state == ArdupilotInterfaceState::MC_ORBIT_MISSION_MODE) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))) {
+                auto command_request = std::make_shared<mavros_msgs::srv::CommandLong::Request>();
+                command_request->command = 300; // MAV_CMD_MISSION_START
+                feedback->message = "Requesting mission start";
+                goal_handle->publish_feedback(feedback);
+                time_of_last_srv_req_us_ = current_time_us;
+                command_long_client_->async_send_request(command_request,
+                    [this, feedback, goal_handle](rclcpp::Client<mavros_msgs::srv::CommandLong>::SharedFuture future) {
+                        if (future.get()->success) {
+                            feedback->message = "Request mission start success";
+                            goal_handle->publish_feedback(feedback);
+                            std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+                            aircraft_fsm_state_ = ArdupilotInterfaceState::MC_ORBIT_MISSION_STARTED;
+                        } else {
+                            feedback->message = "Request mission start failed";
+                            goal_handle->publish_feedback(feedback);
+                        }
+                    });
+            } else if ((current_fsm_state == ArdupilotInterfaceState::MC_ORBIT_MISSION_STARTED) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))) {
+                auto set_current_request = std::make_shared<mavros_msgs::srv::WaypointSetCurrent::Request>();
+                set_current_request->wp_seq = 1;
+                feedback->message = "Requesting to set current waypoint to orbit";
+                goal_handle->publish_feedback(feedback);
+                time_of_last_srv_req_us_ = current_time_us;
+                set_wp_client_->async_send_request(set_current_request,
+                    [this, feedback, goal_handle](rclcpp::Client<mavros_msgs::srv::WaypointSetCurrent>::SharedFuture future) {
+                        if (future.get()->success) {
+                            feedback->message = "Request to set current waypoint success";
+                            goal_handle->publish_feedback(feedback);
+                            std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+                            aircraft_fsm_state_ = ArdupilotInterfaceState::MC_ORBIT_TRANSFER;
+                        } else {
+                            feedback->message = "Request to set current waypoint failed";
+                            goal_handle->publish_feedback(feedback);
+                        }
+                    });
+            } else if ((current_fsm_state == ArdupilotInterfaceState::MC_ORBIT_TRANSFER) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))) {
+                double distance_from_orbit_center_in_meters;
+                auto [center_lat, center_lon] = lat_lon_from_cartesian(home_lat_, home_lon_, desired_east, desired_north);
+                geod.Inverse(lat_, lon_, center_lat, center_lon, distance_from_orbit_center_in_meters);
+                if ((std::abs(distance_from_orbit_center_in_meters - desired_r) < 2.0) && (std::abs(alt_ - (home_alt_ + desired_alt)) < 2.0)) { // HARDCODED: thresholds of 2m xy, 2m z
+                    auto set_mode_request = std::make_shared<mavros_msgs::srv::SetMode::Request>();
+                    set_mode_request->custom_mode = "CIRCLE";
+                    feedback->message = "Requesting mode";
+                    goal_handle->publish_feedback(feedback);
+                    time_of_last_srv_req_us_ = current_time_us;
+                    set_mode_client_->async_send_request(set_mode_request,
+                        [this, feedback, goal_handle](rclcpp::Client<mavros_msgs::srv::SetMode>::SharedFuture future) {
+                            if (future.get()->mode_sent) {
+                                feedback->message = "Request mode success";
+                                goal_handle->publish_feedback(feedback);
+                                std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+                                aircraft_fsm_state_ = ArdupilotInterfaceState::MC_ORBIT_REACHED;
+                            } else {
+                                feedback->message = "Request mode failed";
+                                goal_handle->publish_feedback(feedback);
+                            }
+                        });
+                }                   
+            } else if ((current_fsm_state == ArdupilotInterfaceState::MC_ORBIT_REACHED) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))) {
+                feedback->message = "MC orbit completed";
+                goal_handle->publish_feedback(feedback);
+                std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+                aircraft_fsm_state_ = ArdupilotInterfaceState::MC_ORBIT;
+                orbiting = false;
+            }
         } else if (mav_type_ == 1) { // Fixed-wing/VTOL
             if ((current_fsm_state == ArdupilotInterfaceState::FW_CRUISE) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))) {
                 auto mission_request = std::make_shared<mavros_msgs::srv::WaypointPush::Request>();
@@ -885,6 +1042,7 @@ void ArdupilotInterface::orbit_handle_accepted(const std::shared_ptr<rclcpp_acti
                 wp1.z_alt = 0.0;
                 mission_request->waypoints.push_back(wp1);
                 mavros_msgs::msg::Waypoint wp2; // Create the second waypoint (loiter)
+                auto [des_lat, des_lon] = lat_lon_from_cartesian(home_lat_, home_lon_, desired_east, desired_north);
                 wp2.frame = 3;
                 wp2.command = 17; // NAV_LOITER_UNLIM
                 wp2.is_current = false;
@@ -892,7 +1050,7 @@ void ArdupilotInterface::orbit_handle_accepted(const std::shared_ptr<rclcpp_acti
                 wp2.param3 = desired_r; // TODO: radius
                 wp2.x_lat = des_lat;
                 wp2.y_long = des_lon;
-                wp2.z_alt = desired_alt;               
+                wp2.z_alt = desired_alt;
                 mission_request->waypoints.push_back(wp2);
                 feedback->message = "Requesting mission upload";
                 goal_handle->publish_feedback(feedback);
@@ -970,7 +1128,7 @@ void ArdupilotInterface::orbit_handle_accepted(const std::shared_ptr<rclcpp_acti
                 aircraft_fsm_state_ = ArdupilotInterfaceState::FW_CRUISE;
                 orbiting = false;
             }
-        }   
+        }
     }
     result->success = true;
     goal_handle->succeed(result);
@@ -1222,7 +1380,7 @@ void ArdupilotInterface::takeoff_handle_accepted(const std::shared_ptr<rclcpp_ac
                 wp2.param3 = 200.0; // HARDCODED: 200m loiter radius
                 wp2.x_lat = des_lat;
                 wp2.y_long = des_lon;
-                wp2.z_alt = vtol_loiter_alt;               
+                wp2.z_alt = vtol_loiter_alt;
                 mission_request->waypoints.push_back(wp2);
                 feedback->message = "Requesting mission upload";
                 goal_handle->publish_feedback(feedback);
@@ -1325,7 +1483,7 @@ std::pair<double, double> ArdupilotInterface::lat_lon_from_polar(double ref_lat,
 }
 
 int main(int argc, char *argv[])
-{    
+{
     rclcpp::init(argc, argv);
     rclcpp::executors::MultiThreadedExecutor executor; // Or set num_threads with executor(rclcpp::ExecutorOptions(), 8);
     auto node = std::make_shared<ArdupilotInterface>();

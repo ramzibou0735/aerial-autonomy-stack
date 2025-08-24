@@ -180,15 +180,9 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- Implement ardupilot QUAD orbit (test reposition and landing afterwards)
+- Fix bug: ArduPilot quad orbit does not work as expected when coming from within the orbit itself
 
-  # Quad
-  ros2 topic pub --once /mavros/setpoint_position/global geographic_msgs/msg/GeoPoseStamped '{header: {frame_id: "map"},pose: {position: {latitude: 45.5470, longitude: 8.940, altitude: 300.0}, orientation: {x: 0.0, y: 0.0, z: 0.707, w: 0.707}}}'
-  ros2 service call /mavros/param/set mavros_msgs/srv/ParamSetV2 '{param_id: "CIRCLE_OPTIONS", value: {type: 2, integer_value: 8}}'
-  ros2 service call /mavros/param/set mavros_msgs/srv/ParamSetV2 '{param_id: "CIRCLE_RADIUS", value: {type: 3, double_value: 2000.0}}'
-  ros2 service call /mavros/param/set mavros_msgs/srv/ParamSetV2 '{param_id: "CIRCLE_RATE", value: {type: 2, integer_value: 15}}'
-  ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'CIRCLE'}"
-
+- Clean up ArdupilotInterface, possibly using a template or macro
 
 - Implement ardupilot offboard/guided
 
@@ -201,12 +195,14 @@ docker exec -it aircraft-container tmux attach
 
 - Implement do_abort for ArdupilotInterface
 - Improve pre-flight checks for ArduPilot takeoff action
-- Clean up ArdupilotInterface, possibly using a template or macro
 
 - Determine how to inteactively send rates, attitude, trajectory, velocity, acceleration references for Offboard/Guided modes
 - Create and implement vision/control node
 
+- Create interfaces table
+
 - Double check mutex and sleep use in px4_interface and ardupilot_interface (especially new reads in actions)
+
 - Before release, make sure that for all maps, all vehicles, a simple autonomous takeoff example works with up to 3 vehicles with sensors
 - Remove PX4 MPC acceleration limit
 
