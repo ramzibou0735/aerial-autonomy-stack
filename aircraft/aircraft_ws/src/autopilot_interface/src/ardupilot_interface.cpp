@@ -31,6 +31,7 @@ ArdupilotInterface::ArdupilotInterface() : Node("ardupilot_interface"),
     setpoint_accel_pub_= this->create_publisher<Vector3Stamped>("/mavros/setpoint_accel/accel", qos_profile_pub);
     setpoint_vel_pub_= this->create_publisher<TwistStamped>("/mavros/setpoint_velocity/cmd_vel", qos_profile_pub);
     setpoint_pos_pub_= this->create_publisher<GeoPoseStamped>("/mavros/setpoint_position/global", qos_profile_pub);
+    setpoint_pos_local_pub_= this->create_publisher<PoseStamped>("/mavros/setpoint_position/local", qos_profile_pub);
 
     // Create callback groups (Reentrant or MutuallyExclusive)
     callback_group_timer_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant); // Timed callbacks in parallel
@@ -948,9 +949,13 @@ void ArdupilotInterface::takeoff_handle_accepted(const std::shared_ptr<rclcpp_ac
                             goal_handle->publish_feedback(feedback);
                         }
                     });
-            // TODO: add heading
             } else if ((current_fsm_state == ArdupilotInterfaceState::VTOL_TAKEOFF_MC) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))
                         && (std::abs(alt_ - (home_alt_ + takeoff_altitude)) < 2.0)) { // HARDCODED: 2m altitude threshold
+                // This block is not implemented because heading is handled by ArduPilot with Q_WVANE_ENABLE
+                time_of_last_srv_req_us_ = current_time_us;
+                std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+                aircraft_fsm_state_ = ArdupilotInterfaceState::VTOL_TAKEOFF_HEADING;
+            } else if ((current_fsm_state == ArdupilotInterfaceState::VTOL_TAKEOFF_HEADING) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))) {
                 auto set_mode_request = std::make_shared<mavros_msgs::srv::SetMode::Request>();
                 set_mode_request->custom_mode = "CRUISE";
                 feedback->message = "Requesting mode";

@@ -180,9 +180,6 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- Add heading in ardupilot VTOL takeoff
-ros2 service call /mavros/cmd/command mavros_msgs/srv/CommandLong "{command: 115, param1: 0.0, param2: 15.0, param3: -1.0, param4: 0.0}"
-
 - Add heading in ardupilot VTOL landing (with loiter descent)
 
 - Implement ardupilot VTOL orbit

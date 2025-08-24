@@ -7,7 +7,7 @@ python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal
 
 # TAKEOFF AND LANDING ACTIONS (vtol parameters example)
 
-python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal /Drone1/takeoff_action autopilot_interface_msgs/action/Takeoff '{takeoff_altitude: 40.0, vtol_transition_heading: 330.0, vtol_loiter_nord: 500.0, vtol_loiter_east: 100.0, vtol_loiter_alt: 120.0}'"
+python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal /Drone1/takeoff_action autopilot_interface_msgs/action/Takeoff '{takeoff_altitude: 40.0, vtol_loiter_nord: 500.0, vtol_loiter_east: 100.0, vtol_loiter_alt: 120.0}'"
 python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal /Drone1/land_action autopilot_interface_msgs/action/Land '{landing_altitude: 60.0, vtol_transition_heading: 60.0}'"
 
 # ORBIT AND OFFBOARD (refs: attitude = 0, rates = 1, trajectory = 2) ACTIONS 
@@ -93,6 +93,7 @@ enum class ArdupilotInterfaceState {
     MC_HOVER,
     MC_ORBIT,
     VTOL_TAKEOFF_MC,
+    VTOL_TAKEOFF_HEADING,
     VTOL_TAKEOFF_TRANSITION,
     VTOL_TAKEOFF_MISSION_UPLOADED,
     VTOL_TAKEOFF_MISSION_MODE,
@@ -176,8 +177,9 @@ private:
 
     // MAVROS publishers
     rclcpp::Publisher<Vector3Stamped>::SharedPtr setpoint_accel_pub_;
-    rclcpp::Publisher<TwistStamped>::SharedPtr setpoint_vel_pub_; // Drone frame message rclcpp::Publisher<Twist>::SharedPtr setpoint_vel_pub_;
-    rclcpp::Publisher<GeoPoseStamped>::SharedPtr setpoint_pos_pub_; // Cartesian/local message rclcpp::Publisher<PoseStamped>::SharedPtr setpoint_pos_pub_;
+    rclcpp::Publisher<TwistStamped>::SharedPtr setpoint_vel_pub_; // Or drone frame message rclcpp::Publisher<Twist>::SharedPtr setpoint_vel_local_pub_;
+    rclcpp::Publisher<GeoPoseStamped>::SharedPtr setpoint_pos_pub_; 
+    rclcpp::Publisher<PoseStamped>::SharedPtr setpoint_pos_local_pub_; // Cartesian/local
 
     // Node Services
     rclcpp::Service<autopilot_interface_msgs::srv::SetSpeed>::SharedPtr set_speed_service_;
