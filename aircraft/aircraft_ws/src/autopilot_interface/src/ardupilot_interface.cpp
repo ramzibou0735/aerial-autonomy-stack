@@ -367,11 +367,25 @@ void ArdupilotInterface::set_reposition_callback(const std::shared_ptr<autopilot
         response->success = false;
         return;
     }
+    
+    // Change mode to GUIDED if in CIRCLE mode from a orbit
+    while (aircraft_fsm_state_ == ArdupilotInterfaceState::MC_ORBIT) {
+        auto set_mode_request = std::make_shared<mavros_msgs::srv::SetMode::Request>();
+        set_mode_request->custom_mode = "GUIDED";
+        set_mode_client_->async_send_request(set_mode_request,
+            [this](rclcpp::Client<mavros_msgs::srv::SetMode>::SharedFuture future) {
+                if (future.get()->mode_sent) {
+                    RCLCPP_INFO(this->get_logger(), "Request mode success");
+                    std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+                    aircraft_fsm_state_ = ArdupilotInterfaceState::MC_HOVER;
+                } else {
+                    RCLCPP_WARN(this->get_logger(), "Request mode failed");
+                }
+            });
+        std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Add a small delay between service requests   
+    }
+
     std::shared_lock<std::shared_mutex> lock(node_data_mutex_); // Use shared_lock for data reads
-    // if (aircraft_fsm_state_ == ArdupilotInterfaceState::MC_ORBIT) {
-    //     do_set_mode(4, 3); // If in an Orbit mode, switch to Hold mode
-    //     aircraft_fsm_state_ = ArdupilotInterfaceState::MC_HOVER;
-    // } TODO: set guided mode
     double desired_east = request->east;
     double desired_north = request->north;
     double desired_alt = request->altitude;
@@ -474,6 +488,7 @@ void ArdupilotInterface::land_handle_accepted(const std::shared_ptr<rclcpp_actio
                         if (future.get()->success) {
                             feedback->message = "Param set success";
                             goal_handle->publish_feedback(feedback);
+                            std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
                             aircraft_fsm_state_ = ArdupilotInterfaceState::MC_RTL_PARAM_SET;
                         } else {
                             feedback->message = "Param set failed";
@@ -541,6 +556,7 @@ void ArdupilotInterface::land_handle_accepted(const std::shared_ptr<rclcpp_actio
                         && (std::abs(alt_ - home_alt_) < 2.0)) { // HARDCODED: 2m altitude threshold
                 feedback->message = "MC landing completed";
                 goal_handle->publish_feedback(feedback);
+                std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
                 aircraft_fsm_state_ = ArdupilotInterfaceState::LANDED;
                 landing = false;
             }
@@ -662,6 +678,7 @@ void ArdupilotInterface::land_handle_accepted(const std::shared_ptr<rclcpp_actio
                             if (future.get()->success) {
                                 feedback->message = "Param set success";
                                 goal_handle->publish_feedback(feedback);
+                                std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
                                 aircraft_fsm_state_ = ArdupilotInterfaceState::VTOL_QRTL_PARAM_SET;
                             } else {
                                 feedback->message = "Param set failed";

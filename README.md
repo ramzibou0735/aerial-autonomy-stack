@@ -180,7 +180,7 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- Implement ardupilot QUAD orbit
+- Implement ardupilot QUAD orbit (test reposition and landing afterwards)
 
   # Quad
   ros2 topic pub --once /mavros/setpoint_position/global geographic_msgs/msg/GeoPoseStamped '{header: {frame_id: "map"},pose: {position: {latitude: 45.5470, longitude: 8.940, altitude: 300.0}, orientation: {x: 0.0, y: 0.0, z: 0.707, w: 0.707}}}'
@@ -189,7 +189,6 @@ docker exec -it aircraft-container tmux attach
   ros2 service call /mavros/param/set mavros_msgs/srv/ParamSetV2 '{param_id: "CIRCLE_RATE", value: {type: 2, integer_value: 15}}'
   ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'CIRCLE'}"
 
-- Add switch to guided mode to do reposition after orbit for ardupilot QUADs
 
 - Implement ardupilot offboard/guided
 
