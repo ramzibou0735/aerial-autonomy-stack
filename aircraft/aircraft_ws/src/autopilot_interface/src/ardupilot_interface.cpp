@@ -541,7 +541,110 @@ void ArdupilotInterface::land_handle_accepted(const std::shared_ptr<rclcpp_actio
             }
         } else if (mav_type_ == 1) { // Fixed-wing/VTOL
             if ((current_fsm_state == ArdupilotInterfaceState::FW_CRUISE) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))) {
-            // TODO first send to loiter near home
+                auto mission_request = std::make_shared<mavros_msgs::srv::WaypointPush::Request>();
+                mavros_msgs::msg::Waypoint wp1; // Create the first waypoint (dummy)
+                wp1.frame = 3;
+                wp1.command = 16; // NAV_WAYPOINT
+                wp1.is_current = true;
+                wp1.autocontinue = true;
+                wp1.x_lat = 0.0;
+                wp1.y_long = 0.0;
+                wp1.z_alt = 0.0;
+                mission_request->waypoints.push_back(wp1);
+                mavros_msgs::msg::Waypoint wp2; // Create the second waypoint (return near home based on desired heading)
+                double pre_landing_loiter_distance = 300.0; // HARDCODED
+                double pre_landing_loiter_radius = 150.0; // HARDCODED
+                double angle_correction_deg = atan(pre_landing_loiter_radius/pre_landing_loiter_distance) * 180.0 / M_PI;
+                auto [des_lat, des_lon] = lat_lon_from_polar(home_lat_, home_lon_, pre_landing_loiter_distance, vtol_transition_heading + 180.0 - angle_correction_deg);
+                wp2.frame = 3;
+                wp2.command = 16; // MAV_CMD_NAV_WAYPOINT
+                wp2.is_current = false;
+                wp2.autocontinue = true;
+                wp2.x_lat = des_lat;
+                wp2.y_long = des_lon;
+                wp2.z_alt = 150.0; // HARDCODED: waypoint altitude           
+                mission_request->waypoints.push_back(wp2);
+                mavros_msgs::msg::Waypoint wp3; // Create the third waypoint (loiter descend)
+                wp3.frame = 3;
+                wp3.command = 17; // NAV_LOITER_UNLIM
+                wp3.is_current = false;
+                wp3.autocontinue = true;
+                wp3.param3 = pre_landing_loiter_radius;
+                wp3.x_lat = des_lat;
+                wp3.y_long = des_lon;
+                wp3.z_alt = landing_altitude;
+                mission_request->waypoints.push_back(wp3);
+                feedback->message = "Requesting mission upload";
+                goal_handle->publish_feedback(feedback);
+                time_of_last_srv_req_us_ = current_time_us;
+                wp_push_client_->async_send_request(mission_request,
+                    [this, feedback, goal_handle](rclcpp::Client<mavros_msgs::srv::WaypointPush>::SharedFuture future) {
+                        if (future.get()->success) {
+                            feedback->message = "Request mission upload success";
+                            goal_handle->publish_feedback(feedback);
+                            std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+                            aircraft_fsm_state_ = ArdupilotInterfaceState::VTOL_LANDING_MISSION_UPLOADED;
+                        } else {
+                            feedback->message = "Request mission upload failed";
+                            goal_handle->publish_feedback(feedback);
+                        }
+                    });
+            } else if ((current_fsm_state == ArdupilotInterfaceState::VTOL_LANDING_MISSION_UPLOADED) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))) {
+                auto set_mode_request = std::make_shared<mavros_msgs::srv::SetMode::Request>();
+                set_mode_request->custom_mode = "AUTO";
+                feedback->message = "Requesting mode";
+                goal_handle->publish_feedback(feedback);
+                time_of_last_srv_req_us_ = current_time_us;
+                set_mode_client_->async_send_request(set_mode_request,
+                    [this, feedback, goal_handle](rclcpp::Client<mavros_msgs::srv::SetMode>::SharedFuture future) {
+                        if (future.get()->mode_sent) {
+                            feedback->message = "Request mode success";
+                            goal_handle->publish_feedback(feedback);
+                            std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+                            aircraft_fsm_state_ = ArdupilotInterfaceState::VTOL_LANDING_MISSION_MODE;
+                        } else {
+                            feedback->message = "Request mode failed";
+                            goal_handle->publish_feedback(feedback);
+                        }
+                    });
+            } else if ((current_fsm_state == ArdupilotInterfaceState::VTOL_LANDING_MISSION_MODE) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))) {
+                auto command_request = std::make_shared<mavros_msgs::srv::CommandLong::Request>();
+                command_request->command = 300; // MAV_CMD_MISSION_START
+                feedback->message = "Requesting mission start";
+                goal_handle->publish_feedback(feedback);
+                time_of_last_srv_req_us_ = current_time_us;
+                command_long_client_->async_send_request(command_request,
+                    [this, feedback, goal_handle](rclcpp::Client<mavros_msgs::srv::CommandLong>::SharedFuture future) {
+                        if (future.get()->success) {
+                            feedback->message = "Request mission start success";
+                            goal_handle->publish_feedback(feedback);
+                            std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+                            aircraft_fsm_state_ = ArdupilotInterfaceState::VTOL_LANDING_MISSION_STARTED;
+                        } else {
+                            feedback->message = "Request mission start failed";
+                            goal_handle->publish_feedback(feedback);
+                        }
+                    });
+            } else if ((current_fsm_state == ArdupilotInterfaceState::VTOL_LANDING_MISSION_STARTED) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))) {
+                auto set_current_request = std::make_shared<mavros_msgs::srv::WaypointSetCurrent::Request>();
+                set_current_request->wp_seq = 1;
+                feedback->message = "Requesting to set current waypoint to loiter position";
+                goal_handle->publish_feedback(feedback);
+                time_of_last_srv_req_us_ = current_time_us;
+                set_wp_client_->async_send_request(set_current_request,
+                    [this, feedback, goal_handle](rclcpp::Client<mavros_msgs::srv::WaypointSetCurrent>::SharedFuture future) {
+                        if (future.get()->success) {
+                            feedback->message = "Request to set current waypoint success";
+                            goal_handle->publish_feedback(feedback);
+                            std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+                            aircraft_fsm_state_ = ArdupilotInterfaceState::VTOL_LANDING_READY_FOR_QRTL;
+                        } else {
+                            feedback->message = "Request to set current waypoint failed";
+                            goal_handle->publish_feedback(feedback);
+                        }
+                    });
+            } else if ((current_fsm_state == ArdupilotInterfaceState::VTOL_LANDING_READY_FOR_QRTL) && (current_time_us > (time_of_last_srv_req_us_ + 120.0 * 1000000))) {
+                // add check on position before QRTL based on vtol_transition_heading
                 auto set_param_request = std::make_shared<mavros_msgs::srv::ParamSetV2::Request>();
                 set_param_request->param_id = "Q_RTL_ALT";
                 set_param_request->value.type = 2; // Integer
