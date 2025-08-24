@@ -180,19 +180,16 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- Fix bug: ArduPilot quad orbit does not work as expected when coming from within the orbit itself
-
-- Clean up ArdupilotInterface, possibly using a template or macro
-
 - Implement ardupilot offboard/guided
+  # Offboard
+    # Quad
+    ros2 topic pub --rate 10 --times 50 /mavros/setpoint_accel/accel geometry_msgs/msg/Vector3Stamped '{header: {frame_id: "map"}, vector: {x: 1.5, y: 0.0, z: 0.0}}' # WORLD FRAME (ENU) WITH YAW ALIGNMENT
+    ros2 topic pub --rate 10 --times 50 /mavros/setpoint_velocity/cmd_vel geometry_msgs/msg/TwistStamped '{header: {frame_id: "map"}, twist: {linear: {x: 2.0, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.0}}}' # WORLD FRAME (ENU) WITHOUT YAW ALIGNMENT
+    Or 
+    ros2 topic pub --rate 10 --times 50 /mavros/setpoint_velocity/cmd_vel_unstamped geometry_msgs/msg/Twist '{linear: {x: 2.0, y: 0.0, z: 0.0}}' # LOCAL FRAME
 
-# Offboard
-  # Quad
-  ros2 topic pub --rate 10 --times 50 /mavros/setpoint_accel/accel geometry_msgs/msg/Vector3Stamped '{header: {frame_id: "map"}, vector: {x: 1.5, y: 0.0, z: 0.0}}' # WORLD FRAME (ENU) WITH YAW ALIGNMENT
-  ros2 topic pub --rate 10 --times 50 /mavros/setpoint_velocity/cmd_vel geometry_msgs/msg/TwistStamped '{header: {frame_id: "map"}, twist: {linear: {x: 2.0, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.0}}}' # WORLD FRAME (ENU) WITHOUT YAW ALIGNMENT
-  Or 
-  ros2 topic pub --rate 10 --times 50 /mavros/setpoint_velocity/cmd_vel_unstamped geometry_msgs/msg/Twist '{linear: {x: 2.0, y: 0.0, z: 0.0}}' # LOCAL FRAME
-
+- Fix bug: ArduPilot quad orbit does not work as expected when coming from within the orbit itself
+- Clean up ArdupilotInterface, possibly using a template or macro
 - Implement do_abort for ArdupilotInterface
 - Improve pre-flight checks for ArduPilot takeoff action
 
@@ -205,6 +202,8 @@ docker exec -it aircraft-container tmux attach
 
 - Before release, make sure that for all maps, all vehicles, a simple autonomous takeoff example works with up to 3 vehicles with sensors
 - Remove PX4 MPC acceleration limit
+
+- Create quick start/demo video (remove example from readme)
 
 ### Known Issues
 
