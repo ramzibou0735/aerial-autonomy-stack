@@ -180,8 +180,6 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- Add heading in ardupilot VTOL landing (with loiter descent)
-
 - Implement ardupilot VTOL orbit
 
   # VTOL

@@ -431,6 +431,11 @@ void ArdupilotInterface::land_handle_accepted(const std::shared_ptr<rclcpp_actio
     double landing_altitude = goal->landing_altitude;
     double vtol_transition_heading = goal->vtol_transition_heading;
 
+    double pre_landing_loiter_distance = 300.0; // HARDCODED
+    double pre_landing_loiter_radius = 150.0; // HARDCODED
+    double angle_correction_deg = atan(pre_landing_loiter_radius/pre_landing_loiter_distance) * 180.0 / M_PI;
+    auto [exit_lat, exit_lon] = lat_lon_from_polar(home_lat_, home_lon_, pre_landing_loiter_distance, vtol_transition_heading + 180.0);
+
     bool landing = true;
     uint64_t time_of_last_srv_req_us_ = this->get_clock()->now().nanoseconds() / 1000;  // Convert to microseconds
     ArdupilotInterfaceState current_fsm_state;
@@ -552,9 +557,6 @@ void ArdupilotInterface::land_handle_accepted(const std::shared_ptr<rclcpp_actio
                 wp1.z_alt = 0.0;
                 mission_request->waypoints.push_back(wp1);
                 mavros_msgs::msg::Waypoint wp2; // Create the second waypoint (return near home based on desired heading)
-                double pre_landing_loiter_distance = 300.0; // HARDCODED
-                double pre_landing_loiter_radius = 150.0; // HARDCODED
-                double angle_correction_deg = atan(pre_landing_loiter_radius/pre_landing_loiter_distance) * 180.0 / M_PI;
                 auto [des_lat, des_lon] = lat_lon_from_polar(home_lat_, home_lon_, pre_landing_loiter_distance, vtol_transition_heading + 180.0 - angle_correction_deg);
                 wp2.frame = 3;
                 wp2.command = 16; // MAV_CMD_NAV_WAYPOINT
@@ -643,26 +645,30 @@ void ArdupilotInterface::land_handle_accepted(const std::shared_ptr<rclcpp_actio
                             goal_handle->publish_feedback(feedback);
                         }
                     });
-            } else if ((current_fsm_state == ArdupilotInterfaceState::VTOL_LANDING_READY_FOR_QRTL) && (current_time_us > (time_of_last_srv_req_us_ + 120.0 * 1000000))) {
-                // add check on position before QRTL based on vtol_transition_heading
-                auto set_param_request = std::make_shared<mavros_msgs::srv::ParamSetV2::Request>();
-                set_param_request->param_id = "Q_RTL_ALT";
-                set_param_request->value.type = 2; // Integer
-                set_param_request->value.integer_value = static_cast<int64_t>(landing_altitude);
-                feedback->message = "Requesting param set";
-                goal_handle->publish_feedback(feedback);
-                time_of_last_srv_req_us_ = current_time_us;
-                set_param_client_->async_send_request(set_param_request,
-                    [this, feedback, goal_handle](rclcpp::Client<mavros_msgs::srv::ParamSetV2>::SharedFuture future) {
-                        if (future.get()->success) {
-                            feedback->message = "Param set success";
-                            goal_handle->publish_feedback(feedback);
-                            aircraft_fsm_state_ = ArdupilotInterfaceState::VTOL_QRTL_PARAM_SET;
-                        } else {
-                            feedback->message = "Param set failed";
-                            goal_handle->publish_feedback(feedback);
-                        }
-                    });
+            } else if ((current_fsm_state == ArdupilotInterfaceState::VTOL_LANDING_READY_FOR_QRTL) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))) {
+                double distance_from_exit_in_meters;
+                geod.Inverse(lat_, lon_, exit_lat, exit_lon, distance_from_exit_in_meters);
+                if ((distance_from_exit_in_meters < 30.0) && (std::abs(alt_ - (home_alt_ + landing_altitude)) < 10.0)
+                        && (std::abs(heading_ - vtol_transition_heading) < 10.0)) { // HARDCODED: thresholds of 30m xy, 10m z, 10deg heading to start QRTL
+                    auto set_param_request = std::make_shared<mavros_msgs::srv::ParamSetV2::Request>();
+                    set_param_request->param_id = "Q_RTL_ALT";
+                    set_param_request->value.type = 2; // Integer
+                    set_param_request->value.integer_value = static_cast<int64_t>(landing_altitude);
+                    feedback->message = "Requesting param set";
+                    goal_handle->publish_feedback(feedback);
+                    time_of_last_srv_req_us_ = current_time_us;
+                    set_param_client_->async_send_request(set_param_request,
+                        [this, feedback, goal_handle](rclcpp::Client<mavros_msgs::srv::ParamSetV2>::SharedFuture future) {
+                            if (future.get()->success) {
+                                feedback->message = "Param set success";
+                                goal_handle->publish_feedback(feedback);
+                                aircraft_fsm_state_ = ArdupilotInterfaceState::VTOL_QRTL_PARAM_SET;
+                            } else {
+                                feedback->message = "Param set failed";
+                                goal_handle->publish_feedback(feedback);
+                            }
+                        });
+                }   
             } else if ((current_fsm_state == ArdupilotInterfaceState::VTOL_QRTL_PARAM_SET) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))) {
                 auto set_mode_request = std::make_shared<mavros_msgs::srv::SetMode::Request>();
                 set_mode_request->custom_mode = "QRTL";

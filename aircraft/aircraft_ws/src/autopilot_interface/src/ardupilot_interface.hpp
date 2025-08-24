@@ -10,7 +10,7 @@ python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal
 python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal /Drone1/takeoff_action autopilot_interface_msgs/action/Takeoff '{takeoff_altitude: 40.0, vtol_loiter_nord: 500.0, vtol_loiter_east: 100.0, vtol_loiter_alt: 120.0}'"
 python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal /Drone1/land_action autopilot_interface_msgs/action/Land '{landing_altitude: 60.0, vtol_transition_heading: 60.0}'"
 
-# ORBIT AND OFFBOARD (refs: attitude = 0, rates = 1, trajectory = 2) ACTIONS 
+# ORBIT AND OFFBOARD (refs: TBD) ACTIONS 
 
 ...
 ...
