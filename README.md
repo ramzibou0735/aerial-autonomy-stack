@@ -180,19 +180,6 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- Implement ardupilot VTOL orbit
-
-  # VTOL
-  # Upload and start a WP mission (first waypoint (id 0) is dummy, 16 is wp, 17 is loiter unlimted, frame 3 is global with alt w.r.t. home)
-  ros2 service call /mavros/mission/push mavros_msgs/srv/WaypointPush "{start_index: 0, waypoints: [ \
-    {frame: 3, command: 16, is_current: true, autocontinue: true, x_lat: 0.0, y_long: 0.0, z_alt: 0.0}, \
-    {frame: 3, command: 16, is_current: false, autocontinue: true, x_lat: 45.5470, y_long: 8.940, z_alt: 250.0}, \
-    {frame: 3, command: 17, is_current: false, autocontinue: true, param3: 300.0, x_lat: 45.5479, y_long: 8.949, z_alt: 250.0} \
-    ]}"
-  ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'AUTO'}"
-  ros2 service call /mavros/cmd/command mavros_msgs/srv/CommandLong "{command: 300}"
-  ros2 service call /mavros/mission/set_current mavros_msgs/srv/WaypointSetCurrent "{wp_seq: 1}" # Advance waypoint
-
 - Implement ardupilot QUAD orbit
 
   # Quad
@@ -202,8 +189,7 @@ docker exec -it aircraft-container tmux attach
   ros2 service call /mavros/param/set mavros_msgs/srv/ParamSetV2 '{param_id: "CIRCLE_RATE", value: {type: 2, integer_value: 15}}'
   ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'CIRCLE'}"
 
-
-- Implement ardupilot offboard
+- Implement ardupilot offboard/guided
 
 # Offboard
   # Quad
@@ -219,7 +205,7 @@ docker exec -it aircraft-container tmux attach
 - Determine how to inteactively send rates, attitude, trajectory, velocity, acceleration references for Offboard/Guided modes
 - Create and implement vision/control node
 
-- Double check mutex and sleep use in px4_interface and ardupilot_interface
+- Double check mutex and sleep use in px4_interface and ardupilot_interface (especially new reads in actions)
 - Before release, make sure that for all maps, all vehicles, a simple autonomous takeoff example works with up to 3 vehicles with sensors
 - Remove PX4 MPC acceleration limit
 

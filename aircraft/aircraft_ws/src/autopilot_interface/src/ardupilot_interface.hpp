@@ -12,7 +12,7 @@ python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal
 
 # ORBIT AND OFFBOARD (refs: TBD) ACTIONS 
 
-...
+python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal /Drone1/orbit_action autopilot_interface_msgs/action/Orbit '{east: 500.0, north: 0.0, altitude: 150.0, radius: 200.0}'"
 ...
 
 # SET SPEED (always limited by the autopilot params, for quads applies from the next command, not effective on VTOLs) and REPOSITION (quad only) SERVICES
@@ -99,6 +99,10 @@ enum class ArdupilotInterfaceState {
     VTOL_TAKEOFF_MISSION_MODE,
     VTOL_TAKEOFF_MISSION_STARTED,
     FW_CRUISE,
+    VTOL_ORBIT_MISSION_UPLOADED,
+    VTOL_ORBIT_MISSION_MODE,
+    VTOL_ORBIT_MISSION_STARTED,
+    VTOL_ORBIT_MISSION_COMPLETED,
     MC_RTL_PARAM_SET,
     MC_RTL,
     MC_RETURNED_READY_TO_LAND,
