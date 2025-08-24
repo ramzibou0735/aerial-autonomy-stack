@@ -996,7 +996,7 @@ void ArdupilotInterface::takeoff_handle_accepted(const std::shared_ptr<rclcpp_ac
     auto feedback = std::make_shared<autopilot_interface_msgs::action::Takeoff::Feedback>();
 
     double takeoff_altitude = goal->takeoff_altitude;
-    double vtol_transition_heading = goal->vtol_transition_heading;
+    // double vtol_transition_heading = goal->vtol_transition_heading; // Heading is handled by ArduPilot's Q_WVANE_ENABLE
     double vtol_loiter_nord = goal->vtol_loiter_nord;
     double vtol_loiter_east = goal->vtol_loiter_east;
     double vtol_loiter_alt = goal->vtol_loiter_alt;
@@ -1162,7 +1162,7 @@ void ArdupilotInterface::takeoff_handle_accepted(const std::shared_ptr<rclcpp_ac
                     });
             } else if ((current_fsm_state == ArdupilotInterfaceState::VTOL_TAKEOFF_MC) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))
                         && (std::abs(alt_ - (home_alt_ + takeoff_altitude)) < 2.0)) { // HARDCODED: 2m altitude threshold
-                // This block is not implemented because heading is handled by ArduPilot with Q_WVANE_ENABLE
+                // This block is not implemented because heading is handled by ArduPilot's Q_WVANE_ENABLE
                 time_of_last_srv_req_us_ = current_time_us;
                 std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
                 aircraft_fsm_state_ = ArdupilotInterfaceState::VTOL_TAKEOFF_HEADING;

@@ -189,6 +189,8 @@ docker exec -it aircraft-container tmux attach
   ros2 service call /mavros/param/set mavros_msgs/srv/ParamSetV2 '{param_id: "CIRCLE_RATE", value: {type: 2, integer_value: 15}}'
   ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{custom_mode: 'CIRCLE'}"
 
+- Add switch to guided mode to do reposition after orbit for ardupilot QUADs
+
 - Implement ardupilot offboard/guided
 
 # Offboard
@@ -200,7 +202,7 @@ docker exec -it aircraft-container tmux attach
 
 - Implement do_abort for ArdupilotInterface
 - Improve pre-flight checks for ArduPilot takeoff action
-- Clean up ArdupilotInterface
+- Clean up ArdupilotInterface, possibly using a template or macro
 
 - Determine how to inteactively send rates, attitude, trajectory, velocity, acceleration references for Offboard/Guided modes
 - Create and implement vision/control node

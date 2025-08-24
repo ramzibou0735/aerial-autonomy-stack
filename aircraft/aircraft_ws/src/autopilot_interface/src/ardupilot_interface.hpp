@@ -10,7 +10,7 @@ python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal
 python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal /Drone1/takeoff_action autopilot_interface_msgs/action/Takeoff '{takeoff_altitude: 40.0, vtol_loiter_nord: 500.0, vtol_loiter_east: 100.0, vtol_loiter_alt: 120.0}'"
 python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal /Drone1/land_action autopilot_interface_msgs/action/Land '{landing_altitude: 60.0, vtol_transition_heading: 60.0}'"
 
-# ORBIT AND OFFBOARD (refs: TBD) ACTIONS 
+# ORBIT AND OFFBOARD (refs: velocity = 0, acceleration = 1,) ACTIONS 
 
 python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal /Drone1/orbit_action autopilot_interface_msgs/action/Orbit '{east: 500.0, north: 0.0, altitude: 150.0, radius: 200.0}'"
 ...
@@ -114,9 +114,8 @@ enum class ArdupilotInterfaceState {
     VTOL_QRTL_PARAM_SET,
     VTOL_QRTL,
     LANDED,
-    // OFFBOARD_ATTITUDE,
-    // OFFBOARD_RATES,
-    // OFFBOARD_TRAJECTORY
+    // OFFBOARD_VELOCITY,
+    // OFFBOARD_ACCELERATION
 };
 
 class ArdupilotInterface : public rclcpp::Node
