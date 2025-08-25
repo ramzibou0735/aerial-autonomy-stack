@@ -584,11 +584,11 @@ rclcpp_action::GoalResponse ArdupilotInterface::offboard_handle_goal(const rclcp
 {
     RCLCPP_INFO(this->get_logger(), "offboard_handle_goal");
     if (mav_type_ == 1) {
-        RCLCPP_ERROR(this->get_logger(), "Offboard rejected, not supported for ArduPlane VTOLs");
+        RCLCPP_ERROR(this->get_logger(), "Offboard (GUIDED mode) rejected, not supported for ArduPlane VTOLs");
         return rclcpp_action::GoalResponse::REJECT;
     }
     if ((mav_type_ == 2) && !(aircraft_fsm_state_ == ArdupilotInterfaceState::MC_HOVER || aircraft_fsm_state_ == ArdupilotInterfaceState::MC_ORBIT)) {
-        RCLCPP_ERROR(this->get_logger(), "Offboard rejected, ArdupilotInterface is not in hover/orbit");
+        RCLCPP_ERROR(this->get_logger(), "Offboard (GUIDED mode) rejected, ArdupilotInterface is not in hover/orbit");
         return rclcpp_action::GoalResponse::REJECT;
     }
     if (active_srv_or_act_flag_.exchange(true)) { 
@@ -621,11 +621,11 @@ void ArdupilotInterface::offboard_handle_accepted(const std::shared_ptr<rclcpp_a
 
         if (goal_handle->is_canceling()) { // Check if there is a cancel request
             abort_action(); // Sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to MC_ORBIT or FW_CRUISE
-            feedback->message = "Canceling offboard";
+            feedback->message = "Canceling offboard (GUIDED mode)";
             goal_handle->publish_feedback(feedback);
             result->success = false;
             goal_handle->canceled(result);
-            RCLCPP_WARN(this->get_logger(), "Offboard canceled");
+            RCLCPP_WARN(this->get_logger(), "Offboard (GUIDED mode) canceled");
             return;
         }
 
@@ -645,16 +645,16 @@ void ArdupilotInterface::offboard_handle_accepted(const std::shared_ptr<rclcpp_a
             std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Reading data written by subs but also writing the FSM state
             if (offboard_setpoint_type == autopilot_interface_msgs::action::Offboard::Goal::VELOCITY) {
                 aircraft_fsm_state_ = ArdupilotInterfaceState::OFFBOARD_VELOCITY;
-                feedback->message = "Offboarding with VELOCITY setpoints";
+                feedback->message = "Offboarding (GUIDED mode) with VELOCITY setpoints";
             } 
             else if (offboard_setpoint_type == autopilot_interface_msgs::action::Offboard::Goal::ACCELERATION) {
                 aircraft_fsm_state_ = ArdupilotInterfaceState::OFFBOARD_ACCELERATION;
-                feedback->message = "Offboarding with ACCELERATION setpoints";
+                feedback->message = "Offboarding (GUIDED mode) with ACCELERATION setpoints";
             }
             else {
                 result->success = false;
                 goal_handle->canceled(result);
-                RCLCPP_ERROR(this->get_logger(), "Offboard type is not supported by ArdupilotInterface (only VELOCITY and ACCELERATION)");
+                RCLCPP_ERROR(this->get_logger(), "Offboard (GUIDED mode) type is not supported by ArdupilotInterface (only VELOCITY and ACCELERATION)");
                 return;
             }
             goal_handle->publish_feedback(feedback);
@@ -682,7 +682,7 @@ void ArdupilotInterface::offboard_handle_accepted(const std::shared_ptr<rclcpp_a
             } else if (mav_type_ == 1) { // Fixed-wing/VTOL
                 aircraft_fsm_state_ = ArdupilotInterfaceState::FW_CRUISE;
             }
-            feedback->message = "Exiting offboard control at t=" + std::to_string(current_time_us) + "us, entering LOITER mode";
+            feedback->message = "Exiting offboard (GUIDED mode) control at t=" + std::to_string(current_time_us) + "us, entering LOITER mode";
             goal_handle->publish_feedback(feedback);
         }
     }
