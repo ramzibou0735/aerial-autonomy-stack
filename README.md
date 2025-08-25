@@ -180,8 +180,6 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- add fsm print
-
 - Implement ardupilot offboard/guided
   # Offboard
     # Quad

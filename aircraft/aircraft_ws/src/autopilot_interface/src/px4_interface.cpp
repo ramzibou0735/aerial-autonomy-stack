@@ -234,6 +234,8 @@ void PX4Interface::px4_interface_printout_callback()
                 "  command: %d (result %d from_external %s)\n"
                 "Current node time:\n"
                 "  %.2f seconds\n"
+                "Current FSM State:\n"
+                "  %s\n"
                 "Offboard loop rate:\n"
                 "  %.2f Hz\n\n",
                 //
@@ -256,6 +258,7 @@ void PX4Interface::px4_interface_printout_callback()
                 true_airspeed_m_s_,
                 command_ack_, command_ack_result_, (command_ack_from_external_ ? "true" : "false"),
                 this->get_clock()->now().seconds(),
+                fsm_state_to_string(aircraft_fsm_state_).c_str(),
                 actual_rate
             );
 }
@@ -955,6 +958,28 @@ std::pair<double, double> PX4Interface::lat_lon_from_polar(double ref_lat, doubl
     double return_lat, return_lon;
     geod.Direct(ref_lat, ref_lon, bear, dist, return_lat, return_lon);
     return {return_lat, return_lon};
+}
+
+std::string PX4Interface::fsm_state_to_string(PX4InterfaceState state)
+{
+    switch (state) {
+        case PX4InterfaceState::STARTED: return "STARTED";
+        case PX4InterfaceState::MC_TAKEOFF: return "MC_TAKEOFF";
+        case PX4InterfaceState::MC_HOVER: return "MC_HOVER";
+        case PX4InterfaceState::MC_ORBIT: return "MC_ORBIT";
+        case PX4InterfaceState::VTOL_TAKEOFF_TRANSITION: return "VTOL_TAKEOFF_TRANSITION";
+        case PX4InterfaceState::FW_CRUISE: return "FW_CRUISE";
+        case PX4InterfaceState::FW_LANDING_LOITER: return "FW_LANDING_LOITER";
+        case PX4InterfaceState::FW_LANDING_DESCENT: return "FW_LANDING_DESCENT";
+        case PX4InterfaceState::FW_LANDING_APPROACH: return "FW_LANDING_APPROACH";
+        case PX4InterfaceState::VTOL_LANDING_TRANSITION: return "VTOL_LANDING_TRANSITION";
+        case PX4InterfaceState::RTL: return "RTL";
+        case PX4InterfaceState::MC_LANDING: return "MC_LANDING";
+        case PX4InterfaceState::OFFBOARD_ATTITUDE: return "OFFBOARD_ATTITUDE";
+        case PX4InterfaceState::OFFBOARD_RATES: return "OFFBOARD_RATES";
+        case PX4InterfaceState::OFFBOARD_TRAJECTORY: return "OFFBOARD_TRAJECTORY";
+        default: return "UNKNOWN";
+    }
 }
 
 int main(int argc, char *argv[])

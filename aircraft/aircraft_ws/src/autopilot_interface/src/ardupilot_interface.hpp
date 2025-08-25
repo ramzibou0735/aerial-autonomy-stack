@@ -33,6 +33,7 @@ ros2 service call /Drone1/set_reposition autopilot_interface_msgs/srv/SetReposit
 #include <atomic>
 #include <array>
 #include <algorithm>
+#include <string>
 
 #include <rclcpp/clock.hpp>
 #include <rclcpp/parameter.hpp>
@@ -122,8 +123,8 @@ enum class ArdupilotInterfaceState {
     VTOL_QRTL_PARAM_SET,
     VTOL_QRTL,
     LANDED,
-    // OFFBOARD_VELOCITY,
-    // OFFBOARD_ACCELERATION
+    OFFBOARD_VELOCITY,
+    OFFBOARD_ACCELERATION
 };
 
 class ArdupilotInterface : public rclcpp::Node
@@ -242,6 +243,9 @@ private:
     // Transformations
     std::pair<double, double> lat_lon_from_cartesian(double ref_lat, double ref_lon, double x_offset, double y_offset);
     std::pair<double, double> lat_lon_from_polar(double ref_lat, double ref_lon, double dist, double bear);
+
+    // Utility
+    std::string fsm_state_to_string(ArdupilotInterfaceState state);
 
     // Template for service calls and FSM updates
     template<typename ServiceT, typename ActionT>

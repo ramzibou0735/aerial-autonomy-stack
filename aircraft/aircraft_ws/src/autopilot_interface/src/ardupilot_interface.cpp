@@ -234,6 +234,8 @@ void ArdupilotInterface::ardupilot_interface_printout_callback()
                 "  true_airspeed_m_s: %.2f\n"
                 "Current node time:\n"
                 "  %.2f seconds\n"
+                "Current FSM State:\n"
+                "  %s\n"
                 "Offboard loop rate:\n"
                 "  %.2f Hz\n\n",
                 //
@@ -251,6 +253,7 @@ void ArdupilotInterface::ardupilot_interface_printout_callback()
                 angular_velocity_[0] * 180.0 / M_PI, angular_velocity_[1] * 180.0 / M_PI, angular_velocity_[2] * 180.0 / M_PI,
                 true_airspeed_m_s_,
                 this->get_clock()->now().seconds(),
+                fsm_state_to_string(aircraft_fsm_state_).c_str(),
                 actual_rate
             );
 }
@@ -1128,6 +1131,51 @@ std::pair<double, double> ArdupilotInterface::lat_lon_from_polar(double ref_lat,
     double return_lat, return_lon;
     geod.Direct(ref_lat, ref_lon, bear, dist, return_lat, return_lon);
     return {return_lat, return_lon};
+}
+
+std::string ArdupilotInterface::fsm_state_to_string(ArdupilotInterfaceState state)
+{
+    switch (state) {
+        case ArdupilotInterfaceState::STARTED: return "STARTED";
+        case ArdupilotInterfaceState::GUIDED_PRETAKEOFF: return "GUIDED_PRETAKEOFF";
+        case ArdupilotInterfaceState::ARMED: return "ARMED";
+        case ArdupilotInterfaceState::MC_HOVER: return "MC_HOVER";
+        case ArdupilotInterfaceState::VTOL_QLOITER_PRETAKEOFF: return "VTOL_QLOITER_PRETAKEOFF";
+        case ArdupilotInterfaceState::VTOL_TAKEOFF_MC: return "VTOL_TAKEOFF_MC";
+        case ArdupilotInterfaceState::VTOL_TAKEOFF_HEADING: return "VTOL_TAKEOFF_HEADING";
+        case ArdupilotInterfaceState::VTOL_TAKEOFF_TRANSITION: return "VTOL_TAKEOFF_TRANSITION";
+        case ArdupilotInterfaceState::VTOL_TAKEOFF_MISSION_UPLOADED: return "VTOL_TAKEOFF_MISSION_UPLOADED";
+        case ArdupilotInterfaceState::VTOL_TAKEOFF_MISSION_MODE: return "VTOL_TAKEOFF_MISSION_MODE";
+        case ArdupilotInterfaceState::VTOL_TAKEOFF_MISSION_STARTED: return "VTOL_TAKEOFF_MISSION_STARTED";
+        case ArdupilotInterfaceState::FW_CRUISE: return "FW_CRUISE";
+        case ArdupilotInterfaceState::MC_ORBIT: return "MC_ORBIT";
+        case ArdupilotInterfaceState::MC_ORBIT_PARAM1_SET: return "MC_ORBIT_PARAM1_SET";
+        case ArdupilotInterfaceState::MC_ORBIT_PARAM2_SET: return "MC_ORBIT_PARAM2_SET";
+        case ArdupilotInterfaceState::MC_ORBIT_MISSION_UPLOADED: return "MC_ORBIT_MISSION_UPLOADED";
+        case ArdupilotInterfaceState::MC_ORBIT_MISSION_MODE: return "MC_ORBIT_MISSION_MODE";
+        case ArdupilotInterfaceState::MC_ORBIT_MISSION_STARTED: return "MC_ORBIT_MISSION_STARTED";
+        case ArdupilotInterfaceState::MC_ORBIT_TRANSFER: return "MC_ORBIT_TRANSFER";
+        case ArdupilotInterfaceState::MC_ORBIT_REACHED: return "MC_ORBIT_REACHED";
+        case ArdupilotInterfaceState::MC_ORBIT_ROI_SET: return "MC_ORBIT_ROI_SET";
+        case ArdupilotInterfaceState::VTOL_ORBIT_MISSION_UPLOADED: return "VTOL_ORBIT_MISSION_UPLOADED";
+        case ArdupilotInterfaceState::VTOL_ORBIT_MISSION_MODE: return "VTOL_ORBIT_MISSION_MODE";
+        case ArdupilotInterfaceState::VTOL_ORBIT_MISSION_STARTED: return "VTOL_ORBIT_MISSION_STARTED";
+        case ArdupilotInterfaceState::VTOL_ORBIT_MISSION_COMPLETED: return "VTOL_ORBIT_MISSION_COMPLETED";
+        case ArdupilotInterfaceState::MC_RTL_PARAM_SET: return "MC_RTL_PARAM_SET";
+        case ArdupilotInterfaceState::MC_RTL: return "MC_RTL";
+        case ArdupilotInterfaceState::MC_RETURNED_READY_TO_LAND: return "MC_RETURNED_READY_TO_LAND";
+        case ArdupilotInterfaceState::MC_LANDING: return "MC_LANDING";
+        case ArdupilotInterfaceState::VTOL_LANDING_MISSION_UPLOADED: return "VTOL_LANDING_MISSION_UPLOADED";
+        case ArdupilotInterfaceState::VTOL_LANDING_MISSION_MODE: return "VTOL_LANDING_MISSION_MODE";
+        case ArdupilotInterfaceState::VTOL_LANDING_MISSION_STARTED: return "VTOL_LANDING_MISSION_STARTED";
+        case ArdupilotInterfaceState::VTOL_LANDING_READY_FOR_QRTL: return "VTOL_LANDING_READY_FOR_QRTL";
+        case ArdupilotInterfaceState::VTOL_QRTL_PARAM_SET: return "VTOL_QRTL_PARAM_SET";
+        case ArdupilotInterfaceState::VTOL_QRTL: return "VTOL_QRTL";
+        case ArdupilotInterfaceState::LANDED: return "LANDED";
+        case ArdupilotInterfaceState::OFFBOARD_VELOCITY: return "OFFBOARD_VELOCITY";
+        case ArdupilotInterfaceState::OFFBOARD_ACCELERATION: return "OFFBOARD_ACCELERATION";
+        default: return "UNKNOWN";
+    }
 }
 
 int main(int argc, char *argv[])

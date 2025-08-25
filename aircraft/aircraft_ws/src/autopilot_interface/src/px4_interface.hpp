@@ -33,6 +33,7 @@ ros2 service call /Drone1/set_reposition autopilot_interface_msgs/srv/SetReposit
 #include <atomic>
 #include <array>
 #include <algorithm>
+#include <string>
 
 #include <rclcpp/clock.hpp>
 #include <rclcpp/parameter.hpp>
@@ -211,6 +212,8 @@ private:
     std::pair<double, double> lat_lon_from_cartesian(double ref_lat, double ref_lon, double x_offset, double y_offset);
     std::pair<double, double> lat_lon_from_polar(double ref_lat, double ref_lon, double dist, double bear);
 
+    // Utility
+    std::string fsm_state_to_string(PX4InterfaceState state);
 };
 
 #endif // AUTOPILOT_INTERFACE__PX4_INTERFACE_HPP_
