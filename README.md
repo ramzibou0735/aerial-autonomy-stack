@@ -180,6 +180,10 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
+- Clean up ArdupilotInterface, possibly using a template or macro
+
+- Implement do_abort for ArdupilotInterface
+
 - Implement ardupilot offboard/guided
   # Offboard
     # Quad
@@ -188,17 +192,12 @@ docker exec -it aircraft-container tmux attach
     Or 
     ros2 topic pub --rate 10 --times 50 /mavros/setpoint_velocity/cmd_vel_unstamped geometry_msgs/msg/Twist '{linear: {x: 2.0, y: 0.0, z: 0.0}}' # LOCAL FRAME
 
-- Fix bug: ArduPilot quad orbit does not work as expected when coming from within the orbit itself
-- Clean up ArdupilotInterface, possibly using a template or macro
-- Implement do_abort for ArdupilotInterface
-- Improve pre-flight checks for ArduPilot takeoff action
+- Double check mutex and sleep use in px4_interface and ardupilot_interface (especially new reads in actions)
 
 - Determine how to inteactively send rates, attitude, trajectory, velocity, acceleration references for Offboard/Guided modes
 - Create and implement vision/control node
 
 - Create interfaces table
-
-- Double check mutex and sleep use in px4_interface and ardupilot_interface (especially new reads in actions)
 
 - Before release, make sure that for all maps, all vehicles, a simple autonomous takeoff example works with up to 3 vehicles with sensors
 - Remove PX4 MPC acceleration limit

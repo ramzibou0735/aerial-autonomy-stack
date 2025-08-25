@@ -890,7 +890,7 @@ void ArdupilotInterface::orbit_handle_accepted(const std::shared_ptr<rclcpp_acti
                 auto set_param_request = std::make_shared<mavros_msgs::srv::ParamSetV2::Request>();
                 set_param_request->param_id = "CIRCLE_RATE";
                 set_param_request->value.type = 2; // Integer
-                set_param_request->value.integer_value = static_cast<int64_t>((5/desired_r)*(180.0/M_PI)); // HARDCODED: ~5m/s orbit tangential speed for quads, because the parameter is an integer, actual speed will depend on radius
+                set_param_request->value.integer_value = static_cast<int64_t>(std::ceil((5.0 / desired_r) * (180.0 / M_PI))); // HARDCODED: ~5m/s orbit tangential speed for quads, because the parameter is an integer, actual speed will depend on radius
                 feedback->message = "Requesting param2 set";
                 goal_handle->publish_feedback(feedback);
                 time_of_last_srv_req_us_ = current_time_us;
@@ -1003,7 +1003,43 @@ void ArdupilotInterface::orbit_handle_accepted(const std::shared_ptr<rclcpp_acti
                 double distance_from_orbit_center_in_meters;
                 auto [center_lat, center_lon] = lat_lon_from_cartesian(home_lat_, home_lon_, desired_east, desired_north);
                 geod.Inverse(lat_, lon_, center_lat, center_lon, distance_from_orbit_center_in_meters);
-                if ((std::abs(distance_from_orbit_center_in_meters - desired_r) < 2.0) && (std::abs(alt_ - (home_alt_ + desired_alt)) < 2.0)) { // HARDCODED: thresholds of 2m xy, 2m z
+                if ((std::abs(distance_from_orbit_center_in_meters - desired_r) < 1.0) && (std::abs(alt_ - (home_alt_ + desired_alt)) < 2.0)) { // HARDCODED: thresholds of 1m xy, 2m z
+                    auto command_request = std::make_shared<mavros_msgs::srv::CommandLong::Request>();
+                    command_request->command = 195; // MAV_CMD_DO_SET_ROI_LOCATION
+                    command_request->param5 = center_lat;
+                    command_request->param6 = center_lon;
+                    feedback->message = "Requesting ROI";
+                    goal_handle->publish_feedback(feedback);
+                    time_of_last_srv_req_us_ = current_time_us;
+                    command_long_client_->async_send_request(command_request,
+                        [this, feedback, goal_handle](rclcpp::Client<mavros_msgs::srv::CommandLong>::SharedFuture future) {
+                            if (future.get()->success) {
+                                feedback->message = "Request ROI success";
+                                goal_handle->publish_feedback(feedback);
+                                std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+                                aircraft_fsm_state_ = ArdupilotInterfaceState::MC_ORBIT_ROI_SET;
+                            } else {
+                                feedback->message = "Request ROI failed";
+                                goal_handle->publish_feedback(feedback);
+                            }
+                        });
+                }
+            } else if ((current_fsm_state == ArdupilotInterfaceState::MC_ORBIT_ROI_SET) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))) {
+                auto [center_lat, center_lon] = lat_lon_from_cartesian(home_lat_, home_lon_, desired_east, desired_north);
+                double distance, required_heading_deg;
+                geod.Inverse(lat_, lon_, center_lat, center_lon, distance, required_heading_deg);
+                double normalized_current = fmod(heading_ + 360.0, 360.0);
+                double normalized_required = fmod(required_heading_deg + 360.0, 360.0);
+                double angle_diff = normalized_required - normalized_current;
+                if (angle_diff > 180.0) {
+                    angle_diff -= 360.0;
+                } else if (angle_diff < -180.0) {
+                    angle_diff += 360.0;
+                }
+                if (std::abs(angle_diff) >= 3.0) {
+                    std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+                    aircraft_fsm_state_ = ArdupilotInterfaceState::MC_ORBIT_TRANSFER; // Step back to the previous service request until heading is reached
+                } else if (std::abs(angle_diff) < 3.0) { // HARDCODED: threshold of 3deg on target heading
                     auto set_mode_request = std::make_shared<mavros_msgs::srv::SetMode::Request>();
                     set_mode_request->custom_mode = "CIRCLE";
                     feedback->message = "Requesting mode";
@@ -1021,7 +1057,7 @@ void ArdupilotInterface::orbit_handle_accepted(const std::shared_ptr<rclcpp_acti
                                 goal_handle->publish_feedback(feedback);
                             }
                         });
-                }                   
+                }
             } else if ((current_fsm_state == ArdupilotInterfaceState::MC_ORBIT_REACHED) && (current_time_us > (time_of_last_srv_req_us_ + 1.0 * 1000000))) {
                 feedback->message = "MC orbit completed";
                 goal_handle->publish_feedback(feedback);
