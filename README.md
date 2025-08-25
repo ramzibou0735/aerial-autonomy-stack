@@ -176,22 +176,10 @@ docker exec -it aircraft-container tmux attach
 
 <!-- 
 
-
-
 ## TODOs
-
-- Implement ardupilot offboard/guided
-  # Offboard
-    # Quad
-    ros2 topic pub --rate 10 --times 50 /mavros/setpoint_accel/accel geometry_msgs/msg/Vector3Stamped '{header: {frame_id: "map"}, vector: {x: 1.5, y: 0.0, z: 0.0}}' # WORLD FRAME (ENU) WITH YAW ALIGNMENT
-    ros2 topic pub --rate 10 --times 50 /mavros/setpoint_velocity/cmd_vel geometry_msgs/msg/TwistStamped '{header: {frame_id: "map"}, twist: {linear: {x: 2.0, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.0}}}' # WORLD FRAME (ENU) WITHOUT YAW ALIGNMENT
-    Or 
-    ros2 topic pub --rate 10 --times 50 /mavros/setpoint_velocity/cmd_vel_unstamped geometry_msgs/msg/Twist '{linear: {x: 2.0, y: 0.0, z: 0.0}}' # LOCAL FRAME
 
 - Double check offboard loop rate published as negative when starting a new offboard action
 - Double check mutex and sleep use in px4_interface and ardupilot_interface (especially new reads in actions)
-
----
 
 - Determine how to interactively send rates, attitude, trajectory, velocity, acceleration references for Offboard/Guided modes
 - Create and implement vision/control node

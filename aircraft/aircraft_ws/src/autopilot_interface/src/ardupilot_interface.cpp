@@ -2,7 +2,7 @@
 
 ArdupilotInterface::ArdupilotInterface() : Node("ardupilot_interface"),
     active_srv_or_act_flag_(false), aircraft_fsm_state_(ArdupilotInterfaceState::STARTED), 
-    offboard_loop_frequency(50), offboard_loop_count_(0), last_offboard_loop_count_(0),
+    offboard_loop_frequency(10), offboard_loop_count_(0), last_offboard_loop_count_(0),
     target_system_id_(-1), mav_state_(-1), mav_type_(-1),
     armed_flag_(false), ardupilot_mode_(""),
     lat_(NAN), lon_(NAN), alt_(NAN), alt_ellipsoid_(NAN),
@@ -266,44 +266,27 @@ void ArdupilotInterface::offboard_control_loop_callback()
         return; // Do not publish if not in an OFFBOARD state
     }
 
-    uint64_t current_time_us = this->get_clock()->now().nanoseconds() / 1000;  // Convert to microseconds
-    // // TODO: implement custom offboard control logic here
-    // if (aircraft_fsm_state_ == ArdupilotInterfaceState::OFFBOARD_ATTITUDE) {
-    //     offboard_mode.attitude = true;
-    //     VehicleAttitudeSetpoint attitude_ref; // https://github.com/PX4/px4_msgs/blob/release/1.16/msg/VehicleAttitudeSetpoint.msg
-    //     attitude_ref.timestamp = current_time_us;
-    //     if (!is_vtol_) { // Multicopter
-    //         double pitch_rad = -5.0 * M_PI / 180.0; // Pitch to move forward (any duration, drops some altitude)
-    //         attitude_ref.q_d[0] = cos(pitch_rad / 2.0); // w
-    //         attitude_ref.q_d[1] = 0;                    // x
-    //         attitude_ref.q_d[2] = sin(pitch_rad / 2.0); // y
-    //         attitude_ref.q_d[3] = 0;                    // z
-    //         attitude_ref.thrust_body = {0.0, 0.0, -0.72};
-    //     }
-    //     attitude_ref_pub_->publish(attitude_ref);
-    // } else if (aircraft_fsm_state_ == ArdupilotInterfaceState::OFFBOARD_RATES) {
-    //     offboard_mode.body_rate = true;
-    //     VehicleRatesSetpoint rates_ref; // https://github.com/PX4/px4_msgs/blob/release/1.16/msg/VehicleRatesSetpoint.msg
-    //     rates_ref.timestamp = current_time_us;
-    //     if (!is_vtol_) { // Multicopter
-    //         rates_ref.roll= 0.0;
-    //         rates_ref.pitch = 0.0;
-    //         rates_ref.yaw = 1.0; // Spin on itself (any duration)
-    //         rates_ref.thrust_body = {0.0, 0.0, -0.72};
-    //     }
-    //     rates_ref_pub_->publish(rates_ref);
-    // } else if (aircraft_fsm_state_ == ArdupilotInterfaceState::OFFBOARD_TRAJECTORY) {
-    //     TrajectorySetpoint trajectory_ref; // https://github.com/PX4/px4_msgs/blob/release/1.16/msg/TrajectorySetpoint.msg
-    //     trajectory_ref.timestamp = current_time_us;
-    //     if (!is_vtol_) { // Multicopter
-    //         offboard_mode.position = true;
-    //         trajectory_ref.position = {0.0, 0.0, -20.0};
-	//         trajectory_ref.yaw = -3.14; // [-PI:PI]
-    //         // offboard_mode.acceleration = true;
-    //         // trajectory_ref.acceleration = {0.0, 0.0, -5.0};
-    //     }
-    //     trajectory_ref_pub_->publish(trajectory_ref);
-    // }
+    // TODO: implement custom offboard control logic here
+    if (aircraft_fsm_state_ == ArdupilotInterfaceState::OFFBOARD_VELOCITY) {
+        auto vel_msg = geometry_msgs::msg::TwistStamped(); // https://docs.ros.org/en/noetic/api/geometry_msgs/html/msg/Twist.html
+        vel_msg.header.stamp = this->get_clock()->now();
+        vel_msg.header.frame_id = "map"; // World frame, without yaw alignment
+        vel_msg.twist.linear.x = 2.0; // m/s East
+        vel_msg.twist.linear.y = 0.0; // m/s North
+        vel_msg.twist.linear.z = 0.0; // m/s Up
+        vel_msg.twist.angular.z = 3.0; // rad/s Yaw rate
+        setpoint_vel_pub_->publish(vel_msg);
+        // Alternatively, use the unstamped topic: ros2 topic pub --rate 10 --times 50 /mavros/setpoint_velocity/cmd_vel_unstamped geometry_msgs/msg/Twist '{linear: {x: 2.0, y: 0.0, z: 0.0}}'
+    }
+    else if (aircraft_fsm_state_ == ArdupilotInterfaceState::OFFBOARD_ACCELERATION) {
+        auto accel_msg = geometry_msgs::msg::Vector3Stamped(); // https://docs.ros.org/en/noetic/api/geometry_msgs/html/msg/Vector3.html
+        accel_msg.header.stamp = this->get_clock()->now();
+        accel_msg.header.frame_id = "map"; // World frame, with yaw alignment
+        accel_msg.vector.x = 1.5; // m/s^2 East
+        accel_msg.vector.y = 0.0; // m/s^2 North
+        accel_msg.vector.z = 0.0; // m/s^2 Up
+        setpoint_accel_pub_->publish(accel_msg);
+    }
 }
 
 // Callbacks for non-blocking services (reentrant callback group, active_srv_or_act_flag_ acting as semaphore)
