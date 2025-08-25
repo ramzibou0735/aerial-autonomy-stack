@@ -268,7 +268,7 @@ void PX4Interface::offboard_control_loop_callback()
 
     std::shared_lock<std::shared_mutex> lock(node_data_mutex_); // Use shared_lock for data reads
     if (!((aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_ATTITUDE) || (aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_RATES) || (aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_TRAJECTORY))) {
-        return; // Do not publish if not in and OFFBOARD state
+        return; // Do not publish if not in an OFFBOARD state
     }
 
     uint64_t current_time_us = this->get_clock()->now().nanoseconds() / 1000;  // Convert to microseconds
@@ -305,7 +305,6 @@ void PX4Interface::offboard_control_loop_callback()
             rates_ref.pitch = 0.0;
             rates_ref.yaw = 1.0; // Spin on itself (any duration)
             rates_ref.thrust_body = {0.0, 0.0, -0.72};
-
         } else if (is_vtol_) { // VTOL
             rates_ref.roll= 4.0; // Roll (2sec maneuver 1 roll, 3sec double roll)
             rates_ref.pitch = 0.0;
@@ -582,7 +581,7 @@ void PX4Interface::offboard_handle_accepted(const std::shared_ptr<rclcpp_action:
             else {
                 result->success = false;
                 goal_handle->canceled(result);
-                RCLCPP_ERROR(this->get_logger(), "Offboard type is not supported");
+                RCLCPP_ERROR(this->get_logger(), "Offboard type is not supported by PX4Interface (only ATTITUDE, RATES and TRAJECTORY)");
                 return;
             }
             goal_handle->publish_feedback(feedback);

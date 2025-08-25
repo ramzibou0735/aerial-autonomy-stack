@@ -262,15 +262,12 @@ void ArdupilotInterface::offboard_control_loop_callback()
     offboard_loop_count_++; // Counter to monitor the rate of the offboard loop
 
     std::shared_lock<std::shared_mutex> lock(node_data_mutex_); // Use shared_lock for data reads
-    // if (!((aircraft_fsm_state_ == ArdupilotInterfaceState::OFFBOARD_ATTITUDE) || (aircraft_fsm_state_ == ArdupilotInterfaceState::OFFBOARD_RATES) || (aircraft_fsm_state_ == ArdupilotInterfaceState::OFFBOARD_TRAJECTORY))) {
-    //     return; // Do not publish if not in and OFFBOARD state
-    // }
+    if (!((aircraft_fsm_state_ == ArdupilotInterfaceState::OFFBOARD_VELOCITY) || (aircraft_fsm_state_ == ArdupilotInterfaceState::OFFBOARD_ACCELERATION))) {
+        return; // Do not publish if not in an OFFBOARD state
+    }
 
-    // uint64_t current_time_us = this->get_clock()->now().nanoseconds() / 1000;  // Convert to microseconds
-    // OffboardControlMode offboard_mode;
-    // offboard_mode.timestamp = current_time_us;
+    uint64_t current_time_us = this->get_clock()->now().nanoseconds() / 1000;  // Convert to microseconds
     // // TODO: implement custom offboard control logic here
-    // // https://docs.px4.io/v1.15/en/flight_modes/offboard.html
     // if (aircraft_fsm_state_ == ArdupilotInterfaceState::OFFBOARD_ATTITUDE) {
     //     offboard_mode.attitude = true;
     //     VehicleAttitudeSetpoint attitude_ref; // https://github.com/PX4/px4_msgs/blob/release/1.16/msg/VehicleAttitudeSetpoint.msg
@@ -282,13 +279,6 @@ void ArdupilotInterface::offboard_control_loop_callback()
     //         attitude_ref.q_d[2] = sin(pitch_rad / 2.0); // y
     //         attitude_ref.q_d[3] = 0;                    // z
     //         attitude_ref.thrust_body = {0.0, 0.0, -0.72};
-    //     } else if (is_vtol_) { // VTOL
-    //         double pitch_rad = -30.0 * M_PI / 180.0; // Pitch to dive
-    //         attitude_ref.q_d[0] = cos(pitch_rad / 2.0); // w
-    //         attitude_ref.q_d[1] = 0;                    // x
-    //         attitude_ref.q_d[2] = sin(pitch_rad / 2.0); // y
-    //         attitude_ref.q_d[3] = 0;                    // z
-    //         attitude_ref.thrust_body = {0.15, 0.0, 0.0};
     //     }
     //     attitude_ref_pub_->publish(attitude_ref);
     // } else if (aircraft_fsm_state_ == ArdupilotInterfaceState::OFFBOARD_RATES) {
@@ -300,11 +290,6 @@ void ArdupilotInterface::offboard_control_loop_callback()
     //         rates_ref.pitch = 0.0;
     //         rates_ref.yaw = 1.0; // Spin on itself (any duration)
     //         rates_ref.thrust_body = {0.0, 0.0, -0.72};
-
-    //     } else if (is_vtol_) { // VTOL
-    //         rates_ref.roll= 4.0; // Roll (2sec maneuver 1 roll, 3sec double roll)
-    //         rates_ref.pitch = 0.0;
-    //         rates_ref.thrust_body = {0.39, 0.0, 0.0};
     //     }
     //     rates_ref_pub_->publish(rates_ref);
     // } else if (aircraft_fsm_state_ == ArdupilotInterfaceState::OFFBOARD_TRAJECTORY) {
@@ -316,14 +301,8 @@ void ArdupilotInterface::offboard_control_loop_callback()
 	//         trajectory_ref.yaw = -3.14; // [-PI:PI]
     //         // offboard_mode.acceleration = true;
     //         // trajectory_ref.acceleration = {0.0, 0.0, -5.0};
-    //     } else if (is_vtol_) { // VTOL
-    //         offboard_mode.velocity = true;
-    //         trajectory_ref.velocity = {20.0, 0.0, 0.0};
     //     }
     //     trajectory_ref_pub_->publish(trajectory_ref);
-    // }
-    // if (offboard_loop_count_ % std::max(1, (offboard_loop_frequency / 10)) == 0) {
-    //     offboard_mode_pub_->publish(offboard_mode); // The OffboardControlMode should run at at least 2Hz (~10 in this implementation)
     // }
 }
 
@@ -604,8 +583,12 @@ void ArdupilotInterface::land_handle_accepted(const std::shared_ptr<rclcpp_actio
 rclcpp_action::GoalResponse ArdupilotInterface::offboard_handle_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const autopilot_interface_msgs::action::Offboard::Goal> goal)
 {
     RCLCPP_INFO(this->get_logger(), "offboard_handle_goal");
-    if (((mav_type_ == 2) && !(aircraft_fsm_state_ == ArdupilotInterfaceState::MC_HOVER || aircraft_fsm_state_ == ArdupilotInterfaceState::MC_ORBIT)) || ((mav_type_ == 1) && aircraft_fsm_state_ != ArdupilotInterfaceState::FW_CRUISE)) {
-        RCLCPP_ERROR(this->get_logger(), "Landing rejected, ArdupilotInterface is not in hover/orbit/cruise state");
+    if (mav_type_ == 1) {
+        RCLCPP_ERROR(this->get_logger(), "Offboard rejected, not supported for ArduPlane VTOLs");
+        return rclcpp_action::GoalResponse::REJECT;
+    }
+    if ((mav_type_ == 2) && !(aircraft_fsm_state_ == ArdupilotInterfaceState::MC_HOVER || aircraft_fsm_state_ == ArdupilotInterfaceState::MC_ORBIT)) {
+        RCLCPP_ERROR(this->get_logger(), "Offboard rejected, ArdupilotInterface is not in hover/orbit");
         return rclcpp_action::GoalResponse::REJECT;
     }
     if (active_srv_or_act_flag_.exchange(true)) { 
@@ -635,7 +618,6 @@ void ArdupilotInterface::offboard_handle_accepted(const std::shared_ptr<rclcpp_a
     rclcpp::Rate offboard_loop_rate(100);
     while (offboarding) {
         offboard_loop_rate.sleep();
-        // std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Reading data written by subs but also writing the FSM state
 
         if (goal_handle->is_canceling()) { // Check if there is a cancel request
             abort_action(); // Sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to MC_ORBIT or FW_CRUISE
@@ -647,42 +629,62 @@ void ArdupilotInterface::offboard_handle_accepted(const std::shared_ptr<rclcpp_a
             return;
         }
 
-        // uint64_t current_time_us = this->get_clock()->now().nanoseconds() / 1000;  // Convert to microseconds
-        // if (time_of_offboard_start_us_ == -1) {
-        //     if (offboard_setpoint_type == autopilot_interface_msgs::action::Offboard::Goal::ATTITUDE) {
-        //         aircraft_fsm_state_ = ArdupilotInterfaceState::OFFBOARD_ATTITUDE;
-        //         feedback->message = "Offboarding with ATTITUDE setpoints";
-        //     } 
-        //     else if (offboard_setpoint_type == autopilot_interface_msgs::action::Offboard::Goal::RATES) {
-        //         aircraft_fsm_state_ = ArdupilotInterfaceState::OFFBOARD_RATES;
-        //         feedback->message = "Offboarding with RATES setpoints";
-        //     }
-        //     else if (offboard_setpoint_type == autopilot_interface_msgs::action::Offboard::Goal::TRAJECTORY) {
-        //         aircraft_fsm_state_ = ArdupilotInterfaceState::OFFBOARD_TRAJECTORY;
-        //         feedback->message = "Offboarding with TRAJECTORY setpoints";
-        //     } 
-        //     else {
-        //         result->success = false;
-        //         goal_handle->canceled(result);
-        //         RCLCPP_ERROR(this->get_logger(), "Offboard type is not supported");
-        //         return;
-        //     }
-        //     goal_handle->publish_feedback(feedback);
-        //     time_of_offboard_start_us_ = current_time_us;
-        //     feedback->message = "Starting offboard control at t=" + std::to_string(time_of_offboard_start_us_) + " us";
-        //     goal_handle->publish_feedback(feedback);
-        // }
-        // if (current_time_us >= (time_of_offboard_start_us_ + max_duration_sec * 1000000)) {
-        //     time_of_offboard_start_us_ = -1;
-        //     offboarding = false;
-        //     do_set_mode(4, 3); // Auto/Loiter (PX4_CUSTOM_MAIN_MODE 4/PX4_CUSTOM_SUB_MODE_AUTO 3)
-        //     aircraft_fsm_state_ = is_vtol_ ? ArdupilotInterfaceState::FW_CRUISE : ArdupilotInterfaceState::MC_HOVER;
-        //     feedback->message = "Exiting offboard control at t=" + std::to_string(current_time_us) + "us, returning to loiter/hover (Hold) state";
-        //     goal_handle->publish_feedback(feedback);
-        // } else if ((current_time_us >= (time_of_offboard_start_us_ + 1 * 1000000)) && (current_time_us < (time_of_offboard_start_us_ + 2 * 1000000))) {
-        //     // Send change mode for 1 sec, 1sec after the beginning of the reference stream
-        //     do_set_mode(6, 0); // Offboard (PX4_CUSTOM_MAIN_MODE 6 no sub mode)
-        // }
+        uint64_t current_time_us = this->get_clock()->now().nanoseconds() / 1000;  // Convert to microseconds
+        if (time_of_offboard_start_us_ == -1) {
+            // This is only sent once but it could be implemented with a FSM to verify the mode is changed
+            auto set_mode_request = std::make_shared<mavros_msgs::srv::SetMode::Request>();
+            set_mode_request->custom_mode = "GUIDED";
+            set_mode_client_->async_send_request(set_mode_request,
+                [this](rclcpp::Client<mavros_msgs::srv::SetMode>::SharedFuture future) {
+                    if (future.get()->mode_sent) {
+                        RCLCPP_INFO(this->get_logger(), "Request mode success");
+                    } else {
+                        RCLCPP_WARN(this->get_logger(), "Request mode failed");
+                    }
+                });
+            std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Reading data written by subs but also writing the FSM state
+            if (offboard_setpoint_type == autopilot_interface_msgs::action::Offboard::Goal::VELOCITY) {
+                aircraft_fsm_state_ = ArdupilotInterfaceState::OFFBOARD_VELOCITY;
+                feedback->message = "Offboarding with VELOCITY setpoints";
+            } 
+            else if (offboard_setpoint_type == autopilot_interface_msgs::action::Offboard::Goal::ACCELERATION) {
+                aircraft_fsm_state_ = ArdupilotInterfaceState::OFFBOARD_ACCELERATION;
+                feedback->message = "Offboarding with ACCELERATION setpoints";
+            }
+            else {
+                result->success = false;
+                goal_handle->canceled(result);
+                RCLCPP_ERROR(this->get_logger(), "Offboard type is not supported by ArdupilotInterface (only VELOCITY and ACCELERATION)");
+                return;
+            }
+            goal_handle->publish_feedback(feedback);
+            time_of_offboard_start_us_ = current_time_us;
+            feedback->message = "Starting offboard control at t=" + std::to_string(time_of_offboard_start_us_) + " us";
+            goal_handle->publish_feedback(feedback);
+        }
+        if (current_time_us >= (time_of_offboard_start_us_ + max_duration_sec * 1000000)) {
+            time_of_offboard_start_us_ = -1;
+            offboarding = false;
+            // This is only sent once but it could be implemented with a FSM to verify the mode is changed
+            auto set_mode_request = std::make_shared<mavros_msgs::srv::SetMode::Request>();
+            set_mode_request->custom_mode = "LOITER";
+            set_mode_client_->async_send_request(set_mode_request,
+                [this](rclcpp::Client<mavros_msgs::srv::SetMode>::SharedFuture future) {
+                    if (future.get()->mode_sent) {
+                        RCLCPP_INFO(this->get_logger(), "Request mode success");
+                    } else {
+                        RCLCPP_WARN(this->get_logger(), "Request mode failed");
+                    }
+                });
+            std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Reading data written by subs but also writing the FSM state
+            if (mav_type_ == 2) { // Multicopter
+                aircraft_fsm_state_ = ArdupilotInterfaceState::MC_ORBIT; // This lets the reposition service change mode when called after offboard
+            } else if (mav_type_ == 1) { // Fixed-wing/VTOL
+                aircraft_fsm_state_ = ArdupilotInterfaceState::FW_CRUISE;
+            }
+            feedback->message = "Exiting offboard control at t=" + std::to_string(current_time_us) + "us, entering LOITER mode";
+            goal_handle->publish_feedback(feedback);
+        }
     }
     result->success = true;
     goal_handle->succeed(result);
