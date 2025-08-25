@@ -180,7 +180,7 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- Implement do_abort for ArdupilotInterface
+- add fsm print
 
 - Implement ardupilot offboard/guided
   # Offboard

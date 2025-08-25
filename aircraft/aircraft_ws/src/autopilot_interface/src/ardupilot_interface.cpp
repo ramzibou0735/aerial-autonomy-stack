@@ -458,7 +458,7 @@ void ArdupilotInterface::land_handle_accepted(const std::shared_ptr<rclcpp_actio
         landing_loop_rate.sleep();
 
         if (goal_handle->is_canceling()) { // Check if there is a cancel request
-            // abort_action(); // Sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to MC_HOVER or FW_CRUISE
+            abort_action(); // Sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to MC_ORBIT or FW_CRUISE
             feedback->message = "Canceling landing";
             goal_handle->publish_feedback(feedback);
             result->success = false;
@@ -635,7 +635,7 @@ void ArdupilotInterface::offboard_handle_accepted(const std::shared_ptr<rclcpp_a
         // std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Reading data written by subs but also writing the FSM state
 
         if (goal_handle->is_canceling()) { // Check if there is a cancel request
-            // abort_action(); // Sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to MC_HOVER or FW_CRUISE
+            abort_action(); // Sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to MC_ORBIT or FW_CRUISE
             feedback->message = "Canceling offboard";
             goal_handle->publish_feedback(feedback);
             result->success = false;
@@ -727,7 +727,7 @@ void ArdupilotInterface::orbit_handle_accepted(const std::shared_ptr<rclcpp_acti
         orbit_loop_rate.sleep();
 
         if (goal_handle->is_canceling()) { // Check if there is a cancel request
-            // abort_action(); // Sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to MC_HOVER or FW_CRUISE
+            abort_action(); // Sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to MC_ORBIT or FW_CRUISE
             feedback->message = "Canceling orbit";
             goal_handle->publish_feedback(feedback);
             result->success = false;
@@ -954,7 +954,7 @@ void ArdupilotInterface::takeoff_handle_accepted(const std::shared_ptr<rclcpp_ac
         takeoff_loop_rate.sleep();
 
         if (goal_handle->is_canceling()) { // Check if there is a cancel request
-            // abort_action(); // Sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to MC_HOVER or FW_CRUISE
+            abort_action(); // Sets active_srv_or_act_flag_ to false, aircraft_fsm_state_ to MC_ORBIT or FW_CRUISE
             feedback->message = "Canceling takeoff";
             goal_handle->publish_feedback(feedback);
             result->success = false;
@@ -1087,6 +1087,29 @@ void ArdupilotInterface::takeoff_handle_accepted(const std::shared_ptr<rclcpp_ac
     goal_handle->succeed(result);
     active_srv_or_act_flag_.store(false);
     return;
+}
+
+void ArdupilotInterface::abort_action()
+{
+    // This is only sent once to be non-blocking but it could be implemented with a FSM to ensure the mode is changed
+    auto set_mode_request = std::make_shared<mavros_msgs::srv::SetMode::Request>();
+    set_mode_request->custom_mode = "LOITER";
+    set_mode_client_->async_send_request(set_mode_request,
+        [this](rclcpp::Client<mavros_msgs::srv::SetMode>::SharedFuture future) {
+            if (future.get()->mode_sent) {
+                RCLCPP_INFO(this->get_logger(), "Request mode success");
+            } else {
+                RCLCPP_WARN(this->get_logger(), "Request mode failed");
+            }
+        });
+
+    std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+    if (mav_type_ == 2) { // Multicopter
+        aircraft_fsm_state_ = ArdupilotInterfaceState::MC_ORBIT; // This lets the reposition service change mode when called after an abort
+    } else if (mav_type_ == 1) { // Fixed-wing/VTOL
+        aircraft_fsm_state_ = ArdupilotInterfaceState::FW_CRUISE;
+    }
+    active_srv_or_act_flag_.store(false);
 }
 
 std::pair<double, double> ArdupilotInterface::lat_lon_from_cartesian(double ref_lat, double ref_lon, double x_offset, double y_offset)

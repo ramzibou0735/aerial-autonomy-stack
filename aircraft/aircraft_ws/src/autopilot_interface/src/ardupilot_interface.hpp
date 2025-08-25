@@ -237,6 +237,8 @@ private:
     rclcpp_action::CancelResponse takeoff_handle_cancel(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Takeoff>> goal_handle);
     void takeoff_handle_accepted(const std::shared_ptr<rclcpp_action::ServerGoalHandle<autopilot_interface_msgs::action::Takeoff>> goal_handle);
     
+    void abort_action();
+
     // Transformations
     std::pair<double, double> lat_lon_from_cartesian(double ref_lat, double ref_lon, double x_offset, double y_offset);
     std::pair<double, double> lat_lon_from_polar(double ref_lat, double ref_lon, double dist, double bear);
