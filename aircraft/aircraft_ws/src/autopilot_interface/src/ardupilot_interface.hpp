@@ -88,10 +88,9 @@ using namespace std::chrono_literals;  // for time literals (e.g. 1s)
 enum class ArdupilotInterfaceState {
     STARTED,
     GUIDED_PRETAKEOFF,
-    QLOITER_PRETAKEOFF,
     ARMED,
     MC_HOVER,
-    MC_ORBIT,
+    VTOL_QLOITER_PRETAKEOFF,
     VTOL_TAKEOFF_MC,
     VTOL_TAKEOFF_HEADING,
     VTOL_TAKEOFF_TRANSITION,
@@ -99,6 +98,7 @@ enum class ArdupilotInterfaceState {
     VTOL_TAKEOFF_MISSION_MODE,
     VTOL_TAKEOFF_MISSION_STARTED,
     FW_CRUISE,
+    MC_ORBIT,
     MC_ORBIT_PARAM1_SET,
     MC_ORBIT_PARAM2_SET,
     MC_ORBIT_MISSION_UPLOADED,
@@ -241,6 +241,36 @@ private:
     std::pair<double, double> lat_lon_from_cartesian(double ref_lat, double ref_lon, double x_offset, double y_offset);
     std::pair<double, double> lat_lon_from_polar(double ref_lat, double ref_lon, double dist, double bear);
 
+    // Template for service calls and FSM updates
+    template<typename ServiceT, typename ActionT>
+    void call_service_and_update_fsm(
+        typename rclcpp::Client<ServiceT>::SharedPtr client, typename ServiceT::Request::SharedPtr request,
+        std::shared_ptr<rclcpp_action::ServerGoalHandle<ActionT>> goal_handle, const std::string& feedback_str,
+        ArdupilotInterfaceState next_state)
+    {
+        auto feedback = std::make_shared<typename ActionT::Feedback>();
+        feedback->message = feedback_str;
+        goal_handle->publish_feedback(feedback);
+        client->async_send_request(request,
+            [this, feedback, goal_handle, next_state, feedback_str](typename rclcpp::Client<ServiceT>::SharedFuture future) {
+                bool success = false;
+                if constexpr (std::is_same_v<ServiceT, mavros_msgs::srv::SetMode>) {
+                    success = future.get()->mode_sent; // The success field is named differently in the SetMode service
+                } else {
+                    success = future.get()->success;
+                }
+
+                if (success) {
+                    feedback->message = feedback_str + " success";
+                    goal_handle->publish_feedback(feedback);
+                    std::unique_lock<std::shared_mutex> lock(node_data_mutex_);
+                    aircraft_fsm_state_ = next_state;
+                } else {
+                    feedback->message = feedback_str + " failed";
+                    goal_handle->publish_feedback(feedback);
+                }
+            });
+    }
 };
 
 #endif // AUTOPILOT_INTERFACE__ARDUPILOT_INTERFACE_HPP_
