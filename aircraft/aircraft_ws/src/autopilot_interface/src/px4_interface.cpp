@@ -33,7 +33,7 @@ PX4Interface::PX4Interface() : Node("px4_interface"),
     command_pub_ = this->create_publisher<VehicleCommand>("fmu/in/vehicle_command", qos_profile_pub);
 
     // Offboard flag publisher
-    offboard_flag_pub_ = this->create_publisher<std_msgs::msg::Bool>("/offboard_flag", qos_profile_pub);
+    offboard_flag_pub_ = this->create_publisher<autopilot_interface_msgs::msg::OffboardFlag>("/offboard_flag", qos_profile_pub);
 
     // Create callback groups (Reentrant or MutuallyExclusive)
     callback_group_timer_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant); // Timed callbacks in parallel
@@ -262,18 +262,18 @@ void PX4Interface::offboard_flag_callback()
 {
     offboard_flag_count_++; // Counter to monitor the rate of the offboard flag (no lock, atomic variable)
 
+    auto msg = autopilot_interface_msgs::msg::OffboardFlag();
     std::shared_lock<std::shared_mutex> lock(node_data_mutex_); // Use shared_lock for data reads
-    if (!((aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_ATTITUDE) || (aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_RATES) || (aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_TRAJECTORY))) {
-        auto msg = std_msgs::msg::Bool();
-        msg.data = false;
-        offboard_flag_pub_->publish(msg);
-        return; // Do not publish anything else (OffboardControlMode) if not in an OFFBOARD state
+    if (aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_ATTITUDE) {
+        msg.offboard_flag = is_vtol_ ? 2 : 1;
+    } else if (aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_RATES) {
+        msg.offboard_flag = is_vtol_ ? 4 : 3;
+    } else if (aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_TRAJECTORY) {
+        msg.offboard_flag = is_vtol_ ? 6 : 5;
     } else {
-        auto msg = std_msgs::msg::Bool();
-        msg.data = true;
-        offboard_flag_pub_->publish(msg);
+        msg.offboard_flag = 0; // Inactive
     }
-    // use is_vtol_
+    offboard_flag_pub_->publish(msg);
 }
 
 // Callbacks for non-blocking services (reentrant callback group, active_srv_or_act_flag_ acting as semaphore)

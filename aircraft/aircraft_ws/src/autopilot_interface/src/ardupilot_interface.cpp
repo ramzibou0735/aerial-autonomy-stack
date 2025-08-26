@@ -31,7 +31,7 @@ ArdupilotInterface::ArdupilotInterface() : Node("ardupilot_interface"),
     setpoint_pos_pub_= this->create_publisher<GeoPoseStamped>("/mavros/setpoint_position/global", qos_profile_pub);
 
     // Offboard flag publisher
-    offboard_flag_pub_ = this->create_publisher<std_msgs::msg::Bool>("/offboard_flag", qos_profile_pub);
+    offboard_flag_pub_ = this->create_publisher<autopilot_interface_msgs::msg::OffboardFlag>("/offboard_flag", qos_profile_pub);
 
     // Create callback groups (Reentrant or MutuallyExclusive)
     callback_group_timer_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant); // Timed callbacks in parallel
@@ -260,17 +260,16 @@ void ArdupilotInterface::offboard_flag_callback()
 {
     offboard_flag_count_++; // Counter to monitor the rate of the offboard flag (no lock, atomic variable)
 
+    auto msg = autopilot_interface_msgs::msg::OffboardFlag();
     std::shared_lock<std::shared_mutex> lock(node_data_mutex_); // Use shared_lock for data reads
-    if (!((aircraft_fsm_state_ == ArdupilotInterfaceState::OFFBOARD_VELOCITY) || (aircraft_fsm_state_ == ArdupilotInterfaceState::OFFBOARD_ACCELERATION))) {
-        auto msg = std_msgs::msg::Bool();
-        msg.data = false;
-        offboard_flag_pub_->publish(msg);
-        return; // Do not publish anything else if not in an OFFBOARD state
+    if (aircraft_fsm_state_ == ArdupilotInterfaceState::OFFBOARD_VELOCITY) {
+        msg.offboard_flag = 7;
+    } else if (aircraft_fsm_state_ == ArdupilotInterfaceState::OFFBOARD_ACCELERATION) {
+        msg.offboard_flag = 8;
     } else {
-        auto msg = std_msgs::msg::Bool();
-        msg.data = true;
-        offboard_flag_pub_->publish(msg);
+        msg.offboard_flag = 0; // Inactive
     }
+    offboard_flag_pub_->publish(msg);
 }
 
 // Callbacks for non-blocking services (reentrant callback group, active_srv_or_act_flag_ acting as semaphore)

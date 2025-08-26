@@ -71,6 +71,8 @@ ros2 service call /Drone1/set_reposition autopilot_interface_msgs/srv/SetReposit
 
 #include <sensor_msgs/msg/nav_sat_fix.hpp>
 
+#include "autopilot_interface_msgs/msg/offboard_flag.hpp"
+
 #include "autopilot_interface_msgs/srv/set_speed.hpp"
 #include "autopilot_interface_msgs/srv/set_reposition.hpp"
 
@@ -193,7 +195,7 @@ private:
     rclcpp::Publisher<GeoPoseStamped>::SharedPtr setpoint_pos_pub_;
 
     // Offboard active flag publisher
-    rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr offboard_flag_pub_;
+    rclcpp::Publisher<autopilot_interface_msgs::msg::OffboardFlag>::SharedPtr offboard_flag_pub_;
 
     // Node Services
     rclcpp::Service<autopilot_interface_msgs::srv::SetSpeed>::SharedPtr set_speed_service_;
