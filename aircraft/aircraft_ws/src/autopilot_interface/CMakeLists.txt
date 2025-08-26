@@ -13,6 +13,7 @@ find_package(nav_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(autopilot_interface_msgs REQUIRED)
 find_package(geographic_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
 
 # Add the CMake module path
 set(CMAKE_MODULE_PATH "/usr/share/cmake/geographiclib" ${CMAKE_MODULE_PATH})
@@ -26,6 +27,7 @@ ament_target_dependencies(px4_interface
                           px4_msgs
                           geometry_msgs
                           autopilot_interface_msgs
+                          std_msgs
                           )
 
 add_executable(ardupilot_interface src/ardupilot_interface.cpp)
@@ -39,6 +41,7 @@ ament_target_dependencies(ardupilot_interface
                           sensor_msgs
                           autopilot_interface_msgs
                           geographic_msgs
+                          std_msgs
                           )
 
 install(TARGETS

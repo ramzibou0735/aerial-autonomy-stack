@@ -51,6 +51,8 @@ ros2 service call /Drone1/set_reposition autopilot_interface_msgs/srv/SetReposit
 #include <geometry_msgs/msg/twist.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
 
+#include "std_msgs/msg/bool.hpp"
+
 #include <mavros_msgs/msg/home_position.hpp>
 #include <mavros_msgs/msg/state.hpp>
 #include <mavros_msgs/msg/vehicle_info.hpp>
@@ -193,6 +195,9 @@ private:
     rclcpp::Publisher<GeoPoseStamped>::SharedPtr setpoint_pos_pub_; 
     rclcpp::Publisher<PoseStamped>::SharedPtr setpoint_pos_local_pub_; // Cartesian/local
 
+    // Offboard active flag publisher
+    rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr offboard_flag_pub_;
+
     // Node Services
     rclcpp::Service<autopilot_interface_msgs::srv::SetSpeed>::SharedPtr set_speed_service_;
     rclcpp::Service<autopilot_interface_msgs::srv::SetReposition>::SharedPtr set_reposition_service_;
@@ -205,7 +210,7 @@ private:
 
     // Callbacks for timers
     void ardupilot_interface_printout_callback();
-    void offboard_control_loop_callback();
+    void offboard_flag_callback();
 
     // Callbacks for MAVROS subscribers
     void global_position_global_sub_callback(const NavSatFix::SharedPtr msg);

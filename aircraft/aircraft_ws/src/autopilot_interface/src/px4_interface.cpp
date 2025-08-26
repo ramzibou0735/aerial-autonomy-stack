@@ -27,7 +27,7 @@ PX4Interface::PX4Interface() : Node("px4_interface"),
     velocity_.fill(NAN);
     angular_velocity_.fill(NAN);
 
-    // Publishers
+    // PX4 publishers
     rclcpp::QoS qos_profile_pub(10);  // Depth of 10
     qos_profile_pub.durability(rclcpp::DurabilityPolicy::TransientLocal);  // Or rclcpp::DurabilityPolicy::Volatile
     command_pub_ = this->create_publisher<VehicleCommand>("fmu/in/vehicle_command", qos_profile_pub);
@@ -35,6 +35,9 @@ PX4Interface::PX4Interface() : Node("px4_interface"),
     attitude_ref_pub_ = this->create_publisher<VehicleAttitudeSetpoint>("fmu/in/vehicle_attitude_setpoint", qos_profile_pub);
     rates_ref_pub_ = this->create_publisher<VehicleRatesSetpoint>("fmu/in/vehicle_rates_setpoint", qos_profile_pub);
     trajectory_ref_pub_ = this->create_publisher<TrajectorySetpoint>("fmu/in/trajectory_setpoint", qos_profile_pub);
+
+    // Offboard flag publisher
+    offboard_flag_pub_ = this->create_publisher<std_msgs::msg::Bool>("/offboard_flag", qos_profile_pub);
 
     // Create callback groups (Reentrant or MutuallyExclusive)
     callback_group_timer_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant); // Timed callbacks in parallel
@@ -50,7 +53,7 @@ PX4Interface::PX4Interface() : Node("px4_interface"),
     );
     offboard_control_loop_timer_ = this->create_wall_timer(
         std::chrono::nanoseconds(1000000000 / offboard_loop_frequency),
-        std::bind(&PX4Interface::offboard_control_loop_callback, this),
+        std::bind(&PX4Interface::offboard_flag_callback, this),
         callback_group_timer_
     );
 
@@ -261,13 +264,20 @@ void PX4Interface::px4_interface_printout_callback()
                 actual_rate
             );
 }
-void PX4Interface::offboard_control_loop_callback()
+void PX4Interface::offboard_flag_callback()
 {
     offboard_loop_count_++; // Counter to monitor the rate of the offboard loop (no lock, atomic variable)
 
     std::shared_lock<std::shared_mutex> lock(node_data_mutex_); // Use shared_lock for data reads
     if (!((aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_ATTITUDE) || (aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_RATES) || (aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_TRAJECTORY))) {
-        return; // Do not publish if not in an OFFBOARD state
+        auto msg = std_msgs::msg::Bool();
+        msg.data = false;
+        offboard_flag_pub_->publish(msg);
+        return; // Do not publish anything else (OffboardControlMode) if not in an OFFBOARD state
+    } else {
+        auto msg = std_msgs::msg::Bool();
+        msg.data = true;
+        offboard_flag_pub_->publish(msg);
     }
 
     uint64_t current_time_us = this->get_clock()->now().nanoseconds() / 1000;  // Convert to microseconds

@@ -33,6 +33,9 @@ ArdupilotInterface::ArdupilotInterface() : Node("ardupilot_interface"),
     setpoint_pos_pub_= this->create_publisher<GeoPoseStamped>("/mavros/setpoint_position/global", qos_profile_pub);
     setpoint_pos_local_pub_= this->create_publisher<PoseStamped>("/mavros/setpoint_position/local", qos_profile_pub);
 
+    // Offboard flag publisher
+    offboard_flag_pub_ = this->create_publisher<std_msgs::msg::Bool>("/offboard_flag", qos_profile_pub);
+
     // Create callback groups (Reentrant or MutuallyExclusive)
     callback_group_timer_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant); // Timed callbacks in parallel
     callback_group_subscriber_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant); // Listen to subscribers in parallel
@@ -47,7 +50,7 @@ ArdupilotInterface::ArdupilotInterface() : Node("ardupilot_interface"),
     );
     offboard_control_loop_timer_ = this->create_wall_timer(
         std::chrono::nanoseconds(1000000000 / offboard_loop_frequency),
-        std::bind(&ArdupilotInterface::offboard_control_loop_callback, this),
+        std::bind(&ArdupilotInterface::offboard_flag_callback, this),
         callback_group_timer_
     );
 
@@ -257,13 +260,20 @@ void ArdupilotInterface::ardupilot_interface_printout_callback()
                 actual_rate
             );
 }
-void ArdupilotInterface::offboard_control_loop_callback()
+void ArdupilotInterface::offboard_flag_callback()
 {
     offboard_loop_count_++; // Counter to monitor the rate of the offboard loop (no lock, atomic variable)
 
     std::shared_lock<std::shared_mutex> lock(node_data_mutex_); // Use shared_lock for data reads
     if (!((aircraft_fsm_state_ == ArdupilotInterfaceState::OFFBOARD_VELOCITY) || (aircraft_fsm_state_ == ArdupilotInterfaceState::OFFBOARD_ACCELERATION))) {
-        return; // Do not publish if not in an OFFBOARD state
+        auto msg = std_msgs::msg::Bool();
+        msg.data = false;
+        offboard_flag_pub_->publish(msg);
+        return; // Do not publish anything else if not in an OFFBOARD state
+    } else {
+        auto msg = std_msgs::msg::Bool();
+        msg.data = true;
+        offboard_flag_pub_->publish(msg);
     }
 
     // TODO: implement custom offboard control logic here

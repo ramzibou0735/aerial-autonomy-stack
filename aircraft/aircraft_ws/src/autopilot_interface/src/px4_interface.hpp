@@ -45,6 +45,8 @@ ros2 service call /Drone1/set_reposition autopilot_interface_msgs/srv/SetReposit
 
 #include "geometry_msgs/msg/vector3.hpp"
 
+#include "std_msgs/msg/bool.hpp"
+
 #include <px4_msgs/msg/vehicle_status.hpp>
 #include <px4_msgs/msg/vehicle_command_ack.hpp>
 #include <px4_msgs/msg/vehicle_global_position.hpp>
@@ -148,6 +150,9 @@ private:
     rclcpp::Publisher<VehicleRatesSetpoint>::SharedPtr rates_ref_pub_;
     rclcpp::Publisher<TrajectorySetpoint>::SharedPtr trajectory_ref_pub_;
 
+    // Offboard active flag publisher
+    rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr offboard_flag_pub_;
+
     // Node Services
     rclcpp::Service<autopilot_interface_msgs::srv::SetSpeed>::SharedPtr set_speed_service_;
     rclcpp::Service<autopilot_interface_msgs::srv::SetReposition>::SharedPtr set_reposition_service_;
@@ -160,7 +165,7 @@ private:
 
     // Callbacks for timers
     void px4_interface_printout_callback();
-    void offboard_control_loop_callback();
+    void offboard_flag_callback();
 
     // Callbacks for PX4 subscribers
     void global_position_callback(const VehicleGlobalPosition::SharedPtr msg);
