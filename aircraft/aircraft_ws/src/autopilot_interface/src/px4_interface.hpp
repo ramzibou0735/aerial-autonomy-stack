@@ -146,9 +146,9 @@ private:
     // PX4 publishers
     rclcpp::Publisher<VehicleCommand>::SharedPtr command_pub_;
     rclcpp::Publisher<OffboardControlMode>::SharedPtr offboard_mode_pub_;
-    rclcpp::Publisher<VehicleAttitudeSetpoint>::SharedPtr attitude_ref_pub_;
-    rclcpp::Publisher<VehicleRatesSetpoint>::SharedPtr rates_ref_pub_;
-    rclcpp::Publisher<TrajectorySetpoint>::SharedPtr trajectory_ref_pub_;
+    // rclcpp::Publisher<VehicleAttitudeSetpoint>::SharedPtr attitude_ref_pub_;
+    // rclcpp::Publisher<VehicleRatesSetpoint>::SharedPtr rates_ref_pub_;
+    // rclcpp::Publisher<TrajectorySetpoint>::SharedPtr trajectory_ref_pub_;
 
     // Offboard active flag publisher
     rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr offboard_flag_pub_;

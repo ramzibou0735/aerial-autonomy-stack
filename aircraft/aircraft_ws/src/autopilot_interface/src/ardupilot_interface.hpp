@@ -190,10 +190,10 @@ private:
     double true_airspeed_m_s_, heading_;
 
     // MAVROS publishers
-    rclcpp::Publisher<Vector3Stamped>::SharedPtr setpoint_accel_pub_;
-    rclcpp::Publisher<TwistStamped>::SharedPtr setpoint_vel_pub_; // Or drone frame message rclcpp::Publisher<Twist>::SharedPtr setpoint_vel_local_pub_;
-    rclcpp::Publisher<GeoPoseStamped>::SharedPtr setpoint_pos_pub_; 
-    rclcpp::Publisher<PoseStamped>::SharedPtr setpoint_pos_local_pub_; // Cartesian/local
+    rclcpp::Publisher<GeoPoseStamped>::SharedPtr setpoint_pos_pub_;
+    // rclcpp::Publisher<Vector3Stamped>::SharedPtr setpoint_accel_pub_;
+    // rclcpp::Publisher<TwistStamped>::SharedPtr setpoint_vel_pub_; // Or drone frame message rclcpp::Publisher<Twist>::SharedPtr setpoint_vel_local_pub_;
+    // rclcpp::Publisher<PoseStamped>::SharedPtr setpoint_pos_local_pub_; // Cartesian/local
 
     // Offboard active flag publisher
     rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr offboard_flag_pub_;

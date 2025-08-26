@@ -32,9 +32,9 @@ PX4Interface::PX4Interface() : Node("px4_interface"),
     qos_profile_pub.durability(rclcpp::DurabilityPolicy::TransientLocal);  // Or rclcpp::DurabilityPolicy::Volatile
     command_pub_ = this->create_publisher<VehicleCommand>("fmu/in/vehicle_command", qos_profile_pub);
     offboard_mode_pub_ = this->create_publisher<OffboardControlMode>("fmu/in/offboard_control_mode", qos_profile_pub);
-    attitude_ref_pub_ = this->create_publisher<VehicleAttitudeSetpoint>("fmu/in/vehicle_attitude_setpoint", qos_profile_pub);
-    rates_ref_pub_ = this->create_publisher<VehicleRatesSetpoint>("fmu/in/vehicle_rates_setpoint", qos_profile_pub);
-    trajectory_ref_pub_ = this->create_publisher<TrajectorySetpoint>("fmu/in/trajectory_setpoint", qos_profile_pub);
+    // attitude_ref_pub_ = this->create_publisher<VehicleAttitudeSetpoint>("fmu/in/vehicle_attitude_setpoint", qos_profile_pub);
+    // rates_ref_pub_ = this->create_publisher<VehicleRatesSetpoint>("fmu/in/vehicle_rates_setpoint", qos_profile_pub);
+    // trajectory_ref_pub_ = this->create_publisher<TrajectorySetpoint>("fmu/in/trajectory_setpoint", qos_profile_pub);
 
     // Offboard flag publisher
     offboard_flag_pub_ = this->create_publisher<std_msgs::msg::Bool>("/offboard_flag", qos_profile_pub);
@@ -287,53 +287,53 @@ void PX4Interface::offboard_flag_callback()
     // https://docs.px4.io/v1.15/en/flight_modes/offboard.html
     if (aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_ATTITUDE) {
         offboard_mode.attitude = true;
-        VehicleAttitudeSetpoint attitude_ref; // https://github.com/PX4/px4_msgs/blob/release/1.16/msg/VehicleAttitudeSetpoint.msg
-        attitude_ref.timestamp = current_time_us;
-        if (!is_vtol_) { // Multicopter
-            double pitch_rad = -5.0 * M_PI / 180.0; // Pitch to move forward (any duration, drops some altitude)
-            attitude_ref.q_d[0] = cos(pitch_rad / 2.0); // w
-            attitude_ref.q_d[1] = 0;                    // x
-            attitude_ref.q_d[2] = sin(pitch_rad / 2.0); // y
-            attitude_ref.q_d[3] = 0;                    // z
-            attitude_ref.thrust_body = {0.0, 0.0, -0.72};
-        } else if (is_vtol_) { // VTOL
-            double pitch_rad = -30.0 * M_PI / 180.0; // Pitch to dive
-            attitude_ref.q_d[0] = cos(pitch_rad / 2.0); // w
-            attitude_ref.q_d[1] = 0;                    // x
-            attitude_ref.q_d[2] = sin(pitch_rad / 2.0); // y
-            attitude_ref.q_d[3] = 0;                    // z
-            attitude_ref.thrust_body = {0.15, 0.0, 0.0};
-        }
-        attitude_ref_pub_->publish(attitude_ref);
+        // VehicleAttitudeSetpoint attitude_ref; // https://github.com/PX4/px4_msgs/blob/release/1.16/msg/VehicleAttitudeSetpoint.msg
+        // attitude_ref.timestamp = current_time_us;
+        // if (!is_vtol_) { // Multicopter
+        //     double pitch_rad = -5.0 * M_PI / 180.0; // Pitch to move forward (any duration, drops some altitude)
+        //     attitude_ref.q_d[0] = cos(pitch_rad / 2.0); // w
+        //     attitude_ref.q_d[1] = 0;                    // x
+        //     attitude_ref.q_d[2] = sin(pitch_rad / 2.0); // y
+        //     attitude_ref.q_d[3] = 0;                    // z
+        //     attitude_ref.thrust_body = {0.0, 0.0, -0.72};
+        // } else if (is_vtol_) { // VTOL
+        //     double pitch_rad = -30.0 * M_PI / 180.0; // Pitch to dive
+        //     attitude_ref.q_d[0] = cos(pitch_rad / 2.0); // w
+        //     attitude_ref.q_d[1] = 0;                    // x
+        //     attitude_ref.q_d[2] = sin(pitch_rad / 2.0); // y
+        //     attitude_ref.q_d[3] = 0;                    // z
+        //     attitude_ref.thrust_body = {0.15, 0.0, 0.0};
+        // }
+        // attitude_ref_pub_->publish(attitude_ref);
     } else if (aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_RATES) {
         offboard_mode.body_rate = true;
-        VehicleRatesSetpoint rates_ref; // https://github.com/PX4/px4_msgs/blob/release/1.16/msg/VehicleRatesSetpoint.msg
-        rates_ref.timestamp = current_time_us;
-        if (!is_vtol_) { // Multicopter
-            rates_ref.roll= 0.0;
-            rates_ref.pitch = 0.0;
-            rates_ref.yaw = 1.0; // Spin on itself (any duration)
-            rates_ref.thrust_body = {0.0, 0.0, -0.72};
-        } else if (is_vtol_) { // VTOL
-            rates_ref.roll= 4.0; // Roll (2sec maneuver 1 roll, 3sec double roll)
-            rates_ref.pitch = 0.0;
-            rates_ref.thrust_body = {0.39, 0.0, 0.0};
-        }
-        rates_ref_pub_->publish(rates_ref);
+        // VehicleRatesSetpoint rates_ref; // https://github.com/PX4/px4_msgs/blob/release/1.16/msg/VehicleRatesSetpoint.msg
+        // rates_ref.timestamp = current_time_us;
+        // if (!is_vtol_) { // Multicopter
+        //     rates_ref.roll= 0.0;
+        //     rates_ref.pitch = 0.0;
+        //     rates_ref.yaw = 1.0; // Spin on itself (any duration)
+        //     rates_ref.thrust_body = {0.0, 0.0, -0.72};
+        // } else if (is_vtol_) { // VTOL
+        //     rates_ref.roll= 4.0; // Roll (2sec maneuver 1 roll, 3sec double roll)
+        //     rates_ref.pitch = 0.0;
+        //     rates_ref.thrust_body = {0.39, 0.0, 0.0};
+        // }
+        // rates_ref_pub_->publish(rates_ref);
     } else if (aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_TRAJECTORY) {
-        TrajectorySetpoint trajectory_ref; // https://github.com/PX4/px4_msgs/blob/release/1.16/msg/TrajectorySetpoint.msg
-        trajectory_ref.timestamp = current_time_us;
+        // TrajectorySetpoint trajectory_ref; // https://github.com/PX4/px4_msgs/blob/release/1.16/msg/TrajectorySetpoint.msg
+        // trajectory_ref.timestamp = current_time_us;
         if (!is_vtol_) { // Multicopter
             offboard_mode.position = true;
-            trajectory_ref.position = {0.0, 0.0, -20.0};
-	        trajectory_ref.yaw = -3.14; // [-PI:PI]
-            // offboard_mode.acceleration = true;
-            // trajectory_ref.acceleration = {0.0, 0.0, -5.0};
+            // trajectory_ref.position = {0.0, 0.0, -20.0};
+	        // trajectory_ref.yaw = -3.14; // [-PI:PI]
+            // // offboard_mode.acceleration = true;
+            // // trajectory_ref.acceleration = {0.0, 0.0, -5.0};
         } else if (is_vtol_) { // VTOL
             offboard_mode.velocity = true;
-            trajectory_ref.velocity = {20.0, 0.0, 0.0};
+            // trajectory_ref.velocity = {20.0, 0.0, 0.0};
         }
-        trajectory_ref_pub_->publish(trajectory_ref);
+        // trajectory_ref_pub_->publish(trajectory_ref);
     }
     if (offboard_loop_count_ % std::max(1, (offboard_loop_frequency / 10)) == 0) {
         offboard_mode_pub_->publish(offboard_mode); // The OffboardControlMode should run at at least 2Hz (~10 in this implementation)

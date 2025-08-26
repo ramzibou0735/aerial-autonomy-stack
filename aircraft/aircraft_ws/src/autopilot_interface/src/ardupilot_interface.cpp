@@ -28,10 +28,10 @@ ArdupilotInterface::ArdupilotInterface() : Node("ardupilot_interface"),
     // MAVROS Publishers
     rclcpp::QoS qos_profile_pub(10);  // Depth of 10
     qos_profile_pub.durability(rclcpp::DurabilityPolicy::TransientLocal);  // Or rclcpp::DurabilityPolicy::Volatile
-    setpoint_accel_pub_= this->create_publisher<Vector3Stamped>("/mavros/setpoint_accel/accel", qos_profile_pub);
-    setpoint_vel_pub_= this->create_publisher<TwistStamped>("/mavros/setpoint_velocity/cmd_vel", qos_profile_pub);
     setpoint_pos_pub_= this->create_publisher<GeoPoseStamped>("/mavros/setpoint_position/global", qos_profile_pub);
-    setpoint_pos_local_pub_= this->create_publisher<PoseStamped>("/mavros/setpoint_position/local", qos_profile_pub);
+    // setpoint_accel_pub_= this->create_publisher<Vector3Stamped>("/mavros/setpoint_accel/accel", qos_profile_pub);
+    // setpoint_vel_pub_= this->create_publisher<TwistStamped>("/mavros/setpoint_velocity/cmd_vel", qos_profile_pub);
+    // setpoint_pos_local_pub_= this->create_publisher<PoseStamped>("/mavros/setpoint_position/local", qos_profile_pub);
 
     // Offboard flag publisher
     offboard_flag_pub_ = this->create_publisher<std_msgs::msg::Bool>("/offboard_flag", qos_profile_pub);
@@ -276,27 +276,27 @@ void ArdupilotInterface::offboard_flag_callback()
         offboard_flag_pub_->publish(msg);
     }
 
-    // TODO: implement custom offboard control logic here
-    if (aircraft_fsm_state_ == ArdupilotInterfaceState::OFFBOARD_VELOCITY) {
-        auto vel_msg = geometry_msgs::msg::TwistStamped(); // https://docs.ros.org/en/noetic/api/geometry_msgs/html/msg/Twist.html
-        vel_msg.header.stamp = this->get_clock()->now();
-        vel_msg.header.frame_id = "map"; // World frame, without yaw alignment
-        vel_msg.twist.linear.x = 2.0; // m/s East
-        vel_msg.twist.linear.y = 0.0; // m/s North
-        vel_msg.twist.linear.z = 0.0; // m/s Up
-        vel_msg.twist.angular.z = 0.0; // rad/s Yaw rate
-        setpoint_vel_pub_->publish(vel_msg);
-        // Alternatively, use the unstamped topic: ros2 topic pub --rate 10 --times 50 /mavros/setpoint_velocity/cmd_vel_unstamped geometry_msgs/msg/Twist '{linear: {x: 2.0, y: 0.0, z: 0.0}}'
-    }
-    else if (aircraft_fsm_state_ == ArdupilotInterfaceState::OFFBOARD_ACCELERATION) {
-        auto accel_msg = geometry_msgs::msg::Vector3Stamped(); // https://docs.ros.org/en/noetic/api/geometry_msgs/html/msg/Vector3.html
-        accel_msg.header.stamp = this->get_clock()->now();
-        accel_msg.header.frame_id = "map"; // World frame, with yaw alignment
-        accel_msg.vector.x = 1.5; // m/s^2 East
-        accel_msg.vector.y = 0.0; // m/s^2 North
-        accel_msg.vector.z = 0.0; // m/s^2 Up
-        setpoint_accel_pub_->publish(accel_msg);
-    }
+    // // TODO: implement custom offboard control logic here
+    // if (aircraft_fsm_state_ == ArdupilotInterfaceState::OFFBOARD_VELOCITY) {
+    //     auto vel_msg = geometry_msgs::msg::TwistStamped(); // https://docs.ros.org/en/noetic/api/geometry_msgs/html/msg/Twist.html
+    //     vel_msg.header.stamp = this->get_clock()->now();
+    //     vel_msg.header.frame_id = "map"; // World frame, without yaw alignment
+    //     vel_msg.twist.linear.x = 2.0; // m/s East
+    //     vel_msg.twist.linear.y = 0.0; // m/s North
+    //     vel_msg.twist.linear.z = 0.0; // m/s Up
+    //     vel_msg.twist.angular.z = 0.0; // rad/s Yaw rate
+    //     setpoint_vel_pub_->publish(vel_msg);
+    //     // Alternatively, use the unstamped topic: ros2 topic pub --rate 10 --times 50 /mavros/setpoint_velocity/cmd_vel_unstamped geometry_msgs/msg/Twist '{linear: {x: 2.0, y: 0.0, z: 0.0}}'
+    // }
+    // else if (aircraft_fsm_state_ == ArdupilotInterfaceState::OFFBOARD_ACCELERATION) {
+    //     auto accel_msg = geometry_msgs::msg::Vector3Stamped(); // https://docs.ros.org/en/noetic/api/geometry_msgs/html/msg/Vector3.html
+    //     accel_msg.header.stamp = this->get_clock()->now();
+    //     accel_msg.header.frame_id = "map"; // World frame, with yaw alignment
+    //     accel_msg.vector.x = 1.5; // m/s^2 East
+    //     accel_msg.vector.y = 0.0; // m/s^2 North
+    //     accel_msg.vector.z = 0.0; // m/s^2 Up
+    //     setpoint_accel_pub_->publish(accel_msg);
+    // }
 }
 
 // Callbacks for non-blocking services (reentrant callback group, active_srv_or_act_flag_ acting as semaphore)
