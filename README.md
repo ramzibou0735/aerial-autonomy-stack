@@ -178,6 +178,10 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
+- rename offboard_control_loop in AP interfaces
+- rename flag in offboard interfaces
+- use uint8 instead of bool for offboard flag?
+
 - Determine how to interactively send rates, attitude, trajectory, velocity, acceleration references for Offboard/Guided modes
 
 - Remove PX4 MPC acceleration limit
