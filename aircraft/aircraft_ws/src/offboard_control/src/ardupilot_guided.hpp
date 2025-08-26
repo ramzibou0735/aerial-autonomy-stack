@@ -28,19 +28,7 @@
 #include <geometry_msgs/msg/twist.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
 
-#include <mavros_msgs/msg/home_position.hpp>
-#include <mavros_msgs/msg/state.hpp>
-#include <mavros_msgs/msg/vehicle_info.hpp>
 #include <mavros_msgs/msg/vfr_hud.hpp>
-
-#include <mavros_msgs/srv/vehicle_info_get.hpp>
-#include <mavros_msgs/srv/command_bool.hpp>
-#include <mavros_msgs/srv/command_long.hpp>
-#include <mavros_msgs/srv/command_tol.hpp>
-#include <mavros_msgs/srv/param_set_v2.hpp>
-#include <mavros_msgs/srv/set_mode.hpp>
-#include <mavros_msgs/srv/waypoint_push.hpp>
-#include <mavros_msgs/srv/waypoint_set_current.hpp>
 
 #include <nav_msgs/msg/odometry.hpp>
 
@@ -48,17 +36,11 @@
 
 #include "autopilot_interface_msgs/msg/offboard_flag.hpp"
 
-#include "autopilot_interface_msgs/srv/set_speed.hpp"
-#include "autopilot_interface_msgs/srv/set_reposition.hpp"
-
-#include "autopilot_interface_msgs/action/land.hpp"
-#include "autopilot_interface_msgs/action/offboard.hpp"
-#include "autopilot_interface_msgs/action/orbit.hpp"
-#include "autopilot_interface_msgs/action/takeoff.hpp"
+#include "ground_system_msgs/msg/swarm_obs.hpp"
+#include "vision_msgs/msg/detection2_d_array.hpp"
 
 using namespace geometry_msgs::msg;
 using namespace mavros_msgs::msg;
-using namespace mavros_msgs::srv;
 using namespace nav_msgs::msg;
 using namespace sensor_msgs::msg;
 using namespace GeographicLib;

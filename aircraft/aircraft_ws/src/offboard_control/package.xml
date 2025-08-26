@@ -27,6 +27,8 @@
   <depend>geographiclib</depend>
   <depend>geographic_msgs</depend>
   <depend>std_msgs</depend>
+  <depend>ground_system_msgs</depend>
+  <depend>vision_msgs</depend>
 
   <export>
     <build_type>ament_cmake</build_type>

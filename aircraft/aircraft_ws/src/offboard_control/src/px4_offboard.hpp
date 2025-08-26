@@ -22,14 +22,11 @@
 
 #include "geometry_msgs/msg/vector3.hpp"
 
-#include <px4_msgs/msg/vehicle_status.hpp>
-#include <px4_msgs/msg/vehicle_command_ack.hpp>
 #include <px4_msgs/msg/vehicle_global_position.hpp>
 #include <px4_msgs/msg/vehicle_local_position.hpp>
 #include <px4_msgs/msg/airspeed_validated.hpp>
 #include <px4_msgs/msg/vehicle_odometry.hpp>
 
-#include <px4_msgs/msg/vehicle_command.hpp>
 #include <px4_msgs/msg/offboard_control_mode.hpp>
 #include <px4_msgs/msg/vehicle_attitude_setpoint.hpp>
 #include <px4_msgs/msg/vehicle_rates_setpoint.hpp>
@@ -37,13 +34,8 @@
 
 #include "autopilot_interface_msgs/msg/offboard_flag.hpp"
 
-#include "autopilot_interface_msgs/srv/set_speed.hpp"
-#include "autopilot_interface_msgs/srv/set_reposition.hpp"
-
-#include "autopilot_interface_msgs/action/land.hpp"
-#include "autopilot_interface_msgs/action/offboard.hpp"
-#include "autopilot_interface_msgs/action/orbit.hpp"
-#include "autopilot_interface_msgs/action/takeoff.hpp"
+#include "ground_system_msgs/msg/swarm_obs.hpp"
+#include "vision_msgs/msg/detection2_d_array.hpp"
 
 using namespace px4_msgs::msg;
 using namespace GeographicLib;

@@ -45,12 +45,6 @@ ros2 service call /Drone1/set_reposition autopilot_interface_msgs/srv/SetReposit
 
 #include <geographic_msgs/msg/geo_pose_stamped.hpp>
 
-#include "geometry_msgs/msg/vector3.hpp"
-#include <geometry_msgs/msg/vector3_stamped.hpp>
-#include <geometry_msgs/msg/pose_stamped.hpp>
-#include <geometry_msgs/msg/twist.hpp>
-#include <geometry_msgs/msg/twist_stamped.hpp>
-
 #include <mavros_msgs/msg/home_position.hpp>
 #include <mavros_msgs/msg/state.hpp>
 #include <mavros_msgs/msg/vehicle_info.hpp>
@@ -79,7 +73,6 @@ ros2 service call /Drone1/set_reposition autopilot_interface_msgs/srv/SetReposit
 #include "autopilot_interface_msgs/action/orbit.hpp"
 #include "autopilot_interface_msgs/action/takeoff.hpp"
 
-using namespace geometry_msgs::msg;
 using namespace mavros_msgs::msg;
 using namespace mavros_msgs::srv;
 using namespace nav_msgs::msg;

@@ -179,17 +179,23 @@ docker exec -it aircraft-container tmux attach
 ## TODOs
 
 - add subs to the offboard control nodes
-    vision
-    lidar odom (?) 
+    ros2 topic info /tracks
+        1Hz
+        Type: ground_system_msgs/msg/SwarmObs 
+    ros2 topic info /detections
+        15Hz
+        Type: vision_msgs/msg/Detection2DArray
+    ros2 topic info /kiss/odometry
+        10Hz
+        Type: nav_msgs/msg/Odometry 
 
 - create python mission package/node
     subs
-        yolo labels
-        state sharing
-        global pos
-    calling actions on AP interfaces
+        /detections (15Hz) vision_msgs/msg/Detection2DArray
+        /state_sharing_drone_N (1Hz) state_sharing/msg/SharedState 
+        AP global pos /mavros/global_position/global (4Hz) OR [namespace/]fmu/out/vehicle_global_position (100Hz)
+    calling actions on AP interfaces TBD
 
-- Create and implement vision/control node
 - Create interfaces table + schematics
 
 - Re-build all from scratch
