@@ -91,6 +91,8 @@ private:
     std::array<float, 3> velocity_;
     std::array<float, 3> angular_velocity_;
     double true_airspeed_m_s_;
+    std::array<float, 3> kiss_position_;
+    std::array<float, 4> kiss_q_;
 
     // PX4 publishers
     rclcpp::Publisher<OffboardControlMode>::SharedPtr offboard_mode_pub_;

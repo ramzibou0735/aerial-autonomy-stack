@@ -22,6 +22,8 @@ PX4Offboard::PX4Offboard() : Node("px4_offboard"),
     q_.fill(NAN);
     velocity_.fill(NAN);
     angular_velocity_.fill(NAN);
+    kiss_position_.fill(NAN);
+    kiss_q_.fill(NAN);
 
     // PX4 publishers
     rclcpp::QoS qos_profile_pub(10);  // Depth of 10
@@ -155,7 +157,13 @@ void PX4Offboard::yolo_detections_callback(const vision_msgs::msg::Detection2DAr
 void PX4Offboard::kiss_odometry_callback(const nav_msgs::msg::Odometry::SharedPtr msg)
 {
     std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
-    // TODO
+    kiss_position_[0] = msg->pose.pose.position.x; // ENU
+    kiss_position_[1] = msg->pose.pose.position.y;
+    kiss_position_[2] = msg->pose.pose.position.z;
+    kiss_q_[0] = msg->pose.pose.orientation.w;
+    kiss_q_[1] = msg->pose.pose.orientation.x;
+    kiss_q_[2] = msg->pose.pose.orientation.y;
+    kiss_q_[3] = msg->pose.pose.orientation.z;
 }
 
 // Callbacks for timers (reentrant group)
@@ -171,8 +179,10 @@ void PX4Offboard::px4_interface_printout_callback()
     last_offboard_loop_count_.store(offboard_loop_count_.load());
     last_offboard_rate_check_time_ = now;
     RCLCPP_INFO(get_logger(),
+                "KISS pos: %.2f %.2f %.2f\n"
                 "Offboard flag:\t%d\n"
                 "Offboard loop rate:\t%.2f Hz\n\n",
+                kiss_position_[0], kiss_position_[1], kiss_position_[2],
                 offboard_flag_.load(),
                 actual_rate
             );

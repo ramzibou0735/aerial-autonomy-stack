@@ -94,6 +94,8 @@ private:
     std::array<float, 3> velocity_;
     std::array<float, 3> angular_velocity_;
     double true_airspeed_m_s_, heading_;
+    std::array<float, 3> kiss_position_;
+    std::array<float, 4> kiss_q_;
 
     // MAVROS publishers
     rclcpp::Publisher<Vector3Stamped>::SharedPtr setpoint_accel_pub_;

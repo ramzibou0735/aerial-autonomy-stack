@@ -178,16 +178,9 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- add subs to the offboard control nodes
-    ros2 topic info /tracks
-        1Hz
-        Type: ground_system_msgs/msg/SwarmObs 
-    ros2 topic info /detections
-        15Hz
-        Type: vision_msgs/msg/Detection2DArray
-    ros2 topic info /kiss/odometry
-        10Hz
-        Type: nav_msgs/msg/Odometry 
+- save and print summaries of
+    ground_system_msgs/msg/SwarmObs 
+    vision_msgs/msg/Detection2DArray
 
 - create python mission package/node
     subs
