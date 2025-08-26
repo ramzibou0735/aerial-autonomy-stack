@@ -72,6 +72,17 @@ PX4Offboard::PX4Offboard() : Node("px4_offboard"),
     offboard_flag_sub_ = this->create_subscription<autopilot_interface_msgs::msg::OffboardFlag>(
         "/offboard_flag", qos_profile_sub, // 10Hz
         std::bind(&PX4Offboard::offboard_flag_callaback, this, std::placeholders::_1), subscriber_options);
+
+    // Perception subscribers
+    ground_tracks_sub_ = this->create_subscription<ground_system_msgs::msg::SwarmObs>(
+        "/tracks", qos_profile_sub, // 1Hz
+        std::bind(&PX4Offboard::ground_tracks_callback, this, std::placeholders::_1), subscriber_options);
+    yolo_detections_sub_ = this->create_subscription<vision_msgs::msg::Detection2DArray>(
+        "/detections", qos_profile_sub, // 15Hz
+        std::bind(&PX4Offboard::yolo_detections_callback, this, std::placeholders::_1), subscriber_options);
+    kiss_odometry_sub_ = this->create_subscription<nav_msgs::msg::Odometry>(
+        "/kiss/odometry", qos_profile_sub, // 10Hz
+        std::bind(&PX4Offboard::kiss_odometry_callback, this, std::placeholders::_1), subscriber_options);
 }
 
 // Callbacks for subscribers (reentrant group)
@@ -128,6 +139,23 @@ void PX4Offboard::offboard_flag_callaback(const autopilot_interface_msgs::msg::O
 {
     std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
     offboard_flag_ = msg->offboard_flag;
+}
+void PX4Offboard::ground_tracks_callback(const ground_system_msgs::msg::SwarmObs::SharedPtr msg)
+{
+    std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+    // TODO
+}
+
+void PX4Offboard::yolo_detections_callback(const vision_msgs::msg::Detection2DArray::SharedPtr msg)
+{
+    std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+    // TODO
+}
+
+void PX4Offboard::kiss_odometry_callback(const nav_msgs::msg::Odometry::SharedPtr msg)
+{
+    std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+    // TODO
 }
 
 // Callbacks for timers (reentrant group)

@@ -30,6 +30,7 @@ ament_target_dependencies(px4_offboard
                           geometry_msgs
                           autopilot_interface_msgs
                           std_msgs
+                          nav_msgs
                           ground_system_msgs
                           vision_msgs
                           )

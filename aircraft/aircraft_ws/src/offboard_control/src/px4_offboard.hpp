@@ -34,6 +34,7 @@
 
 #include "autopilot_interface_msgs/msg/offboard_flag.hpp"
 
+#include <nav_msgs/msg/odometry.hpp>
 #include "ground_system_msgs/msg/swarm_obs.hpp"
 #include "vision_msgs/msg/detection2_d_array.hpp"
 
@@ -74,6 +75,11 @@ private:
     // Offboard flag subscriber
     rclcpp::Subscription<autopilot_interface_msgs::msg::OffboardFlag>::SharedPtr offboard_flag_sub_;
 
+    // Perception subscribers
+    rclcpp::Subscription<ground_system_msgs::msg::SwarmObs>::SharedPtr ground_tracks_sub_;
+    rclcpp::Subscription<vision_msgs::msg::Detection2DArray>::SharedPtr yolo_detections_sub_;
+    rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr kiss_odometry_sub_;
+
     // Subscribers variables
     double lat_, lon_, alt_, alt_ellipsoid_;
     bool xy_valid_, z_valid_, v_xy_valid_, v_z_valid_, xy_global_, z_global_;
@@ -104,6 +110,11 @@ private:
 
     // Offboard flag call back
     void offboard_flag_callaback(const autopilot_interface_msgs::msg::OffboardFlag::SharedPtr msg);
+
+    // Callbacks for perception subscribers
+    void ground_tracks_callback(const ground_system_msgs::msg::SwarmObs::SharedPtr msg);
+    void yolo_detections_callback(const vision_msgs::msg::Detection2DArray::SharedPtr msg);
+    void kiss_odometry_callback(const nav_msgs::msg::Odometry::SharedPtr msg);
 };
 
 #endif // OFFBOARD_CONTROL__PX4_OFFBOARD_HPP_
