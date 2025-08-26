@@ -263,7 +263,7 @@ void PX4Interface::px4_interface_printout_callback()
 }
 void PX4Interface::offboard_control_loop_callback()
 {
-    offboard_loop_count_++; // Counter to monitor the rate of the offboard loop
+    offboard_loop_count_++; // Counter to monitor the rate of the offboard loop (no lock, atomic variable)
 
     std::shared_lock<std::shared_mutex> lock(node_data_mutex_); // Use shared_lock for data reads
     if (!((aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_ATTITUDE) || (aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_RATES) || (aircraft_fsm_state_ == PX4InterfaceState::OFFBOARD_TRAJECTORY))) {

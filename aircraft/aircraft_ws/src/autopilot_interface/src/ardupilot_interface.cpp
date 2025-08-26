@@ -259,7 +259,7 @@ void ArdupilotInterface::ardupilot_interface_printout_callback()
 }
 void ArdupilotInterface::offboard_control_loop_callback()
 {
-    offboard_loop_count_++; // Counter to monitor the rate of the offboard loop
+    offboard_loop_count_++; // Counter to monitor the rate of the offboard loop (no lock, atomic variable)
 
     std::shared_lock<std::shared_mutex> lock(node_data_mutex_); // Use shared_lock for data reads
     if (!((aircraft_fsm_state_ == ArdupilotInterfaceState::OFFBOARD_VELOCITY) || (aircraft_fsm_state_ == ArdupilotInterfaceState::OFFBOARD_ACCELERATION))) {
@@ -274,7 +274,7 @@ void ArdupilotInterface::offboard_control_loop_callback()
         vel_msg.twist.linear.x = 2.0; // m/s East
         vel_msg.twist.linear.y = 0.0; // m/s North
         vel_msg.twist.linear.z = 0.0; // m/s Up
-        vel_msg.twist.angular.z = 3.0; // rad/s Yaw rate
+        vel_msg.twist.angular.z = 0.0; // rad/s Yaw rate
         setpoint_vel_pub_->publish(vel_msg);
         // Alternatively, use the unstamped topic: ros2 topic pub --rate 10 --times 50 /mavros/setpoint_velocity/cmd_vel_unstamped geometry_msgs/msg/Twist '{linear: {x: 2.0, y: 0.0, z: 0.0}}'
     }
@@ -293,6 +293,7 @@ void ArdupilotInterface::offboard_control_loop_callback()
 void ArdupilotInterface::set_speed_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetSpeed::Request> request,
                         std::shared_ptr<autopilot_interface_msgs::srv::SetSpeed::Response> response)
 {
+    std::shared_lock<std::shared_mutex> lock(node_data_mutex_); // Use shared_lock for data reads
     if (((mav_type_ == 2) && aircraft_fsm_state_ != ArdupilotInterfaceState::MC_HOVER) || ((mav_type_ == 1) && aircraft_fsm_state_ != ArdupilotInterfaceState::FW_CRUISE)) {
         RCLCPP_ERROR(this->get_logger(), "Set speed rejected, ArdupilotInterface is not in hover/cruise state");
         response->success = false;
@@ -384,6 +385,7 @@ void ArdupilotInterface::set_reposition_callback(const std::shared_ptr<autopilot
 // Callbacks for actions (reentrant callback group, to be able to handle_goal and handle_cancel at the same time)
 rclcpp_action::GoalResponse ArdupilotInterface::land_handle_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const autopilot_interface_msgs::action::Land::Goal> goal)
 {
+    std::shared_lock<std::shared_mutex> lock(node_data_mutex_); // Use shared_lock for data reads
     RCLCPP_INFO(this->get_logger(), "land_handle_goal");
     if (((mav_type_ == 2) && !(aircraft_fsm_state_ == ArdupilotInterfaceState::MC_HOVER || aircraft_fsm_state_ == ArdupilotInterfaceState::MC_ORBIT)) || ((mav_type_ == 1) && aircraft_fsm_state_ != ArdupilotInterfaceState::FW_CRUISE)) {
         RCLCPP_ERROR(this->get_logger(), "Landing rejected, ArdupilotInterface is not in hover/orbit/cruise state");
@@ -565,6 +567,7 @@ void ArdupilotInterface::land_handle_accepted(const std::shared_ptr<rclcpp_actio
 //
 rclcpp_action::GoalResponse ArdupilotInterface::offboard_handle_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const autopilot_interface_msgs::action::Offboard::Goal> goal)
 {
+    std::shared_lock<std::shared_mutex> lock(node_data_mutex_); // Use shared_lock for data reads
     RCLCPP_INFO(this->get_logger(), "offboard_handle_goal");
     if (mav_type_ == 1) {
         RCLCPP_ERROR(this->get_logger(), "Offboard (GUIDED mode) rejected, not supported for ArduPlane VTOLs");
@@ -677,6 +680,7 @@ void ArdupilotInterface::offboard_handle_accepted(const std::shared_ptr<rclcpp_a
 //
 rclcpp_action::GoalResponse ArdupilotInterface::orbit_handle_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const autopilot_interface_msgs::action::Orbit::Goal> goal)
 {
+    std::shared_lock<std::shared_mutex> lock(node_data_mutex_); // Use shared_lock for data reads
     RCLCPP_INFO(this->get_logger(), "orbit_handle_goal");
     if (((mav_type_ == 2) && !(aircraft_fsm_state_ == ArdupilotInterfaceState::MC_HOVER || aircraft_fsm_state_ == ArdupilotInterfaceState::MC_ORBIT)) || ((mav_type_ == 1) && aircraft_fsm_state_ != ArdupilotInterfaceState::FW_CRUISE)) {
         RCLCPP_ERROR(this->get_logger(), "Landing rejected, ArdupilotInterface is not in hover/orbit/cruise state");
@@ -896,6 +900,7 @@ void ArdupilotInterface::orbit_handle_accepted(const std::shared_ptr<rclcpp_acti
 //
 rclcpp_action::GoalResponse ArdupilotInterface::takeoff_handle_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const autopilot_interface_msgs::action::Takeoff::Goal> goal)
 {
+    std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
     RCLCPP_INFO(this->get_logger(), "takeoff_handle_goal");
     if (aircraft_fsm_state_ != ArdupilotInterfaceState::STARTED) {
         RCLCPP_ERROR(this->get_logger(), "Takeoff rejected, ArdupilotInterface is not in STARTED state");
@@ -908,8 +913,7 @@ rclcpp_action::GoalResponse ArdupilotInterface::takeoff_handle_goal(const rclcpp
     if (active_srv_or_act_flag_.exchange(true)) { 
         RCLCPP_ERROR(this->get_logger(), "Another service/action is active");
         return rclcpp_action::GoalResponse::REJECT;
-    }
-    std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
+    }    
     home_lat_ = lat_;
     home_lon_ = lon_;
     home_alt_ = alt_;
