@@ -323,10 +323,13 @@ void ArdupilotInterface::set_speed_callback(const std::shared_ptr<autopilot_inte
 void ArdupilotInterface::set_reposition_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetReposition::Request> request,
                         std::shared_ptr<autopilot_interface_msgs::srv::SetReposition::Response> response)
 {
-    if ((mav_type_ == 1) || ((mav_type_ == 2) && !(aircraft_fsm_state_ == ArdupilotInterfaceState::MC_HOVER || aircraft_fsm_state_ == ArdupilotInterfaceState::MC_ORBIT))) {
-        RCLCPP_ERROR(this->get_logger(), "Set reposition rejected, ArdupilotInterface is not in a quad hover/orbit state (for VTOLs, use /orbit_action)");
-        response->success = false;
-        return;
+    {
+        std::shared_lock<std::shared_mutex> lock(node_data_mutex_); // Use shared_lock for data reads
+        if ((mav_type_ == 1) || ((mav_type_ == 2) && !(aircraft_fsm_state_ == ArdupilotInterfaceState::MC_HOVER || aircraft_fsm_state_ == ArdupilotInterfaceState::MC_ORBIT))) {
+            RCLCPP_ERROR(this->get_logger(), "Set reposition rejected, ArdupilotInterface is not in a quad hover/orbit state (for VTOLs, use /orbit_action)");
+            response->success = false;
+            return;
+        }
     }
     if (active_srv_or_act_flag_.exchange(true)) { 
         RCLCPP_ERROR(this->get_logger(), "Another service/action is active");
@@ -335,7 +338,7 @@ void ArdupilotInterface::set_reposition_callback(const std::shared_ptr<autopilot
     }
 
     // Change mode to GUIDED if in CIRCLE mode from a orbit
-    while (aircraft_fsm_state_ == ArdupilotInterfaceState::MC_ORBIT) {
+    while (aircraft_fsm_state_ == ArdupilotInterfaceState::MC_ORBIT) { // TODO: lock variable read
         auto set_mode_request = std::make_shared<mavros_msgs::srv::SetMode::Request>();
         set_mode_request->custom_mode = "GUIDED";
         set_mode_client_->async_send_request(set_mode_request,

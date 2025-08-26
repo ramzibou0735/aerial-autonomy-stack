@@ -178,11 +178,7 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- Double check mutex and sleep use in px4_interface and ardupilot_interface (especially new reads in actions)
-
- set_reposition_callback in ardu
- 
-- Double check offboard loop rate published as negative when starting a new offboard action
+- (?) Double check offboard loop rate published as negative when starting a new offboard action
 
 - Determine how to interactively send rates, attitude, trajectory, velocity, acceleration references for Offboard/Guided modes
 - Create and implement vision/control node
@@ -196,6 +192,7 @@ docker exec -it aircraft-container tmux attach
 
 ### Known Issues
 
+- In ArdupilotInterface's action callbacks, std::shared_lock<std::shared_mutex> lock(node_data_mutex_); could be used on the reads of lat_, lon_, alt_
 - Command 178 MAV_CMD_DO_CHANGE_SPEED is accepted but not effective in changing speed for ArduPilot VTOL
 - ArduPilot SITL for Iris uses option -f that also sets "external": True, this is not the case for the Alti Transition from ArduPilot/SITL_Models 
 - Must adjust orientation of the lidar and frame of the lidar odometry for VTOLs
