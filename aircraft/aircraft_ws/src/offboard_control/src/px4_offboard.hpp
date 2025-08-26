@@ -91,13 +91,14 @@ private:
     double true_airspeed_m_s_;
 
     // PX4 publishers
+    rclcpp::Publisher<OffboardControlMode>::SharedPtr offboard_mode_pub_;
     rclcpp::Publisher<VehicleAttitudeSetpoint>::SharedPtr attitude_ref_pub_;
     rclcpp::Publisher<VehicleRatesSetpoint>::SharedPtr rates_ref_pub_;
     rclcpp::Publisher<TrajectorySetpoint>::SharedPtr trajectory_ref_pub_;
 
     // Callbacks for timers
     void px4_interface_printout_callback();
-    void offboard_flag_callback();
+    void offboard_loop_callback();
 
     // Callbacks for PX4 subscribers
     void global_position_callback(const VehicleGlobalPosition::SharedPtr msg);

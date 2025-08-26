@@ -110,7 +110,7 @@ private:
 
     // Callbacks for timers
     void ardupilot_interface_printout_callback();
-    void offboard_flag_callback();
+    void offboard_loop_callback();
 
     // Callbacks for MAVROS subscribers
     void global_position_global_sub_callback(const NavSatFix::SharedPtr msg);

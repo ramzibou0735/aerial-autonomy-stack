@@ -2,7 +2,7 @@
 
 ArdupilotInterface::ArdupilotInterface() : Node("ardupilot_interface"),
     active_srv_or_act_flag_(false), aircraft_fsm_state_(ArdupilotInterfaceState::STARTED), 
-    offboard_loop_frequency(10), offboard_loop_count_(0), last_offboard_loop_count_(0),
+    offboard_flag_frequency(10), offboard_flag_count_(0), last_offboard_flag_count_(0),
     target_system_id_(-1), mav_state_(-1), mav_type_(-1),
     armed_flag_(false), ardupilot_mode_(""),
     lat_(NAN), lon_(NAN), alt_(NAN), alt_ellipsoid_(NAN),
@@ -18,7 +18,7 @@ ArdupilotInterface::ArdupilotInterface() : Node("ardupilot_interface"),
     } else {
         RCLCPP_INFO(this->get_logger(), "Simulation time is disabled.");
     }
-    last_offboard_rate_check_time_ = this->get_clock()->now(); // Monitor the rate of offboard control loop
+    last_offboard_flag_rate_check_time_ = this->get_clock()->now(); // Monitor the rate of offboard flag
     // Initialize the arrays
     position_.fill(NAN);
     q_.fill(NAN);
@@ -29,9 +29,6 @@ ArdupilotInterface::ArdupilotInterface() : Node("ardupilot_interface"),
     rclcpp::QoS qos_profile_pub(10);  // Depth of 10
     qos_profile_pub.durability(rclcpp::DurabilityPolicy::TransientLocal);  // Or rclcpp::DurabilityPolicy::Volatile
     setpoint_pos_pub_= this->create_publisher<GeoPoseStamped>("/mavros/setpoint_position/global", qos_profile_pub);
-    // setpoint_accel_pub_= this->create_publisher<Vector3Stamped>("/mavros/setpoint_accel/accel", qos_profile_pub);
-    // setpoint_vel_pub_= this->create_publisher<TwistStamped>("/mavros/setpoint_velocity/cmd_vel", qos_profile_pub);
-    // setpoint_pos_local_pub_= this->create_publisher<PoseStamped>("/mavros/setpoint_position/local", qos_profile_pub);
 
     // Offboard flag publisher
     offboard_flag_pub_ = this->create_publisher<std_msgs::msg::Bool>("/offboard_flag", qos_profile_pub);
@@ -48,8 +45,8 @@ ArdupilotInterface::ArdupilotInterface() : Node("ardupilot_interface"),
         std::bind(&ArdupilotInterface::ardupilot_interface_printout_callback, this),
         callback_group_timer_
     );
-    offboard_control_loop_timer_ = this->create_wall_timer(
-        std::chrono::nanoseconds(1000000000 / offboard_loop_frequency),
+    offboard_flag_timer_ = this->create_wall_timer(
+        std::chrono::nanoseconds(1000000000 / offboard_flag_frequency),
         std::bind(&ArdupilotInterface::offboard_flag_callback, this),
         callback_group_timer_
     );
@@ -121,7 +118,6 @@ ArdupilotInterface::ArdupilotInterface() : Node("ardupilot_interface"),
             std::bind(&ArdupilotInterface::offboard_handle_cancel, this, std::placeholders::_1),
             std::bind(&ArdupilotInterface::offboard_handle_accepted, this, std::placeholders::_1),
             rcl_action_server_get_default_options(), callback_group_action_);
-
 }
 
 // Callbacks for subscribers (reentrant group)
@@ -206,13 +202,13 @@ void ArdupilotInterface::ardupilot_interface_printout_callback()
     }
 
     auto now = this->get_clock()->now();
-    double elapsed_sec = (now - last_offboard_rate_check_time_).seconds();
+    double elapsed_sec = (now - last_offboard_flag_rate_check_time_).seconds();
     double actual_rate = NAN;
     if (elapsed_sec > 0) {
-        actual_rate = (offboard_loop_count_ - last_offboard_loop_count_) / elapsed_sec;
+        actual_rate = (offboard_flag_count_ - last_offboard_flag_count_) / elapsed_sec;
     }
-    last_offboard_loop_count_.store(offboard_loop_count_.load());
-    last_offboard_rate_check_time_ = now;
+    last_offboard_flag_count_.store(offboard_flag_count_.load());
+    last_offboard_flag_rate_check_time_ = now;
     RCLCPP_INFO(get_logger(),
                 "Vehicle status:\n"
                 "  target_system_id: %d\n"
@@ -239,7 +235,7 @@ void ArdupilotInterface::ardupilot_interface_printout_callback()
                 "  %.2f seconds\n"
                 "Current FSM State:\n"
                 "  %s\n"
-                "Offboard loop rate:\n"
+                "Offboard flag rate:\n"
                 "  %.2f Hz\n\n",
                 //
                 target_system_id_, mav_type_, mav_state_,
@@ -262,7 +258,7 @@ void ArdupilotInterface::ardupilot_interface_printout_callback()
 }
 void ArdupilotInterface::offboard_flag_callback()
 {
-    offboard_loop_count_++; // Counter to monitor the rate of the offboard loop (no lock, atomic variable)
+    offboard_flag_count_++; // Counter to monitor the rate of the offboard flag (no lock, atomic variable)
 
     std::shared_lock<std::shared_mutex> lock(node_data_mutex_); // Use shared_lock for data reads
     if (!((aircraft_fsm_state_ == ArdupilotInterfaceState::OFFBOARD_VELOCITY) || (aircraft_fsm_state_ == ArdupilotInterfaceState::OFFBOARD_ACCELERATION))) {
@@ -275,28 +271,6 @@ void ArdupilotInterface::offboard_flag_callback()
         msg.data = true;
         offboard_flag_pub_->publish(msg);
     }
-
-    // // TODO: implement custom offboard control logic here
-    // if (aircraft_fsm_state_ == ArdupilotInterfaceState::OFFBOARD_VELOCITY) {
-    //     auto vel_msg = geometry_msgs::msg::TwistStamped(); // https://docs.ros.org/en/noetic/api/geometry_msgs/html/msg/Twist.html
-    //     vel_msg.header.stamp = this->get_clock()->now();
-    //     vel_msg.header.frame_id = "map"; // World frame, without yaw alignment
-    //     vel_msg.twist.linear.x = 2.0; // m/s East
-    //     vel_msg.twist.linear.y = 0.0; // m/s North
-    //     vel_msg.twist.linear.z = 0.0; // m/s Up
-    //     vel_msg.twist.angular.z = 0.0; // rad/s Yaw rate
-    //     setpoint_vel_pub_->publish(vel_msg);
-    //     // Alternatively, use the unstamped topic: ros2 topic pub --rate 10 --times 50 /mavros/setpoint_velocity/cmd_vel_unstamped geometry_msgs/msg/Twist '{linear: {x: 2.0, y: 0.0, z: 0.0}}'
-    // }
-    // else if (aircraft_fsm_state_ == ArdupilotInterfaceState::OFFBOARD_ACCELERATION) {
-    //     auto accel_msg = geometry_msgs::msg::Vector3Stamped(); // https://docs.ros.org/en/noetic/api/geometry_msgs/html/msg/Vector3.html
-    //     accel_msg.header.stamp = this->get_clock()->now();
-    //     accel_msg.header.frame_id = "map"; // World frame, with yaw alignment
-    //     accel_msg.vector.x = 1.5; // m/s^2 East
-    //     accel_msg.vector.y = 0.0; // m/s^2 North
-    //     accel_msg.vector.z = 0.0; // m/s^2 Up
-    //     setpoint_accel_pub_->publish(accel_msg);
-    // }
 }
 
 // Callbacks for non-blocking services (reentrant callback group, active_srv_or_act_flag_ acting as semaphore)
@@ -621,7 +595,7 @@ void ArdupilotInterface::offboard_handle_accepted(const std::shared_ptr<rclcpp_a
     int offboard_setpoint_type = goal->offboard_setpoint_type;
     double max_duration_sec = goal->max_duration_sec;
 
-    offboard_loop_count_ = 0;
+    offboard_flag_count_ = 0;
     bool offboarding = true;
     uint64_t time_of_offboard_start_us_ = -1;
     rclcpp::Rate offboard_loop_rate(100);

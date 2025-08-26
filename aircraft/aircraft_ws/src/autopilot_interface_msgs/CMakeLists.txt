@@ -17,7 +17,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "action/Orbit.action"
   "action/Takeoff.action"
 
-  "msg/Template.msg"
+  "msg/OffboardFlag.msg"
 
   "srv/SetSpeed.srv"
   "srv/SetReposition.srv"

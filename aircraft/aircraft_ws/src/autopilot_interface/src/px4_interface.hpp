@@ -103,10 +103,10 @@ private:
     PX4InterfaceState aircraft_fsm_state_;
     std::atomic<bool> active_srv_or_act_flag_;
     double home_lat_, home_lon_, home_alt_; // Saved on takeoff
-    int offboard_loop_frequency;
-    std::atomic<int> offboard_loop_count_;
-    std::atomic<int> last_offboard_loop_count_;
-    rclcpp::Time last_offboard_rate_check_time_;
+    int offboard_flag_frequency;
+    std::atomic<int> offboard_flag_count_;
+    std::atomic<int> last_offboard_flag_count_;
+    rclcpp::Time last_offboard_flag_rate_check_time_;
 
     // Callback groups
     rclcpp::CallbackGroup::SharedPtr callback_group_timer_;
@@ -116,7 +116,7 @@ private:
 
     // Node timers
     rclcpp::TimerBase::SharedPtr px4_interface_printout_timer_;
-    rclcpp::TimerBase::SharedPtr offboard_control_loop_timer_;
+    rclcpp::TimerBase::SharedPtr offboard_flag_timer_;
 
     // PX4 subscribers
     rclcpp::Subscription<VehicleGlobalPosition>::SharedPtr vehicle_global_position_sub_;
@@ -145,10 +145,6 @@ private:
 
     // PX4 publishers
     rclcpp::Publisher<VehicleCommand>::SharedPtr command_pub_;
-    rclcpp::Publisher<OffboardControlMode>::SharedPtr offboard_mode_pub_;
-    // rclcpp::Publisher<VehicleAttitudeSetpoint>::SharedPtr attitude_ref_pub_;
-    // rclcpp::Publisher<VehicleRatesSetpoint>::SharedPtr rates_ref_pub_;
-    // rclcpp::Publisher<TrajectorySetpoint>::SharedPtr trajectory_ref_pub_;
 
     // Offboard active flag publisher
     rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr offboard_flag_pub_;

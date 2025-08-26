@@ -25,6 +25,7 @@ PX4Offboard::PX4Offboard() : Node("px4_offboard"),
     // PX4 publishers
     rclcpp::QoS qos_profile_pub(10);  // Depth of 10
     qos_profile_pub.durability(rclcpp::DurabilityPolicy::TransientLocal);  // Or rclcpp::DurabilityPolicy::Volatile
+    offboard_mode_pub_ = this->create_publisher<OffboardControlMode>("fmu/in/offboard_control_mode", qos_profile_pub);
     attitude_ref_pub_ = this->create_publisher<VehicleAttitudeSetpoint>("fmu/in/vehicle_attitude_setpoint", qos_profile_pub);
     rates_ref_pub_ = this->create_publisher<VehicleRatesSetpoint>("fmu/in/vehicle_rates_setpoint", qos_profile_pub);
     trajectory_ref_pub_ = this->create_publisher<TrajectorySetpoint>("fmu/in/trajectory_setpoint", qos_profile_pub);
@@ -41,7 +42,7 @@ PX4Offboard::PX4Offboard() : Node("px4_offboard"),
     );
     offboard_control_loop_timer_ = this->create_wall_timer(
         std::chrono::nanoseconds(1000000000 / offboard_loop_frequency),
-        std::bind(&PX4Offboard::offboard_flag_callback, this),
+        std::bind(&PX4Offboard::offboard_loop_callback, this),
         callback_group_timer_
     );
 
@@ -137,7 +138,7 @@ void PX4Offboard::px4_interface_printout_callback()
                 actual_rate
             );
 }
-void PX4Offboard::offboard_flag_callback()
+void PX4Offboard::offboard_loop_callback()
 {
     offboard_loop_count_++; // Counter to monitor the rate of the offboard loop (no lock, atomic variable)
 
@@ -207,6 +208,9 @@ void PX4Offboard::offboard_flag_callback()
     //         trajectory_ref.velocity = {20.0, 0.0, 0.0};
     //     }
     //     trajectory_ref_pub_->publish(trajectory_ref);
+    // }
+    // if (offboard_loop_count_ % std::max(1, (offboard_loop_frequency / 10)) == 0) {
+    //     offboard_mode_pub_->publish(offboard_mode); // The OffboardControlMode should run at at least 2Hz (~10 in this implementation)
     // }
 }
 

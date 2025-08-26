@@ -178,9 +178,7 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- rename offboard_control_loop in AP interfaces
-- rename flag in offboard interfaces
-- use uint8 instead of bool for offboard flag?
+- use uint8 instead of bool for offboard flag? message in ap_interface msgs?
 
 - Determine how to interactively send rates, attitude, trajectory, velocity, acceleration references for Offboard/Guided modes
 

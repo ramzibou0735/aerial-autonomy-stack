@@ -39,7 +39,7 @@ ArdupilotGuided::ArdupilotGuided() : Node("ardupilot_guided"),
     );
     offboard_control_loop_timer_ = this->create_wall_timer(
         std::chrono::nanoseconds(1000000000 / offboard_loop_frequency),
-        std::bind(&ArdupilotGuided::offboard_flag_callback, this),
+        std::bind(&ArdupilotGuided::offboard_loop_callback, this),
         callback_group_timer_
     );
 
@@ -131,7 +131,7 @@ void ArdupilotGuided::ardupilot_interface_printout_callback()
                 actual_rate
             );
 }
-void ArdupilotGuided::offboard_flag_callback()
+void ArdupilotGuided::offboard_loop_callback()
 {
     offboard_loop_count_++; // Counter to monitor the rate of the offboard loop (no lock, atomic variable)
 
