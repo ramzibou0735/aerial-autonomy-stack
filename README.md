@@ -179,14 +179,19 @@ docker exec -it aircraft-container tmux attach
 ## TODOs
 
 - Determine how to interactively send rates, attitude, trajectory, velocity, acceleration references for Offboard/Guided modes
-- Create and implement vision/control node
 
-- Create interfaces table
-
-- Before release, make sure that for all maps, all vehicles, a simple autonomous takeoff example works with up to 3 vehicles with sensors
 - Remove PX4 MPC acceleration limit
 
+- Create and implement vision/control node
+- Create interfaces table + schematics
+
+- Re-build all from scratch
 - Create quick start/demo video (remove example from readme)
+
+- [release]
+
+- Create GitHub action builds
+- Simplify ArdupilotInterface
 
 ### Known Issues
 
