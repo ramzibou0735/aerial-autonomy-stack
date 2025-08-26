@@ -160,8 +160,7 @@ void PX4Interface::odometry_callback(const VehicleOdometry::SharedPtr msg)
 void PX4Interface::status_callback(const VehicleStatus::SharedPtr msg)
 {
     std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
-    if (target_system_id_ == -1)
-    {
+    if (target_system_id_ == -1) {
         target_system_id_ = msg->system_id; // get target_system_id from PX4's MAV_SYS_ID once
         RCLCPP_WARN(get_logger(), "target_system_id (MAV_SYS_ID) saved as: %d", target_system_id_);
     }
@@ -335,6 +334,7 @@ void PX4Interface::offboard_control_loop_callback()
 void PX4Interface::set_speed_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetSpeed::Request> request,
                         std::shared_ptr<autopilot_interface_msgs::srv::SetSpeed::Response> response)
 {    
+    std::shared_lock<std::shared_mutex> lock(node_data_mutex_); // Use shared_lock for data reads
     if ((!is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::MC_HOVER) || (is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::FW_CRUISE)) {
         RCLCPP_ERROR(this->get_logger(), "Set speed rejected, PX4Interface is not in hover/cruise state");
         response->success = false;
@@ -356,6 +356,7 @@ void PX4Interface::set_speed_callback(const std::shared_ptr<autopilot_interface_
 void PX4Interface::set_reposition_callback(const std::shared_ptr<autopilot_interface_msgs::srv::SetReposition::Request> request,
                         std::shared_ptr<autopilot_interface_msgs::srv::SetReposition::Response> response)
 {
+    std::shared_lock<std::shared_mutex> lock(node_data_mutex_); // Use shared_lock for data reads
     if ((is_vtol_) || (!is_vtol_ && !(aircraft_fsm_state_ == PX4InterfaceState::MC_HOVER || aircraft_fsm_state_ == PX4InterfaceState::MC_ORBIT))) {
         RCLCPP_ERROR(this->get_logger(), "Set reposition rejected, PX4Interface is not in a quad hover/orbit state (for VTOLs, use /orbit_action)");
         response->success = false;
@@ -366,7 +367,6 @@ void PX4Interface::set_reposition_callback(const std::shared_ptr<autopilot_inter
         response->success = false;
         return;
     }
-    std::shared_lock<std::shared_mutex> lock(node_data_mutex_); // Use shared_lock for data reads
     if (aircraft_fsm_state_ == PX4InterfaceState::MC_ORBIT) {
         do_set_mode(4, 3); // If in an Orbit mode, switch to Hold mode
         aircraft_fsm_state_ = PX4InterfaceState::MC_HOVER;
@@ -386,6 +386,7 @@ void PX4Interface::set_reposition_callback(const std::shared_ptr<autopilot_inter
 // Callbacks for actions (reentrant callback group, to be able to handle_goal and handle_cancel at the same time)
 rclcpp_action::GoalResponse PX4Interface::land_handle_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const autopilot_interface_msgs::action::Land::Goal> goal)
 {
+    std::shared_lock<std::shared_mutex> lock(node_data_mutex_); // Use shared_lock for data reads
     RCLCPP_INFO(this->get_logger(), "land_handle_goal");
     if ((!is_vtol_ && !(aircraft_fsm_state_ == PX4InterfaceState::MC_HOVER || aircraft_fsm_state_ == PX4InterfaceState::MC_ORBIT)) || (is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::FW_CRUISE)) {
         RCLCPP_ERROR(this->get_logger(), "Landing rejected, PX4Interface is not in hover/orbit/cruise state");
@@ -520,6 +521,7 @@ void PX4Interface::land_handle_accepted(const std::shared_ptr<rclcpp_action::Ser
 //
 rclcpp_action::GoalResponse PX4Interface::offboard_handle_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const autopilot_interface_msgs::action::Offboard::Goal> goal)
 {
+    std::shared_lock<std::shared_mutex> lock(node_data_mutex_); // Use shared_lock for data reads
     RCLCPP_INFO(this->get_logger(), "offboard_handle_goal");
     if ((!is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::MC_HOVER) || (is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::FW_CRUISE)) {
         RCLCPP_ERROR(this->get_logger(), "Offboard rejected, PX4Interface is not in hover/cruise state");
@@ -609,6 +611,7 @@ void PX4Interface::offboard_handle_accepted(const std::shared_ptr<rclcpp_action:
 //
 rclcpp_action::GoalResponse PX4Interface::orbit_handle_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const autopilot_interface_msgs::action::Orbit::Goal> goal)
 {
+    std::shared_lock<std::shared_mutex> lock(node_data_mutex_); // Use shared_lock for data reads
     RCLCPP_INFO(this->get_logger(), "orbit_handle_goal");
     if ((!is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::MC_HOVER) || (is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::FW_CRUISE)) {
         RCLCPP_ERROR(this->get_logger(), "Orbit rejected, PX4Interface is not in hover/cruise state");
@@ -676,6 +679,7 @@ void PX4Interface::orbit_handle_accepted(const std::shared_ptr<rclcpp_action::Se
 //
 rclcpp_action::GoalResponse PX4Interface::takeoff_handle_goal(const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const autopilot_interface_msgs::action::Takeoff::Goal> goal)
 {
+    std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
     RCLCPP_INFO(this->get_logger(), "takeoff_handle_goal");
     if (aircraft_fsm_state_ != PX4InterfaceState::STARTED) {
         RCLCPP_ERROR(this->get_logger(), "Takeoff rejected, PX4Interface is not in STARTED state");
@@ -689,7 +693,6 @@ rclcpp_action::GoalResponse PX4Interface::takeoff_handle_goal(const rclcpp_actio
         RCLCPP_ERROR(this->get_logger(), "Another service/action is active");
         return rclcpp_action::GoalResponse::REJECT;
     }
-    std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
     home_lat_ = lat_;
     home_lon_ = lon_;
     home_alt_ = alt_;
@@ -930,7 +933,6 @@ void PX4Interface::send_vehicle_command(int command, double param1, double param
 }
 void PX4Interface::abort_action()
 {
-    // std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Reading data written by subs but also writing the FSM state
     if (vehicle_type_ == px4_msgs::msg::VehicleStatus::VEHICLE_TYPE_ROTARY_WING) {
         do_reposition(lat_, lon_, 100.0, NAN); // HARDCODED: for quads, hover at 100m in place
         aircraft_fsm_state_ = PX4InterfaceState::MC_HOVER;

@@ -178,8 +178,8 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- Double check offboard loop rate published as negative when starting a new offboard action
 - Double check mutex and sleep use in px4_interface and ardupilot_interface (especially new reads in actions)
+- Double check offboard loop rate published as negative when starting a new offboard action
 
 - Determine how to interactively send rates, attitude, trajectory, velocity, acceleration references for Offboard/Guided modes
 - Create and implement vision/control node
