@@ -22,8 +22,6 @@
 
 #include "geometry_msgs/msg/vector3.hpp"
 
-#include "std_msgs/msg/bool.hpp"
-
 #include <px4_msgs/msg/vehicle_status.hpp>
 #include <px4_msgs/msg/vehicle_command_ack.hpp>
 #include <px4_msgs/msg/vehicle_global_position.hpp>
@@ -36,6 +34,8 @@
 #include <px4_msgs/msg/vehicle_attitude_setpoint.hpp>
 #include <px4_msgs/msg/vehicle_rates_setpoint.hpp>
 #include <px4_msgs/msg/trajectory_setpoint.hpp>
+
+#include "autopilot_interface_msgs/msg/offboard_flag.hpp"
 
 #include "autopilot_interface_msgs/srv/set_speed.hpp"
 #include "autopilot_interface_msgs/srv/set_reposition.hpp"
@@ -59,6 +59,7 @@ private:
     const GeographicLib::Geodesic& geod = GeographicLib::Geodesic::WGS84();
 
     // Node variables
+    std::atomic<int> offboard_flag_;
     int offboard_loop_frequency;
     std::atomic<int> offboard_loop_count_;
     std::atomic<int> last_offboard_loop_count_;
@@ -77,6 +78,9 @@ private:
     rclcpp::Subscription<VehicleLocalPosition>::SharedPtr vehicle_local_position_sub_;
     rclcpp::Subscription<VehicleOdometry>::SharedPtr vehicle_odometry_sub_;
     rclcpp::Subscription<AirspeedValidated>::SharedPtr airspeed_validated_sub_;
+
+    // Offboard flag subscriber
+    rclcpp::Subscription<autopilot_interface_msgs::msg::OffboardFlag>::SharedPtr offboard_flag_sub_;
 
     // Subscribers variables
     double lat_, lon_, alt_, alt_ellipsoid_;
@@ -105,6 +109,9 @@ private:
     void local_position_callback(const VehicleLocalPosition::SharedPtr msg);
     void odometry_callback(const VehicleOdometry::SharedPtr msg);
     void airspeed_callback(const AirspeedValidated::SharedPtr msg);
+
+    // Offboard flag call back
+    void offboard_flag_callaback(const autopilot_interface_msgs::msg::OffboardFlag::SharedPtr msg);
 };
 
 #endif // OFFBOARD_CONTROL__PX4_OFFBOARD_HPP_

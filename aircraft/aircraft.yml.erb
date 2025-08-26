@@ -20,6 +20,15 @@ windows:
         - ros2 run autopilot_interface ardupilot_interface --ros-args -r __ns:=/Drone<%= drone_id %> <% if simulated_time == 'true' %> --ros-args -p use_sim_time:=true<% end %>
         <% end %>
 
+  - offboard_control:
+      layout: even-horizontal
+      panes:
+        <% if autopilot == 'px4' %>
+        - ros2 run offboard_control px4_offboard --ros-args -r __ns:=/Drone<%= drone_id %> <% if simulated_time == 'true' %> -p use_sim_time:=true<% end %>
+        <% elsif autopilot == 'ardupilot' %>
+        - ros2 run offboard_control ardupilot_guided --ros-args -r __ns:=/Drone<%= drone_id %> <% if simulated_time == 'true' %> --ros-args -p use_sim_time:=true<% end %>
+        <% end %>
+
   <% if autopilot == 'px4' %>
   - uxrce_dds:
       layout: even-horizontal

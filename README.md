@@ -178,11 +178,16 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- use uint8 instead of bool for offboard flag? message in ap_interface msgs?
+- add subs to the offboard control nodes
+    vision
+    lidar odom (?) 
 
-- Determine how to interactively send rates, attitude, trajectory, velocity, acceleration references for Offboard/Guided modes
-
-- Remove PX4 MPC acceleration limit
+- create python mission package/node
+    subs
+        yolo labels
+        state sharing
+        global pos
+    calling actions on AP interfaces
 
 - Create and implement vision/control node
 - Create interfaces table + schematics
@@ -192,6 +197,7 @@ docker exec -it aircraft-container tmux attach
 
 - [release]
 
+- Remove PX4 MPC acceleration limit
 - Create GitHub action builds
 - Simplify ArdupilotInterface
 

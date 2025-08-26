@@ -51,8 +51,6 @@ ros2 service call /Drone1/set_reposition autopilot_interface_msgs/srv/SetReposit
 #include <geometry_msgs/msg/twist.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
 
-#include "std_msgs/msg/bool.hpp"
-
 #include <mavros_msgs/msg/home_position.hpp>
 #include <mavros_msgs/msg/state.hpp>
 #include <mavros_msgs/msg/vehicle_info.hpp>
@@ -194,7 +192,7 @@ private:
     // MAVROS publishers
     rclcpp::Publisher<GeoPoseStamped>::SharedPtr setpoint_pos_pub_;
 
-    // Offboard active flag publisher
+    // Offboard flag publisher
     rclcpp::Publisher<autopilot_interface_msgs::msg::OffboardFlag>::SharedPtr offboard_flag_pub_;
 
     // Node Services

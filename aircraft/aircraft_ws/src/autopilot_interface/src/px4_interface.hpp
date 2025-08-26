@@ -45,8 +45,6 @@ ros2 service call /Drone1/set_reposition autopilot_interface_msgs/srv/SetReposit
 
 #include "geometry_msgs/msg/vector3.hpp"
 
-#include "std_msgs/msg/bool.hpp"
-
 #include <px4_msgs/msg/vehicle_status.hpp>
 #include <px4_msgs/msg/vehicle_command_ack.hpp>
 #include <px4_msgs/msg/vehicle_global_position.hpp>
@@ -148,7 +146,7 @@ private:
     // PX4 publishers
     rclcpp::Publisher<VehicleCommand>::SharedPtr command_pub_;
 
-    // Offboard active flag publisher
+    // Offboard flag publisher
     rclcpp::Publisher<autopilot_interface_msgs::msg::OffboardFlag>::SharedPtr offboard_flag_pub_;
 
     // Node Services

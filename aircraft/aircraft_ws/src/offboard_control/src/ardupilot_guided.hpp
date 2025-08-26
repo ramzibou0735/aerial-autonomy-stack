@@ -28,8 +28,6 @@
 #include <geometry_msgs/msg/twist.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
 
-#include "std_msgs/msg/bool.hpp"
-
 #include <mavros_msgs/msg/home_position.hpp>
 #include <mavros_msgs/msg/state.hpp>
 #include <mavros_msgs/msg/vehicle_info.hpp>
@@ -47,6 +45,8 @@
 #include <nav_msgs/msg/odometry.hpp>
 
 #include <sensor_msgs/msg/nav_sat_fix.hpp>
+
+#include "autopilot_interface_msgs/msg/offboard_flag.hpp"
 
 #include "autopilot_interface_msgs/srv/set_speed.hpp"
 #include "autopilot_interface_msgs/srv/set_reposition.hpp"
@@ -75,6 +75,7 @@ private:
     const GeographicLib::Geodesic& geod = GeographicLib::Geodesic::WGS84();
 
     // Node variables
+    std::atomic<int> offboard_flag_;
     int offboard_loop_frequency;
     std::atomic<int> offboard_loop_count_;
     std::atomic<int> last_offboard_loop_count_;
@@ -93,6 +94,9 @@ private:
     rclcpp::Subscription<Odometry>::SharedPtr mavros_local_position_odom_sub_;
     rclcpp::Subscription<Odometry>::SharedPtr mavros_global_position_local_sub_;
     rclcpp::Subscription<VfrHud>::SharedPtr mavros_vfr_hud_sub_;
+
+    // Offboard flag subscriber
+    rclcpp::Subscription<autopilot_interface_msgs::msg::OffboardFlag>::SharedPtr offboard_flag_sub_;
 
     // Subscribers variables
     double lat_, lon_, alt_, alt_ellipsoid_;
@@ -117,6 +121,9 @@ private:
     void local_position_odom_callback(const Odometry::SharedPtr msg);
     void global_position_local_callback(const Odometry::SharedPtr msg);
     void vfr_hud_callback(const VfrHud::SharedPtr msg);
+
+    // Offboard flag call back
+    void offboard_flag_callaback(const autopilot_interface_msgs::msg::OffboardFlag::SharedPtr msg);
 };
 
 #endif // OFFBOARD_CONTROL__ARDUPILOT_GUIDED_HPP_
