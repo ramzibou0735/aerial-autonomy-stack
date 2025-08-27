@@ -145,7 +145,7 @@ class YoloInferenceNode(Node):
             try:
                 frame = frame_queue.get(timeout=1) # Get the most recent frame from the queue
             except queue.Empty:
-                self.get_logger().warn("Frame queue is empty, is the stream running?")
+                self.get_logger().info("Frame queue is empty, is the stream running?")
                 continue
             
             # Inference

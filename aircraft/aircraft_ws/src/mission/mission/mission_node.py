@@ -4,6 +4,7 @@ from rclpy.executors import MultiThreadedExecutor
 from rclpy.qos import QoSProfile, ReliabilityPolicy
 from rclpy.callback_groups import ReentrantCallbackGroup
 
+import os
 import argparse
 import threading
 
@@ -21,6 +22,16 @@ class MissionNode(Node):
         self.conops = conops
         self.get_logger().info(f"Missioning with CONOPS: {self.conops}")
 
+        self.own_drone_id = None
+        drone_id_str = os.environ.get('DRONE_ID') # Get id from ENV VAR
+        if drone_id_str is None:
+            self.get_logger().info("DRONE_ID environment variable not set.")
+        else:
+            try:
+                self.own_drone_id = int(drone_id_str)
+            except ValueError:
+                self.get_logger().info(f"Could not parse DRONE_ID='{drone_id_str}' as an integer.")
+
         self.data_lock = threading.Lock()
         # MAVROS data
         self.lat = None
@@ -34,6 +45,7 @@ class MissionNode(Node):
         # State sharing
         self.active_state_sharing_subs = {}
         self.drone_states = {}
+        self.STALE_DRONE_TIMEOUT_SEC = 5.0 # Time after which we prune a drone from drone_states
 
         # Create a reentrant callback groups to allow callbacks to run in parallel
         self.subscriber_callback_group = ReentrantCallbackGroup()
@@ -70,6 +82,11 @@ class MissionNode(Node):
         self.discover_drones_timer = self.create_timer(
             5.0, # 0.2Hz
             self.discover_drones_callback,
+            callback_group=self.timer_callback_group
+        )
+        self.stale_check_timer = self.create_timer(
+            2.0, # 0.5Hz
+            self.check_stale_drones_callback,
             callback_group=self.timer_callback_group
         )
         self.printout_timer = self.create_timer(
@@ -109,11 +126,17 @@ class MissionNode(Node):
             self.yolo_detections = msg
 
     def discover_drones_callback(self):
-        topic_prefix = '/state_sharing_drone_'        
-        current_topics = self.get_topic_names_and_types()
-        for topic_name, msg_types in current_topics:
+        topic_prefix = '/state_sharing_drone_'
+        current_topics_and_types = self.get_topic_names_and_types() # This still re-discovers dead Zenoh topics but data won't be added to drone_states if they are not published
+        for topic_name, msg_types in current_topics_and_types:
             if topic_name.startswith(topic_prefix) and topic_name not in self.active_state_sharing_subs:
                 if 'state_sharing/msg/SharedState' in msg_types:
+                    try:
+                        topic_drone_id = int(topic_name.replace(topic_prefix, ''))
+                        if topic_drone_id == self.own_drone_id:
+                            continue # Ignore self
+                    except ValueError:
+                        continue # Skip if the topic name is malformed
                     self.get_logger().info(f"Discovered new drone: subscribing to {topic_name}")
                     sub = self.create_subscription( # 1Hz
                         SharedState,
@@ -124,10 +147,29 @@ class MissionNode(Node):
                     )
                     self.active_state_sharing_subs[topic_name] = sub # Store the subscriber
 
+    def check_stale_drones_callback(self):
+        now = self.get_clock().now()
+        stale_ids = []
+        with self.data_lock:
+            for drone_id, (last_msg, last_seen_time) in self.drone_states.items():
+                duration = now - last_seen_time
+                if duration.nanoseconds / 1e9 > self.STALE_DRONE_TIMEOUT_SEC:
+                    stale_ids.append(drone_id)
+            for drone_id in stale_ids:
+                self.get_logger().info(f"Drone {drone_id} timed out. Removing.")
+                # Remove the subscriber
+                topic_name_to_remove = f"/state_sharing_drone_{drone_id}"
+                if topic_name_to_remove in self.active_state_sharing_subs:
+                    sub = self.active_state_sharing_subs.pop(topic_name_to_remove)
+                    self.destroy_subscription(sub)
+                # Remove the data
+                self.drone_states.pop(drone_id, None)
+
     def state_sharing_callback(self, msg):
         # A single callback for all drone state topics
         with self.data_lock: 
-            self.drone_states[msg.drone_id] = msg
+            now = self.get_clock().now()
+            self.drone_states[msg.drone_id] = (msg, now)
 
     # def ground_tracks_callback(self, msg):
     #     with self.data_lock:
@@ -159,10 +201,11 @@ class MissionNode(Node):
         if not states_copy:
             output += "State Sharing: [No data]\n"
         else:
+            now_seconds = self.get_clock().now().nanoseconds / 1e9
             output += "State Sharing:\n"
-            for drone_id in sorted(states_copy.keys()):
-                state = states_copy[drone_id]
-                output += f"  Id {drone_id}, lat: {state.latitude_deg:.5f} lon: {state.longitude_deg:.5f} alt: {state.altitude_m:.2f} (px4: msl, ap: ell.)\n"
+            for drone_id, (state_msg, last_seen_time) in sorted(states_copy.items()):
+                seconds_ago = now_seconds - (last_seen_time.nanoseconds / 1e9)
+                output += f"  Id {drone_id}, lat: {state_msg.latitude_deg:.5f} lon: {state_msg.longitude_deg:.5f} alt: {state_msg.altitude_m:.2f} (px4: msl, ap: ell.) (seen {seconds_ago:.1f}s ago)\n"
         #
         # if ground_tracks and ground_tracks.tracks:
         #     output += "Ground Tracks:\n"
@@ -179,9 +222,10 @@ class MissionNode(Node):
         elif self.conops == 'plan_B':
             self.get_logger().info("There is no Plan B")
         elif self.conops == 'yalla':
-            self.get_logger().info("Yalla")
+            # self.get_logger().info("Yalla")
+            pass
         else:
-            self.get_logger().warn(f"Unknown CONOPS: {self.conops}")
+            self.get_logger().info(f"Unknown CONOPS: {self.conops}")
 
 def main(args=None):
     parser = argparse.ArgumentParser(description="Mission Node.")
