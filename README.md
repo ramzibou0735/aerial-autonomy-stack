@@ -121,17 +121,16 @@ docker exec simulation-container bash -c "gz service -s /world/\$WORLD/control -
 > 
 > </details>
 
-### Run an Example
+### Fly a Mission
 
 ```sh
-# Simple vision-based guidance
 cd ~/git/aerial-autonomy-stack/scripts
 DRONE_TYPE=quad AUTOPILOT=px4 NUM_DRONES=1 ./sim_run.sh
 # In aircraft 1's terminal
-./skibidi.sh
+ros2 run mission mission --conops yalla --ros-args -r __ns:=/Drone$DRONE_ID -p use_sim_time:=true
+# This mission is a simple takeoff, followed by an orbit, and landing
+# For all combinations of AUTOPILOT=px4/ardupilot, DRONE_TYPE=quad/vtol
 ```
-
-<!-- TODO: add video of the skibidi example -->
 
 ### Development
 
@@ -177,17 +176,6 @@ docker exec -it aircraft-container tmux attach
 <!-- 
 
 ## TODOs
-
-implement actions in a simple takeoff/orbit/land mission for all vehicles
-
-disambiguate action namespacing or not in px4 and ardu
-
-(remove example from readme)
-
-ros2 run mission mission --conops yalla --ros-args -r __ns:=/Drone$DRONE_ID -p use_sim_time:=true
-
-
-
 
 - Create interfaces table + schematics
 
