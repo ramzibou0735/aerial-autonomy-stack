@@ -21,6 +21,12 @@ windows:
       layout: even-horizontal
       panes:
         - >
+          <% if camera == 'false' %>
+          sed -i '/<sensor/,/<\/sensor>/d' /simulation_resources/aircraft_models/sensor_camera/model.sdf &&
+          <% end %>
+          <% if lidar == 'false' %>
+          sed -i '/<sensor/,/<\/sensor>/d'  /simulation_resources/aircraft_models/sensor_lidar/model.sdf &&
+          <% end %>
           GZ_SIM_RESOURCE_PATH=$GZ_SIM_RESOURCE_PATH:/simulation_resources/aircraft_models:/simulation_resources/simulation_worlds 
           GZ_SIM_PHYSICS_ENGINE_PATH=$GZ_SIM_PHYSICS_ENGINE_PATH:/usr/lib/x86_64-linux-gnu/gz-physics-7/engine-plugins/
           gz sim -v4 -r <% if headless == 'true' %> -s <% end %> <%= world %>.sdf
@@ -29,6 +35,12 @@ windows:
       layout: even-horizontal
       panes:
         - > 
+          <% if camera == 'false' %>
+          sed -i '/<sensor/,/<\/sensor>/d' /simulation_resources/aircraft_models/sensor_camera/model.sdf &&
+          <% end %>
+          <% if lidar == 'false' %>
+          sed -i '/<sensor/,/<\/sensor>/d'  /simulation_resources/aircraft_models/sensor_lidar/model.sdf &&
+          <% end %>
           chmod +x /simulation_resources/aircraft_models/_create_ardupilot_models.sh &&
           /simulation_resources/aircraft_models/_create_ardupilot_models.sh <%= num_drones %> /simulation_resources/aircraft_models/<%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'alti_transition_quad' %> &&
           chmod +x /simulation_resources/simulation_worlds/_create_ardupilot_world.sh &&
