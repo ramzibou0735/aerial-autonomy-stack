@@ -178,11 +178,10 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-ros2 run mission mission --conops yalla --ros-args -p use_sim_time:=True
+ros2 run mission mission --conops yalla --ros-args -r __ns:=/Drone$DRONE_ID -p use_sim_time:=true
 
-    add namespace to use px4 subs
     switch from tracks to state sharing?
-    implement actions
+    implement actions in a simple takeoff/orbit/land mission for all vehicles
 
 
 

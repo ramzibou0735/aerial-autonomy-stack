@@ -12,7 +12,7 @@ PX4Interface::PX4Interface() : Node("px4_interface"),
     command_ack_(-1), command_ack_result_(-1), command_ack_from_external_(false),
     home_lat_(NAN), home_lon_(NAN), home_alt_(NAN)
 {
-    RCLCPP_INFO(this->get_logger(), "PX4 Interfacing!");
+    RCLCPP_INFO(this->get_logger(), "PX4 interfacing!");
     RCLCPP_INFO(this->get_logger(), "namespace: %s", this->get_namespace());
     // Check and log whether simulation time is enabled or not
     if (this->get_parameter("use_sim_time").as_bool()) {

@@ -10,6 +10,7 @@ import threading
 from sensor_msgs.msg import NavSatFix
 from mavros_msgs.msg import VfrHud
 from vision_msgs.msg import Detection2DArray
+from px4_msgs.msg import VehicleGlobalPosition, AirspeedValidated
 
 from autopilot_interface_msgs.msg import OffboardFlag
 from ground_system_msgs.msg import SwarmObs
@@ -18,7 +19,7 @@ class MissionNode(Node):
     def __init__(self, conops):
         super().__init__('mission_node')
         self.conops = conops
-        self.get_logger().info(f"Missioning started with CONOPS: {self.conops}")
+        self.get_logger().info(f"Missioning with CONOPS: {self.conops}")
 
         self.data_lock = threading.Lock()
         # MAVROS data
@@ -26,7 +27,7 @@ class MissionNode(Node):
         self.lon = None
         self.alt_msl = None
         self.heading = None
-        self.true_airspeed = None
+        self.airspeed = None
         # Perception data
         self.ground_tracks = None
         self.yolo_detections = None
@@ -40,9 +41,16 @@ class MissionNode(Node):
             reliability=ReliabilityPolicy.BEST_EFFORT,
             depth=10
         )
+        # PX4 subscribers
+        self.create_subscription( # 100Hz
+            VehicleGlobalPosition, 'fmu/out/vehicle_global_position', self.px4_global_position_callback,
+            qos_profile, callback_group=self.subscriber_callback_group)
+        self.create_subscription( # 10Hz
+            AirspeedValidated, '/fmu/out/airspeed_validated', self.airspeed_validated_callback,
+            qos_profile, callback_group=self.subscriber_callback_group)
         # MAVROS subscribers
         self.create_subscription( # 4Hz
-            NavSatFix, '/mavros/global_position/global', self.global_position_callback,
+            NavSatFix, '/mavros/global_position/global', self.mavros_global_position_callback,
             qos_profile, callback_group=self.subscriber_callback_group)
         self.create_subscription( # 4Hz
             VfrHud, '/mavros/vfr_hud', self.vfr_hud_callback,
@@ -67,16 +75,26 @@ class MissionNode(Node):
             callback_group=self.timer_callback_group
         )
 
-    def global_position_callback(self, msg):
+    def px4_global_position_callback(self, msg): # Mutally exclusive with mavros_global_position_callback
+        with self.data_lock:
+            self.lat = msg.lat
+            self.lon = msg.lon
+            self.alt_msl = msg.alt
+    
+    def airspeed_validated_callback(self, msg): # Mutally exclusive with vfr_hud_callback
+        with self.data_lock:
+            self.airspeed = msg.true_airspeed_m_s
+    
+    def mavros_global_position_callback(self, msg):  # Mutally exclusive with px4_global_position_callback
         with self.data_lock:
             self.lat = msg.latitude
             self.lon = msg.longitude
 
-    def vfr_hud_callback(self, msg):
+    def vfr_hud_callback(self, msg): # Mutally exclusive with airspeed_validated_callback
         with self.data_lock:
             self.alt_msl = msg.altitude
             self.heading = msg.heading
-            self.true_airspeed = msg.airspeed
+            self.airspeed = msg.airspeed
 
     def ground_tracks_callback(self, msg):
         with self.data_lock:
@@ -119,7 +137,7 @@ class MissionNode(Node):
 
     def conops_callback(self):
         if self.conops == 'plan_A':
-            self.get_logger().info("Plan A is not implemented")
+            self.get_logger().info("Plan A is classified")
         elif self.conops == 'plan_B':
             self.get_logger().info("There is no Plan B")
         elif self.conops == 'yalla':

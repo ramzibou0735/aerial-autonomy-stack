@@ -10,7 +10,7 @@ ArdupilotInterface::ArdupilotInterface() : Node("ardupilot_interface"),
     true_airspeed_m_s_(NAN), heading_(NAN),
     home_lat_(NAN), home_lon_(NAN), home_alt_(NAN)
 {
-    RCLCPP_INFO(this->get_logger(), "ArduPilot Interfacing!");
+    RCLCPP_INFO(this->get_logger(), "ArduPilot interfacing!");
     RCLCPP_INFO(this->get_logger(), "namespace: %s", this->get_namespace());
     // Check and log whether simulation time is enabled or not
     if (this->get_parameter("use_sim_time").as_bool()) {
