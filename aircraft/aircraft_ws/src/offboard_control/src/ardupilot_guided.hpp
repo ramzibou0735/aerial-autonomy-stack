@@ -11,6 +11,8 @@
 #include <array>
 #include <algorithm>
 #include <string>
+#include <sstream>
+#include <iomanip>
 
 #include <rclcpp/clock.hpp>
 #include <rclcpp/parameter.hpp>
@@ -96,6 +98,8 @@ private:
     double true_airspeed_m_s_, heading_;
     std::array<float, 3> kiss_position_;
     std::array<float, 4> kiss_q_;
+    ground_system_msgs::msg::SwarmObs::SharedPtr ground_tracks_;
+    vision_msgs::msg::Detection2DArray::SharedPtr yolo_detections_;
 
     // MAVROS publishers
     rclcpp::Publisher<Vector3Stamped>::SharedPtr setpoint_accel_pub_;

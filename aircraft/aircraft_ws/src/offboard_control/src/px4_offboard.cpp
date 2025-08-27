@@ -6,7 +6,8 @@ PX4Offboard::PX4Offboard() : Node("px4_offboard"),
     lat_(NAN), lon_(NAN), alt_(NAN), alt_ellipsoid_(NAN),
     xy_valid_(false), z_valid_(false), v_xy_valid_(false), v_z_valid_(false), xy_global_(false), z_global_(false),
     x_(NAN), y_(NAN), z_(NAN), heading_(NAN), vx_(NAN), vy_(NAN), vz_(NAN), ref_lat_(NAN), ref_lon_(NAN), ref_alt_(NAN),
-    pose_frame_(-1), velocity_frame_(-1), true_airspeed_m_s_(NAN)
+    pose_frame_(-1), velocity_frame_(-1), true_airspeed_m_s_(NAN),
+    ground_tracks_(nullptr), yolo_detections_(nullptr)
 {
     RCLCPP_INFO(this->get_logger(), "PX4 offboard referencing!");
     RCLCPP_INFO(this->get_logger(), "namespace: %s", this->get_namespace());
@@ -145,13 +146,13 @@ void PX4Offboard::offboard_flag_callaback(const autopilot_interface_msgs::msg::O
 void PX4Offboard::ground_tracks_callback(const ground_system_msgs::msg::SwarmObs::SharedPtr msg)
 {
     std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
-    // TODO
+    ground_tracks_ = msg; // Save the smart pointer to the latest message
 }
 
 void PX4Offboard::yolo_detections_callback(const vision_msgs::msg::Detection2DArray::SharedPtr msg)
 {
     std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
-    // TODO
+    yolo_detections_ = msg; // Save the smart pointer to the latest message
 }
 
 void PX4Offboard::kiss_odometry_callback(const nav_msgs::msg::Odometry::SharedPtr msg)
@@ -179,13 +180,49 @@ void PX4Offboard::px4_interface_printout_callback()
     last_offboard_loop_count_.store(offboard_loop_count_.load());
     last_offboard_rate_check_time_ = now;
     RCLCPP_INFO(get_logger(),
-                "KISS pos: %.2f %.2f %.2f\n"
-                "Offboard flag:\t%d\n"
-                "Offboard loop rate:\t%.2f Hz\n\n",
+                "\n  Current node time: %.2f seconds\n"
+                "  KISS pos: %.2f %.2f %.2f\n"
+                "  Offboard flag:\t%d\n"
+                "  Offboard loop rate:\t%.2f Hz",
+                this->get_clock()->now().seconds(),
                 kiss_position_[0], kiss_position_[1], kiss_position_[2],
                 offboard_flag_.load(),
                 actual_rate
             );
+    std::stringstream ss;
+    auto local_tracks = ground_tracks_;
+    if (local_tracks) {
+        if (local_tracks->tracks.empty()) {
+            ss << "\nGround Tracks: [No tracks in message]\n";
+        } else {
+            ss << "\nGround Tracks:\n";
+            for (const auto& track : local_tracks->tracks) {
+                ss << "  Id " << static_cast<int>(track.id)
+                << " lat: " << std::fixed << std::setprecision(5) << track.latitude_deg
+                << " lon: " << std::fixed << std::setprecision(5) << track.longitude_deg
+                << " alt: " << std::fixed << std::setprecision(2) << track.altitude_m << "\n";
+            }
+        }
+    } else {
+        ss << "\nGround Tracks: [No message received yet]\n";
+    }
+    auto local_detections = yolo_detections_;
+    if (local_detections) {
+        if (local_detections->detections.empty()) {
+            ss << "YOLO Detections: [No detections in message]\n";
+        } else {
+            ss << "YOLO Detections:\n";
+            for (const auto& detection : local_detections->detections) {
+                for (const auto& result : detection.results) {
+                    ss << "  Label: " << result.hypothesis.class_id
+                    << " - conf: " << std::fixed << std::setprecision(2) << result.hypothesis.score << "\n";
+                }
+            }
+        }
+    } else {
+        ss << "YOLO Detections: [No message received yet]\n";
+    }
+    RCLCPP_INFO(get_logger(), "%s\n", ss.str().c_str());
 }
 void PX4Offboard::offboard_loop_callback()
 {

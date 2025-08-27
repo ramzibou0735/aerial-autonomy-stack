@@ -178,10 +178,6 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- save and print summaries of
-    ground_system_msgs/msg/SwarmObs 
-    vision_msgs/msg/Detection2DArray
-
 - create python mission package/node
     subs
         /detections (15Hz) vision_msgs/msg/Detection2DArray

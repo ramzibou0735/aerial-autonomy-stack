@@ -12,7 +12,7 @@ import queue
 import time
 import platform
 
-from vision_msgs.msg import Detection2DArray, Detection2D, BoundingBox2D
+from vision_msgs.msg import Detection2DArray, Detection2D, BoundingBox2D, ObjectHypothesis, ObjectHypothesisWithPose
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 
@@ -226,10 +226,17 @@ class YoloInferenceNode(Node):
             bbox.center.position.y = float((y1 + y2) / 2.0)
             bbox.size_x = float(x2 - x1)
             bbox.size_y = float(y2 - y1)
+
+            hypothesis = ObjectHypothesis()
+            hypothesis.class_id = str(self.classes[class_ids[i]])
+            hypothesis.score = float(confidences[i])
+            result = ObjectHypothesisWithPose()
+            result.hypothesis = hypothesis
             
             detection = Detection2D() 
             detection.bbox = bbox
             detection.id = str(self.classes[class_ids[i]]) 
+            detection.results.append(result)
             detection_array_msg.detections.append(detection)
 
         self.detection_publisher.publish(detection_array_msg)
