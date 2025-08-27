@@ -180,7 +180,6 @@ docker exec -it aircraft-container tmux attach
 
 ros2 run mission mission --conops yalla --ros-args -r __ns:=/Drone$DRONE_ID -p use_sim_time:=true
 
-    switch from tracks to state sharing?
     implement actions in a simple takeoff/orbit/land mission for all vehicles
 
 
@@ -198,6 +197,7 @@ ros2 run mission mission --conops yalla --ros-args -r __ns:=/Drone$DRONE_ID -p u
 
 ### Known Issues
 
+- Ground tracks in topic /tracks are occasionally not published
 - In ArdupilotInterface's action callbacks, std::shared_lock<std::shared_mutex> lock(node_data_mutex_); could be used on the reads of lat_, lon_, alt_
 - Command 178 MAV_CMD_DO_CHANGE_SPEED is accepted but not effective in changing speed for ArduPilot VTOL
 - ArduPilot SITL for Iris uses option -f that also sets "external": True, this is not the case for the Alti Transition from ArduPilot/SITL_Models 

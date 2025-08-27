@@ -70,7 +70,7 @@ private:
         std::lock_guard<std::mutex> lock(data_mutex_);
         latest_position_.latitude_deg = msg->lat;
         latest_position_.longitude_deg = msg->lon;
-        latest_position_.altitude_m = msg->alt;
+        latest_position_.altitude_m = msg->alt; // This is AMSL altitude
     }
 
     void ardupilot_callback(const sensor_msgs::msg::NavSatFix::SharedPtr msg)
@@ -78,7 +78,7 @@ private:
         std::lock_guard<std::mutex> lock(data_mutex_);
         latest_position_.latitude_deg = msg->latitude;
         latest_position_.longitude_deg = msg->longitude;
-        latest_position_.altitude_m = msg->altitude;
+        latest_position_.altitude_m = msg->altitude; // This is ellipsoid altitude
     }
 
     void publish_timer_callback()
