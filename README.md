@@ -178,12 +178,13 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- create python mission package/node
-    subs
-        /detections (15Hz) vision_msgs/msg/Detection2DArray
-        /state_sharing_drone_N (1Hz) state_sharing/msg/SharedState 
-        AP global pos /mavros/global_position/global (4Hz) OR [namespace/]fmu/out/vehicle_global_position (100Hz)
-    calling actions on AP interfaces TBD
+ros2 run mission mission --conops yalla --ros-args -p use_sim_time:=True
+
+    add namespace to use px4 subs
+    switch from tracks to state sharing?
+    implement actions
+
+
 
 - Create interfaces table + schematics
 
