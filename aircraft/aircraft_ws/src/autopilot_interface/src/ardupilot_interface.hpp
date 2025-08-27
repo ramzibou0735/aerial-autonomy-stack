@@ -79,7 +79,7 @@ using namespace nav_msgs::msg;
 using namespace sensor_msgs::msg;
 using namespace GeographicLib;
 using namespace geographic_msgs::msg;
-using namespace std::chrono_literals;  // for time literals (e.g. 1s)
+using namespace std::chrono_literals; // for time literals (e.g. 1s)
 
 enum class ArdupilotInterfaceState {
     STARTED,

@@ -96,9 +96,7 @@ void PX4Offboard::global_position_callback(const VehicleGlobalPosition::SharedPt
     lon_ = msg->lon;
     alt_ = msg->alt; // AMSL
     alt_ellipsoid_ = msg->alt_ellipsoid; // TODO: double-check
-    // New to v1.16
-    // bool lat_lon_valid
-    // bool alt_valid
+    // New to v1.16: bool lat_lon_valid, bool alt_valid
 }
 void PX4Offboard::local_position_callback(const VehicleLocalPosition::SharedPtr msg)
 {

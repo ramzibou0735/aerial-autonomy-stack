@@ -42,7 +42,7 @@
 
 using namespace px4_msgs::msg;
 using namespace GeographicLib;
-using namespace std::chrono_literals;  // For time literals (e.g. 1s)
+using namespace std::chrono_literals; // For time literals (e.g. 1s)
 
 class PX4Offboard : public rclcpp::Node
 {

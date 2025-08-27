@@ -47,7 +47,7 @@ using namespace nav_msgs::msg;
 using namespace sensor_msgs::msg;
 using namespace GeographicLib;
 using namespace geographic_msgs::msg;
-using namespace std::chrono_literals;  // for time literals (e.g. 1s)
+using namespace std::chrono_literals; // for time literals (e.g. 1s)
 
 class ArdupilotGuided : public rclcpp::Node
 {
@@ -103,7 +103,7 @@ private:
 
     // MAVROS publishers
     rclcpp::Publisher<Vector3Stamped>::SharedPtr setpoint_accel_pub_;
-    rclcpp::Publisher<TwistStamped>::SharedPtr setpoint_vel_pub_; // Or drone frame message rclcpp::Publisher<Twist>::SharedPtr setpoint_vel_local_pub_;
+    rclcpp::Publisher<TwistStamped>::SharedPtr setpoint_vel_pub_;
 
     // Callbacks for timers
     void ardupilot_interface_printout_callback();

@@ -421,7 +421,7 @@ void ArdupilotInterface::land_handle_accepted(const std::shared_ptr<rclcpp_actio
         }
 
         {
-            std::shared_lock<std::shared_mutex> lock(node_data_mutex_);
+            std::shared_lock<std::shared_mutex> lock(node_data_mutex_); // Use shared_lock for data reads
             current_fsm_state = aircraft_fsm_state_;
         }
         uint64_t current_time_us = this->get_clock()->now().nanoseconds() / 1000;  // Convert to microseconds
@@ -725,7 +725,7 @@ void ArdupilotInterface::orbit_handle_accepted(const std::shared_ptr<rclcpp_acti
         }
         
         {
-            std::shared_lock<std::shared_mutex> lock(node_data_mutex_);
+            std::shared_lock<std::shared_mutex> lock(node_data_mutex_); // Use shared_lock for data reads
             current_fsm_state = aircraft_fsm_state_;
         }
         uint64_t current_time_us = this->get_clock()->now().nanoseconds() / 1000;  // Convert to microseconds
@@ -964,7 +964,7 @@ void ArdupilotInterface::takeoff_handle_accepted(const std::shared_ptr<rclcpp_ac
         }
 
         {
-            std::shared_lock<std::shared_mutex> lock(node_data_mutex_);
+            std::shared_lock<std::shared_mutex> lock(node_data_mutex_); // Use shared_lock for data reads
             current_fsm_state = aircraft_fsm_state_;
         }
         uint64_t current_time_us = this->get_clock()->now().nanoseconds() / 1000;  // Convert to microseconds

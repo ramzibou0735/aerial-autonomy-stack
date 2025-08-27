@@ -66,7 +66,7 @@ ros2 service call /Drone1/set_reposition autopilot_interface_msgs/srv/SetReposit
 
 using namespace px4_msgs::msg;
 using namespace GeographicLib;
-using namespace std::chrono_literals;  // For time literals (e.g. 1s)
+using namespace std::chrono_literals; // For time literals (e.g. 1s)
 
 enum class PX4InterfaceState {
     STARTED,
