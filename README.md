@@ -178,16 +178,21 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
+implement actions in a simple takeoff/orbit/land mission for all vehicles
+
+disambiguate action namespacing or not in px4 and ardu
+
+(remove example from readme)
+
 ros2 run mission mission --conops yalla --ros-args -r __ns:=/Drone$DRONE_ID -p use_sim_time:=true
 
-    implement actions in a simple takeoff/orbit/land mission for all vehicles
 
 
 
 - Create interfaces table + schematics
 
 - Re-build all from scratch
-- Create quick start/demo video (remove example from readme)
+- Create quick start/demo video 
 
 - [release]
 

@@ -1,5 +1,6 @@
 import rclpy
 from rclpy.node import Node
+from rclpy.action import ActionClient
 from rclpy.executors import MultiThreadedExecutor
 from rclpy.qos import QoSProfile, ReliabilityPolicy
 from rclpy.callback_groups import ReentrantCallbackGroup
@@ -8,6 +9,7 @@ import os
 import argparse
 import threading
 
+from action_msgs.msg import GoalStatus
 from sensor_msgs.msg import NavSatFix
 from mavros_msgs.msg import VfrHud
 from vision_msgs.msg import Detection2DArray
@@ -15,12 +17,16 @@ from px4_msgs.msg import VehicleGlobalPosition, AirspeedValidated
 
 from ground_system_msgs.msg import SwarmObs
 from state_sharing.msg import SharedState 
+from autopilot_interface_msgs.action import Land, Offboard, Takeoff, Orbit
 
 class MissionNode(Node):
     def __init__(self, conops):
         super().__init__('mission_node')
         self.conops = conops
         self.get_logger().info(f"Missioning with CONOPS: {self.conops}")
+
+        self.mission_step = 0 # Track the advancement of the mission
+        self.active_mission_goal_handle = None # Hold the goal handle of the active action
 
         self.own_drone_id = None
         drone_id_str = os.environ.get('DRONE_ID') # Get id from ENV VAR
@@ -50,6 +56,7 @@ class MissionNode(Node):
         # Create a reentrant callback groups to allow callbacks to run in parallel
         self.subscriber_callback_group = ReentrantCallbackGroup()
         self.timer_callback_group = ReentrantCallbackGroup()
+        self.action_callback_group = ReentrantCallbackGroup()
 
         # Create a QoS profile for the subscribers
         self.qos_profile = QoSProfile(
@@ -99,6 +106,12 @@ class MissionNode(Node):
             self.conops_callback, 
             callback_group=self.timer_callback_group
         )
+
+        # Actions
+        self._takeoff_client = ActionClient(self, Takeoff, 'takeoff_action', callback_group=self.action_callback_group)
+        self._land_client = ActionClient(self, Land, 'land_action', callback_group=self.action_callback_group)
+        self._orbit_client = ActionClient(self, Orbit, 'orbit_action', callback_group=self.action_callback_group)
+        self._offboard_client = ActionClient(self, Offboard, 'offboard_action', callback_group=self.action_callback_group)
 
     def px4_global_position_callback(self, msg): # Mutally exclusive with mavros_global_position_callback
         with self.data_lock:
@@ -177,6 +190,7 @@ class MissionNode(Node):
 
     def printout_callback(self):
         with self.data_lock: # Copy with lock
+            mission_step = self.mission_step
             lat = self.lat
             lon = self.lon
             alt_msl = self.alt_msl
@@ -185,6 +199,7 @@ class MissionNode(Node):
             # ground_tracks = self.ground_tracks
         now_seconds = self.get_clock().now().nanoseconds / 1e9
         output = f"\nCurrent node time: {now_seconds:.2f} seconds\n"
+        output += f"Mission step: {mission_step}\n"
         lat_str = f"{lat:.5f}" if lat is not None else "N/A"
         lon_str = f"{lon:.5f}" if lon is not None else "N/A"
         alt_str = f"{alt_msl:.2f}" if alt_msl is not None else "N/A"
@@ -216,14 +231,87 @@ class MissionNode(Node):
         #
         self.get_logger().info(output)
 
+    def send_goal(self, client, goal_msg):
+        if self.active_mission_goal_handle is not None:
+            self.get_logger().info("An action is already in progress. Cannot send new goal.")
+            return
+        self.get_logger().info('Waiting for action server...')
+        client.wait_for_server()
+        self.get_logger().info('Sending goal request...')
+        send_goal_future = client.send_goal_async(goal_msg, feedback_callback=self.feedback_callback)
+        send_goal_future.add_done_callback(self.goal_response_callback)
+
+    def goal_response_callback(self, future):
+        goal_handle = future.result()
+        if not goal_handle.accepted:
+            self.get_logger().info('Goal rejected :(')
+            self.mission_step = -1
+            return
+        self.active_mission_goal_handle = goal_handle
+        self.get_logger().info('Goal accepted! Waiting for result...')
+        result_future = goal_handle.get_result_async()
+        result_future.add_done_callback(self.get_result_callback)
+
+    def get_result_callback(self, future):
+        result = future.result().result
+        status = future.result().status
+        self.active_mission_goal_handle = None # Clear the handle
+        if status == GoalStatus.STATUS_SUCCEEDED:
+            self.get_logger().info(f"Action succeeded! Result: {result.success}")
+            self.mission_step += 1 # Advance the mission step
+        else:
+            self.get_logger().info(f"Action failed with status: {status}")
+            self.mission_step = -1
+
+    def feedback_callback(self, feedback_msg):
+        self.get_logger().info(f"Received action feedback: {feedback_msg.feedback.message}")
+
     def conops_callback(self):
+        if self.active_mission_goal_handle is not None:
+            return # Do nothing while an action is active
+
         if self.conops == 'plan_A':
-            self.get_logger().info("Plan A is classified")
+            self.get_logger().info("[Plan A] Plan A is classified")
         elif self.conops == 'plan_B':
-            self.get_logger().info("There is no Plan B")
+            self.get_logger().info("[Plan B] There is no Plan B")
         elif self.conops == 'yalla':
-            # self.get_logger().info("Yalla")
-            pass
+            if self.mission_step == -1:
+                self.get_logger().info("[Yalla] Mission failed")
+                self.conops_timer.cancel() # Stop this timer
+                return
+            elif self.mission_step == 0:
+                self.get_logger().info("[Yalla] Taking off")
+                self.mission_step = 1 # Dummy step to wait for takeoff completion
+                takeoff_goal = Takeoff.Goal()
+                takeoff_goal.takeoff_altitude = 40.0
+                takeoff_goal.vtol_transition_heading = 300.0
+                takeoff_goal.vtol_loiter_nord = 100.0
+                takeoff_goal.vtol_loiter_east = 100.0
+                takeoff_goal.vtol_loiter_alt = 120.0
+                self.send_goal(self._takeoff_client, takeoff_goal)
+            elif self.mission_step == 2:
+                self.get_logger().info("[Yalla] Orbiting")
+                self.mission_step = 3 # Dummy step to wait for orbit completion
+                orbit_goal = Orbit.Goal()
+                orbit_goal.east = -100.0
+                orbit_goal.north = 50.0
+                orbit_goal.altitude = 50.0
+                orbit_goal.radius = 80.0
+                self.send_goal(self._orbit_client, orbit_goal)
+                self.orbit_start_time = self.get_clock().now()
+            elif self.mission_step == 4:
+                elapsed_time = self.get_clock().now() - self.orbit_start_time
+                elapsed_sec = elapsed_time.nanoseconds / 1e9
+                if elapsed_sec > 45.0: # Start landing 45 sec after the orbit
+                    self.get_logger().info("[Yalla] Landing")
+                    self.mission_step = 5 # Dummy step to wait for landing completion
+                    land_goal = Land.Goal()
+                    land_goal.landing_altitude = 60.0
+                    land_goal.vtol_transition_heading = 60.0
+                    self.send_goal(self._land_client, land_goal)
+            elif self.mission_step == 6:
+                self.get_logger().info("[Yalla] Mission complete")
+                self.conops_timer.cancel() # Stop this timer
         else:
             self.get_logger().info(f"Unknown CONOPS: {self.conops}")
 
