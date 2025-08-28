@@ -33,8 +33,7 @@ for repo_info in "${REPOS[@]}"; do
         echo "Clone not found, cloning ${dir}..."
         TEMP_DIR="${TARGET_DIR}_temp"     
         rm -rf "$TEMP_DIR" # Clean up any failed clone from a previous run   
-        git clone --depth 1 --branch "$branch" --recursive "$url" "$TEMP_DIR" && \        
-        mv "$TEMP_DIR" "$TARGET_DIR"
+        git clone --depth 1 --branch "$branch" --recursive "$url" "$TEMP_DIR" && mv "$TEMP_DIR" "$TARGET_DIR"
     fi
 done
 
