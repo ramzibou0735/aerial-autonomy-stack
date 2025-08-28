@@ -129,7 +129,7 @@ DRONE_TYPE=quad AUTOPILOT=px4 NUM_DRONES=1 ./sim_run.sh
 # In aircraft 1's terminal
 ros2 run mission mission --conops yalla --ros-args -r __ns:=/Drone$DRONE_ID -p use_sim_time:=true
 # This mission is a simple takeoff, followed by an orbit, and landing
-# For all combinations of AUTOPILOT=px4/ardupilot, DRONE_TYPE=quad/vtol
+# Works for all combinations of AUTOPILOT=px4/ardupilot, DRONE_TYPE=quad/vtol
 ```
 
 ### CLI API
