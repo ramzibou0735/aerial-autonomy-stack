@@ -139,7 +139,7 @@ Read the banner comment in the `autopilot_interface` headers for command line ex
 - [`ardupilot_interface.hpp`](/aircraft/aircraft_ws/src/autopilot_interface/src/ardupilot_interface.hpp): ArduPilot actions and services
 - [`px4_interface.hpp`](/aircraft/aircraft_ws/src/autopilot_interface/src/px4_interface.hpp): PX4 actions and services
 
-Once tested from CLI, implemented your mission in [`MissionNode:conops_callback()`](/aircraft/aircraft_ws/src/mission/mission/mission_node.py)
+Once tested from CLI, implemented your mission in [`MissionNode.conops_callback()`](/aircraft/aircraft_ws/src/mission/mission/mission_node.py)
 
 
 ### Development
