@@ -7,7 +7,7 @@ Aerial sim2real research often focuses on modeling and simulation of complex aer
 
 Nonetheless, in applied robotics, an equally important component of *sim2real gap* lies in software tooling and engineering.
 
-That is, the challenge (and good sport) of **full-stack integration** among:
+That is, the challenge—and good sport—of **full-stack integration** among:
 
 - the **many frameworks** that go into drone autonomy (a physics engine to simulate drone dynamics, a rendering engine to generate realistic imagery, a GPU-accelerated machine learning runtime for perception, one or more inter-process and inter-thread communication middleware, the interface to the microcontroller and autopilot software performing state-estimation and low-level control, the SDKs of the deployed embedded systems, etc.)
 - emulated **inter-robot communication** (in aerial systems, this is heavily affected by the actual flight plans and available RF hardware)
@@ -16,7 +16,7 @@ That is, the challenge (and good sport) of **full-stack integration** among:
 
 - **Simplicity** (["simple is better than complex"](https://peps.python.org/pep-0020/), ["worse is better"](https://www.dreamsongs.com/RiseOfWorseIsBetter.html), and ["no fat software"](https://people.inf.ethz.ch/wirth/Articles/LeanSoftware.pdf) are the 3 slogans of the AAS)
 - [おまかせ](https://dhh.dk/2012/rails-is-omakase.html) **end-to-end**ness (from camera frames, to autopilot uORB/MAVLink commands)
-- **Recentness** (or "it's better to break things than to use Kinetic Kame in 2025")
+- **Recentness** (break and fix, rather than carrying technical [debt](https://c2.com/doc/oopsla92.html))
 - **Deployment** focus
     - Clear, Dockerized split between simulation and aircraft software
     - ROS2 intra-companion board messaging
