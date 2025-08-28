@@ -320,7 +320,7 @@ def main(args=None):
     parser.add_argument(
         '--conops',
         type=str,
-        choices=['plan_A', 'plan_B', 'yalla'],
+        choices=['plan_A', 'plan_B', 'yalla'], # TODO: add as needed
         default='yalla',
         help="Specify the concept of operations."
     )

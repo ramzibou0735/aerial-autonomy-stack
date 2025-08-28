@@ -132,12 +132,14 @@ ros2 run mission mission --conops yalla --ros-args -r __ns:=/Drone$DRONE_ID -p u
 # Works for all combinations of AUTOPILOT=px4/ardupilot, DRONE_TYPE=quad/vtol
 ```
 
-### CLI API
+### Command Line Interface
 
-Read the banner comment in the `autopilot_interface` headers for command line examples (takeoff, reposition, offboard, etc.):
+Read the banner comment in the `autopilot_interface` headers for command line examples (takeoff, orbit, reposition, offboard, land):
 
 - [`ardupilot_interface.hpp`](/aircraft/aircraft_ws/src/autopilot_interface/src/ardupilot_interface.hpp): ArduPilot actions and services
-- [`px4_interface`](/aircraft/aircraft_ws/src/autopilot_interface/src/px4_interface.hpp): PX4 actions and services
+- [`px4_interface.hpp`](/aircraft/aircraft_ws/src/autopilot_interface/src/px4_interface.hpp): PX4 actions and services
+
+Once tested from CLI, implemented your mission in [`MissionNode:conops_callback()`](/aircraft/aircraft_ws/src/mission/mission/mission_node.py)
 
 
 ### Development
@@ -156,41 +158,47 @@ MODE=dev ./sim_run.sh # Images are pre-built but the ros2_ws/src/ and *_resource
 > 
 > ```sh
 > aerial-autonomy-stack
+> │
 > ├── aircraft
 > │   ├── aircraft_ws
 > │   │   └── src
-> │   │       ├── autopilot_interface # Ardupilot and PX4 high-level actions 
-> │   │       ├── mission # Orchestrator of the actions in `autopilot_interface` 
-> │   │       ├── offboard_control # Generating the low-level references for the Offboard action in `autopilot_interface` 
-> │   │       ├── state_sharing # Publisher of the /state_sharing_drone_N topic broadcasted by Zenoh
-> │   │       └── yolo_inference # GStreamer video acquisition and publisher of bounding boxes
-> │   └── aircraft.yml.erb # Aircraft docker tmux entrypoint
+> │   │       ├── autopilot_interface # Ardupilot/PX4 high-level actions (Takeoff, Orbit, Offboard, Land)
+> │   │       ├── mission             # Orchestrator of the actions in `autopilot_interface` 
+> │   │       ├── offboard_control    # Low-level references for the Offboard action in `autopilot_interface` 
+> │   │       ├── state_sharing       # Publisher of the `/state_sharing_drone_N` topic broadcasted by Zenoh
+> │   │       └── yolo_inference      # GStreamer video acquisition and publisher of YOLO bounding boxes
+> │   │
+> │   └── aircraft.yml.erb            # Aircraft docker tmux entrypoint
+> │
 > ├── scripts
-> │   ├── deploy_build.sh # Build Dockerfile.aircraft for arm64
-> │   ├── deploy_run.sh # Start the aircraft docker on Orin
+> │   ├── deploy_build.sh             # Build `Dockerfile.aircraft` for arm64/Orin
+> │   ├── deploy_run.sh               # Start the aircraft docker on arm64/Orin
 > │   ├── docker
-> │   │   ├── Dockerfile.aircraft # Docker file for aircraft simulation and deployment
-> │   │   └── Dockerfile.simulation # Docker file for Gazebo and SITL simulation
-> │   ├── sim_build.sh # Build both dockerfiles for amd64
-> │   └── sim_run.sh # Start the simulation
+> │   │   ├── Dockerfile.aircraft     # Docker image for aircraft simulation and deployment
+> │   │   └── Dockerfile.simulation   # Docker image for Gazebo and SITL simulation
+> │   ├── sim_build.sh                # Build both dockerfiles for amd64/simulation
+> │   └── sim_run.sh                  # Start the simulation
+> │
 > └── simulation
 >     ├── simulation_resources
 >     │   ├── aircraft_models
 >     │   │   ├── alti_transition_quad # ArduPilot VTOL
->     │   │   ├── iris_with_ardupilot # ArduPilot quad
+>     │   │   ├── iris_with_ardupilot  # ArduPilot quad
 >     │   │   ├── sensor_camera
 >     │   │   ├── sensor_lidar
->     │   │   ├── standard_vtol # PX4 VTOL
->     │   │   └── x500 # PX4 quad
+>     │   │   ├── standard_vtol        # PX4 VTOL
+>     │   │   └── x500                 # PX4 quad
 >     │   └── simulation_worlds
 >     │       ├── apple_orchard.sdf
 >     │       ├── impalpable_greyness.sdf
 >     │       ├── shibuya_crossing.sdf
 >     │       └── swiss_town.sdf
+>     │
 >     ├── simulation_ws
 >     │   └── src
->     │       └── ground_system # Broadcaster of topic /tracks broadcasted by Zenoh
->     └── simulation.yml.erb # Simulation docker tmux entrypoint
+>     │       └── ground_system        # Broadcaster of topic `/tracks` broadcasted by Zenoh
+>     │
+>     └── simulation.yml.erb           # Simulation docker tmux entrypoint
 > ```
 > </details>
 
