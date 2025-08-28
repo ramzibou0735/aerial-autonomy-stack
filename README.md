@@ -132,6 +132,14 @@ ros2 run mission mission --conops yalla --ros-args -r __ns:=/Drone$DRONE_ID -p u
 # For all combinations of AUTOPILOT=px4/ardupilot, DRONE_TYPE=quad/vtol
 ```
 
+### CLI API
+
+Read the banner comment in the `autopilot_interface` headers for command line examples (takeoff, reposition, offboard, etc.):
+
+- [`ardupilot_interface.hpp`](/aircraft/aircraft_ws/src/autopilot_interface/src/ardupilot_interface.hpp): ArduPilot actions and services
+- [`px4_interface`](/aircraft/aircraft_ws/src/autopilot_interface/src/px4_interface.hpp): PX4 actions and services
+
+
 ### Development
 
 Launching the `sim_run.sh` script with `MODE=dev`, does **not** start the simulation and mounts folders `simulation_resources`, `aircraft_resources`, and `ros2_ws/src` as volumes to more easily track, commit, push changes while building and testing them within the containers
@@ -142,32 +150,29 @@ cd ~/git/aerial-autonomy-stack/scripts
 MODE=dev ./sim_run.sh # Images are pre-built but the ros2_ws/src/ and *_resources/ folders are mounted from the host
 ```
 
-> [!INFO]
+> [!TIP]
 > <details>
 > <summary>Package Structure <i>(expand)</i></summary>
 > 
 > ```sh
 > aerial-autonomy-stack
 > ├── aircraft
-> │   ├── aircraft_resources
 > │   ├── aircraft_ws
 > │   │   └── src
 > │   │       ├── autopilot_interface # Ardupilot and PX4 high-level actions 
-> │   │       ├── autopilot_interface_msgs
 > │   │       ├── mission # Orchestrator of the actions in `autopilot_interface` 
 > │   │       ├── offboard_control # Generating the low-level references for the Offboard action in `autopilot_interface` 
 > │   │       ├── state_sharing # Publisher of the /state_sharing_drone_N topic broadcasted by Zenoh
 > │   │       └── yolo_inference # GStreamer video acquisition and publisher of bounding boxes
 > │   └── aircraft.yml.erb # Aircraft docker tmux entrypoint
-> ├── README.md
 > ├── scripts
-> │   ├── deploy_build.sh
-> │   ├── deploy_run.sh
+> │   ├── deploy_build.sh # Build Dockerfile.aircraft for arm64
+> │   ├── deploy_run.sh # Start the aircraft docker on Orin
 > │   ├── docker
 > │   │   ├── Dockerfile.aircraft # Docker file for aircraft simulation and deployment
 > │   │   └── Dockerfile.simulation # Docker file for Gazebo and SITL simulation
-> │   ├── sim_build.sh
-> │   └── sim_run.sh
+> │   ├── sim_build.sh # Build both dockerfiles for amd64
+> │   └── sim_run.sh # Start the simulation
 > └── simulation
 >     ├── simulation_resources
 >     │   ├── aircraft_models
@@ -184,8 +189,7 @@ MODE=dev ./sim_run.sh # Images are pre-built but the ros2_ws/src/ and *_resource
 >     │       └── swiss_town.sdf
 >     ├── simulation_ws
 >     │   └── src
->     │       ├── ground_system # Broadcaster of topic /tracks broadcasted by Zenoh
->     │       └── ground_system_msgs
+>     │       └── ground_system # Broadcaster of topic /tracks broadcasted by Zenoh
 >     └── simulation.yml.erb # Simulation docker tmux entrypoint
 > ```
 > </details>
@@ -224,8 +228,6 @@ docker exec -it aircraft-container tmux attach
 <!-- 
 
 ## TODOs
-
-- Create interfaces table + schematics
 
 - Create quick start/demo video 
 
