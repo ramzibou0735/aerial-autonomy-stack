@@ -142,6 +142,54 @@ cd ~/git/aerial-autonomy-stack/scripts
 MODE=dev ./sim_run.sh # Images are pre-built but the ros2_ws/src/ and *_resources/ folders are mounted from the host
 ```
 
+> [!INFO]
+> <details>
+> <summary>Package Structure <i>(expand)</i></summary>
+> 
+> ```sh
+> aerial-autonomy-stack
+> ├── aircraft
+> │   ├── aircraft_resources
+> │   ├── aircraft_ws
+> │   │   └── src
+> │   │       ├── autopilot_interface # Ardupilot and PX4 high-level actions 
+> │   │       ├── autopilot_interface_msgs
+> │   │       ├── mission # Orchestrator of the actions in `autopilot_interface` 
+> │   │       ├── offboard_control # Generating the low-level references for the Offboard action in `autopilot_interface` 
+> │   │       ├── state_sharing # Publisher of the /state_sharing_drone_N topic broadcasted by Zenoh
+> │   │       └── yolo_inference # GStreamer video acquisition and publisher of bounding boxes
+> │   └── aircraft.yml.erb # Aircraft docker tmux entrypoint
+> ├── README.md
+> ├── scripts
+> │   ├── deploy_build.sh
+> │   ├── deploy_run.sh
+> │   ├── docker
+> │   │   ├── Dockerfile.aircraft # Docker file for aircraft simulation and deployment
+> │   │   └── Dockerfile.simulation # Docker file for Gazebo and SITL simulation
+> │   ├── sim_build.sh
+> │   └── sim_run.sh
+> └── simulation
+>     ├── simulation_resources
+>     │   ├── aircraft_models
+>     │   │   ├── alti_transition_quad # ArduPilot VTOL
+>     │   │   ├── iris_with_ardupilot # ArduPilot quad
+>     │   │   ├── sensor_camera
+>     │   │   ├── sensor_lidar
+>     │   │   ├── standard_vtol # PX4 VTOL
+>     │   │   └── x500 # PX4 quad
+>     │   └── simulation_worlds
+>     │       ├── apple_orchard.sdf
+>     │       ├── impalpable_greyness.sdf
+>     │       ├── shibuya_crossing.sdf
+>     │       └── swiss_town.sdf
+>     ├── simulation_ws
+>     │   └── src
+>     │       ├── ground_system # Broadcaster of topic /tracks broadcasted by Zenoh
+>     │       └── ground_system_msgs
+>     └── simulation.yml.erb # Simulation docker tmux entrypoint
+> ```
+> </details>
+
 ---
 
 ## Part 3: Deployment of AAS
@@ -179,7 +227,6 @@ docker exec -it aircraft-container tmux attach
 
 - Create interfaces table + schematics
 
-- Re-build all from scratch
 - Create quick start/demo video 
 
 - [release]
