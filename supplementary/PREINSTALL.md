@@ -71,7 +71,7 @@ newgrp docker # Reboot
 docker run hello-world
 ```
 
-Log In to the NVIDIA Registry:
+Log in to the NVIDIA Registry:
 
 - Go to https://ngc.nvidia.com and login/create an account.
 - Click on your account the top right, go to Setup -> Get API Key.

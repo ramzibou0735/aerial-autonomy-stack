@@ -1,21 +1,21 @@
-/*
+/* autopilot_interface CLI
 
-# TAKEOFF AND LANDING ACTIONS (quad parameters examples)
+# Takeoff and Land actions (quad parameters examples)
 
 python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal /Drone${DRONE_ID}/takeoff_action autopilot_interface_msgs/action/Takeoff '{takeoff_altitude: 40.0}'"
 python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal /Drone${DRONE_ID}/land_action autopilot_interface_msgs/action/Land '{landing_altitude: 60.0}'"
 
-# TAKEOFF AND LANDING ACTIONS (vtol parameters example)
+# Takeoff and Land actions (VTOL parameters example)
 
 python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal /Drone${DRONE_ID}/takeoff_action autopilot_interface_msgs/action/Takeoff '{takeoff_altitude: 40.0, vtol_transition_heading: 330.0, vtol_loiter_nord: 200.0, vtol_loiter_east: 100.0, vtol_loiter_alt: 120.0}'"
 python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal /Drone${DRONE_ID}/land_action autopilot_interface_msgs/action/Land '{landing_altitude: 60.0, vtol_transition_heading: 60.0}'"
 
-# ORBIT AND OFFBOARD (refs: attitude = 0, rates = 1, trajectory = 2) ACTIONS 
+# Orbit and Offboard (refs: attitude = 0, rates = 1, trajectory = 2) actions 
 
 python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal /Drone${DRONE_ID}/orbit_action autopilot_interface_msgs/action/Orbit '{east: 500.0, north: 0.0, altitude: 150.0, radius: 200.0}'"
 python3 /aircraft_resources/patches/cancellable_action.py "ros2 action send_goal /Drone${DRONE_ID}/offboard_action autopilot_interface_msgs/action/Offboard '{offboard_setpoint_type: 1, max_duration_sec: 2.0}'"
 
-# SET SPEED (always limited by the autopilot params, for quads applies from the next command) and REPOSITION (quad only) SERVICES
+# SetSpeed (always limited by the autopilot params, for quads applies from the next command) and SetReposition (quad only) services
 
 ros2 service call /Drone${DRONE_ID}/set_speed autopilot_interface_msgs/srv/SetSpeed '{speed: 15.0}' 
 ros2 service call /Drone${DRONE_ID}/set_reposition autopilot_interface_msgs/srv/SetReposition '{east: 100.0, north: 200.0, altitude: 60.0}' # relative to Home

@@ -12,7 +12,7 @@
 
 - Support for multiple **quadrotors and VTOLs** based on either **PX4 or ArduPilot**
 - **ROS2**-based autopilot interfaces (*via* XRCE-DDS and MAVROS)
-- Support for **YOLOv8** (with ONNX GPU Runtimes) and **Lidar Odometry** (with [KISS-ICP](https://github.com/PRBonn/kiss-icp))
+- Support for **YOLOv8** (with ONNX GPU Runtimes) and **LiDAR Odometry** (with [KISS-ICP](https://github.com/PRBonn/kiss-icp))
 - **Dockerized simulation** based on [`nvcr.io/nvidia/cuda:12.8.1-cudnn-runtime-ubuntu22.04`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/cuda/tags)
 - **Dockerized deployment** based on [`nvcr.io/nvidia/l4t-jetpack:r36.4.0`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/l4t-jetpack/tags)
 
@@ -20,9 +20,9 @@
 <summary><b>Additional Features:</b> <i>(expand)</i></summary>
 
 > - **3D worlds** for [PX4](https://docs.px4.io/main/en/simulation/#sitl-simulation-environment) and [ArduPilot](https://ardupilot.org/dev/docs/sitl-simulator-software-in-the-loop.html#sitl-architecture) software-in-the-loop (SITL) simulation
-> - **Steppable simulation** interface for reinforcement learning 
 > - [Zenoh](https://github.com/eclipse-zenoh/zenoh-plugin-ros2dds) inter-vehicle ROS2 bridge
 > - Support for [PX4 Offboard](https://docs.px4.io/main/en/flight_modes/offboard.html) mode (e.g. CTBR/`VehicleRatesSetpoint` for agile, GNSS-denied flight) and [ArduPilot Guided](https://ardupilot.org/copter/docs/ac2_guidedmode.html) mode (i.e. `setpoint_velocity`, `setpoint_accel` references)
+> - **Steppable simulation** interface for reinforcement learning 
 
 </details>
 
@@ -129,7 +129,7 @@ DRONE_TYPE=quad AUTOPILOT=px4 NUM_DRONES=1 ./sim_run.sh
 # In aircraft 1's terminal
 ros2 run mission mission --conops yalla --ros-args -r __ns:=/Drone$DRONE_ID -p use_sim_time:=true
 # This mission is a simple takeoff, followed by an orbit, and landing
-# Works for all combinations of AUTOPILOT=px4/ardupilot, DRONE_TYPE=quad/vtol
+# Works for all combinations of AUTOPILOT=px4 or ardupilot, DRONE_TYPE=quad or vtol
 ```
 
 ### Command Line Interface
@@ -139,7 +139,7 @@ Read the banner comment in the `autopilot_interface` headers for command line ex
 - [`ardupilot_interface.hpp`](/aircraft/aircraft_ws/src/autopilot_interface/src/ardupilot_interface.hpp): ArduPilot actions and services
 - [`px4_interface.hpp`](/aircraft/aircraft_ws/src/autopilot_interface/src/px4_interface.hpp): PX4 actions and services
 
-Once tested from CLI, implemented your mission in [`MissionNode.conops_callback()`](/aircraft/aircraft_ws/src/mission/mission/mission_node.py)
+Once flown from CLI, implemented your mission in [`MissionNode.conops_callback()`](/aircraft/aircraft_ws/src/mission/mission/mission_node.py)
 
 
 ### Development
@@ -196,7 +196,7 @@ MODE=dev ./sim_run.sh # Images are pre-built but the ros2_ws/src/ and *_resource
 >     │
 >     ├── simulation_ws
 >     │   └── src
->     │       └── ground_system        # Broadcaster of topic `/tracks` broadcasted by Zenoh
+>     │       └── ground_system        # Publisher of topic `/tracks` broadcasted by Zenoh
 >     │
 >     └── simulation.yml.erb           # Simulation docker tmux entrypoint
 > ```
@@ -213,7 +213,7 @@ MODE=dev ./sim_run.sh # Images are pre-built but the ros2_ws/src/ and *_resource
 >
 > The Holybro Jetson Baseboard comes with an (i) integrated 4-way (Orin, 6X, RJ-45, JST) Ethernet switch and (ii) two JST USB 2.0 that can be connected to ASIX Ethernet adapters to create additional network interfaces
 > 
-> Make sure to configure Orin, 6X's XRCE-DDS, IP radio, Zenoh, etc. consistently with your network setup; the camera acquisition pipeline should be setup in `yolo_inference_node.py`, the lidar should publish on topic `/lidar_points` for KISS-ICP (if necessary, discuss in the [Issues](https://github.com/JacopoPan/aerial-autonomy-stack/issues))
+> Make sure to configure Orin, 6X's XRCE-DDS, IP radio, Zenoh, etc. consistently with your network setup; the camera acquisition pipeline should be setup in `yolo_inference_node.py`, the LiDAR should publish on topic `/lidar_points` for KISS-ICP (if necessary, discuss in the [Issues](https://github.com/JacopoPan/aerial-autonomy-stack/issues))
 
 
 ```sh
@@ -237,10 +237,8 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- Create quick start/demo video 
-
-- [release]
-
+- Minor video edits: "via" Zenoh, Take-off
+- Upgrade to nvidia-driver-580
 - Remove PX4 MPC acceleration limit
 - Create GitHub action builds
 - Simplify ArdupilotInterface
@@ -253,7 +251,7 @@ docker exec -it aircraft-container tmux attach
 - In ArdupilotInterface's action callbacks, std::shared_lock<std::shared_mutex> lock(node_data_mutex_); could be used on the reads of lat_, lon_, alt_
 - Command 178 MAV_CMD_DO_CHANGE_SPEED is accepted but not effective in changing speed for ArduPilot VTOL
 - ArduPilot SITL for Iris uses option -f that also sets "external": True, this is not the case for the Alti Transition from ArduPilot/SITL_Models 
-- Must adjust orientation of the lidar and frame of the lidar odometry for VTOLs
+- Must adjust orientation of the LiDAR and frame of the LiDAR odometry for VTOLs
 - In yolo_inference_node.py, cannot open GPU accelerated (nvh264dec) GStreamer pipeline with cv2.VideoCapture, might need to recompile OpenCV to have both CUDA and GStreamer support (or use python3-gi gir1.2-gst-plugins-base-1.0 gir1.2-gstreamer-1.0 and circumbent OpenCV)
 - ROS2 action cancellation from CLI does not work (File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 723, in wait_for_ready_callbacks - return next(self._cb_iter) - ValueError: generator already executing), use cancellable_action.py instead
 - Cannot use **/.git in .dockerignore because PX4 and ArduPilot use it in their build

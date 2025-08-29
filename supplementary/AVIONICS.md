@@ -123,7 +123,7 @@ sudo usermod -aG docker $USER
 newgrp docker # Reboot
 docker run hello-world
 
-# Login to the NVIDIA Registry
+# Log in to the NVIDIA Registry
 docker login nvcr.io # To be able to reliably pull NVIDIA base images
 Username: # type $oauthtoken
 Password: # copy and paste the API key and press enter to pull base images from nvcr.io/
