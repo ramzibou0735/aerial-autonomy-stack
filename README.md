@@ -26,7 +26,7 @@
 
 </details>
 
-https://github.com/user-attachments/assets/0a601d12-873c-4a7a-873d-e4359ccb5c44
+https://github.com/user-attachments/assets/0c60afc0-22bf-4ea0-b367-8691ecf6a3e7
 
 <details>
 <summary>AAS leverages the following frameworks: <i>(expand)</i></summary>
@@ -236,7 +236,6 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- Minor video edits: "via" Zenoh, Take-off
 - Upgrade to nvidia-driver-580
 - Remove PX4 MPC acceleration limit
 - Create GitHub action builds
