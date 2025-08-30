@@ -118,7 +118,6 @@ docker exec simulation-container bash -c "gz service -s /world/\$WORLD/control -
 > docker rmi <image_name_or_id> # Remove a specific image
 > docker builder prune # Clear the cache system wide
 > ```
-> 
 > </details>
 
 ### Fly a Mission
