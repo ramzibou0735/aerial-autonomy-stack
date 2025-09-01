@@ -122,6 +122,9 @@ private:
     void ground_tracks_callback(const ground_system_msgs::msg::SwarmObs::SharedPtr msg);
     void yolo_detections_callback(const vision_msgs::msg::Detection2DArray::SharedPtr msg);
     void kiss_odometry_callback(const nav_msgs::msg::Odometry::SharedPtr msg);
+
+    // Utility
+    double normalize_heading(double angle_rad);
 };
 
 #endif // OFFBOARD_CONTROL__ARDUPILOT_GUIDED_HPP_

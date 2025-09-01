@@ -228,17 +228,20 @@ void ArdupilotGuided::offboard_loop_callback()
     } else if (offboard_flag_ == 7) { // Velocity setpoint
         auto vel_msg = geometry_msgs::msg::TwistStamped(); // https://docs.ros.org/en/noetic/api/geometry_msgs/html/msg/Twist.html
         vel_msg.header.stamp = this->get_clock()->now();
-        vel_msg.header.frame_id = "map"; // World frame, without yaw alignment
+        vel_msg.header.frame_id = "map"; // World frame, without automatic yaw alignment
         vel_msg.twist.linear.x = 2.0; // m/s East
         vel_msg.twist.linear.y = 0.0; // m/s North
         vel_msg.twist.linear.z = 0.0; // m/s Up
-        vel_msg.twist.angular.z = 0.0; // rad/s Yaw rate
+        // Computed yaw rate for alignment
+        const double Kp_yaw = 1.5;
+        double heading_error = normalize_heading(std::atan2(vel_msg.twist.linear.y, vel_msg.twist.linear.x) - ((M_PI / 2.0) - (heading_ * M_PI / 180.0)));
+        vel_msg.twist.angular.z = Kp_yaw * heading_error; // rad/s Yaw rate
         setpoint_vel_pub_->publish(vel_msg);
         // Alternatively, use the unstamped topic: ros2 topic pub --rate 10 --times 50 /mavros/setpoint_velocity/cmd_vel_unstamped geometry_msgs/msg/Twist '{linear: {x: 2.0, y: 0.0, z: 0.0}}'
     } else if (offboard_flag_ == 8) { // Acceleration setpoint
         auto accel_msg = geometry_msgs::msg::Vector3Stamped(); // https://docs.ros.org/en/noetic/api/geometry_msgs/html/msg/Vector3.html
         accel_msg.header.stamp = this->get_clock()->now();
-        accel_msg.header.frame_id = "map"; // World frame, with yaw alignment
+        accel_msg.header.frame_id = "map"; // World frame, with automatic yaw alignment
         accel_msg.vector.x = 1.5; // m/s^2 East
         accel_msg.vector.y = 0.0; // m/s^2 North
         accel_msg.vector.z = 0.0; // m/s^2 Up
@@ -246,6 +249,17 @@ void ArdupilotGuided::offboard_loop_callback()
     } else {
         RCLCPP_WARN(get_logger(), "Unexpected offboard_flag value: %d", offboard_flag_.load());
     }
+}
+
+// Utility
+double ArdupilotGuided::normalize_heading(double angle_rad) {
+    while (angle_rad > M_PI) {
+        angle_rad -= 2.0 * M_PI;
+    }
+    while (angle_rad < -M_PI) {
+        angle_rad += 2.0 * M_PI;
+    }
+    return angle_rad;
 }
 
 int main(int argc, char *argv[])
