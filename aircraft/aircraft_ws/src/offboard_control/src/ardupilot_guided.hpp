@@ -101,6 +101,9 @@ private:
     ground_system_msgs::msg::SwarmObs::SharedPtr ground_tracks_;
     vision_msgs::msg::Detection2DArray::SharedPtr yolo_detections_;
 
+    // Guidance variables
+    double desired_bearing_rad;
+
     // MAVROS publishers
     rclcpp::Publisher<Vector3Stamped>::SharedPtr setpoint_accel_pub_;
     rclcpp::Publisher<TwistStamped>::SharedPtr setpoint_vel_pub_;

@@ -312,6 +312,46 @@ class MissionNode(Node):
             elif self.mission_step == 6:
                 self.get_logger().info("[Yalla] Mission complete")
                 self.conops_timer.cancel() # Stop this timer
+        elif self.conops == 'cat':
+            if self.mission_step == -1:
+                self.get_logger().info("[Cat] Mission failed")
+                self.conops_timer.cancel() # Stop this timer
+                return
+            elif self.mission_step == 0:
+                self.get_logger().info("[Cat] Taking off")
+                self.mission_step = 1 # Dummy step to wait for takeoff completion
+                takeoff_goal = Takeoff.Goal()
+                takeoff_goal.takeoff_altitude = 20.0
+                self.send_goal(self._takeoff_client, takeoff_goal)
+            elif self.mission_step == 2:
+                self.get_logger().info("[Cat] Offboarding")
+                self.mission_step = 3 # Dummy step to wait for offboard completion
+                offboard_goal = Offboard.Goal()
+                offboard_goal.offboard_setpoint_type = 3
+                offboard_goal.max_duration_sec = 180.0
+                self.send_goal(self._offboard_client, offboard_goal)
+                # TODO: add termination
+        elif self.conops == 'mouse':
+            if self.mission_step == -1:
+                self.get_logger().info("[Mouse] Mission failed")
+                self.conops_timer.cancel() # Stop this timer
+                return
+            elif self.mission_step == 0:
+                self.get_logger().info("[Mouse] Taking off")
+                self.mission_step = 1 # Dummy step to wait for takeoff completion
+                takeoff_goal = Takeoff.Goal()
+                takeoff_goal.takeoff_altitude = 20.0
+                self.send_goal(self._takeoff_client, takeoff_goal)
+            elif self.mission_step == 2:
+                self.get_logger().info("[Mouse] Orbiting")
+                self.mission_step = 3 # Dummy step to wait for orbit completion
+                orbit_goal = Orbit.Goal()
+                orbit_goal.east = -50.0
+                orbit_goal.north = 100.0
+                orbit_goal.altitude = 50.0
+                orbit_goal.radius = 40.0
+                self.send_goal(self._orbit_client, orbit_goal)
+                # TODO: add termination 
         else:
             self.get_logger().info(f"Unknown CONOPS: {self.conops}")
 
@@ -320,7 +360,7 @@ def main(args=None):
     parser.add_argument(
         '--conops',
         type=str,
-        choices=['plan_A', 'plan_B', 'yalla'], # TODO: add as needed
+        choices=['plan_A', 'plan_B', 'yalla', 'cat', 'mouse'], # TODO: add as needed
         default='yalla',
         help="Specify the concept of operations."
     )

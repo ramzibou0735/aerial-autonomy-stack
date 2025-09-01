@@ -6,7 +6,8 @@ ArdupilotGuided::ArdupilotGuided() : Node("ardupilot_guided"),
     lat_(NAN), lon_(NAN), alt_(NAN), alt_ellipsoid_(NAN),
     x_(NAN), y_(NAN), z_(NAN),  vx_(NAN), vy_(NAN), vz_(NAN), ref_lat_(NAN), ref_lon_(NAN), ref_alt_(NAN),
     true_airspeed_m_s_(NAN), heading_(NAN),
-    ground_tracks_(nullptr), yolo_detections_(nullptr)
+    ground_tracks_(nullptr), yolo_detections_(nullptr),
+    desired_bearing_rad(NAN)
 {
     RCLCPP_INFO(this->get_logger(), "ArduPilot guided referencing!");
     RCLCPP_INFO(this->get_logger(), "namespace: %s", this->get_namespace());
@@ -139,6 +140,31 @@ void ArdupilotGuided::ground_tracks_callback(const ground_system_msgs::msg::Swar
 {
     std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
     ground_tracks_ = msg; // Save the smart pointer to the latest message
+
+    double the48_lat = 0.0;
+    double the48_lon = 0.0;
+    bool the48_found = false;
+    for (const auto& track : ground_tracks_->tracks) {
+        if (track.label == 48) {
+            the48_lat = track.latitude_deg;
+            the48_lon = track.longitude_deg;
+            the48_found = true;
+            break;
+        }
+    }
+    if (!the48_found) {
+        RCLCPP_WARN_ONCE(get_logger(), "Label 48 not found in tracks.");
+        return;
+    }
+    double own_lat = lat_;
+    double own_lon = lon_;
+    if (std::isnan(own_lat) || std::isnan(own_lon)) {
+        RCLCPP_WARN_ONCE(get_logger(), "Waiting for own position and track data");
+        return;
+    }
+    double dist, fw_azi, bw_azi; // distance, forward azimuth (in degrees, clockwise from North), azimuth 2
+    geod.Inverse(own_lat, own_lon, the48_lat, the48_lon, dist, fw_azi, bw_azi);        
+    desired_bearing_rad = fw_azi * M_PI / 180.0; // TODO: altitude is not considered
 }
 
 void ArdupilotGuided::yolo_detections_callback(const vision_msgs::msg::Detection2DArray::SharedPtr msg)
@@ -229,8 +255,11 @@ void ArdupilotGuided::offboard_loop_callback()
         auto vel_msg = geometry_msgs::msg::TwistStamped(); // https://docs.ros.org/en/noetic/api/geometry_msgs/html/msg/Twist.html
         vel_msg.header.stamp = this->get_clock()->now();
         vel_msg.header.frame_id = "map"; // World frame, without automatic yaw alignment
-        vel_msg.twist.linear.x = 2.0; // m/s East
-        vel_msg.twist.linear.y = 0.0; // m/s North
+        const double desired_speed = 10.0; // m/s
+        if (!std::isnan(desired_bearing_rad)) {
+            vel_msg.twist.linear.x = desired_speed * std::sin(desired_bearing_rad); // m/s East
+            vel_msg.twist.linear.y = desired_speed * std::cos(desired_bearing_rad); // m/s North
+        }
         vel_msg.twist.linear.z = 0.0; // m/s Up
         // Computed yaw rate for alignment
         const double Kp_yaw = 1.5;

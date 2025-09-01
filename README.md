@@ -236,6 +236,9 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
+- Fix "rc 3 1500" to keep altitude in ArduPilot quad CIRCLE mode OR get rid of CIRCLE mode
+ros2 topic pub --rate 10 /mavros/rc/override mavros_msgs/msg/OverrideRCIn '{channels: [0, 0, 1500, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}'
+
 - Upgrade to nvidia-driver-580
 - Remove PX4 MPC acceleration limit
 - Create GitHub action builds
