@@ -7,7 +7,7 @@ ArdupilotGuided::ArdupilotGuided() : Node("ardupilot_guided"),
     x_(NAN), y_(NAN), z_(NAN),  vx_(NAN), vy_(NAN), vz_(NAN), ref_lat_(NAN), ref_lon_(NAN), ref_alt_(NAN),
     true_airspeed_m_s_(NAN), heading_(NAN),
     ground_tracks_(nullptr), yolo_detections_(nullptr),
-    desired_bearing_rad(NAN)
+    desired_bearing_rad(NAN), desired_elevation_rad_(NAN), closing_distance_(NAN)
 {
     RCLCPP_INFO(this->get_logger(), "ArduPilot guided referencing!");
     RCLCPP_INFO(this->get_logger(), "namespace: %s", this->get_namespace());
@@ -141,30 +141,34 @@ void ArdupilotGuided::ground_tracks_callback(const ground_system_msgs::msg::Swar
     std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
     ground_tracks_ = msg; // Save the smart pointer to the latest message
 
-    double the48_lat = 0.0;
-    double the48_lon = 0.0;
-    bool the48_found = false;
+    double label48_lat = 0.0;
+    double label48_lon = 0.0;
+    double label48_alt = 0.0;
+    bool label48_found = false;
     for (const auto& track : ground_tracks_->tracks) {
         if (track.label == 48) {
-            the48_lat = track.latitude_deg;
-            the48_lon = track.longitude_deg;
-            the48_found = true;
+            label48_lat = track.latitude_deg;
+            label48_lon = track.longitude_deg;
+            label48_alt = track.altitude_m;
+            label48_found = true;
             break;
         }
     }
-    if (!the48_found) {
+    if (!label48_found) {
         RCLCPP_WARN_ONCE(get_logger(), "Label 48 not found in tracks.");
         return;
     }
     double own_lat = lat_;
     double own_lon = lon_;
+    double own_alt = alt_;
     if (std::isnan(own_lat) || std::isnan(own_lon)) {
         RCLCPP_WARN_ONCE(get_logger(), "Waiting for own position and track data");
         return;
     }
-    double dist, fw_azi, bw_azi; // distance, forward azimuth (in degrees, clockwise from North), azimuth 2
-    geod.Inverse(own_lat, own_lon, the48_lat, the48_lon, dist, fw_azi, bw_azi);        
+    double fw_azi, bw_azi; // forward azimuth (in degrees, clockwise from North)
+    geod.Inverse(own_lat, own_lon, label48_lat, label48_lon, closing_distance_, fw_azi, bw_azi);        
     desired_bearing_rad = fw_azi * M_PI / 180.0; // TODO: altitude is not considered
+    desired_elevation_rad_ = std::atan2((label48_alt - own_alt), closing_distance_);
 }
 
 void ArdupilotGuided::yolo_detections_callback(const vision_msgs::msg::Detection2DArray::SharedPtr msg)
@@ -219,7 +223,7 @@ void ArdupilotGuided::ardupilot_interface_printout_callback()
                 ss << "  Id " << static_cast<int>(track.id)
                 << " lat: " << std::fixed << std::setprecision(5) << track.latitude_deg
                 << " lon: " << std::fixed << std::setprecision(5) << track.longitude_deg
-                << " alt (rel): " << std::fixed << std::setprecision(2) << track.altitude_m << "\n";
+                << " alt (msl): " << std::fixed << std::setprecision(2) << track.altitude_m << "\n";
             }
         }
     } else {
@@ -256,11 +260,13 @@ void ArdupilotGuided::offboard_loop_callback()
         vel_msg.header.stamp = this->get_clock()->now();
         vel_msg.header.frame_id = "map"; // World frame, without automatic yaw alignment
         const double desired_speed = 10.0; // m/s
-        if (!std::isnan(desired_bearing_rad)) {
-            vel_msg.twist.linear.x = desired_speed * std::sin(desired_bearing_rad); // m/s East
-            vel_msg.twist.linear.y = desired_speed * std::cos(desired_bearing_rad); // m/s North
+        if (!std::isnan(desired_bearing_rad) && !std::isnan(desired_elevation_rad_)) {
+            double horizontal_speed = desired_speed * std::cos(desired_elevation_rad_);
+            double vertical_speed = desired_speed * std::sin(desired_elevation_rad_);
+            vel_msg.twist.linear.x = horizontal_speed * std::sin(desired_bearing_rad); // m/s East
+            vel_msg.twist.linear.y = horizontal_speed * std::cos(desired_bearing_rad); // m/s North
+            vel_msg.twist.linear.z = vertical_speed; // m/s Up
         }
-        vel_msg.twist.linear.z = 0.0; // m/s Up
         // Computed yaw rate for alignment
         const double Kp_yaw = 1.5;
         double heading_error = normalize_heading(std::atan2(vel_msg.twist.linear.y, vel_msg.twist.linear.x) - ((M_PI / 2.0) - (heading_ * M_PI / 180.0)));

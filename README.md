@@ -170,11 +170,13 @@ MODE=dev ./sim_run.sh # Images are pre-built but the ros2_ws/src/ and *_resource
 > │   └── aircraft.yml.erb            # Aircraft docker tmux entrypoint
 > │
 > ├── scripts
-> │   ├── deploy_build.sh             # Build `Dockerfile.aircraft` for arm64/Orin
-> │   ├── deploy_run.sh               # Start the aircraft docker on arm64/Orin
 > │   ├── docker
 > │   │   ├── Dockerfile.aircraft     # Docker image for aircraft simulation and deployment
 > │   │   └── Dockerfile.simulation   # Docker image for Gazebo and SITL simulation
+> │   │
+> │   ├── deploy_build.sh             # Build `Dockerfile.aircraft` for arm64/Orin
+> │   ├── deploy_run.sh               # Start the aircraft docker on arm64/Orin
+> │   │
 > │   ├── sim_build.sh                # Build both dockerfiles for amd64/simulation
 > │   └── sim_run.sh                  # Start the simulation
 > │
@@ -236,12 +238,14 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- Change /tracks altitude from GLOBAL_POSITION_INT to msl (subs in offboard, guided[, mission])
-
 - Upgrade to nvidia-driver-580
 - Remove PX4 MPC acceleration limit
 - Create GitHub action builds
+- Add state estimation package/node
 - Simplify ArdupilotInterface
+- Add wind field/gusts
+- Allow quad/VTOL mixed simulation
+- Add bounding-box-based Offboard
 - ????
 - Profit
 

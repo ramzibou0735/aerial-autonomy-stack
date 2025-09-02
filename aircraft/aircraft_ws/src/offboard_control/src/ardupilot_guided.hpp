@@ -103,6 +103,8 @@ private:
 
     // Guidance variables
     double desired_bearing_rad;
+    double desired_elevation_rad_;
+    double closing_distance_;
 
     // MAVROS publishers
     rclcpp::Publisher<Vector3Stamped>::SharedPtr setpoint_accel_pub_;

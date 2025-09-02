@@ -8,6 +8,7 @@ from rclpy.callback_groups import ReentrantCallbackGroup
 import os
 import argparse
 import threading
+import random
 
 from action_msgs.msg import GoalStatus
 from sensor_msgs.msg import NavSatFix
@@ -18,6 +19,7 @@ from px4_msgs.msg import VehicleGlobalPosition, AirspeedValidated
 from ground_system_msgs.msg import SwarmObs
 from state_sharing.msg import SharedState 
 from autopilot_interface_msgs.action import Land, Offboard, Takeoff, Orbit
+from autopilot_interface_msgs.srv import SetSpeed, SetReposition
 
 class MissionNode(Node):
     def __init__(self, conops):
@@ -57,6 +59,7 @@ class MissionNode(Node):
         self.subscriber_callback_group = ReentrantCallbackGroup()
         self.timer_callback_group = ReentrantCallbackGroup()
         self.action_callback_group = ReentrantCallbackGroup()
+        self.service_callback_group = ReentrantCallbackGroup()
 
         # Create a QoS profile for the subscribers
         self.qos_profile = QoSProfile(
@@ -112,6 +115,21 @@ class MissionNode(Node):
         self._land_client = ActionClient(self, Land, 'land_action', callback_group=self.action_callback_group)
         self._orbit_client = ActionClient(self, Orbit, 'orbit_action', callback_group=self.action_callback_group)
         self._offboard_client = ActionClient(self, Offboard, 'offboard_action', callback_group=self.action_callback_group)
+
+        # Services
+        if self.own_drone_id is not None:
+            self._speed_client = self.create_client(
+                SetSpeed, f'/Drone{self.own_drone_id}/set_speed',
+                callback_group=self.service_callback_group
+            )
+            self._reposition_client = self.create_client(
+                SetReposition, f'/Drone{self.own_drone_id}/set_reposition',
+                callback_group=self.service_callback_group
+            )
+        else:
+            self._speed_client = None
+            self._reposition_client = None
+            self.get_logger().info("DRONE_ID not set, service clients not created.")
 
     def px4_global_position_callback(self, msg): # Mutally exclusive with mavros_global_position_callback
         with self.data_lock:
@@ -225,7 +243,7 @@ class MissionNode(Node):
         # if ground_tracks and ground_tracks.tracks:
         #     output += "Ground Tracks:\n"
         #     for track in ground_tracks.tracks:
-        #         output += f"  Id {track.id}, lat: {track.latitude_deg:.5f} lon: {track.longitude_deg:.5f} alt (rel): {track.altitude_m:.2f}\n"
+        #         output += f"  Id {track.id}, lat: {track.latitude_deg:.5f} lon: {track.longitude_deg:.5f} alt (msl): {track.altitude_m:.2f}\n"
         # else:
         #     output += "Ground Tracks: [No data]\n"
         #
@@ -266,14 +284,33 @@ class MissionNode(Node):
     def feedback_callback(self, feedback_msg):
         self.get_logger().info(f"Received action feedback: {feedback_msg.feedback.message}")
 
+    def call_service(self, server, request):
+        if server is None or not server.wait_for_service(timeout_sec=1.0):
+            self.get_logger().error('Service not available.')
+            return
+        future = server.call_async(request)
+        future.add_done_callback(self.service_response_callback)
+
+    def service_response_callback(self, future):
+        try:
+            response = future.result()
+            self.get_logger().info(f'Service call successful: {response.success}')
+            self.mission_step += 1 # Advance the mission step
+        except Exception as e:
+            self.get_logger().error(f'Service call failed: {e}')
+            self.mission_step = -1
+
     def conops_callback(self):
         if self.active_mission_goal_handle is not None:
             return # Do nothing while an action is active
 
+        ################################################################################
         if self.conops == 'plan_A':
             self.get_logger().info("[Plan A] Plan A is classified")
+        ################################################################################
         elif self.conops == 'plan_B':
             self.get_logger().info("[Plan B] There is no Plan B")
+        ################################################################################
         elif self.conops == 'yalla':
             if self.mission_step == -1:
                 self.get_logger().info("[Yalla] Mission failed")
@@ -312,6 +349,7 @@ class MissionNode(Node):
             elif self.mission_step == 6:
                 self.get_logger().info("[Yalla] Mission complete")
                 self.conops_timer.cancel() # Stop this timer
+        ################################################################################
         elif self.conops == 'cat':
             if self.mission_step == -1:
                 self.get_logger().info("[Cat] Mission failed")
@@ -324,13 +362,26 @@ class MissionNode(Node):
                 takeoff_goal.takeoff_altitude = 20.0
                 self.send_goal(self._takeoff_client, takeoff_goal)
             elif self.mission_step == 2:
-                self.get_logger().info("[Cat] Offboarding")
-                self.mission_step = 3 # Dummy step to wait for offboard completion
-                offboard_goal = Offboard.Goal()
-                offboard_goal.offboard_setpoint_type = 3
-                offboard_goal.max_duration_sec = 180.0
-                self.send_goal(self._offboard_client, offboard_goal)
-                # TODO: add termination
+                self.get_logger().info("[Cat] Repositioning")
+                self.mission_step = 3 # Dummy step to wait for reposition completion
+                repo_req = SetReposition.Request()
+                repo_req.east = random.uniform(-100.0, 100.0)
+                repo_req.north = random.uniform(-10.0, 10.0)
+                repo_req.altitude = random.uniform(30.0, 60.0)
+                self.call_service(self._reposition_client, repo_req)
+                self.repo_start_time = self.get_clock().now()
+            elif self.mission_step == 4:
+                elapsed_time = self.get_clock().now() - self.repo_start_time
+                elapsed_sec = elapsed_time.nanoseconds / 1e9
+                if elapsed_sec > 15.0: # Start landing 15 sec after the reposition
+                    self.get_logger().info("[Cat] Offboarding")
+                    self.mission_step = 5 # Dummy step to wait for offboard completion
+                    offboard_goal = Offboard.Goal()
+                    offboard_goal.offboard_setpoint_type = 3
+                    offboard_goal.max_duration_sec = 180.0
+                    self.send_goal(self._offboard_client, offboard_goal)
+                    # TODO: add termination
+        ################################################################################
         elif self.conops == 'mouse':
             if self.mission_step == -1:
                 self.get_logger().info("[Mouse] Mission failed")
@@ -352,6 +403,7 @@ class MissionNode(Node):
                 orbit_goal.radius = 40.0
                 self.send_goal(self._orbit_client, orbit_goal)
                 # TODO: add termination 
+        ################################################################################
         else:
             self.get_logger().info(f"Unknown CONOPS: {self.conops}")
 

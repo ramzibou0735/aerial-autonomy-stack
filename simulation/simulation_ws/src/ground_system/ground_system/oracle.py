@@ -35,7 +35,7 @@ class OracleNode(Node):
         while rclpy.ok():
             try:
                 # Wait for a new message with position and velocity
-                msg = master.recv_match(type='GLOBAL_POSITION_INT', blocking=False)
+                msg = master.recv_match(type='GLOBAL_POSITION_INT', blocking=False) # https://mavlink.io/en/messages/common.html#GPS_RAW_INT
                 if not msg:
                     continue
 
@@ -43,7 +43,7 @@ class OracleNode(Node):
                 obs = {
                     'lat': msg.lat / 1e7,
                     'lon': msg.lon / 1e7,
-                    'alt': msg.relative_alt / 1000.0, # TODO: choose appropriate global altitude
+                    'alt': msg.alt / 1000.0, # MSL, alternatively use msg.relative_alt
                     'vx': msg.vx / 100.0, # cm/s to m/s
                     'vy': msg.vy / 100.0, # cm/s to m/s
                     'vz': msg.vz / 100.0  # cm/s to m/s
