@@ -236,8 +236,7 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- Fix "rc 3 1500" to keep altitude in ArduPilot quad CIRCLE mode OR get rid of CIRCLE mode
-ros2 topic pub --rate 10 /mavros/rc/override mavros_msgs/msg/OverrideRCIn '{channels: [0, 0, 1500, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}'
+- Change /tracks altitude from GLOBAL_POSITION_INT to msl (subs in offboard, guided[, mission])
 
 - Upgrade to nvidia-driver-580
 - Remove PX4 MPC acceleration limit
@@ -248,6 +247,7 @@ ros2 topic pub --rate 10 /mavros/rc/override mavros_msgs/msg/OverrideRCIn '{chan
 
 ### Known Issues
 
+- ArduPilot CIRCLE mode for quads require to explicitly center the throttle wiht 'rc 3 1500' to keep altitude
 - Ground tracks in topic /tracks are occasionally not published
 - In ArdupilotInterface's action callbacks, std::shared_lock<std::shared_mutex> lock(node_data_mutex_); could be used on the reads of lat_, lon_, alt_
 - Command 178 MAV_CMD_DO_CHANGE_SPEED is accepted but not effective in changing speed for ArduPilot VTOL
