@@ -75,6 +75,8 @@ DRONE_TYPE=quad AUTOPILOT=px4 NUM_DRONES=2 WORLD=swiss_town ./sim_run.sh # Check
 # `Ctrl + b`, then `d` in each terminal once done
 ```
 
+> Even on a low-mid range laptop (i7-11 with 16GB RAM and RTX3060), AAS can simulate 3 drones with camera and LiDAR at 70-80% of the wall-clock
+>
 > Once "Ready to Fly", one can takeoff and control from QGroundControl's ["Fly View"](https://docs.qgroundcontrol.com/master/en/qgc-user-guide/fly_view/fly_view.html)
 
 ![worlds](https://github.com/user-attachments/assets/45a2f2ad-cc31-4d71-aa2e-4fe542a59a77)
@@ -238,15 +240,12 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- Quantify performance
-    move red cylinder
-
+- Add wind field/gusts
 - Create GitHub action builds
 - Allow quad/VTOL mixed simulation
 - Simplify ArdupilotInterface
 - Add state estimation package/node
 - Add bounding-box-based Offboard
-- Add wind field/gusts
 - ????
 - Profit
 

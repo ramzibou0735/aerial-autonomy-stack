@@ -326,7 +326,7 @@
     </model>
 
     <model name="cylinder">
-      <pose>10 10 10 0 0 0</pose>
+      <pose>12 8 10 0 0 0</pose>
       <link name="link">
         <inertial>
           <pose>0 0 0 0 0 0</pose>

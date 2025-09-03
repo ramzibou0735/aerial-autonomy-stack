@@ -69,6 +69,7 @@ gnome-terminal --geometry=$(get_quadrant_geometry 0) -- bash -c "echo 'Launching
 
 # Launch the aircraft containers
 for i in $(seq 1 $NUM_DRONES); do
+  sleep 1.5 # Limit resource usage
   gnome-terminal --geometry=$(get_quadrant_geometry $(( i % 4 ))) -- bash -c "echo 'Launching Aircraft Container $i...'; \
     docker run -it --rm \
       --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --device /dev/dri --gpus all \
