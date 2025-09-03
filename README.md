@@ -238,6 +238,9 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
+- Quantify performance
+    move red cylinder
+
 - Create GitHub action builds
 - Allow quad/VTOL mixed simulation
 - Simplify ArdupilotInterface

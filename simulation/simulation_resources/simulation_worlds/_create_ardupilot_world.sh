@@ -13,7 +13,7 @@ BASE_WORLD_WITH_PATH=$3
 MODEL_POSE_STRING="1 0 0 0"
 case "$BASE_MODEL_NAME" in
   iris_with_ardupilot)
-    MODEL_POSE_STRING="0.195 0 0 0"
+    MODEL_POSE_STRING="0.20 0 0 0"
     ;;
   alti_transition_quad)
     MODEL_POSE_STRING="0.35 0 0 0"
