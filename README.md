@@ -153,7 +153,7 @@ MODE=dev ./sim_run.sh # Images are pre-built but the ros2_ws/src/ and *_resource
 
 > [!TIP]
 > <details>
-> <summary>Package Structure <i>(expand)</i></summary>
+> <summary>Project Structure <i>(expand)</i></summary>
 > 
 > ```sh
 > aerial-autonomy-stack
@@ -238,19 +238,18 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- Upgrade to nvidia-driver-580
-- Remove PX4 MPC acceleration limit
 - Create GitHub action builds
-- Add state estimation package/node
-- Simplify ArdupilotInterface
-- Add wind field/gusts
 - Allow quad/VTOL mixed simulation
+- Simplify ArdupilotInterface
+- Add state estimation package/node
 - Add bounding-box-based Offboard
+- Add wind field/gusts
 - ????
 - Profit
 
 ### Known Issues
 
+- For PX4 quad max tilt maneuver, zero the anti-windup gain: const float arw_gain = 2.f / _gain_vel_p(0);
 - ArduPilot CIRCLE mode for quads require to explicitly center the throttle with 'rc 3 1500' to keep altitude
 - Ground tracks in topic /tracks are occasionally not published
 - In ArdupilotInterface's action callbacks, std::shared_lock<std::shared_mutex> lock(node_data_mutex_); could be used on the reads of lat_, lon_, alt_
