@@ -3,6 +3,7 @@ from rclpy.node import Node
 import threading
 import argparse
 import time
+import random
 
 from pymavlink import mavutil
 
@@ -58,6 +59,10 @@ class OracleNode(Node):
                 self.get_logger().error(f"MAVLink listener error for drone {drone_id}: {e}")
 
     def publish_swarm_obs(self):
+        POS_STD_DEV_DEG = 1e-5 # Approx. 1.1 meters of noise for lat, 1.1 or less for lon
+        ALT_STD_DEV_M = 0.5 # 0.5 meters of noise for altitude
+        VEL_STD_DEV_MS = 0.1 # 0.1 m/s of noise for velocity
+
         swarm_msg = SwarmObs()
         swarm_msg.header.stamp = self.get_clock().now().to_msg()
         
@@ -68,16 +73,20 @@ class OracleNode(Node):
             drone_curr_obs = DroneObs()
             drone_curr_obs.id = drone_id
             drone_curr_obs.label = 48 if drone_id == 2 else 0 # Hardcode drone 2 as the talking dead
-            drone_curr_obs.latitude_deg = track.get('lat', 0.0)
-            drone_curr_obs.longitude_deg = track.get('lon', 0.0)
-            drone_curr_obs.altitude_m = track.get('alt', 0.0)
-            drone_curr_obs.velocity_n_m_s = track.get('vx', 0.0)
-            drone_curr_obs.velocity_e_m_s = track.get('vy', 0.0)
-            drone_curr_obs.velocity_d_m_s = track.get('vz', 0.0)
+            # Noisy measurements
+            drone_curr_obs.latitude_deg = self.add_noise(track.get('lat', 0.0), POS_STD_DEV_DEG)
+            drone_curr_obs.longitude_deg = self.add_noise(track.get('lon', 0.0), POS_STD_DEV_DEG)
+            drone_curr_obs.altitude_m = self.add_noise(track.get('alt', 0.0), ALT_STD_DEV_M)
+            drone_curr_obs.velocity_n_m_s = self.add_noise(track.get('vx', 0.0), VEL_STD_DEV_MS)
+            drone_curr_obs.velocity_e_m_s = self.add_noise(track.get('vy', 0.0), VEL_STD_DEV_MS)
+            drone_curr_obs.velocity_d_m_s = self.add_noise(track.get('vz', 0.0), VEL_STD_DEV_MS)
             swarm_msg.tracks.append(drone_curr_obs)
         
         if swarm_msg.tracks:
             self.publisher.publish(swarm_msg)
+
+    def add_noise(self, value, std_dev):
+        return value + random.gauss(0, std_dev)
 
 def main(args=None):
     parser = argparse.ArgumentParser(description='Oracle Node')

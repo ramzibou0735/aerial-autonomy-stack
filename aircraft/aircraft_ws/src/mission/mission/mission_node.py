@@ -375,7 +375,7 @@ class MissionNode(Node):
                     self.get_logger().info("[Cat] Offboarding")
                     self.mission_step = 5 # Dummy step to wait for offboard completion
                     offboard_goal = Offboard.Goal()
-                    offboard_goal.offboard_setpoint_type = 3
+                    offboard_goal.offboard_setpoint_type = 3 # 2: PX4 trajectory reference, 3: ArduPilot velocity, 4: ArduPilot acceleration
                     offboard_goal.max_duration_sec = 180.0
                     self.send_goal(self._offboard_client, offboard_goal)
                     # TODO: add termination

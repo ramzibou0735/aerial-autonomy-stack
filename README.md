@@ -245,6 +245,7 @@ docker exec -it aircraft-container tmux attach
 - Simplify ArdupilotInterface
 - Add state estimation package/node
 - Add bounding-box-based Offboard
+- Create smaller docker images to use GitHub Actions
 - ????
 - Profit
 

@@ -559,8 +559,8 @@ rclcpp_action::GoalResponse PX4Interface::orbit_handle_goal(const rclcpp_action:
 {
     std::shared_lock<std::shared_mutex> lock(node_data_mutex_); // Use shared_lock for data reads
     RCLCPP_INFO(this->get_logger(), "orbit_handle_goal");
-    if ((!is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::MC_HOVER) || (is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::FW_CRUISE)) {
-        RCLCPP_ERROR(this->get_logger(), "Orbit rejected, PX4Interface is not in hover/cruise state");
+    if ((!is_vtol_ && (aircraft_fsm_state_ != PX4InterfaceState::MC_HOVER && aircraft_fsm_state_ != PX4InterfaceState::MC_ORBIT)) || (is_vtol_ && aircraft_fsm_state_ != PX4InterfaceState::FW_CRUISE)) {
+        RCLCPP_ERROR(this->get_logger(), "Orbit rejected, PX4Interface is not in hover/orbit or cruise state");
         return rclcpp_action::GoalResponse::REJECT;
     }
     if (active_srv_or_act_flag_.exchange(true)) { 
