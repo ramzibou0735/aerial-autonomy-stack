@@ -21,6 +21,7 @@
 #include "rclcpp_action/rclcpp_action.hpp"
 
 #include <GeographicLib/Geodesic.hpp>
+#include <GeographicLib/LocalCartesian.hpp>
 
 #include "geometry_msgs/msg/vector3.hpp"
 
@@ -97,6 +98,9 @@ private:
     std::array<float, 4> kiss_q_;
     ground_system_msgs::msg::SwarmObs::SharedPtr ground_tracks_;
     vision_msgs::msg::Detection2DArray::SharedPtr yolo_detections_;
+
+    // Guidance variables
+    double traj_ref_east, traj_ref_north, traj_ref_up;
 
     // PX4 publishers
     rclcpp::Publisher<OffboardControlMode>::SharedPtr offboard_mode_pub_;

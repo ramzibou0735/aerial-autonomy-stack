@@ -168,7 +168,7 @@ void ArdupilotGuided::ground_tracks_callback(const ground_system_msgs::msg::Swar
     double own_lon = lon_;
     double own_alt = alt_;
     if (std::isnan(own_lat) || std::isnan(own_lon)) {
-        RCLCPP_WARN_ONCE(get_logger(), "Waiting for own position and track data");
+        RCLCPP_WARN_ONCE(get_logger(), "Waiting for own position");
         return;
     }
     // Predict position
@@ -275,6 +275,9 @@ void ArdupilotGuided::offboard_loop_callback()
         auto vel_msg = geometry_msgs::msg::TwistStamped(); // https://docs.ros.org/en/noetic/api/geometry_msgs/html/msg/Twist.html
         vel_msg.header.stamp = this->get_clock()->now();
         vel_msg.header.frame_id = "map"; // World frame, without automatic yaw alignment
+        vel_msg.twist.linear.x = 5.0; // m/s East
+        vel_msg.twist.linear.y = 0.0; // m/s North
+        vel_msg.twist.linear.z = 0.0; // m/s Up
         double distance_fraction = (closing_distance_ - 5.0) / (50.0 - 5.0);
         distance_fraction = std::clamp(distance_fraction, 0.0, 1.0);
         double desired_speed = 8.0 + distance_fraction * (12.0); // m/s

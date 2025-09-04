@@ -9,6 +9,7 @@ import os
 import argparse
 import threading
 import random
+import time
 
 from action_msgs.msg import GoalStatus
 from sensor_msgs.msg import NavSatFix
@@ -367,6 +368,8 @@ class MissionNode(Node):
                 repo_req.east = random.uniform(-100.0, 100.0)
                 repo_req.north = random.uniform(-10.0, 10.0)
                 repo_req.altitude = random.uniform(30.0, 60.0)
+                if os.getenv('AUTOPILOT', '') == 'px4':
+                    time.sleep(1.5) # Quick and dirty way to make sure the autopilot is fully out of Takeoff mode 
                 self.call_service(self._reposition_client, repo_req)
                 self.cat_repo_start_time = self.get_clock().now()
             elif self.mission_step == 4:
@@ -375,7 +378,7 @@ class MissionNode(Node):
                     self.get_logger().info("[Cat] Offboarding")
                     self.mission_step = 5 # Dummy step to wait for offboard completion
                     offboard_goal = Offboard.Goal()
-                    offboard_goal.offboard_setpoint_type = 3 # 2: PX4 trajectory reference, 3: ArduPilot velocity, 4: ArduPilot acceleration
+                    offboard_goal.offboard_setpoint_type = 2 if os.getenv('AUTOPILOT', '') == 'px4' else 3 # 2: PX4 trajectory reference, 3: ArduPilot velocity
                     offboard_goal.max_duration_sec = 180.0
                     self.send_goal(self._offboard_client, offboard_goal)
                     # TODO: add termination

@@ -7,7 +7,8 @@ PX4Offboard::PX4Offboard() : Node("px4_offboard"),
     xy_valid_(false), z_valid_(false), v_xy_valid_(false), v_z_valid_(false), xy_global_(false), z_global_(false),
     x_(NAN), y_(NAN), z_(NAN), heading_(NAN), vx_(NAN), vy_(NAN), vz_(NAN), ref_lat_(NAN), ref_lon_(NAN), ref_alt_(NAN),
     pose_frame_(-1), velocity_frame_(-1), true_airspeed_m_s_(NAN),
-    ground_tracks_(nullptr), yolo_detections_(nullptr)
+    ground_tracks_(nullptr), yolo_detections_(nullptr),
+    traj_ref_east(NAN), traj_ref_north(NAN), traj_ref_up(NAN)
 {
     RCLCPP_INFO(this->get_logger(), "PX4 offboard referencing!");
     RCLCPP_INFO(this->get_logger(), "namespace: %s", this->get_namespace());
@@ -145,6 +146,49 @@ void PX4Offboard::ground_tracks_callback(const ground_system_msgs::msg::SwarmObs
 {
     std::unique_lock<std::shared_mutex> lock(node_data_mutex_); // Use unique_lock for data writes
     ground_tracks_ = msg; // Save the smart pointer to the latest message
+
+    double label48_lat = 0.0;
+    double label48_lon = 0.0;
+    double label48_alt = 0.0;
+    double label48_vn = 0.0;
+    double label48_ve = 0.0;
+    double label48_vd = 0.0;
+    bool label48_found = false;
+    for (const auto& track : ground_tracks_->tracks) {
+        if (track.label == 48) {
+            label48_lat = track.latitude_deg;
+            label48_lon = track.longitude_deg;
+            label48_alt = track.altitude_m;
+            label48_vn = track.velocity_n_m_s;
+            label48_ve = track.velocity_e_m_s;
+            label48_vd = track.velocity_d_m_s;
+            label48_found = true;
+            break;
+        }
+    }
+    if (!label48_found) {
+        RCLCPP_WARN_ONCE(get_logger(), "Label 48 not found in tracks.");
+        return;
+    }
+    double reference_lat = ref_lat_;
+    double reference_lon = ref_lon_;
+    double reference_alt = ref_alt_;
+    if (std::isnan(reference_lat) || std::isnan(reference_lon)) {
+        RCLCPP_WARN_ONCE(get_logger(), "Waiting for reference position");
+        return;
+    }
+    // Predict position
+    const double prediction_time_sec = 1.0;
+    double target_ground_speed = std::sqrt(label48_vn * label48_vn + label48_ve * label48_ve);
+    double target_course_rad = std::atan2(label48_ve, label48_vn); // Azimuth from North
+    double target_course_deg = target_course_rad * 180.0 / M_PI;
+    double distance_traveled = target_ground_speed * prediction_time_sec;
+    double future_lat, future_lon;
+    geod.Direct(label48_lat, label48_lon, target_course_deg, distance_traveled, future_lat, future_lon);
+    double future_alt = label48_alt - (label48_vd * prediction_time_sec);
+    // Compute NED position of label48
+    const GeographicLib::LocalCartesian proj(reference_lat, reference_lon, reference_alt);
+    proj.Forward(label48_lat, label48_lon, label48_alt, traj_ref_east, traj_ref_north, traj_ref_up);
 }
 
 void PX4Offboard::yolo_detections_callback(const vision_msgs::msg::Detection2DArray::SharedPtr msg)
@@ -278,8 +322,12 @@ void PX4Offboard::offboard_loop_callback()
         TrajectorySetpoint trajectory_ref; // https://github.com/PX4/px4_msgs/blob/release/1.16/msg/TrajectorySetpoint.msg
         trajectory_ref.timestamp = current_time_us;
         offboard_mode.position = true;
-        trajectory_ref.position = {0.0, 0.0, -20.0};
+        trajectory_ref.position = {0.0, 0.0, -50.0};
         trajectory_ref.yaw = -3.14; // [-PI:PI]
+        if (!std::isnan(traj_ref_east) && !std::isnan(traj_ref_north) && !std::isnan(traj_ref_up)) {
+            trajectory_ref.position = {traj_ref_north, traj_ref_east, -traj_ref_up};
+            trajectory_ref.yaw = std::atan2((traj_ref_east - y_), (traj_ref_north - x_)); // [-PI:PI]
+        }
         // offboard_mode.acceleration = true;
         // trajectory_ref.acceleration = {0.0, 0.0, -5.0};
         trajectory_ref_pub_->publish(trajectory_ref);
