@@ -335,11 +335,10 @@ class MissionNode(Node):
                 orbit_goal.altitude = 50.0
                 orbit_goal.radius = 80.0
                 self.send_goal(self._orbit_client, orbit_goal)
-                self.orbit_start_time = self.get_clock().now()
+                self.yalla_orbit_start_time = self.get_clock().now()
             elif self.mission_step == 4:
-                elapsed_time = self.get_clock().now() - self.orbit_start_time
-                elapsed_sec = elapsed_time.nanoseconds / 1e9
-                if elapsed_sec > 45.0: # Start landing 45 sec after the orbit
+                elapsed_time = self.get_clock().now() - self.yalla_orbit_start_time
+                if (elapsed_time.nanoseconds / 1e9) > 45.0: # Start landing 45 sec after the orbit
                     self.get_logger().info("[Yalla] Landing")
                     self.mission_step = 5 # Dummy step to wait for landing completion
                     land_goal = Land.Goal()
@@ -369,11 +368,10 @@ class MissionNode(Node):
                 repo_req.north = random.uniform(-10.0, 10.0)
                 repo_req.altitude = random.uniform(30.0, 60.0)
                 self.call_service(self._reposition_client, repo_req)
-                self.repo_start_time = self.get_clock().now()
+                self.cat_repo_start_time = self.get_clock().now()
             elif self.mission_step == 4:
-                elapsed_time = self.get_clock().now() - self.repo_start_time
-                elapsed_sec = elapsed_time.nanoseconds / 1e9
-                if elapsed_sec > 15.0: # Start landing 15 sec after the reposition
+                elapsed_time = self.get_clock().now() - self.cat_repo_start_time
+                if (elapsed_time.nanoseconds / 1e9) > 15.0: # Start landing 15 sec after the reposition
                     self.get_logger().info("[Cat] Offboarding")
                     self.mission_step = 5 # Dummy step to wait for offboard completion
                     offboard_goal = Offboard.Goal()
@@ -397,12 +395,16 @@ class MissionNode(Node):
                 self.get_logger().info("[Mouse] Orbiting")
                 self.mission_step = 3 # Dummy step to wait for orbit completion
                 orbit_goal = Orbit.Goal()
-                orbit_goal.east = -50.0
-                orbit_goal.north = 100.0
-                orbit_goal.altitude = 50.0
-                orbit_goal.radius = 40.0
+                orbit_goal.east = random.uniform(-100.0, 100.0)
+                orbit_goal.north = random.uniform(0.0, 200.0)
+                orbit_goal.altitude = random.uniform(40.0, 60.0)
+                orbit_goal.radius = 20.0
                 self.send_goal(self._orbit_client, orbit_goal)
-                # TODO: add termination 
+                self.mouse_orbit_start_time = self.get_clock().now()
+            elif self.mission_step == 4:
+                elapsed_time = self.get_clock().now() - self.mouse_orbit_start_time
+                if (elapsed_time.nanoseconds / 1e9) > 30.0: # Start a new orbit after 30 sec
+                    self.mission_step = 2 # Go back to reposition
         ################################################################################
         else:
             self.get_logger().info(f"Unknown CONOPS: {self.conops}")

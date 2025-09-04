@@ -22,7 +22,7 @@ jobs:
           CLONE_ONLY=true ./scripts/sim_build.sh 
 
       - name: Build the aircraft image
-        run: docker build -t aircraft-image -f ./scrips/docker/Dockerfile.aircraft .
+        run: docker build -t aircraft-image -f ./scripts/docker/Dockerfile.aircraft .
 
       - name: Free up space
         run: docker system prune -af
