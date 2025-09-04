@@ -240,7 +240,10 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- Add wind field/gusts
+- Add wind field/gusts based on 
+    https://github.com/gazebosim/gz-sim/blob/af73ebe7c8c693fd54e391f79c11bf9f24df2640/examples/worlds/wind.sdf
+    https://github.com/PX4/PX4-gazebo-models/blob/6cfb3e362e1424caccb7363dca7e63484e44d188/worlds/windy.sdf
+    search "wind>"
 - Allow quad/VTOL mixed simulation
 - Simplify ArdupilotInterface
 - Add state estimation package/node
