@@ -240,8 +240,6 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- Create GitHub action builds
-
 - Add wind field/gusts
 - Allow quad/VTOL mixed simulation
 - Simplify ArdupilotInterface

@@ -144,12 +144,18 @@ void ArdupilotGuided::ground_tracks_callback(const ground_system_msgs::msg::Swar
     double label48_lat = 0.0;
     double label48_lon = 0.0;
     double label48_alt = 0.0;
+    double label48_vn = 0.0;
+    double label48_ve = 0.0;
+    double label48_vd = 0.0;
     bool label48_found = false;
     for (const auto& track : ground_tracks_->tracks) {
         if (track.label == 48) {
             label48_lat = track.latitude_deg;
             label48_lon = track.longitude_deg;
             label48_alt = track.altitude_m;
+            label48_vn = track.velocity_n_m_s;
+            label48_ve = track.velocity_e_m_s;
+            label48_vd = track.velocity_d_m_s;
             label48_found = true;
             break;
         }
@@ -165,10 +171,20 @@ void ArdupilotGuided::ground_tracks_callback(const ground_system_msgs::msg::Swar
         RCLCPP_WARN_ONCE(get_logger(), "Waiting for own position and track data");
         return;
     }
+    // Predict position
+    const double prediction_time_sec = 1.0;
+    double target_ground_speed = std::sqrt(label48_vn * label48_vn + label48_ve * label48_ve);
+    double target_course_rad = std::atan2(label48_ve, label48_vn); // Azimuth from North
+    double target_course_deg = target_course_rad * 180.0 / M_PI;
+    double distance_traveled = target_ground_speed * prediction_time_sec;
+    double future_lat, future_lon;
+    geod.Direct(label48_lat, label48_lon, target_course_deg, distance_traveled, future_lat, future_lon);
+    double future_alt = label48_alt - (label48_vd * prediction_time_sec);
+    // Compute bearing and elevation
     double fw_azi, bw_azi; // forward azimuth (in degrees, clockwise from North)
-    geod.Inverse(own_lat, own_lon, label48_lat, label48_lon, closing_distance_, fw_azi, bw_azi);        
+    geod.Inverse(own_lat, own_lon, future_lat, future_lon, closing_distance_, fw_azi, bw_azi);        
     desired_bearing_rad = fw_azi * M_PI / 180.0; // TODO: altitude is not considered
-    desired_elevation_rad_ = std::atan2((label48_alt - own_alt), closing_distance_);
+    desired_elevation_rad_ = std::atan2((future_alt - own_alt), closing_distance_);
 }
 
 void ArdupilotGuided::yolo_detections_callback(const vision_msgs::msg::Detection2DArray::SharedPtr msg)
@@ -259,7 +275,9 @@ void ArdupilotGuided::offboard_loop_callback()
         auto vel_msg = geometry_msgs::msg::TwistStamped(); // https://docs.ros.org/en/noetic/api/geometry_msgs/html/msg/Twist.html
         vel_msg.header.stamp = this->get_clock()->now();
         vel_msg.header.frame_id = "map"; // World frame, without automatic yaw alignment
-        const double desired_speed = 10.0; // m/s
+        double distance_fraction = (closing_distance_ - 5.0) / (50.0 - 5.0);
+        distance_fraction = std::clamp(distance_fraction, 0.0, 1.0);
+        double desired_speed = 8.0 + distance_fraction * (12.0); // m/s
         if (!std::isnan(desired_bearing_rad) && !std::isnan(desired_elevation_rad_)) {
             double horizontal_speed = desired_speed * std::cos(desired_elevation_rad_);
             double vertical_speed = desired_speed * std::sin(desired_elevation_rad_);
