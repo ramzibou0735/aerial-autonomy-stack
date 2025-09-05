@@ -190,6 +190,13 @@ RUN apt-get update && \
 ################################################################################
 FROM ros2-px4msgs-dds-mavros-yolo-kissicp-zenoh-image AS aircraft-dev-image
 
+# Install PlotJuggler
+RUN apt-get update && \
+    apt-get install -y ros-humble-plotjuggler \
+    ros-humble-plotjuggler-ros \
+    && apt clean \
+    && rm -rf /var/lib/apt/lists/*
+
 # Build the ROS 2 workspace (NOTE: also includes ground_system_msgs from the simulation_ws)
 COPY simulation/simulation_ws/src/ground_system_msgs /ros2_ws/src/ground_system_msgs
 COPY aircraft/aircraft_ws/src /ros2_ws/src

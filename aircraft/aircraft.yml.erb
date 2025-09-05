@@ -5,6 +5,7 @@
 <% camera = ENV.fetch('CAMERA', 'true') %>
 <% lidar = ENV.fetch('LIDAR', 'true') %>
 <% simulated_time = ENV.fetch('SIMULATED_TIME', 'false') %>
+<% record_rosbag = ENV.fetch('RECORD_ROSBAG', 'false') %>
 
 name: drone
 
@@ -66,3 +67,10 @@ windows:
         - >
           erb /aircraft_resources/comms/zenoh_config_air.json5.erb > /aircraft_resources/comms/zenoh_config_air.json5 &&
           zenoh-bridge-ros2dds -e tcp/42.42.1.99:7447 -c /aircraft_resources/comms/zenoh_config_air.json5
+
+  <% if record_rosbag == 'true' %>
+  - logging:
+      layout: tiled
+      panes:
+        - mkdir -p /rosbags && cd /rosbags && ros2 bag record -a
+  <% end %>

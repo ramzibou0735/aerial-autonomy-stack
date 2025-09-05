@@ -240,10 +240,24 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
+- Add logging
+    paths: /git/PX4-Autopilot/build/px4_sitl_default/rootfs/0/log/2025-09-05/15_06_33.ulg
+    source /fl-rev-env/bin/activate
+    cd /git/flight_review/
+    ./app/setup_db.py
+    cd app/
+    ./serve.py -f /git/PX4-Autopilot/build/px4_sitl_default/rootfs/0/log/
+    ./serve.py --allow-websocket-origin=42.42.1.99:5006
+
+revise readme (logging, wind, fewer expands)
+
+apt-get -y autoremove && \
+
 - Add wind field/gusts based on 
     https://github.com/gazebosim/gz-sim/blob/af73ebe7c8c693fd54e391f79c11bf9f24df2640/examples/worlds/wind.sdf
     https://github.com/PX4/PX4-gazebo-models/blob/6cfb3e362e1424caccb7363dca7e63484e44d188/worlds/windy.sdf
     search "wind>"
+
 - Allow quad/VTOL mixed simulation
 - Simplify ArdupilotInterface
 - Add state estimation package/node

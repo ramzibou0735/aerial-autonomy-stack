@@ -194,6 +194,17 @@ RUN apt-get update && \
 ################################################################################
 FROM ros2-gz-qgc-px4custom-ardupilot-gst-pymavlink-zenoh-image AS simulation-dev-image
 
+# Install https://github.com/PX4/flight_review
+RUN apt-get update && \
+    apt-get install -y sqlite3 libfftw3-bin libfftw3-dev \
+    && apt clean \
+    && rm -rf /var/lib/apt/lists/*
+COPY /github_clones/flight_review /git/flight_review
+WORKDIR /git/flight_review/app
+RUN python3 -m venv /fl-rev-env
+RUN /fl-rev-env/bin/pip3 install --no-cache-dir --upgrade pip && \
+    /fl-rev-env/bin/pip3 install --no-cache-dir --resume-retries 5 -r requirements.txt
+
 # Build the ROS 2 workspace for external packages
 RUN mkdir -p /ros2_ws_github/src
 WORKDIR /ros2_ws_github
