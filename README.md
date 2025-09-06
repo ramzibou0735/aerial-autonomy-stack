@@ -8,6 +8,8 @@
 
 > For the motivation behind AAS and how it compares to similar projects, read [`RATIONALE.md`](/supplementary/RATIONALE.md)
 
+https://github.com/user-attachments/assets/0c60afc0-22bf-4ea0-b367-8691ecf6a3e7
+
 ## Feature Highlights
 
 - Support for multiple **quadrotors and VTOLs** based on either **PX4 or ArduPilot**
@@ -15,18 +17,12 @@
 - Support for **YOLOv8** (with ONNX GPU Runtimes) and **LiDAR Odometry** (with [KISS-ICP](https://github.com/PRBonn/kiss-icp))
 - **Dockerized simulation** based on [`nvcr.io/nvidia/cuda:12.8.1-cudnn-runtime-ubuntu22.04`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/cuda/tags)
 - **Dockerized deployment** based on [`nvcr.io/nvidia/l4t-jetpack:r36.4.0`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/l4t-jetpack/tags)
-
-<details>
-<summary><b>Additional Features:</b> <i>(expand)</i></summary>
-
-> - **3D worlds** for [PX4](https://docs.px4.io/main/en/simulation/#sitl-simulation-environment) and [ArduPilot](https://ardupilot.org/dev/docs/sitl-simulator-software-in-the-loop.html#sitl-architecture) software-in-the-loop (SITL) simulation
-> - [Zenoh](https://github.com/eclipse-zenoh/zenoh-plugin-ros2dds) inter-vehicle ROS2 bridge
-> - Support for [PX4 Offboard](https://docs.px4.io/main/en/flight_modes/offboard.html) mode (e.g. CTBR/`VehicleRatesSetpoint` for agile, GNSS-denied flight) and [ArduPilot Guided](https://ardupilot.org/copter/docs/ac2_guidedmode.html) mode (i.e. `setpoint_velocity`, `setpoint_accel` references)
-> - **Steppable simulation** interface for reinforcement learning 
-
-</details>
-
-https://github.com/user-attachments/assets/0c60afc0-22bf-4ea0-b367-8691ecf6a3e7
+- **3D worlds** for [PX4](https://docs.px4.io/main/en/simulation/#sitl-simulation-environment) and [ArduPilot](https://ardupilot.org/dev/docs/sitl-simulator-software-in-the-loop.html#sitl-architecture) software-in-the-loop (SITL) simulation
+- [Zenoh](https://github.com/eclipse-zenoh/zenoh-plugin-ros2dds) inter-vehicle ROS2 bridge
+- Support for [PX4 Offboard](https://docs.px4.io/main/en/flight_modes/offboard.html) mode (e.g. CTBR/`VehicleRatesSetpoint` for agile, GNSS-denied flight) 
+- Support for [ArduPilot Guided](https://ardupilot.org/copter/docs/ac2_guidedmode.html) mode (i.e. `setpoint_velocity`, `setpoint_accel` references)
+- **Steppable simulation** interface for reinforcement learning
+- Logging analysis with [`flight_review`](https://github.com/PX4/flight_review) (`.ulg`), MAVExplorer (`.bin`), and [PlotJuggler](https://github.com/facontidavide/PlotJuggler) (`rosbag`)
 
 <details>
 <summary>AAS leverages the following frameworks: <i>(expand)</i></summary>
@@ -131,6 +127,8 @@ DRONE_TYPE=quad AUTOPILOT=px4 NUM_DRONES=1 ./sim_run.sh
 ros2 run mission mission --conops yalla --ros-args -r __ns:=/Drone$DRONE_ID -p use_sim_time:=true
 # This mission is a simple takeoff, followed by an orbit, and landing
 # Works for all combinations of AUTOPILOT=px4 or ardupilot, DRONE_TYPE=quad or vtol
+# Finally, in the simulation's terminal
+/simulation_resources/patches/plot_logs.sh # Analyze the flight logs
 ```
 
 ### Command Line Interface
@@ -153,9 +151,8 @@ cd ~/git/aerial-autonomy-stack/scripts
 MODE=dev ./sim_run.sh # Images are pre-built but the ros2_ws/src/ and *_resources/ folders are mounted from the host
 ```
 
-> [!TIP]
-> <details>
-> <summary>Project Structure <i>(expand)</i></summary>
+> [!NOTE]
+> Project Structure
 > 
 > ```sh
 > aerial-autonomy-stack
@@ -203,7 +200,6 @@ MODE=dev ./sim_run.sh # Images are pre-built but the ros2_ws/src/ and *_resource
 >     │
 >     └── simulation.yml.erb           # Simulation docker tmux entrypoint
 > ```
-> </details>
 
 ---
 
@@ -240,23 +236,11 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- Add logging
-    paths: /git/PX4-Autopilot/build/px4_sitl_default/rootfs/0/log/2025-09-05/15_06_33.ulg
-    source /fl-rev-env/bin/activate
-    cd /git/flight_review/
-    ./app/setup_db.py
-    cd app/
-    ./serve.py -f /git/PX4-Autopilot/build/px4_sitl_default/rootfs/0/log/
-    ./serve.py --allow-websocket-origin=42.42.1.99:5006
-
-revise readme (logging, wind, fewer expands)
-
-apt-get -y autoremove && \
-
 - Add wind field/gusts based on 
     https://github.com/gazebosim/gz-sim/blob/af73ebe7c8c693fd54e391f79c11bf9f24df2640/examples/worlds/wind.sdf
     https://github.com/PX4/PX4-gazebo-models/blob/6cfb3e362e1424caccb7363dca7e63484e44d188/worlds/windy.sdf
     search "wind>"
+    add to readme
 
 - Allow quad/VTOL mixed simulation
 - Simplify ArdupilotInterface

@@ -201,9 +201,9 @@ RUN apt-get update && \
     && rm -rf /var/lib/apt/lists/*
 COPY /github_clones/flight_review /git/flight_review
 WORKDIR /git/flight_review/app
-RUN python3 -m venv /fl-rev-env
-RUN /fl-rev-env/bin/pip3 install --no-cache-dir --upgrade pip && \
-    /fl-rev-env/bin/pip3 install --no-cache-dir --resume-retries 5 -r requirements.txt
+RUN python3 -m venv /px4rf-env
+RUN /px4rf-env/bin/pip3 install --no-cache-dir --upgrade pip && \
+    /px4rf-env/bin/pip3 install --no-cache-dir --resume-retries 5 -r requirements.txt
 
 # Build the ROS 2 workspace for external packages
 RUN mkdir -p /ros2_ws_github/src

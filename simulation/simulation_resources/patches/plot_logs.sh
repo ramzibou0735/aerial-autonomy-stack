@@ -15,6 +15,10 @@ if [[ -n "$NUM_DRONES" && "$NUM_DRONES" =~ ^[0-9]+$ ]]; then
         done
 
     elif [ "$AUTOPILOT" == "px4" ]; then
+        cd /git/flight_review/
+        /px4rf-env/bin/python3 ./app/setup_db.py
+        /px4rf-env/bin/python3 ./app/serve.py --allow-websocket-origin=42.42.1.99:5006 & # Starting flight_review
+        sleep 2
         for i in $(seq 0 $((NUM_DRONES - 1))); do
             log_dir="/git/PX4-Autopilot/build/px4_sitl_default/rootfs/$i/log"
             # Find the latest dated folder and then the latest .ulg file inside it
@@ -23,8 +27,7 @@ if [[ -n "$NUM_DRONES" && "$NUM_DRONES" =~ ^[0-9]+$ ]]; then
                 latest_ulg=$(ls -t "$latest_date_dir"/*.ulg | head -n 1)
                 if [ -n "$latest_ulg" ]; then
                     echo "Latest .ulg log for PX4 drone $i is: $(basename "$latest_ulg")"
-                    echo "Opening PX4 log for drone $i: $latest_ulg"
-                    # TODO
+                    /px4rf-env/bin/python3 /simulation_resources/patches/load_ulg_to_flight_review.py "$latest_ulg"
                 else
                     echo "No .ulg logs found for PX4 drone $i in: $latest_date_dir"
                 fi
@@ -32,6 +35,8 @@ if [[ -n "$NUM_DRONES" && "$NUM_DRONES" =~ ^[0-9]+$ ]]; then
                 echo "No log directory found for PX4 drone $i at: $log_dir"
             fi
         done
+        echo ""
+        echo "You can view the imported logs at: http://42.42.1.99:5006/browse"
 
     else
         echo "Unknown AUTOPILOT"
