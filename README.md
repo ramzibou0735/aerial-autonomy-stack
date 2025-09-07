@@ -21,8 +21,9 @@ https://github.com/user-attachments/assets/0c60afc0-22bf-4ea0-b367-8691ecf6a3e7
 - [Zenoh](https://github.com/eclipse-zenoh/zenoh-plugin-ros2dds) inter-vehicle ROS2 bridge
 - Support for [PX4 Offboard](https://docs.px4.io/main/en/flight_modes/offboard.html) mode (e.g. CTBR/`VehicleRatesSetpoint` for agile, GNSS-denied flight) 
 - Support for [ArduPilot Guided](https://ardupilot.org/copter/docs/ac2_guidedmode.html) mode (i.e. `setpoint_velocity`, `setpoint_accel` references)
+- Logs analysis with [`flight_review`](https://github.com/PX4/flight_review) (`.ulg`), MAVExplorer (`.bin`), and [PlotJuggler](https://github.com/facontidavide/PlotJuggler) (`rosbag`)
 - **Steppable simulation** interface for reinforcement learning
-- Logging analysis with [`flight_review`](https://github.com/PX4/flight_review) (`.ulg`), MAVExplorer (`.bin`), and [PlotJuggler](https://github.com/facontidavide/PlotJuggler) (`rosbag`)
+- Support for Gazebo's [**`WindEffects`**](https://github.com/gazebosim/gz-sim/blob/gz-sim10/examples/worlds/wind.sdf) (except PX4 VTOL)
 
 <details>
 <summary>AAS leverages the following frameworks: <i>(expand)</i></summary>
@@ -65,13 +66,13 @@ cd ~/git/aerial-autonomy-stack/scripts
 ## Part 2: Simulation and Development with AAS
 
 ```sh
-# Run a simulation
+# Run a simulation (note: ArduPilot STIL takes ~40s to be ready to arm)
 cd ~/git/aerial-autonomy-stack/scripts
 DRONE_TYPE=quad AUTOPILOT=px4 NUM_DRONES=2 WORLD=swiss_town ./sim_run.sh # Check the script for more options
 # `Ctrl + b`, then `d` in each terminal once done
 ```
 
-> Even on a low-mid range laptop (i7-11 with 16GB RAM and RTX3060), AAS can simulate 3 drones with camera and LiDAR at 70-80% of the wall-clock
+> On a low-mid range laptop (i7-11 with 16GB RAM and RTX3060), AAS can simulate 3 drones with camera and LiDAR at 70-80% of the wall-clock
 >
 > Once "Ready to Fly", one can takeoff and control from QGroundControl's ["Fly View"](https://docs.qgroundcontrol.com/master/en/qgc-user-guide/fly_view/fly_view.html)
 
@@ -88,6 +89,14 @@ To advance the simulation in **discrete time steps**, e.g. 1s, from a terminal o
 ```sh
 # Pause the simulation
 docker exec simulation-container bash -c "gz service -s /world/\$WORLD/control --reqtype gz.msgs.WorldControl --reptype gz.msgs.Boolean --req 'multi_step: 250, pause: true'" # Adjust multi_step based on the value of max_step_size in the world's .sdf 
+```
+
+To add or disable a **wind field**, from a terminal on the host, run:
+
+```sh
+# Note that a positive X blows from the West, a positive Y blows from the South
+docker exec simulation-container bash -c "gz topic -t /world/\$WORLD/wind/ -m gz.msgs.Wind  -p 'linear_velocity: {x: 0.0 y: 3.0}, enable_wind: true'"
+docker exec simulation-container bash -c "gz topic -t /world/\$WORLD/wind/ -m gz.msgs.Wind  -p 'enable_wind: false'"
 ```
 
 > [!TIP]
@@ -236,35 +245,26 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- Add wind field/gusts based on 
-    https://github.com/gazebosim/gz-sim/blob/af73ebe7c8c693fd54e391f79c11bf9f24df2640/examples/worlds/wind.sdf
-    https://github.com/PX4/PX4-gazebo-models/blob/6cfb3e362e1424caccb7363dca7e63484e44d188/worlds/windy.sdf
-    search "wind>"
-    add to readme
-
 - Allow quad/VTOL mixed simulation
+- Adjust orientation of the LiDAR and frame of the LiDAR odometry for VTOLs
 - Simplify ArdupilotInterface
 - Add state estimation package/node
 - Add bounding-box-based Offboard
 - Create smaller docker images to use GitHub Actions
+- For PX4 quad max tilt maneuver, zero the anti-windup gain: const float arw_gain = 2.f / _gain_vel_p(0);
 - ????
 - Profit
 
 ### Known Issues
 
-- For PX4 quad max tilt maneuver, zero the anti-windup gain: const float arw_gain = 2.f / _gain_vel_p(0);
-- ArduPilot CIRCLE mode for quads require to explicitly center the throttle with 'rc 3 1500' to keep altitude
-- Ground tracks in topic /tracks are occasionally not published
-- In ArdupilotInterface's action callbacks, std::shared_lock<std::shared_mutex> lock(node_data_mutex_); could be used on the reads of lat_, lon_, alt_
+- QGC is started with a virtual joystick (with low throttle for VTOLs and centered throttle for quads), this is reflective of real-life but note that this counts as "RC loss" when switching focus from one autopilot instance to another
+- ArduPilot CIRCLE mode for quads require to explicitly center the virtual throttle with 'rc 3 1500' to keep altitude
+- Gazebo WindEffects plugin is disabled for PX4 standard_vtol
 - Command 178 MAV_CMD_DO_CHANGE_SPEED is accepted but not effective in changing speed for ArduPilot VTOL
 - ArduPilot SITL for Iris uses option -f that also sets "external": True, this is not the case for the Alti Transition from ArduPilot/SITL_Models 
-- Must adjust orientation of the LiDAR and frame of the LiDAR odometry for VTOLs
+- In ArdupilotInterface's action callbacks, std::shared_lock<std::shared_mutex> lock(node_data_mutex_); could be used on the reads of lat_, lon_, alt_
 - In yolo_inference_node.py, cannot open GPU accelerated (nvh264dec) GStreamer pipeline with cv2.VideoCapture, might need to recompile OpenCV to have both CUDA and GStreamer support (or use python3-gi gir1.2-gst-plugins-base-1.0 gir1.2-gstreamer-1.0 and circumvent OpenCV)
-- ROS2 action cancellation from CLI does not work (File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 723, in wait_for_ready_callbacks - return next(self._cb_iter) - ValueError: generator already executing), use cancellable_action.py instead
-- Cannot use **/.git in .dockerignore because PX4 and ArduPilot use it in their build
-- PX4 messages 1.16 have VehicleStatus on MESSAGE_VERSION = 1, topic fmu/out/vehicle_status_v1
 - QGC does not save roll and pitch in the telemetry bar for PX4 VTOLs (MAV_TYPE 22)
-- QGC is started with a virtual joystick (with low throttle for VTOLs and centered throttle for quads), this is reflective of real-life but note that this counts as "RC loss" when switching focus from one autopilot instance to another
 
 
 
