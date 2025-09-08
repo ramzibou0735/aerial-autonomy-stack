@@ -1,10 +1,11 @@
 # Pre-installation for WSL builds
 
-## Install WSL 
+## Install WSL
+
 The [Windows Subsystem for Linux (WSL)](https://learn.microsoft.com/en-us/windows/wsl/install) lets developers install a Linux distribution (such as Ubuntu, OpenSUSE, Kali, Debian, Arch Linux, etc) and use Linux applications, utilities, and Bash command-line tools directly on Windows, unmodified, without the overhead of a traditional virtual machine or dualboot setup.
 
 > [!NOTE]
-> You must be running Windows 10 version 2004 and higher (Build 19041 and higher) or Windows 11 to use the commands below. If you are on earlier versions please see [the manual install page](https://learn.microsoft.com/en-us/windows/wsl/install-manual).
+> These instructions are for Windows 10 version 2004 and higher (Build 19041 and higher) or Windows 11. For earlier versions, please see the manual [install page](https://learn.microsoft.com/en-us/windows/wsl/install-manual).
 
 - From PowerShell, check available Linux distributions `wsl --list --online`
 - Install "Ubuntu-22.04" `wsl --install -d Ubuntu-22.04`
@@ -30,11 +31,11 @@ cat ~/.ssh/id_rsa.pub
 ```
 
 > [!IMPORTANT]
-> When building and running large Docker images (e.g. the simulator and aircraft containers), WSL2 can easily consume available system resources. To prevent crashes, hangs, or 100% disk usage, we configure WSL2’s resource limits using a **`.wslconfig`** file. 
+> When building and running large Docker images (e.g. the simulator and aircraft containers), WSL2 can easily consume available system resources. To prevent crashes, hangs, or 100% disk usage, configure WSL2’s resource limits using a `.wslconfig` file. 
 > 
 > ```sh
 > # From **Windows user home directory**: 
-> # Create (or edit) the file `C:\Users\<YourWindowsUsername>\.wslconfig` and add:
+> # Create (or edit) the file `C:\Users\<YourWindowsUsername>\.wslconfig` to add:
 >
 > [wsl2]
 > memory=10GB
@@ -49,16 +50,19 @@ cat ~/.ssh/id_rsa.pub
 > # To check available memory and swap, open your WSL2 distro and run:
 > free -h
 > ```
-> For additinal resources please see [advanced settings configuration.](https://learn.microsoft.com/en-us/windows/wsl/wsl-config)
+> For additinal resources please see [advanced settings configuration](https://learn.microsoft.com/en-us/windows/wsl/wsl-config).
 
 ## Enable NVIDIA CUDA on WSL
+
 Download and install the [NVIDIA CUDA enabled driver for WSL](https://www.nvidia.com/download/index.aspx) 
 
 >[!NOTE] 
 >The latest NVIDIA Windows GPU driver fully supports **WSL 2**, enabling existing CUDA applications compiled on Linux to run unmodified in WSL.
-Once the Windows NVIDIA GPU driver is installed, CUDA is available in WSL 2 via a stubbed `libcuda.so`. **Users must not install a separate NVIDIA GPU Linux driver inside WSL 2**,
+Once the Windows NVIDIA GPU driver is installed, CUDA is available in WSL 2 via a stubbed `libcuda.so`. 
+>
+> **Do NOT install a separate NVIDIA GPU Linux driver inside WSL 2**,
 
-- On **WSL 2 with NVIDIA GPU driver installed**, OpenGL is accelerated through **DirectX + GPU driver interop** (via WSLg).
+On **WSL 2 with NVIDIA GPU driver installed**, OpenGL is accelerated through **DirectX + GPU driver interop** (via WSLg).
 
 ```sh
 # From WSL, check NVIDIA GPU
@@ -143,7 +147,9 @@ docker run --rm --gpus all nvidia/cuda:12.2.0-base-ubuntu22.04 nvidia-smi
 ```
 
 ## Install VcXsrv Windows X Server
+
 WSL2 does not provide a full Linux desktop environment by default, so graphical applications (like Gazebo or other GUI tools) cannot run natively. To display GUI applications from WSL2 on Windows, we need an X server. VcXsrv is a lightweight and widely used X server for Windows.
+
 - Download [VcXsrv:](https://sourceforge.net/projects/vcxsrv/) and download the installer.
 - Run the installer with default settings.
     - Start “XLaunch” (comes with VcXsrv).
@@ -155,13 +161,13 @@ WSL2 does not provide a full Linux desktop environment by default, so graphical 
 
 From your WSL2 terminal, you should configure your `~/.bashrc` file to set up the display and X11 permissions automatically whenever you open a WSL terminal.
 
-> ```sh
-> # WSL2 GUI setup
-> echo 'export DISPLAY=$(grep nameserver /etc/resolv.conf | awk "{print \$2}"):0' >> ~/.bashrc
-> echo 'export LIBGL_ALWAYS_INDIRECT=1' >> ~/.bashrc
-> echo 'export QT_X11_NO_MITSHM=1' >> ~/.bashrc
-> echo 'if command -v xhost >/dev/null 2>&1; then xhost +local:; fi' >> ~/.bashrc
->
-> # Reload .bashrc
-> source ~/.bashrc
-> ```
+```sh
+# WSL2 GUI setup
+echo 'export DISPLAY=$(grep nameserver /etc/resolv.conf | awk "{print \$2}"):0' >> ~/.bashrc
+echo 'export LIBGL_ALWAYS_INDIRECT=1' >> ~/.bashrc
+echo 'export QT_X11_NO_MITSHM=1' >> ~/.bashrc
+echo 'if command -v xhost >/dev/null 2>&1; then xhost +local:; fi' >> ~/.bashrc
+
+# Reload .bashrc
+source ~/.bashrc
+```
