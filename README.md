@@ -246,7 +246,8 @@ docker exec -it aircraft-container tmux attach
 ## TODOs
 
 - Allow quad/VTOL mixed simulation
-- Adjust orientation of the LiDAR and frame of the LiDAR odometry for VTOLs
+- https://developer.nvidia.com/embedded/learn/tutorials/first-picture-csi-usb-camera
+- https://github.com/Livox-SDK/livox_ros_driver2
 - Simplify ArdupilotInterface
 - Add state estimation package/node
 - Add bounding-box-based Offboard
