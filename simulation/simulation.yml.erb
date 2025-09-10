@@ -1,6 +1,6 @@
-<% drone_type = ENV.fetch('DRONE_TYPE', 'quad') %>
+<% num_quads = ENV.fetch('NUM_QUADS', 1).to_i %>
+<% num_vtols = ENV.fetch('NUM_VTOLS', 0).to_i %>
 <% autopilot = ENV.fetch('AUTOPILOT', 'px4') %>
-<% num_drones = ENV.fetch('NUM_DRONES', 1).to_i %>
 <% world = ENV.fetch('WORLD', 'impalpable_greyness') %>
 <% headless = ENV.fetch('HEADLESS', 'false') %>
 <% camera = ENV.fetch('CAMERA', 'true') %>
@@ -41,73 +41,124 @@ windows:
           <% if lidar == 'false' %>
           sed -i '/<sensor/,/<\/sensor>/d'  /simulation_resources/aircraft_models/sensor_lidar/model.sdf &&
           <% end %>
-          chmod +x /simulation_resources/aircraft_models/_create_ardupilot_models.sh &&
-          /simulation_resources/aircraft_models/_create_ardupilot_models.sh <%= num_drones %> /simulation_resources/aircraft_models/<%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'alti_transition_quad' %> &&
-          chmod +x /simulation_resources/simulation_worlds/_create_ardupilot_world.sh &&
-          /simulation_resources/simulation_worlds/_create_ardupilot_world.sh <%= num_drones %> <%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'alti_transition_quad' %> /simulation_resources/simulation_worlds/<%= world %>.sdf &&
+          /simulation_resources/aircraft_models/_create_ardupilot_models.sh <%= num_quads %> <%= num_vtols %>  &&
+          /simulation_resources/simulation_worlds/_create_ardupilot_world.sh <%= num_quads %> <%= num_vtols %> /simulation_resources/simulation_worlds/<%= world %>.sdf &&
           GZ_SIM_SYSTEM_PLUGIN_PATH=/git/ardupilot_gazebo/build:$GZ_SIM_SYSTEM_PLUGIN_PATH 
           GZ_SIM_RESOURCE_PATH=/simulation_resources/aircraft_models:/simulation_resources/simulation_worlds:$GZ_SIM_RESOURCE_PATH 
           GZ_SIM_PHYSICS_ENGINE_PATH=$GZ_SIM_PHYSICS_ENGINE_PATH:/usr/lib/x86_64-linux-gnu/gz-physics-7/engine-plugins/
           gz sim -v4 -r <% if headless == 'true' %> -s <% end %> populated_ardupilot.sdf
   <% end %>
 
-  <% num_drones.times do |i| %>
+  <% drone_id = -1 %>
+
+  <% num_quads.times do |i| %>
+  <% drone_id += 1 %>
   <% if autopilot == 'px4' %>
-  - px4_sitl_<%= i + 1 %>:
+  - px4_sitl_<%= drone_id + 1 %>:
       layout: main-horizontal
       panes:
         - >
-          sleep <%= (i + 1) * 3 %> &&
+          sleep <%= (drone_id + 1) * 3 %> &&
           PX4_GZ_MODEL_POSE="<%= i * 2 %>,<%= i * 2 %>,0.5,0,0,0"
-          PX4_SYS_AUTOSTART=<%= drone_type == 'quad' ? '5140' : '5141' %>
-          ROS_DOMAIN_ID=<%= i + 1 %>
-          PX4_UXRCE_DDS_NS="Drone<%= i + 1 %>"
-          PX4_UXRCE_DDS_AG_IP="42.42.1.<%= i + 1 %>"
+          PX4_SYS_AUTOSTART=5140
+          ROS_DOMAIN_ID=<%= drone_id + 1 %>
+          PX4_UXRCE_DDS_NS="Drone<%= drone_id + 1 %>"
+          PX4_UXRCE_DDS_AG_IP="42.42.1.<%= drone_id + 1 %>"
           PX4_UXRCE_DDS_PORT=8888
-          /git/PX4-Autopilot/build/px4_sitl_default/bin/px4 -i <%= i %>
-        - "ROS_DOMAIN_ID=<%= i + 1 %> ros2 run ros_gz_bridge parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock"
+          /git/PX4-Autopilot/build/px4_sitl_default/bin/px4 -i <%= drone_id %>
+        - "ROS_DOMAIN_ID=<%= drone_id + 1 %> ros2 run ros_gz_bridge parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock"
         <% if lidar == 'true' %>
-        - "ROS_DOMAIN_ID=<%= i + 1 %> ros2 run ros_gz_bridge parameter_bridge /world/<%= world %>/model/<%= drone_type == 'quad' ? 'x500' : 'standard_vtol' %>_<%= i %>/model/simple_lidar/link/lidar/base_link/sensor/lidar3d/scan/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked --ros-args -r /world/<%= world %>/model/<%= drone_type == 'quad' ? 'x500' : 'standard_vtol' %>_<%= i %>/model/simple_lidar/link/lidar/base_link/sensor/lidar3d/scan/points:=/lidar_points"
+        - "ROS_DOMAIN_ID=<%= drone_id + 1 %> ros2 run ros_gz_bridge parameter_bridge /world/<%= world %>/model/x500_<%= drone_id %>/model/simple_lidar/link/lidar/base_link/sensor/lidar3d/scan/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked --ros-args -r /world/<%= world %>/model/x500_<%= drone_id %>/model/simple_lidar/link/lidar/base_link/sensor/lidar3d/scan/points:=/lidar_points"
         <% end %>
         <% if camera == 'true' %>
         - >
           python3 /simulation_resources/comms/gz_to_gst_image_bridge.py 
-          --gz_topic /world/<%= world %>/model/<%= drone_type == 'quad' ? 'x500' : 'standard_vtol' %>_<%= i %>/model/simple_camera/link/mono_cam/base_link/sensor/imager/image
-          --ip 42.42.1.<%= i + 1 %> --port 5600
+          --gz_topic /world/<%= world %>/model/x500_<%= drone_id %>/model/simple_camera/link/mono_cam/base_link/sensor/imager/image
+          --ip 42.42.1.<%= drone_id + 1 %> --port 5600
         <% end %>
   <% elsif autopilot == 'ardupilot' %>
-  - ardupilot_sitl_<%= i + 1 %>:
+  - ardupilot_sitl_<%= drone_id + 1 %>:
       layout: main-horizontal
       panes:
         - >
-          sleep <%= (i + 1) * 3 %> &&
+          sleep <%= (drone_id + 1) * 3 %> &&
           /git/ardupilot/Tools/autotest/sim_vehicle.py 
-          -v <%= drone_type == 'quad' ? 'ArduCopter' : 'ArduPlane' %> 
-          <% if drone_type == 'quad' %>
+          -v ArduCopter
           -f gazebo-iris
-          <% end %>
           --model JSON
-          -I <%= i %>
-          --sysid <%= i + 1 %>
+          -I <%= drone_id %>
+          --sysid <%= drone_id + 1 %>
           -l $(awk -F "[><]" "/<spherical_coordinates>/,/<\/spherical_coordinates>/" /simulation_resources/simulation_worlds/<%= world %>.sdf | awk -F "[><]" "/latitude_deg/ {print \$3}"),$(awk -F "[><]" "/<spherical_coordinates>/,/<\/spherical_coordinates>/" /simulation_resources/simulation_worlds/<%= world %>.sdf | awk -F "[><]" "/longitude_deg/ {print \$3}"),$(awk -F "[><]" "/<spherical_coordinates>/,/<\/spherical_coordinates>/" /simulation_resources/simulation_worlds/<%= world %>.sdf | awk -F "[><]" "/elevation/ {print \$3}"),0          
-          --out=udp:127.0.0.1:<%= 21550 + i %>
-          --out=udp:42.42.1.<%= i + 1 %>:<%= 22530 + i %>
-          --add-param-file=/simulation_resources/aircraft_models/<%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'alti_transition_quad' %>_<%= i + 1 %>/ardupilot-4.6.params
-        - "ROS_DOMAIN_ID=<%= i + 1 %> ros2 run ros_gz_bridge parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock"
-        - mavproxy.py --master=udp:127.0.0.1:<%= 21550 + i %> --out=udp:127.0.0.1:<%= 14550 + i %> --out=udp:127.0.0.1:<%= 14540 + i %>
+          --out=udp:127.0.0.1:<%= 21550 + drone_id %>
+          --out=udp:42.42.1.<%= i + 1 %>:<%= 22530 + drone_id %>
+          --add-param-file=/simulation_resources/aircraft_models/iris_with_ardupilot_<%= drone_id + 1 %>/ardupilot-4.6.params
+        - "ROS_DOMAIN_ID=<%= drone_id + 1 %> ros2 run ros_gz_bridge parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock"
+        - mavproxy.py --master=udp:127.0.0.1:<%= 21550 + drone_id %> --out=udp:127.0.0.1:<%= 14550 + drone_id %> --out=udp:127.0.0.1:<%= 14540 + drone_id %>
         <% if lidar == 'true' %>
-        - "ROS_DOMAIN_ID=<%= i + 1 %> ros2 run ros_gz_bridge parameter_bridge /world/<%= world %>/model/<%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'alti_transition_quad' %>_<%= i + 1 %>/model/<%= drone_type == 'quad' ? 'iris/model/' : '' %>simple_lidar/link/lidar/base_link/sensor/lidar3d/scan/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked --ros-args -r /world/<%= world %>/model/<%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'alti_transition_quad' %>_<%= i + 1 %>/model/<%= drone_type == 'quad' ? 'iris/model/' : '' %>simple_lidar/link/lidar/base_link/sensor/lidar3d/scan/points:=/lidar_points"
+        - "ROS_DOMAIN_ID=<%= drone_id + 1 %> ros2 run ros_gz_bridge parameter_bridge /world/<%= world %>/model/iris_with_ardupilot_<%= drone_id + 1 %>/model/iris/model/simple_lidar/link/lidar/base_link/sensor/lidar3d/scan/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked --ros-args -r /world/<%= world %>/model/iris_with_ardupilot_<%= drone_id + 1 %>/model/iris/model/simple_lidar/link/lidar/base_link/sensor/lidar3d/scan/points:=/lidar_points"
         <% end %>
         <% if camera == 'true' %>
         - >
           python3 /simulation_resources/comms/gz_to_gst_image_bridge.py 
-          --gz_topic /world/<%= world %>/model/<%= drone_type == 'quad' ? 'iris_with_ardupilot' : 'alti_transition_quad' %>_<%= i + 1 %>/model/<%= drone_type == 'quad' ? 'iris/model/' : '' %>simple_camera/link/mono_cam/base_link/sensor/imager/image
-          --ip 42.42.1.<%= i + 1 %> --port 5600
+          --gz_topic /world/<%= world %>/model/iris_with_ardupilot_<%= drone_id + 1 %>/model/iris/model/simple_camera/link/mono_cam/base_link/sensor/imager/image
+          --ip 42.42.1.<%= drone_id + 1 %> --port 5600
         <% end %>
-        <% if drone_type == 'quad' %>
         - >
-          sleep <%= (i + 1) * 3 + 30 %> &&
-          tmux send-keys -t 'sim:ardupilot_sitl_<%= i + 1 %>.0' 'rc 3 1500' C-m
+          sleep <%= (drone_id + 1) * 3 + 30 %> &&
+          tmux send-keys -t 'sim:ardupilot_sitl_<%= drone_id + 1 %>.0' 'rc 3 1500' C-m
+  <% end %>
+  <% end %>
+
+  <% num_vtols.times do |i| %>
+  <% drone_id += 1 %>
+  <% if autopilot == 'px4' %>
+  - px4_sitl_<%= drone_id + 1 %>:
+      layout: main-horizontal
+      panes:
+        - >
+          sleep <%= (drone_id + 1) * 3 %> &&
+          PX4_GZ_MODEL_POSE="<%= 2 + i * 2 %>,<%= i * 2 %>,0.5,0,0,0"
+          PX4_SYS_AUTOSTART=5141
+          ROS_DOMAIN_ID=<%= drone_id + 1 %>
+          PX4_UXRCE_DDS_NS="Drone<%= drone_id + 1 %>"
+          PX4_UXRCE_DDS_AG_IP="42.42.1.<%= drone_id + 1 %>"
+          PX4_UXRCE_DDS_PORT=8888
+          /git/PX4-Autopilot/build/px4_sitl_default/bin/px4 -i <%= drone_id %>
+        - "ROS_DOMAIN_ID=<%= drone_id + 1 %> ros2 run ros_gz_bridge parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock"
+        <% if lidar == 'true' %>
+        - "ROS_DOMAIN_ID=<%= drone_id + 1 %> ros2 run ros_gz_bridge parameter_bridge /world/<%= world %>/model/standard_vtol_<%= drone_id %>/model/simple_lidar/link/lidar/base_link/sensor/lidar3d/scan/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked --ros-args -r /world/<%= world %>/model/standard_vtol_<%= drone_id %>/model/simple_lidar/link/lidar/base_link/sensor/lidar3d/scan/points:=/lidar_points"
+        <% end %>
+        <% if camera == 'true' %>
+        - >
+          python3 /simulation_resources/comms/gz_to_gst_image_bridge.py 
+          --gz_topic /world/<%= world %>/model/standard_vtol_<%= drone_id %>/model/simple_camera/link/mono_cam/base_link/sensor/imager/image
+          --ip 42.42.1.<%= drone_id + 1 %> --port 5600
+        <% end %>
+  <% elsif autopilot == 'ardupilot' %>
+  - ardupilot_sitl_<%= drone_id + 1 %>:
+      layout: main-horizontal
+      panes:
+        - >
+          sleep <%= (drone_id + 1) * 3 %> &&
+          /git/ardupilot/Tools/autotest/sim_vehicle.py 
+          -v ArduPlane
+          --model JSON
+          -I <%= drone_id %>
+          --sysid <%= drone_id + 1 %>
+          -l $(awk -F "[><]" "/<spherical_coordinates>/,/<\/spherical_coordinates>/" /simulation_resources/simulation_worlds/<%= world %>.sdf | awk -F "[><]" "/latitude_deg/ {print \$3}"),$(awk -F "[><]" "/<spherical_coordinates>/,/<\/spherical_coordinates>/" /simulation_resources/simulation_worlds/<%= world %>.sdf | awk -F "[><]" "/longitude_deg/ {print \$3}"),$(awk -F "[><]" "/<spherical_coordinates>/,/<\/spherical_coordinates>/" /simulation_resources/simulation_worlds/<%= world %>.sdf | awk -F "[><]" "/elevation/ {print \$3}"),0          
+          --out=udp:127.0.0.1:<%= 21550 + drone_id %>
+          --out=udp:42.42.1.<%= i + 1 %>:<%= 22530 + drone_id %>
+          --add-param-file=/simulation_resources/aircraft_models/alti_transition_quad_<%= drone_id + 1 %>/ardupilot-4.6.params
+        - "ROS_DOMAIN_ID=<%= drone_id + 1 %> ros2 run ros_gz_bridge parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock"
+        - mavproxy.py --master=udp:127.0.0.1:<%= 21550 + drone_id %> --out=udp:127.0.0.1:<%= 14550 + drone_id %> --out=udp:127.0.0.1:<%= 14540 + drone_id %>
+        <% if lidar == 'true' %>
+        - "ROS_DOMAIN_ID=<%= drone_id + 1 %> ros2 run ros_gz_bridge parameter_bridge /world/<%= world %>/model/alti_transition_quad_<%= drone_id + 1 %>/model/simple_lidar/link/lidar/base_link/sensor/lidar3d/scan/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked --ros-args -r /world/<%= world %>/model/alti_transition_quad_<%= drone_id + 1 %>/model/simple_lidar/link/lidar/base_link/sensor/lidar3d/scan/points:=/lidar_points"
+        <% end %>
+        <% if camera == 'true' %>
+        - >
+          python3 /simulation_resources/comms/gz_to_gst_image_bridge.py 
+          --gz_topic /world/<%= world %>/model/alti_transition_quad_<%= drone_id + 1 %>/model/simple_camera/link/mono_cam/base_link/sensor/imager/image
+          --ip 42.42.1.<%= drone_id + 1 %> --port 5600
         <% end %>
   <% end %>
   <% end %>
@@ -116,7 +167,7 @@ windows:
       layout: even-vertical
       panes:
         - "ros2 run ros_gz_bridge parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock"
-        - sleep 3 && ros2 run ground_system oracle --num-drones <%=  num_drones %> --base-port 14540 --rate 1.0 <% if simulated_time == 'true' %> --ros-args -p use_sim_time:=True<% end %>
+        - sleep 3 && ros2 run ground_system oracle --num-drones <%=  num_quads + num_vtols %> --base-port 14540 --rate 1.0 <% if simulated_time == 'true' %> --ros-args -p use_sim_time:=True<% end %>
         - zenoh-bridge-ros2dds -c /simulation_resources/comms/zenoh_config_ground.json5
 
   - qgc:
@@ -126,8 +177,5 @@ windows:
         - echo "Headless mode, not launching QGroundControl."
         <% else %>
         - >
-          <% if drone_type == 'quad' %>
-          sed -i 's/virtualJoystickAutoCenterThrottle=false/virtualJoystickAutoCenterThrottle=true/g' /home/qgcuser/.config/QGroundControl/QGroundControl.ini &&
-          <% end %>
           gosu qgcuser /squashfs-root/AppRun -geometry 800x600+960+540
         <% end %>

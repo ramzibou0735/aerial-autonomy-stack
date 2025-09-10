@@ -68,7 +68,7 @@ cd ~/git/aerial-autonomy-stack/scripts
 ```sh
 # Run a simulation (note: ArduPilot STIL takes ~40s to be ready to arm)
 cd ~/git/aerial-autonomy-stack/scripts
-DRONE_TYPE=quad AUTOPILOT=px4 NUM_DRONES=2 WORLD=swiss_town ./sim_run.sh # Check the script for more options
+AUTOPILOT=px4 NUM_QUADS=1 NUM_VTOLS=1 WORLD=swiss_town ./sim_run.sh # Check the script for more options
 # `Ctrl + b`, then `d` in each terminal once done
 ```
 
@@ -131,11 +131,11 @@ docker exec simulation-container bash -c "gz topic -t /world/\$WORLD/wind/ -m gz
 
 ```sh
 cd ~/git/aerial-autonomy-stack/scripts
-DRONE_TYPE=quad AUTOPILOT=px4 NUM_DRONES=1 ./sim_run.sh
+AUTOPILOT=px4 NUM_QUADS=1 ./sim_run.sh
 # In aircraft 1's terminal
 ros2 run mission mission --conops yalla --ros-args -r __ns:=/Drone$DRONE_ID -p use_sim_time:=true
 # This mission is a simple takeoff, followed by an orbit, and landing
-# Works for all combinations of AUTOPILOT=px4 or ardupilot, DRONE_TYPE=quad or vtol
+# Works for all combinations of AUTOPILOT=px4 or ardupilot; quad or vtol
 # Finally, in the simulation's terminal
 /simulation_resources/patches/plot_logs.sh # Analyze the flight logs
 ```
@@ -246,6 +246,15 @@ docker exec -it aircraft-container tmux attach
 ## TODOs
 
 - Allow quad/VTOL mixed simulation
+
+    offset vtols in y instead
+
+    Handle:
+    <% if drone_type == 'quad' %>
+          sed -i 's/virtualJoystickAutoCenterThrottle=false/virtualJoystickAutoCenterThrottle=true/g' /home/qgcuser/.config/QGroundControl/QGroundControl.ini &&
+          <% end %>
+          gosu qgcuser /squashfs-root/AppRun -geometry 800x600+960+540
+
 - https://developer.nvidia.com/embedded/learn/tutorials/first-picture-csi-usb-camera
 - https://github.com/Livox-SDK/livox_ros_driver2
 - Simplify ArdupilotInterface
