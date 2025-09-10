@@ -247,7 +247,7 @@ docker exec -it aircraft-container tmux attach
 
 - Allow quad/VTOL mixed simulation
 
-    offset vtols in y instead
+    bug: arudpilot camera display breaks when adding a second vehicle of any type
 
     Handle:
     <% if drone_type == 'quad' %>

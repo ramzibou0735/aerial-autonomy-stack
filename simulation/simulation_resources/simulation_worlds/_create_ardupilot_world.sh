@@ -34,7 +34,7 @@ done
 # Loop for VTOLs
 for i in $(seq 1 $NUM_VTOLS); do
   DRONE_ID=$((DRONE_ID + 1))
-  MODEL_XML="    <include>\n      <uri>model://alti_transition_quad_${DRONE_ID}</uri>\n      <pose degrees=\"true\">$(( 2 + (i-1) * 2 )) $(( (i-1) * 2 )) 0.35 0 0 0</pose>\n    </include>\n"
+  MODEL_XML="    <include>\n      <uri>model://alti_transition_quad_${DRONE_ID}</uri>\n      <pose degrees=\"true\">$(( (i-1) * 2 )) $(( 2 + (i-1) * 2 )) 0.35 0 0 0</pose>\n    </include>\n"
   ALL_MODELS_XML+=$MODEL_XML
 done
 
