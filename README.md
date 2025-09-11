@@ -69,8 +69,6 @@ cd ~/git/aerial-autonomy-stack/scripts
 # Run a simulation (note: ArduPilot STIL takes ~40s to be ready to arm)
 cd ~/git/aerial-autonomy-stack/scripts
 AUTOPILOT=px4 NUM_QUADS=1 NUM_VTOLS=1 WORLD=swiss_town ./sim_run.sh # Check the script for more options
-# Stop everything with (or `Ctrl + b`, then `d` in each terminal once done)
-docker stop $(docker ps -a -q --filter name=simulation-container --filter name=aircraft-container) && docker network rm aas-network
 ```
 
 > On a low-mid range laptop (i7-11 with 16GB RAM and RTX3060), AAS can simulate 3 drones with camera and LiDAR at 70-80% of the wall-clock
@@ -254,9 +252,6 @@ docker exec -it aircraft-container tmux attach
           <% end %>
           gosu qgcuser /squashfs-root/AppRun -geometry 800x600+960+540
 
-    - reduce camera sensor resolution
-    - reduce points in lidar sensor
-
     for each autopilot, takeoff all vehicles from ap interface
     - 1 quad
     - 3 quads
@@ -266,8 +261,6 @@ docker exec -it aircraft-container tmux attach
     - 1 quad, 2 vtols
     - 2 quads, 1 vtol
     - 2 quads, 2 vtols
-
-- handle sim closing from the terminal where sim_run.sh was started
 
 - https://developer.nvidia.com/embedded/learn/tutorials/first-picture-csi-usb-camera
 - https://github.com/Livox-SDK/livox_ros_driver2

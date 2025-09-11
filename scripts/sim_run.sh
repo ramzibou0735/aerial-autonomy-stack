@@ -26,6 +26,33 @@ else
 fi
 echo "Environment: $ENV_TYPE"
 
+# Cleanup function
+cleanup() {
+  DOCKER_PIDS=$(pgrep -f "docker run.*simulation-image|docker run.*aircraft-image" 2>/dev/null || true)
+  SIMULATION_CONTAINERS=$(docker ps -a -q --filter name=simulation-container 2>/dev/null || true)
+  AIRCRAFT_CONTAINERS=$(docker ps -a -q --filter name=aircraft-container 2>/dev/null || true)
+  echo "Stopping Docker containers (this will take a few seconds)..."
+  if [ -n "$SIMULATION_CONTAINERS" ]; then
+    docker stop $SIMULATION_CONTAINERS
+  fi
+  if [ -n "$AIRCRAFT_CONTAINERS" ]; then
+    docker stop $AIRCRAFT_CONTAINERS
+  fi
+  docker network rm aas-network 2>/dev/null && echo "Removed aas-network" || echo "Network aas-network not found or already removed"
+  if [ -n "$DOCKER_PIDS" ]; then
+    for dpid in $DOCKER_PIDS; do
+      PARENT_PID=$(ps -o ppid= -p $dpid 2>/dev/null | tr -d ' ') # Determine process pids with a parent pid
+      if [ -n "$PARENT_PID" ]; then
+        echo "Killing terminal process $dpid"
+        kill -9 $dpid
+      fi
+    done
+  fi
+  echo "All-clear"
+}
+# Set trap to cleanup on script interruption (Ctrl+C, etc.)
+trap cleanup EXIT INT TERM
+
 # Initialize an empty variable for the flags
 MODE_SIM_OPTS=""
 MODE_AIR_OPTS=""
@@ -131,3 +158,5 @@ for i in $(seq 1 $NUM_VTOLS); do
 done
 
 echo "Fly, my pretties, fly!"
+echo "Press any key to stop all containers and close the terminals..."
+read -n 1 -s # Wait for user input
