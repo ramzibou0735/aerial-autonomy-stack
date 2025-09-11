@@ -246,15 +246,28 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- Allow quad/VTOL mixed simulation
+- Allow quad/VTOL mixed simulation    
 
-    bug: arudpilot camera display breaks when adding a second vehicle of any type
-
-    Handle:
+    If num_quad > 0
     <% if drone_type == 'quad' %>
           sed -i 's/virtualJoystickAutoCenterThrottle=false/virtualJoystickAutoCenterThrottle=true/g' /home/qgcuser/.config/QGroundControl/QGroundControl.ini &&
           <% end %>
           gosu qgcuser /squashfs-root/AppRun -geometry 800x600+960+540
+
+    - reduce camera sensor resolution
+    - reduce points in lidar sensor
+
+    for each autopilot, takeoff all vehicles from ap interface
+    - 1 quad
+    - 3 quads
+    - 1 vtol
+    - 3 vtols
+    - 1 quad, 1 vtols
+    - 1 quad, 2 vtols
+    - 2 quads, 1 vtol
+    - 2 quads, 2 vtols
+
+- handle sim closing from the terminal where sim_run.sh was started
 
 - https://developer.nvidia.com/embedded/learn/tutorials/first-picture-csi-usb-camera
 - https://github.com/Livox-SDK/livox_ros_driver2
