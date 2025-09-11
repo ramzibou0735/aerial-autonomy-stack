@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Exit immediately if a command exits with a non-zero status
+set -e
+
 # Set up the aircraft
 DRONE_TYPE="${DRONE_TYPE:-quad}" # Options: quad (default), vtol
 AUTOPILOT="${AUTOPILOT:-px4}" # Options: px4 (default), ardupilot

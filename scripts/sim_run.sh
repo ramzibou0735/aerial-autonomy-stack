@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Exit immediately if a command exits with a non-zero status
+set -e
+
 # Set up the simulation
 NUM_QUADS="${NUM_QUADS:-1}" # Number of quadcopters (default = 1)
 NUM_VTOLS="${NUM_VTOLS:-0}" # Number of VTOLs (default = 0)
@@ -9,6 +12,19 @@ HEADLESS="${HEADLESS:-false}" # Options: true, false (default)
 CAMERA="${CAMERA:-true}" # Options: true (default), false
 LIDAR="${LIDAR:-true}" # Options: true (default), false 
 MODE="${MODE:-}" # Options: empty (default), dev, ...
+
+# Detect environment (Ubuntu/GNOME, WSL, etc.)
+if command -v gnome-terminal >/dev/null 2>&1 && [ -n "$XDG_CURRENT_DESKTOP" ]; then
+  ENV_TYPE="gnome"
+elif grep -qEi "(Microsoft|WSL)" /proc/version &> /dev/null; then
+  ENV_TYPE="wsl"
+  echo "Support for WSL2 is work-in-progress, checkout https://github.com/JacopoPan/aerial-autonomy-stack/pull/1" 
+  exit 1
+else
+  echo "Unsupported environment" 
+  exit 1
+fi
+echo "Environment: $ENV_TYPE"
 
 # Initialize an empty variable for the flags
 MODE_SIM_OPTS=""
@@ -32,10 +48,13 @@ case "$MODE" in
 esac
 
 # Grant access to the X server
-xhost +local:docker
+if command -v xhost >/dev/null 2>&1; then 
+  xhost +local:docker
+fi
 
 # Create network
-docker network create --subnet=42.42.0.0/16 aas-network
+NETWORK_NAME="aas-network"
+docker network inspect "$NETWORK_NAME" >/dev/null 2>&1 || docker network create --subnet=42.42.0.0/16 "$NETWORK_NAME"
 
 # Helper to place the terminals on-screen
 CHAR_WIDTH=20 # Adjust to your terminal size
@@ -44,12 +63,12 @@ SCREEN_GEOMETRY=$(xdpyinfo | grep dimensions | sed -r 's/^[^0-9]*([0-9]+x[0-9]+)
 SCREEN_WIDTH=$(echo $SCREEN_GEOMETRY | cut -d'x' -f1)
 SCREEN_HEIGHT=$(echo $SCREEN_GEOMETRY | cut -d'x' -f2)
 get_quadrant_geometry() {
-    local index=$1
-    local width_chars=$(( (SCREEN_WIDTH / 2) / CHAR_WIDTH ))
-    local height_chars=$(( (SCREEN_HEIGHT / 2) / CHAR_HEIGHT ))
-    local x_pos=$(( (index == 1 || index == 2) * (SCREEN_WIDTH / 2) ))
-    local y_pos=$(( (index == 2 || index == 3) * (SCREEN_HEIGHT / 2) ))
-    echo "${width_chars}x${height_chars}+${x_pos}+${y_pos}"
+  local index=$1
+  local width_chars=$(( (SCREEN_WIDTH / 2) / CHAR_WIDTH ))
+  local height_chars=$(( (SCREEN_HEIGHT / 2) / CHAR_HEIGHT ))
+  local x_pos=$(( (index == 1 || index == 2) * (SCREEN_WIDTH / 2) ))
+  local y_pos=$(( (index == 2 || index == 3) * (SCREEN_HEIGHT / 2) ))
+  echo "${width_chars}x${height_chars}+${x_pos}+${y_pos}"
 }
 
 # Launch the simulation container

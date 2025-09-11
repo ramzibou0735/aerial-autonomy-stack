@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Exit immediately if a command exits with a non-zero status
+set -e
+
 if [ "$#" -ne 3 ]; then
   echo "Usage: $0 <num_quads> <num_vtols> <full_path_to_empty_world>"
   echo "Example: ./_create_ardupilot_world.sh 2 1 /simulation_resources/simulation_worlds/impalpable_greyness.sdf"
@@ -15,7 +18,7 @@ BASE_WORLD_DIR=$(dirname "$BASE_WORLD_WITH_PATH")
 OUTPUT_FILE="${BASE_WORLD_DIR}/populated_ardupilot.sdf"
 cp "$BASE_WORLD_WITH_PATH" "$OUTPUT_FILE"
 
-# IMPORTANT: this replaces the whole <physics> block with Ardupilot's
+# IMPORTANT: this replaces the whole <physics> block with Ardupilot's SITL settings
 ARDUPILOT_PHYSICS="    <physics name=\"1ms\" type=\"ignore\">\n      <max_step_size>0.001<\/max_step_size>\n      <real_time_factor>1.0<\/real_time_factor>\n    <\/physics>"
 sed -i -e "/<physics/,/<\/physics>/c\\
 ${ARDUPILOT_PHYSICS}" "$OUTPUT_FILE"

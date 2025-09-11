@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Exit immediately if a command exits with a non-zero status
+set -e
+
 if [ "$#" -ne 2 ]; then
   echo "Usage: $0 <num_quads> <num_vtols>"
   echo "Example: ./_create_ardupilot_models.sh 2 1"
@@ -40,7 +43,7 @@ for i in $(seq 1 $NUM_QUADS); do
     NEW_MODEL_DIR="${QUAD_MODEL_PATH}/../${NEW_MODEL_NAME}"
 
     mkdir -p "$NEW_MODEL_DIR"
-    cp "$QUAD_MODEL_PATH"/*.sdf "$QUAD_MODEL_PATH"/*.config "$NEW_MODEL_DIR"/
+    cp "$QUAD_MODEL_PATH"/model.sdf "$NEW_MODEL_DIR"/
     
     # Create .config file to let gz sim include the model
     CONFIG_FILE="${NEW_MODEL_DIR}/model.config"
@@ -71,7 +74,7 @@ for i in $(seq 1 $NUM_VTOLS); do
     NEW_MODEL_DIR="${VTOL_MODEL_PATH}/../${NEW_MODEL_NAME}"
 
     mkdir -p "$NEW_MODEL_DIR"
-    cp "$VTOL_MODEL_PATH"/*.sdf "$VTOL_MODEL_PATH"/*.config "$NEW_MODEL_DIR"/
+    cp "$VTOL_MODEL_PATH"/model.sdf "$NEW_MODEL_DIR"/
 
     CONFIG_FILE="${NEW_MODEL_DIR}/model.config"
     echo "<?xml version='1.0'?>" > "$CONFIG_FILE"

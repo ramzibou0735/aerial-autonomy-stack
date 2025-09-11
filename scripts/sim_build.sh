@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Exit immediately if a command exits with a non-zero status
+set -e
+
 BUILD_DOCKER=true
 # If CLONE_ONLY is set to "true", disable the build step
 if [ "$CLONE_ONLY" = "true" ]; then
