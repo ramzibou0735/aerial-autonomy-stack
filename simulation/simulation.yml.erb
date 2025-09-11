@@ -177,5 +177,8 @@ windows:
         - echo "Headless mode, not launching QGroundControl."
         <% else %>
         - >
+          <% if num_quads > 0 %>
+          sed -i 's/virtualJoystickAutoCenterThrottle=false/virtualJoystickAutoCenterThrottle=true/g' /home/qgcuser/.config/QGroundControl/QGroundControl.ini &&
+          <% end %>
           gosu qgcuser /squashfs-root/AppRun -geometry 800x600+960+540
         <% end %>

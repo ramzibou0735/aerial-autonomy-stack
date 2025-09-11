@@ -245,13 +245,6 @@ docker exec -it aircraft-container tmux attach
 ## TODOs
 
 - Allow quad/VTOL mixed simulation    
-
-    If num_quad > 0
-    <% if drone_type == 'quad' %>
-          sed -i 's/virtualJoystickAutoCenterThrottle=false/virtualJoystickAutoCenterThrottle=true/g' /home/qgcuser/.config/QGroundControl/QGroundControl.ini &&
-          <% end %>
-          gosu qgcuser /squashfs-root/AppRun -geometry 800x600+960+540
-
     for each autopilot, takeoff all vehicles from ap interface
     - 1 quad
     - 3 quads
