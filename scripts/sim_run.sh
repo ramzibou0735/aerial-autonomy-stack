@@ -13,7 +13,7 @@ CAMERA="${CAMERA:-true}" # Options: true (default), false
 LIDAR="${LIDAR:-true}" # Options: true (default), false 
 MODE="${MODE:-}" # Options: empty (default), dev, ...
 
-# Detect environment (Ubuntu/GNOME, WSL, etc.)
+# Detect the environment (Ubuntu/GNOME, WSL, etc.)
 if command -v gnome-terminal >/dev/null 2>&1 && [ -n "$XDG_CURRENT_DESKTOP" ]; then
   ENV_TYPE="gnome"
 elif grep -qEi "(Microsoft|WSL)" /proc/version &> /dev/null; then

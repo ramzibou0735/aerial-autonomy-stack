@@ -130,11 +130,11 @@ docker exec simulation-container bash -c "gz topic -t /world/\$WORLD/wind/ -m gz
 
 ```sh
 cd ~/git/aerial-autonomy-stack/scripts
-AUTOPILOT=px4 NUM_QUADS=1 ./sim_run.sh
+AUTOPILOT=px4 NUM_QUADS=1 ./sim_run.sh # Also try AUTOPILOT=ardupilot, or NUM_QUADS=0 NUM_VTOLS=1
 # In aircraft 1's terminal
 ros2 run mission mission --conops yalla --ros-args -r __ns:=/Drone$DRONE_ID -p use_sim_time:=true
-# This mission is a simple takeoff, followed by an orbit, and landing
-# Works for all combinations of AUTOPILOT=px4 or ardupilot; quad or vtol
+# This mission is a simple takeoff, followed by an orbit, and landing for any vehicle
+
 # Finally, in the simulation's terminal
 /simulation_resources/patches/plot_logs.sh # Analyze the flight logs
 ```
@@ -244,17 +244,6 @@ docker exec -it aircraft-container tmux attach
 
 ## TODOs
 
-- Allow quad/VTOL mixed simulation    
-    for each autopilot, takeoff all vehicles from ap interface
-    - 1 quad
-    - 3 quads
-    - 1 vtol
-    - 3 vtols
-    - 1 quad, 1 vtols
-    - 1 quad, 2 vtols
-    - 2 quads, 1 vtol
-    - 2 quads, 2 vtols
-
 - https://developer.nvidia.com/embedded/learn/tutorials/first-picture-csi-usb-camera
 - https://github.com/Livox-SDK/livox_ros_driver2
 - Simplify ArdupilotInterface
@@ -267,7 +256,7 @@ docker exec -it aircraft-container tmux attach
 
 ### Known Issues
 
-- QGC is started with a virtual joystick (with low throttle for VTOLs and centered throttle for quads), this is reflective of real-life but note that this counts as "RC loss" when switching focus from one autopilot instance to another
+- QGC is started with a virtual joystick (with low throttle if using only VTOLs and centered throttle if there are quads), this is reflective of real-life but note that this counts as "RC loss" when switching focus from one autopilot instance to another
 - ArduPilot CIRCLE mode for quads require to explicitly center the virtual throttle with 'rc 3 1500' to keep altitude
 - Gazebo WindEffects plugin is disabled for PX4 standard_vtol
 - Command 178 MAV_CMD_DO_CHANGE_SPEED is accepted but not effective in changing speed for ArduPilot VTOL
