@@ -2,6 +2,9 @@
 
 # Note that this script should run on Orin to build for arm64
 
+# Exit immediately if a command exits with a non-zero status
+set -e
+
 # Find the script's path
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
