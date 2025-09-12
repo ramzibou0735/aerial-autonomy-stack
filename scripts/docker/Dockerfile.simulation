@@ -224,6 +224,8 @@ RUN bash -c "source /opt/ros/humble/setup.bash && source /ros2_ws_github/install
 # Copy resources and configuration files from this repository
 COPY simulation/simulation_resources/ /simulation_resources
 COPY simulation/simulation_resources/patches/QGroundControl.ini /home/qgcuser/.config/QGroundControl/QGroundControl.ini
+RUN chmod +x /simulation_resources/aircraft_models/_create_ardupilot_models.sh
+RUN chmod +x /simulation_resources/simulation_worlds/_create_ardupilot_world.sh
 
 # Source the workspaces
 RUN echo "source /ros2_ws_github/install/setup.bash" >> /root/.bashrc
