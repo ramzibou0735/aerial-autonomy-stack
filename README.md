@@ -66,12 +66,12 @@ cd ~/git/aerial-autonomy-stack/scripts
 ## Part 2: Simulation and Development with AAS
 
 ```sh
-# Run a simulation (note: ArduPilot STIL takes ~40s to be ready to arm)
+# Start a simulation (note: ArduPilot STIL takes ~40s to be ready to arm)
 cd ~/git/aerial-autonomy-stack/scripts
 AUTOPILOT=px4 NUM_QUADS=1 NUM_VTOLS=1 WORLD=swiss_town ./sim_run.sh # Check the script for more options
 ```
 
-> On a low-mid range laptop (i7-11 with 16GB RAM and RTX3060), AAS can simulate 3 drones with camera and LiDAR at 70-80% of the wall-clock
+> On a low-mid range laptop—i7-11 with 16GB RAM and RTX3060—AAS simulates 3 PX4 quads with camera and LiDAR in the default world at 99% of the wall-clock (ArduPilot faster physics updates and more complex worlds can have higher computational demands)
 >
 > Once "Ready to Fly", one can takeoff and control from QGroundControl's ["Fly View"](https://docs.qgroundcontrol.com/master/en/qgc-user-guide/fly_view/fly_view.html)
 
@@ -99,16 +99,15 @@ Available `WORLD`s:
 To advance the simulation in **discrete time steps**, e.g. 1s, from a terminal on the host, run:
 
 ```sh
-# Pause the simulation
-docker exec simulation-container bash -c "gz service -s /world/\$WORLD/control --reqtype gz.msgs.WorldControl --reptype gz.msgs.Boolean --req 'multi_step: 250, pause: true'" # Adjust multi_step based on the value of max_step_size in the world's .sdf 
+docker exec simulation-container bash -c "gz service -s /world/\$WORLD/control --reqtype gz.msgs.WorldControl --reptype gz.msgs.Boolean --req 'multi_step: 250, pause: true'" # Adjust multi_step based on the value of max_step_size in the world's .sdf (defaults: 250 for PX4, 1000 for ArduPilot)
 ```
 
 To add or disable a **wind field**, from a terminal on the host, run:
 
 ```sh
-# Note that a positive X blows from the West, a positive Y blows from the South
-docker exec simulation-container bash -c "gz topic -t /world/\$WORLD/wind/ -m gz.msgs.Wind  -p 'linear_velocity: {x: 0.0 y: 3.0}, enable_wind: true'"
-docker exec simulation-container bash -c "gz topic -t /world/\$WORLD/wind/ -m gz.msgs.Wind  -p 'enable_wind: false'"
+docker exec simulation-container bash -c "gz topic -t /world/\$WORLD/wind/ -m gz.msgs.Wind  -p 'linear_velocity: {x: 0.0 y: 3.0}, enable_wind: true'" # Positive X blows from the West, positive Y blows from the South
+
+docker exec simulation-container bash -c "gz topic -t /world/\$WORLD/wind/ -m gz.msgs.Wind  -p 'enable_wind: false'" # Disable WindEffects
 ```
 
 > [!TIP]
@@ -144,9 +143,9 @@ docker exec simulation-container bash -c "gz topic -t /world/\$WORLD/wind/ -m gz
 ```sh
 cd ~/git/aerial-autonomy-stack/scripts
 AUTOPILOT=px4 NUM_QUADS=1 ./sim_run.sh # Also try AUTOPILOT=ardupilot, or NUM_QUADS=0 NUM_VTOLS=1
+
 # In aircraft 1's terminal
-ros2 run mission mission --conops yalla --ros-args -r __ns:=/Drone$DRONE_ID -p use_sim_time:=true
-# This mission is a simple takeoff, followed by an orbit, and landing for any vehicle
+ros2 run mission mission --conops yalla --ros-args -r __ns:=/Drone$DRONE_ID -p use_sim_time:=true # This mission is a simple takeoff, followed by an orbit, and landing for any vehicle
 
 # Finally, in the simulation's terminal
 /simulation_resources/patches/plot_logs.sh # Analyze the flight logs
@@ -259,6 +258,7 @@ docker exec -it aircraft-container tmux attach
 
 - https://developer.nvidia.com/embedded/learn/tutorials/first-picture-csi-usb-camera
 - https://github.com/Livox-SDK/livox_ros_driver2
+- Replace _create_ardupilot_world.sh and _create_ardupilot_models.sh with ruby/erb 
 - Simplify ArdupilotInterface
 - Add state estimation package/node
 - Add bounding-box-based Offboard
