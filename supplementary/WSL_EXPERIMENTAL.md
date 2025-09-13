@@ -1,4 +1,4 @@
-# Pre-installation for WSL builds
+# Pre-installation for WSL builds (Experimental)
 
 ## Install WSL
 
@@ -44,6 +44,9 @@ cat ~/.ssh/id_rsa.pub
 > swapfile=C:\\Users\\<YourWindowsUsername>\\AppData\\Local\\Temp\\wsl-swap.vhdx
 > localhostForwarding=true
 >
+> # In .wslconfig it is important to allocate sufficient resources to WSL, these configs may vary based on your setup.
+> # For gazabo, it is recommended to have at least 16GB in swap memory.  
+>
 > # After editing .wslconfig, restart WSL for the new settings to take effect:
 > wsl --shutdown 
 >
@@ -72,11 +75,13 @@ nvidia-smi
 sudo apt update
 sudo apt install -y mesa-utils
 glxinfo | grep "OpenGL renderer"
+glxinfo -B
 
-# If GPU acceleration is working, you should see something like: `OpenGL renderer string: D3D12 (Intel(R) UHD Graphics)`
-
-# For CUDA workloads, WSL doesn’t rely on `glxinfo`. Instead it uses the NVIDIA Windows driver stubbed inside WSL (`libcuda.so`). So you can still have full CUDA even though OpenGL shows Intel. This only shows the renderer used for graphics (OpenGL), **not CUDA compute**.
+# If GPU acceleration is working, you should see something like: `OpenGL renderer string: D3D12 (NVIDIA GeForce RTX 4050 Laptop GPU)`
 ```
+>[!WARNING] 
+> OpenGL-CUDA interop in WSL is currently in development, and is not offically supported by NVIDIA. For more infomation see, https://docs.nvidia.com/cuda/wsl-user-guide/index.html#getting-started-with-cuda-on-wsl-2.
+>
 
 ## Install Docker Engine and NVIDIA Container Toolkit
 
@@ -164,8 +169,9 @@ From your WSL2 terminal, you should configure your `~/.bashrc` file to set up th
 ```sh
 # WSL2 GUI setup
 echo 'export DISPLAY=$(grep nameserver /etc/resolv.conf | awk "{print \$2}"):0' >> ~/.bashrc
-echo 'export LIBGL_ALWAYS_INDIRECT=1' >> ~/.bashrc
+echo 'export LIBGL_ALWAYS_INDIRECT=0' >> ~/.bashrc
 echo 'export QT_X11_NO_MITSHM=1' >> ~/.bashrc
+echo 'export __GLX_VENDOR_LIBRARY_NAME=nvidia' >> ~/.bashrc
 echo 'if command -v xhost >/dev/null 2>&1; then xhost +local:; fi' >> ~/.bashrc
 
 # Reload .bashrc
