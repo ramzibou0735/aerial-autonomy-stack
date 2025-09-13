@@ -75,19 +75,6 @@ AUTOPILOT=px4 NUM_QUADS=1 NUM_VTOLS=1 WORLD=swiss_town ./sim_run.sh # Check the 
 >
 > Once "Ready to Fly", one can takeoff and control from QGroundControl's ["Fly View"](https://docs.qgroundcontrol.com/master/en/qgc-user-guide/fly_view/fly_view.html)
 
-> [!NOTE]
-> <details>
-> <summary>Simulation for Windows-based build (WSL): <i>(expand)</i></summary>
-> On a native Linux desktop, the simulation scripts use **`gnome-terminal`** to spawn multiple windows (one for the simulator and one for each aircraft).  
-> For WSL2, we use **`xterm`**, a lightweight X11 terminal emulator, where graphical applications are forwarded to Windows through an external X server (such as VcXsrv or Xming on Windows).  
-> 
-> To start the simulation in WSL2, use the `sim_run.sh` script located in `/scripts/xterm`:
-> ```sh
-> cd ~/git/aerial-autonomy-stack/scripts/xterm
-> DRONE_TYPE=quad AUTOPILOT=px4 NUM_DRONES=2 WORLD=swiss_town ./sim_run.sh
-> ```
-</details>
-
 ![worlds](https://github.com/user-attachments/assets/45a2f2ad-cc31-4d71-aa2e-4fe542a59a77)
 
 Available `WORLD`s:
