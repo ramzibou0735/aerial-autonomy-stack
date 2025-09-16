@@ -105,7 +105,6 @@ DOCKER_CMD="echo 'Launching Simulation Container...'; \
   --env NUM_QUADS=$NUM_QUADS --env NUM_VTOLS=$NUM_VTOLS \
   --env WORLD=$WORLD --env HEADLESS=$HEADLESS --env CAMERA=$CAMERA --env LIDAR=$LIDAR \
   --env SIMULATED_TIME=true \
-  --env DESK_ENV=$DESK_ENV \
   --net=aas-network --ip=42.42.1.99 \
   --privileged \
   --name simulation-container \
