@@ -8,9 +8,9 @@
 
 > For the motivation behind AAS and how it compares to similar projects, read [`RATIONALE.md`](/supplementary/RATIONALE.md)
 
-https://github.com/user-attachments/assets/0c60afc0-22bf-4ea0-b367-8691ecf6a3e7
+https://github.com/user-attachments/assets/c194ada6-2996-4bfa-99e9-32b45e29281d
 
-## Feature Highlights
+## Features
 
 - Support for multiple **quadrotors and VTOLs** based on either **PX4 or ArduPilot**
 - **ROS2**-based autopilot interfaces (*via* XRCE-DDS and MAVROS)
@@ -44,7 +44,7 @@ https://github.com/user-attachments/assets/0c60afc0-22bf-4ea0-b367-8691ecf6a3e7
 ```sh
 # Clone this repo
 mkdir -p ~/git
-git clone git@github.com:JacopoPan/aerial-autonomy-stack.git ~/git/aerial-autonomy-stack
+git clone https://github.com/JacopoPan/aerial-autonomy-stack.git ~/git/aerial-autonomy-stack
 cd ~/git/aerial-autonomy-stack
 ```
 
@@ -71,7 +71,7 @@ cd ~/git/aerial-autonomy-stack/scripts
 AUTOPILOT=px4 NUM_QUADS=1 NUM_VTOLS=1 WORLD=swiss_town ./sim_run.sh # Check the script for more options
 ```
 
-> On a low-mid range laptop—i7-11 with 16GB RAM and RTX3060—AAS simulates 3 PX4 quads with camera and LiDAR in the default world at 99% of the wall-clock (ArduPilot faster physics updates and more complex worlds can have higher computational demands)
+> On a low-mid range laptop—i7-11 with 16GB RAM and RTX3060—AAS simulates 3 PX4 quads with camera and LiDAR at 99% of the wall-clock (note that ArduPilot faster physics updates and more complex worlds have higher computational demands)
 >
 > Once "Ready to Fly", one can takeoff and control from QGroundControl's ["Fly View"](https://docs.qgroundcontrol.com/master/en/qgc-user-guide/fly_view/fly_view.html)
 
@@ -245,11 +245,8 @@ docker exec -it aircraft-container tmux attach
 
 - https://developer.nvidia.com/embedded/learn/tutorials/first-picture-csi-usb-camera
 - https://github.com/Livox-SDK/livox_ros_driver2
-- Replace _create_ardupilot_world.sh and _create_ardupilot_models.sh with ruby/erb 
-- Simplify ArdupilotInterface
 - Add state estimation package/node
 - Add bounding-box-based Offboard
-- Create smaller docker images to use GitHub Actions
 - For PX4 quad max tilt maneuver, zero the anti-windup gain: const float arw_gain = 2.f / _gain_vel_p(0);
 - ????
 - Profit
