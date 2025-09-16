@@ -44,7 +44,7 @@ https://github.com/user-attachments/assets/c194ada6-2996-4bfa-99e9-32b45e29281d
 ```sh
 # Clone this repo
 mkdir -p ~/git
-git clone git@github.com:JacopoPan/aerial-autonomy-stack.git ~/git/aerial-autonomy-stack
+git clone https://github.com/JacopoPan/aerial-autonomy-stack.git ~/git/aerial-autonomy-stack
 cd ~/git/aerial-autonomy-stack
 ```
 
