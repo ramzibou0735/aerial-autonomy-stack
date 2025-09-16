@@ -1,15 +1,16 @@
-# Pre-installation for WSL builds (Experimental)
+# Pre-installation for WSL builds
 
 ## Install WSL
 
-The [Windows Subsystem for Linux (WSL)](https://learn.microsoft.com/en-us/windows/wsl/install) lets developers install a Linux distribution (such as Ubuntu, OpenSUSE, Kali, Debian, Arch Linux, etc) and use Linux applications, utilities, and Bash command-line tools directly on Windows, unmodified, without the overhead of a traditional virtual machine or dualboot setup.
+The [Windows Subsystem for Linux (WSL)](https://learn.microsoft.com/en-us/windows/wsl/install) lets developers install a Linux distribution (e.g. Ubuntu, OpenSUSE, Arch Linux, etc.) and use Linux applications, utilities, and Bash command-line tools directly on Windows, unmodified, without the overhead of a traditional virtual machine or dualboot setup.
 
 > [!NOTE]
-> These instructions are for Windows 10 version 2004 and higher (Build 19041 and higher) or Windows 11. For earlier versions, please see the manual [install page](https://learn.microsoft.com/en-us/windows/wsl/install-manual).
+> WSL2 is available on Windows 10 x64 (from version 1903/build 18362.1049) and Windows 11. 
+> If `wsl --list` is not available, check the [manual installation steps](https://learn.microsoft.com/en-us/windows/wsl/install-manual).
 
 - From PowerShell, check available Linux distributions `wsl --list --online`
 - Install "Ubuntu-22.04" `wsl --install -d Ubuntu-22.04`
-- Enter new `UNIX username` and `Password`
+- Setup an account when prompted `Enter new UNIX username:` and `New password:`
 
 ```sh
 # Install git
@@ -22,8 +23,12 @@ sudo apt install git-lfs
 git lfs install
 
 # Install xterm
-sudo apt update
-sudo apt install xterm -y
+sudo apt install xterm
+
+# Install X11 apps and xserver
+sudo apt install x11-apps
+sudo apt install x11-xserver-utils
+xclock # A new window with a clock should appear
 
 # Create an ssh key (optional)
 ssh-keygen 
@@ -33,55 +38,48 @@ cat ~/.ssh/id_rsa.pub
 > [!IMPORTANT]
 > When building and running large Docker images (e.g. the simulator and aircraft containers), WSL2 can easily consume available system resources. To prevent crashes, hangs, or 100% disk usage, configure WSL2’s resource limits using a `.wslconfig` file. 
 > 
+> - Create (or edit) the file `C:\Users\<YourWindowsUsername>\.wslconfig` (make sure it has no extension)
+> - Add the following content to it (change `YourWindowsUsername`, increase the amount of resources, if available)
+> 
 > ```sh
-> # From **Windows user home directory**: 
-> # Create (or edit) the file `C:\Users\<YourWindowsUsername>\.wslconfig` to add:
->
 > [wsl2]
-> memory=10GB
+> memory=12GB
 > processors=8
 > swap=16GB
 > swapfile=C:\\Users\\<YourWindowsUsername>\\AppData\\Local\\Temp\\wsl-swap.vhdx
 > localhostForwarding=true
->
-> # In .wslconfig it is important to allocate sufficient resources to WSL, these configs may vary based on your setup.
-> # For gazabo, it is recommended to have at least 16GB in swap memory.  
->
-> # After editing .wslconfig, restart WSL for the new settings to take effect:
-> wsl --shutdown 
->
-> # To check available memory and swap, open your WSL2 distro and run:
-> free -h
 > ```
-> For additinal resources please see [advanced settings configuration](https://learn.microsoft.com/en-us/windows/wsl/wsl-config).
+>
+> After editing `.wslconfig`, restart WSL for the new settings to take effect:
+>
+> ```sh
+> exit
+> wsl --shutdown 
+> wsl ~
+> free -h # To check available memory and swap
+> ```
+>
+> For additional resources please see [advanced settings configuration](https://learn.microsoft.com/en-us/windows/wsl/wsl-config).
 
-## Enable NVIDIA CUDA on WSL
+## NVIDIA Support in WSL
 
-Download and install the [NVIDIA CUDA enabled driver for WSL](https://www.nvidia.com/download/index.aspx) 
+Download and install the NVIDIA recommended driver for you card using the [NVIDIA App](https://www.nvidia.com/en-us/software/nvidia-app/) 
 
 >[!NOTE] 
->The latest NVIDIA Windows GPU driver fully supports **WSL 2**, enabling existing CUDA applications compiled on Linux to run unmodified in WSL.
-Once the Windows NVIDIA GPU driver is installed, CUDA is available in WSL 2 via a stubbed `libcuda.so`. 
+>The latest NVIDIA Windows driver fully supports **WSL 2**, enabling existing CUDA applications compiled on Linux to run unmodified in WSL.
+Once the Windows NVIDIA driver is installed, CUDA is available in WSL 2 via a stubbed `libcuda.so`. 
 >
 > **Do NOT install a separate NVIDIA GPU Linux driver inside WSL 2**,
-
-On **WSL 2 with NVIDIA GPU driver installed**, OpenGL is accelerated through **DirectX + GPU driver interop** (via WSLg).
+> 
+> The following instructions are tested on Driver Version: 571.59, CUDA Version 12.8
 
 ```sh
-# From WSL, check NVIDIA GPU
-nvidia-smi
+nvidia-smi # From WSL, check NVIDIA driver
 
-# Install Mesa utilities, for gz sim rendering 
 sudo apt update
-sudo apt install -y mesa-utils
-glxinfo | grep "OpenGL renderer"
-glxinfo -B
-
-# If GPU acceleration is working, you should see something like: `OpenGL renderer string: D3D12 (NVIDIA GeForce RTX 4050 Laptop GPU)`
+sudo apt install mesa-utils
+glxinfo -B # You should see something like: `OpenGL renderer string: D3D12 (NVIDIA GeForce RTX 4050 Laptop GPU)`
 ```
->[!WARNING] 
-> OpenGL-CUDA interop in WSL is currently in development, and is not offically supported by NVIDIA. For more infomation see, https://docs.nvidia.com/cuda/wsl-user-guide/index.html#getting-started-with-cuda-on-wsl-2.
->
 
 ## Install Docker Engine and NVIDIA Container Toolkit
 
@@ -113,7 +111,6 @@ sudo apt-get update
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 sudo docker run hello-world
 sudo docker version # 28.3.0 at the time of writing
-					
 
 # Remove the need to sudo the docker command
 sudo groupadd docker
@@ -131,7 +128,7 @@ Log in to the NVIDIA Registry:
 ```sh
 docker login nvcr.io # To be able to reliably pull NVIDIA base images
 Username: # type $oauthtoken
-Password: # copy and paste the API key and press enter to pull base images from nvcr.io/
+Password: # copy and paste (e.g. right-click once in PowerShell) the API key and press enter to pull base images from nvcr.io/
 ```
 
 ```sh
@@ -150,6 +147,10 @@ docker info | grep -i runtime
 # Test with
 docker run --rm --gpus all nvidia/cuda:12.2.0-base-ubuntu22.04 nvidia-smi
 ```
+
+<!-- 
+
+THIS SEEMS UNNECESSARY with WSLg 
 
 ## Install VcXsrv Windows X Server
 
@@ -176,4 +177,6 @@ echo 'if command -v xhost >/dev/null 2>&1; then xhost +local:; fi' >> ~/.bashrc
 
 # Reload .bashrc
 source ~/.bashrc
-```
+``` 
+
+-->
