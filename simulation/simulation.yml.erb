@@ -6,6 +6,7 @@
 <% camera = ENV.fetch('CAMERA', 'true') %>
 <% lidar = ENV.fetch('LIDAR', 'true') %>
 <% simulated_time = ENV.fetch('SIMULATED_TIME', 'false') %>
+<% desk_env = ENV.fetch('DESK_ENV', 'gnome') %>
 
 name: sim
 
@@ -29,7 +30,7 @@ windows:
           <% end %>
           GZ_SIM_RESOURCE_PATH=$GZ_SIM_RESOURCE_PATH:/simulation_resources/aircraft_models:/simulation_resources/simulation_worlds 
           GZ_SIM_PHYSICS_ENGINE_PATH=$GZ_SIM_PHYSICS_ENGINE_PATH:/usr/lib/x86_64-linux-gnu/gz-physics-7/engine-plugins/
-          gz sim -v4 -r <% if headless == 'true' %> -s <% end %> <%= world %>.sdf
+          gz sim -v4 -r <% if headless == 'true' %> -s <% end %> <% if desk_env == 'wsl' %> --render-engine ogre <% end %> <%= world %>.sdf
   <% elsif autopilot == 'ardupilot' %>
   - gz_sim:
       layout: even-horizontal
@@ -46,7 +47,7 @@ windows:
           GZ_SIM_SYSTEM_PLUGIN_PATH=/git/ardupilot_gazebo/build:$GZ_SIM_SYSTEM_PLUGIN_PATH 
           GZ_SIM_RESOURCE_PATH=/simulation_resources/aircraft_models:/simulation_resources/simulation_worlds:$GZ_SIM_RESOURCE_PATH 
           GZ_SIM_PHYSICS_ENGINE_PATH=$GZ_SIM_PHYSICS_ENGINE_PATH:/usr/lib/x86_64-linux-gnu/gz-physics-7/engine-plugins/
-          gz sim -v4 -r <% if headless == 'true' %> -s <% end %> populated_ardupilot.sdf
+          gz sim -v4 -r <% if headless == 'true' %> -s <% end %> <% if desk_env == 'wsl' %> --render-engine ogre <% end %> populated_ardupilot.sdf
   <% end %>
 
   <% drone_id = -1 %>

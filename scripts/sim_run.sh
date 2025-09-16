@@ -15,16 +15,14 @@ MODE="${MODE:-}" # Options: empty (default), dev, ...
 
 # Detect the environment (Ubuntu/GNOME, WSL, etc.)
 if command -v gnome-terminal >/dev/null 2>&1 && [ -n "$XDG_CURRENT_DESKTOP" ]; then
-  ENV_TYPE="gnome"
+  DESK_ENV="gnome"
 elif grep -qEi "(Microsoft|WSL)" /proc/version &> /dev/null; then
-  ENV_TYPE="wsl"
-  echo "Support for WSL2 is work-in-progress, checkout https://github.com/JacopoPan/aerial-autonomy-stack/pull/1" 
-  exit 1
+  DESK_ENV="wsl"
 else
   echo "Unsupported environment" 
   exit 1
 fi
-echo "Environment: $ENV_TYPE"
+echo "Desktop environment: $DESK_ENV"
 
 # Cleanup function
 cleanup() {
@@ -99,20 +97,26 @@ get_quadrant_geometry() {
 }
 
 # Launch the simulation container
-gnome-terminal --geometry=$(get_quadrant_geometry 0) -- bash -c "echo 'Launching Simulation Container...'; \
+DOCKER_CMD="echo 'Launching Simulation Container...'; \
   docker run -it --rm \
-    --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --device /dev/dri --gpus all \
-    --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR \
-    --env ROS_DOMAIN_ID=99 --env AUTOPILOT=$AUTOPILOT --env DRONE_TYPE=$DRONE_TYPE \
-    --env NUM_QUADS=$NUM_QUADS --env NUM_VTOLS=$NUM_VTOLS \
-    --env WORLD=$WORLD --env HEADLESS=$HEADLESS --env CAMERA=$CAMERA --env LIDAR=$LIDAR \
-    --env SIMULATED_TIME=true \
-    --net=aas-network --ip=42.42.1.99 \
-    --privileged \
-    --name simulation-container \
-    ${MODE_SIM_OPTS} \
-    simulation-image; \
-  exec bash"
+  --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --device /dev/dri --gpus all \
+  --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR \
+  --env ROS_DOMAIN_ID=99 --env AUTOPILOT=$AUTOPILOT --env DRONE_TYPE=$DRONE_TYPE \
+  --env NUM_QUADS=$NUM_QUADS --env NUM_VTOLS=$NUM_VTOLS \
+  --env WORLD=$WORLD --env HEADLESS=$HEADLESS --env CAMERA=$CAMERA --env LIDAR=$LIDAR \
+  --env SIMULATED_TIME=true \
+  --env DESK_ENV=$DESK_ENV \
+  --net=aas-network --ip=42.42.1.99 \
+  --privileged \
+  --name simulation-container \
+  ${MODE_SIM_OPTS} \
+  simulation-image"
+#
+if [[ "$DESK_ENV" == "wsl" ]]; then
+  xterm -hold -e "$DOCKER_CMD --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR" &
+elif [[ "$DESK_ENV" == "gnome" ]]; then
+  gnome-terminal --geometry=$(get_quadrant_geometry 0) -- bash -c "$DOCKER_CMD; exec bash"
+fi
 
 # Initialize a counter for the drone IDs
 DRONE_ID=0
@@ -121,7 +125,7 @@ DRONE_ID=0
 for i in $(seq 1 $NUM_QUADS); do
   DRONE_ID=$((DRONE_ID + 1))
   sleep 1.5 # Limit resource usage
-  gnome-terminal --geometry=$(get_quadrant_geometry $(( DRONE_ID % 4 ))) -- bash -c "echo 'Launching Quadcopter Container $DRONE_ID...'; \
+  DOCKER_CMD="echo 'Launching Quadcopter Container $DRONE_ID...'; \
     docker run -it --rm \
       --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --device /dev/dri --gpus all \
       --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR \
@@ -133,15 +137,19 @@ for i in $(seq 1 $NUM_QUADS); do
       --privileged \
       --name aircraft-container_$DRONE_ID \
       ${MODE_AIR_OPTS} \
-      aircraft-image; \
-    exec bash"
+      aircraft-image"
+  if [[ "$DESK_ENV" == "wsl" ]]; then
+    xterm -hold -e "$DOCKER_CMD --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR" &
+  elif [[ "$DESK_ENV" == "gnome" ]]; then
+    gnome-terminal --geometry=$(get_quadrant_geometry $(( DRONE_ID % 4 ))) -- bash -c "$DOCKER_CMD; exec bash"
+  fi
 done
 
 # Launch the vtol containers
 for i in $(seq 1 $NUM_VTOLS); do
   DRONE_ID=$((DRONE_ID + 1))
   sleep 1.5 # Limit resource usage
-  gnome-terminal --geometry=$(get_quadrant_geometry $(( DRONE_ID % 4 ))) -- bash -c "echo 'Launching VTOL Container $DRONE_ID...'; \
+  DOCKER_CMD="echo 'Launching VTOL Container $DRONE_ID...'; \
     docker run -it --rm \
       --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --device /dev/dri --gpus all \
       --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR \
@@ -153,8 +161,12 @@ for i in $(seq 1 $NUM_VTOLS); do
       --privileged \
       --name aircraft-container_$DRONE_ID \
       ${MODE_AIR_OPTS} \
-      aircraft-image; \
-    exec bash"
+      aircraft-image"
+  if [[ "$DESK_ENV" == "wsl" ]]; then
+    xterm -hold -e "$DOCKER_CMD --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR" &
+  elif [[ "$DESK_ENV" == "gnome" ]]; then
+    gnome-terminal --geometry=$(get_quadrant_geometry $(( DRONE_ID % 4 ))) -- bash -c "$DOCKER_CMD; exec bash"
+  fi
 done
 
 echo "Fly, my pretties, fly!"
