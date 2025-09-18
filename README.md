@@ -39,7 +39,9 @@ https://github.com/user-attachments/assets/c194ada6-2996-4bfa-99e9-32b45e29281d
 > [!IMPORTANT]
 > This stack is developed and tested using a [Ubuntu 22.04](https://ubuntu.com/about/release-cycle) host (penultimate LTS, ESM 4/2032) with [**`nvidia-driver-575`**](https://developer.nvidia.com/datacenter-driver-archive) and Docker Engine v28 (latest stable releases as of 7/2025) on an i9-13 with RTX3500 and an i7-11 with RTX3060—**note that an NVIDIA GPU *is* required**
 > 
-> **To setup the requirements: (i) Ubuntu 22, Git LFS, (ii) NVIDIA driver, (iii) Docker Engine, (iv) NVIDIA Container Toolkit, and (v) NVIDIA NGC API Key, read [`PREINSTALL.md`](/supplementary/PREINSTALL.md)**
+> **To setup the requirements: (i) Ubuntu 22, Git LFS, (ii) NVIDIA driver, (iii) Docker Engine, (iv) NVIDIA Container Toolkit, and (v) NVIDIA NGC API Key, read [`PREINSTALL_UBUNTU.md`](/supplementary/PREINSTALL_UBUNTU.md)**
+>
+> Windows support *via* WSL is work-in-progress, read [`PREINSTALL_WSL.md`](/supplementary/PREINSTALL_WSL.md))
 
 ```sh
 # Clone this repo
