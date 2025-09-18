@@ -41,7 +41,7 @@ https://github.com/user-attachments/assets/c194ada6-2996-4bfa-99e9-32b45e29281d
 > 
 > **To setup the requirements: (i) Ubuntu 22, Git LFS, (ii) NVIDIA driver, (iii) Docker Engine, (iv) NVIDIA Container Toolkit, and (v) NVIDIA NGC API Key, read [`PREINSTALL_UBUNTU.md`](/supplementary/PREINSTALL_UBUNTU.md)**
 >
-> Windows support *via* WSL is work-in-progress, read [`PREINSTALL_WSL.md`](/supplementary/PREINSTALL_WSL.md))
+> Windows support *via* WSL is work-in-progress, read [`PREINSTALL_WSL.md`](/supplementary/PREINSTALL_WSL.md)
 
 ```sh
 # Clone this repo
