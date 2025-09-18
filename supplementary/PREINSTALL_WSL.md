@@ -1,5 +1,14 @@
 # Pre-installation for WSL builds
 
+> [!CAUTION]
+> WSL support is work-in-progress
+>
+> AAS can be built and run in WSL with the following caveats:
+> - In `simulation-image`, `gz sim`'s `ogre2` rendering is not GPU accelerated
+> - In `aircraft-image`, `CUDAExecutionProvider` is not available
+>
+> This note will be removed once these issues are resolved
+
 ## Install WSL
 
 The [Windows Subsystem for Linux (WSL)](https://learn.microsoft.com/en-us/windows/wsl/install) lets developers install a Linux distribution (e.g. Ubuntu, OpenSUSE, Arch Linux, etc.) and use Linux applications, utilities, and Bash command-line tools directly on Windows, unmodified, without the overhead of a traditional virtual machine or dualboot setup.
