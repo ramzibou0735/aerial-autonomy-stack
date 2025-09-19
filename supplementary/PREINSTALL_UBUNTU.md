@@ -10,8 +10,8 @@
 - Run "Software Updater", restart
 - "Update All" in "Ubuntu Software" (including `$ killall snap-store && sudo snap refresh snap-store`)
 - Update and restart for "Device Firmware" as necessary
-- In "Software & Updates", select `nvidia-driver-575 (propietary, tested)`
-- Running `$ nvidia-smi` will report Driver Version: 575.64.03, CUDA Version: 12.9
+- In "Software & Updates", select `nvidia-driver-580 (propietary, tested)`
+- Running `$ nvidia-smi` will report Driver Version: 580.65.06, CUDA Version: 13.0
 - Run `$ nvidia-settings` and select "NVIDIA (Performance Mode)" under "PRIME Profiles"
 
 ```sh
