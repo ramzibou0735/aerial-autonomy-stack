@@ -72,10 +72,6 @@ sudo apt install git
 # Install git-lfs (for the large files in simulation_resources/)
 sudo apt install git-lfs
 git lfs install
-
-# Create an ssh key (optional)
-ssh-keygen 
-cat ~/.ssh/id_rsa.pub
 ```
 
 > [!WARNING]

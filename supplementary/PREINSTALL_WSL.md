@@ -38,10 +38,6 @@ sudo apt install xterm
 sudo apt install x11-apps
 sudo apt install x11-xserver-utils
 xclock # A new window with a clock should appear
-
-# Create an ssh key (optional)
-ssh-keygen 
-cat ~/.ssh/id_rsa.pub
 ```
 
 > [!IMPORTANT]
