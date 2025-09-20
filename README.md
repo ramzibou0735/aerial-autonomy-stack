@@ -37,7 +37,7 @@ https://github.com/user-attachments/assets/c194ada6-2996-4bfa-99e9-32b45e29281d
 ## Part 1: Installation of AAS
 
 > [!IMPORTANT]
-> This stack is developed and tested using a [Ubuntu 22.04](https://ubuntu.com/about/release-cycle) host (penultimate LTS, ESM 4/2032) with [**`nvidia-driver-580`**](https://developer.nvidia.com/datacenter-driver-archive) and Docker Engine v28 (latest stable releases as of 9/2025) on an i9-13 with RTX3500 and an i7-11 with RTX3060—**note that an NVIDIA GPU *is* required**
+> This stack is developed and tested using a [Ubuntu 22.04](https://ubuntu.com/about/release-cycle) host (penultimate LTS, ESM 4/2032) with [**`nvidia-driver-580`**](https://developer.nvidia.com/datacenter-driver-archive) and Docker Engine v28 (latest stable releases as of 9/2025) on an i9-13 with RTX3500 and an i7-11 with RTX3060—**note that an NVIDIA GPU *is* required for the best performance**
 > 
 > **To setup the requirements: (i) Ubuntu 22, Git LFS, (ii) NVIDIA driver, (iii) Docker Engine, (iv) NVIDIA Container Toolkit, and (v) NVIDIA NGC API Key, read [`PREINSTALL_UBUNTU.md`](/supplementary/PREINSTALL_UBUNTU.md)**
 >
@@ -74,7 +74,7 @@ cd ~/git/aerial-autonomy-stack/scripts
 AUTOPILOT=px4 NUM_QUADS=1 NUM_VTOLS=1 WORLD=swiss_town ./sim_run.sh # Check the script for more options
 ```
 
-> On a low-mid range laptop—i7-11 with 16GB RAM and RTX3060—AAS simulates 3 PX4 quads with camera and LiDAR at 99% of the wall-clock (note that ArduPilot faster physics updates and more complex worlds have higher computational demands). If necessary, make sure you run `sudo prime-select nvidia` and reboot.
+> On a low-mid range laptop—i7-11 with 16GB RAM and RTX3060—AAS simulates 3 PX4 quads with camera and LiDAR at 99% of the wall-clock (note that ArduPilot faster physics updates and more complex worlds have higher computational demands). If necessary, [make sure you run `sudo prime-select nvidia` and reboot](/supplementary/PREINSTALL_UBUNTU.md#install-ubuntu-22-with-nvidia-driver).
 >
 > Once "Ready to Fly", one can takeoff and control from QGroundControl's ["Fly View"](https://docs.qgroundcontrol.com/master/en/qgc-user-guide/fly_view/fly_view.html)
 
