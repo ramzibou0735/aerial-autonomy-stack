@@ -158,7 +158,7 @@ RUN apt update && \
     sudo ldconfig && \
     apt clean && \
     rm -rf /var/lib/apt/lists/*
-ENV PYTHONPATH=/git/onnxruntime/build/Linux/Release:$PYTHONPATH
+ENV PYTHONPATH=/git/onnxruntime/build/Linux/Release
 # Check with $ python3 -c "import onnxruntime as ort; print(ort.__version__); print(ort.get_available_providers())"
 
 ################################################################################
