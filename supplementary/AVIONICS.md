@@ -65,8 +65,9 @@ sdkmanager # Log in with your https://developer.nvidia.com account
 Also read the [PX4 documentation](https://github.com/PX4/PX4-Autopilot/blob/main/docs/en/companion_computer/holybro_pixhawk_jetson_baseboard.md#flashing-the-jetson-board)
 
 ```sh
-# Install git
 sudo apt update
+
+# Install git
 sudo apt install git
 
 # Install git-lfs (for the large files in simulation_resources/)

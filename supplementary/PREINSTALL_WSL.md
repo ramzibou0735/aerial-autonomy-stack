@@ -22,9 +22,10 @@ The [Windows Subsystem for Linux (WSL)](https://learn.microsoft.com/en-us/window
 - Setup an account when prompted `Enter new UNIX username:` and `New password:`
 
 ```sh
-# Install git
 sudo apt update
 sudo apt upgrade
+
+# Install git
 sudo apt install git
 
 # Install git-lfs (for the large files in simulation_resources/)

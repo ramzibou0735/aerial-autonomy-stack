@@ -8,20 +8,23 @@
 - Install the host OS from a startup disk based on `ubuntu-22.04.5-desktop-amd64.iso`
 - Choose "Normal installation", "Download updates while installing Ubuntu", no "Install third-party software"
 - Run "Software Updater", restart
-- "Update All" in "Ubuntu Software" (including `$ killall snap-store && sudo snap refresh snap-store`)
+- "Update All" in "Ubuntu Software" (including `killall snap-store && sudo snap refresh snap-store`)
 - Update and restart for "Device Firmware" as necessary
 - In "Software & Updates", select `nvidia-driver-580 (propietary, tested)`
-- Running `$ nvidia-smi` will report Driver Version: 580.65.06, CUDA Version: 13.0
-- Run `$ nvidia-settings` and select "NVIDIA (Performance Mode)" under "PRIME Profiles"
+- Running `nvidia-smi` will report Driver Version: 580.65.06, CUDA Version: 13.0
 
 ```sh
+sudo apt update
+sudo apt upgrade
+
+# Select PRIME profile "NVIDIA (Performance Mode)" from CLI (or, if available, use `nvidia-settings`)
+sudo prime-select nvidia # Reboot and check in Ubuntu's "Settings" -> "About" -> "Graphics" is your NVIDIA card
+
 sudo apt install mesa-utils # Also installed in the simulation container, for gz sim rendering
 # Check the GPU is the OpenGL renderer
 glxinfo | grep "OpenGL renderer"
 
 # Install git
-sudo apt update
-sudo apt upgrade
 sudo apt install git
 
 # Install git-lfs (for the large files in simulation_resources/)
