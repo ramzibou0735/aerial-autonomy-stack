@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "If you use this software in your work, please cite it as below."
+authors:
+- family-names: "Panerati"
+  given-names: "Jacopo"
+  orcid: "https://orcid.org/0000-0003-2994-5422"
+title: "Aerial Autonomy Stack"
+abstract: "ROS2 multi-drone PX4, ArduPilot control interfaces for quads and VTOLs, with YOLO, LiDAR, Dockerized simulation, and JetPack deployment"
+version: 0.1.0
+date-released: 2025-08-29
+url: "https://github.com/JacopoPan/aerial-autonomy-stack"
+# doi: TBD
+# license: MIT
