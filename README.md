@@ -74,7 +74,7 @@ cd ~/git/aerial-autonomy-stack/scripts
 AUTOPILOT=px4 NUM_QUADS=1 NUM_VTOLS=1 WORLD=swiss_town ./sim_run.sh # Check the script for more options
 ```
 
-> On a low-mid range laptop—i7-11 with 16GB RAM and RTX3060—AAS simulates 3 PX4 quads with camera and LiDAR at 99% of the wall-clock (note that ArduPilot faster physics updates and more complex worlds have higher computational demands). If necessary, [make sure you run `sudo prime-select nvidia` and reboot](/supplementary/PREINSTALL_UBUNTU.md#install-ubuntu-22-with-nvidia-driver).
+> On a low-mid range laptop—i7-11 with 16GB RAM and RTX3060—AAS simulates 3 PX4 quads with camera and LiDAR at 99% of the wall-clock (note that ArduPilot faster physics updates and more complex worlds have higher computational demands). Make sure you [run `sudo prime-select nvidia` and rebooted](/supplementary/PREINSTALL_UBUNTU.md#install-ubuntu-22-with-nvidia-driver).
 >
 > Once "Ready to Fly", one can takeoff and control from QGroundControl's ["Fly View"](https://docs.qgroundcontrol.com/master/en/qgc-user-guide/fly_view/fly_view.html)
 
