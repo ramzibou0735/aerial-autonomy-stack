@@ -83,7 +83,7 @@ nvidia-smi # From WSL, check NVIDIA driver
 
 sudo apt update
 sudo apt install mesa-utils
-glxinfo -B # You should see something like: `OpenGL renderer string: D3D12 (NVIDIA GeForce RTX 4050 Laptop GPU)`
+glxinfo -B # You should see something like: `OpenGL renderer string: D3D12 (NVIDIA RTX A4500)`
 ```
 
 ## Install Docker Engine and NVIDIA Container Toolkit
