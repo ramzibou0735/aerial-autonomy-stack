@@ -76,11 +76,10 @@ Download and install the NVIDIA recommended driver for you card using the [NVIDI
 Once the Windows NVIDIA driver is installed, CUDA is available in WSL 2 via a stubbed `libcuda.so`. 
 >
 > **Do NOT install a separate NVIDIA GPU Linux driver inside WSL 2**,
-> 
-> The following instructions are tested on Driver Version: 571.59, CUDA Version 12.8
 
 ```sh
 nvidia-smi # From WSL, check NVIDIA driver
+# These instructions are tested on Driver Version: 581.15, CUDA Version:13.0
 
 sudo apt update
 sudo apt install mesa-utils
