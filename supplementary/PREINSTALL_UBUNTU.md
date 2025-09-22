@@ -17,7 +17,7 @@
 sudo apt update
 sudo apt upgrade
 
-# Select PRIME profile "NVIDIA (Performance Mode)" from CLI (or, if available, use `nvidia-settings`)
+# Select PRIME profile "NVIDIA (Performance Mode)" from CLI (or, if available, use `nvidia-settings` -> "PRIME Profiles" -> "NVIDIA (Performance Mode)")
 sudo prime-select nvidia # Reboot and check in Ubuntu's "Settings" -> "About" -> "Graphics" is your NVIDIA card
 
 sudo apt install mesa-utils # Also installed in the simulation container, for gz sim rendering
