@@ -1,7 +1,7 @@
 # Pre-installation for WSL builds
 
 > [!CAUTION]
-> WSL support is work-in-progress
+> **WSL support is work-in-progress, see Issue https://github.com/JacopoPan/aerial-autonomy-stack/issues/4**
 >
 > AAS can be built and run in WSL with the following caveats:
 > - In `simulation-image`, `gz sim`'s `ogre2` rendering is not GPU accelerated
