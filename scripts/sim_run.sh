@@ -96,6 +96,10 @@ get_quadrant_geometry() {
   echo "${width_chars}x${height_chars}+${x_pos}+${y_pos}"
 }
 
+# WSL-specific options
+WSL_OPTS="--env WAYLAND_DISPLAY=$WAYLAND_DISPLAY --env PULSE_SERVER=$PULSE_SERVER --volume /usr/lib/wsl:/usr/lib/wsl \
+--env LD_LIBRARY_PATH=/usr/lib/wsl/lib --env LIBGL_ALWAYS_SOFTWARE=0 --env __GLX_VENDOR_LIBRARY_NAME=nvidia"
+
 # Launch the simulation container
 DOCKER_CMD="echo 'Launching Simulation Container...'; \
   docker run -it --rm \
@@ -107,10 +111,12 @@ DOCKER_CMD="echo 'Launching Simulation Container...'; \
   --env SIMULATED_TIME=true \
   --net=aas-network --ip=42.42.1.99 \
   --privileged \
-  --name simulation-container \
-  ${MODE_SIM_OPTS} \
-  simulation-image"
-#
+  --name simulation-container"
+# Add WSL-specific options and complete the command
+if [[ "$DESK_ENV" == "wsl" ]]; then
+    DOCKER_CMD="$DOCKER_CMD $WSL_OPTS"
+fi
+DOCKER_CMD="$DOCKER_CMD ${MODE_SIM_OPTS} simulation-image"
 if [[ "$DESK_ENV" == "wsl" ]]; then
   xterm -fa Monospace -fs 12 -hold -e "$DOCKER_CMD" &
 elif [[ "$DESK_ENV" == "gnome" ]]; then
@@ -134,9 +140,12 @@ for i in $(seq 1 $NUM_QUADS); do
       --env SIMULATED_TIME=true \
       --net=aas-network --ip=42.42.1.$DRONE_ID \
       --privileged \
-      --name aircraft-container_$DRONE_ID \
-      ${MODE_AIR_OPTS} \
-      aircraft-image"
+      --name aircraft-container_$DRONE_ID"
+  # Add WSL-specific options and complete the command
+  if [[ "$DESK_ENV" == "wsl" ]]; then
+      DOCKER_CMD="$DOCKER_CMD $WSL_OPTS"
+  fi
+  DOCKER_CMD="$DOCKER_CMD ${MODE_SIM_OPTS} aircraft-image"
   if [[ "$DESK_ENV" == "wsl" ]]; then
     xterm -fa Monospace -fs 12 -hold -e "$DOCKER_CMD" &
   elif [[ "$DESK_ENV" == "gnome" ]]; then
@@ -158,9 +167,12 @@ for i in $(seq 1 $NUM_VTOLS); do
       --env SIMULATED_TIME=true \
       --net=aas-network --ip=42.42.1.$DRONE_ID \
       --privileged \
-      --name aircraft-container_$DRONE_ID \
-      ${MODE_AIR_OPTS} \
-      aircraft-image"
+      --name aircraft-container_$DRONE_ID"
+  # Add WSL-specific options and complete the command
+  if [[ "$DESK_ENV" == "wsl" ]]; then
+      DOCKER_CMD="$DOCKER_CMD $WSL_OPTS"
+  fi
+  DOCKER_CMD="$DOCKER_CMD ${MODE_SIM_OPTS} aircraft-image"
   if [[ "$DESK_ENV" == "wsl" ]]; then
     xterm -fa Monospace -fs 12 -hold -e "$DOCKER_CMD" &
   elif [[ "$DESK_ENV" == "gnome" ]]; then
