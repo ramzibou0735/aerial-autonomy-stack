@@ -34,6 +34,7 @@ git lfs install
 
 # Install xterm
 sudo apt install xterm
+sudo apt install xfonts-base
 
 # Install X11 apps and xserver
 sudo apt install x11-apps

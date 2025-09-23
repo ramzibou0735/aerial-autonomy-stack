@@ -112,7 +112,7 @@ DOCKER_CMD="echo 'Launching Simulation Container...'; \
   simulation-image"
 #
 if [[ "$DESK_ENV" == "wsl" ]]; then
-  xterm -hold -e "$DOCKER_CMD --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR" &
+  xterm -fa Monospace -fs 12 -hold -e "$DOCKER_CMD --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR" &
 elif [[ "$DESK_ENV" == "gnome" ]]; then
   gnome-terminal --geometry=$(get_quadrant_geometry 0) -- bash -c "$DOCKER_CMD; exec bash"
 fi
@@ -138,7 +138,7 @@ for i in $(seq 1 $NUM_QUADS); do
       ${MODE_AIR_OPTS} \
       aircraft-image"
   if [[ "$DESK_ENV" == "wsl" ]]; then
-    xterm -hold -e "$DOCKER_CMD --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR" &
+    xterm -fa Monospace -fs 12 -hold -e "$DOCKER_CMD --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR" &
   elif [[ "$DESK_ENV" == "gnome" ]]; then
     gnome-terminal --geometry=$(get_quadrant_geometry $(( DRONE_ID % 4 ))) -- bash -c "$DOCKER_CMD; exec bash"
   fi
@@ -162,7 +162,7 @@ for i in $(seq 1 $NUM_VTOLS); do
       ${MODE_AIR_OPTS} \
       aircraft-image"
   if [[ "$DESK_ENV" == "wsl" ]]; then
-    xterm -hold -e "$DOCKER_CMD --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR" &
+    xterm -fa Monospace -fs 12 -hold -e "$DOCKER_CMD --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR" &
   elif [[ "$DESK_ENV" == "gnome" ]]; then
     gnome-terminal --geometry=$(get_quadrant_geometry $(( DRONE_ID % 4 ))) -- bash -c "$DOCKER_CMD; exec bash"
   fi
