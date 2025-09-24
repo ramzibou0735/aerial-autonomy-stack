@@ -38,7 +38,7 @@ https://github.com/user-attachments/assets/c194ada6-2996-4bfa-99e9-32b45e29281d
 > [!IMPORTANT]
 > AAS is developed using a Ubuntu 22.04 host with `nvidia-driver-580` on an i9-13 with RTX 3500 and an i7-11 with RTX 3060—**note that an NVIDIA GPU *is* required for the best performance**
 > 
-> **To setup the requirements: (i) Ubuntu, (ii) Git LFS, (iii) NVIDIA driver, (iv) Docker Engine, (v) NVIDIA Container Toolkit, and (vi) NVIDIA NGC API Key, read [`PREINSTALL_UBUNTU.md`](/supplementary/PREINSTALL_UBUNTU.md)**
+> **To setup the requirements: (i) Ubuntu, (ii) Git LFS and Xterm, (iii) NVIDIA driver, (iv) Docker Engine, (v) NVIDIA Container Toolkit, and (vi) NVIDIA NGC API Key, read [`PREINSTALL_UBUNTU.md`](/supplementary/PREINSTALL_UBUNTU.md)**
 >
 > Windows 11 support is available *via* WSLg, read [`PREINSTALL_WSL.md`](/supplementary/PREINSTALL_WSL.md)
 

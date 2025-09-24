@@ -27,6 +27,10 @@ sudo apt install git
 # Install git-lfs (for the large files in simulation_resources/)
 sudo apt install git-lfs
 git lfs install
+
+# Install xterm
+sudo apt install xterm
+sudo apt install xfonts-base
 ```
 
 ## Install Docker Engine and NVIDIA Container Toolkit

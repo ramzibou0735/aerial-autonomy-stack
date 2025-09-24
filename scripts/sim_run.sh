@@ -42,7 +42,7 @@ cleanup() {
       PARENT_PID=$(ps -o ppid= -p $dpid 2>/dev/null | tr -d ' ') # Determine process pids with a parent pid
       if [ -n "$PARENT_PID" ]; then
         echo "Killing terminal process $dpid"
-        kill -9 $dpid
+        kill $dpid
       fi
     done
   fi
@@ -81,21 +81,6 @@ fi
 NETWORK_NAME="aas-network"
 docker network inspect "$NETWORK_NAME" >/dev/null 2>&1 || docker network create --subnet=42.42.0.0/16 "$NETWORK_NAME"
 
-# Helper to place the terminals on-screen
-CHAR_WIDTH=20 # Adjust to your terminal size
-CHAR_HEIGHT=40 # Adjust to your terminal size
-SCREEN_GEOMETRY=$(xdpyinfo | grep dimensions | sed -r 's/^[^0-9]*([0-9]+x[0-9]+).*$/\1/')
-SCREEN_WIDTH=$(echo $SCREEN_GEOMETRY | cut -d'x' -f1)
-SCREEN_HEIGHT=$(echo $SCREEN_GEOMETRY | cut -d'x' -f2)
-get_quadrant_geometry() {
-  local index=$1
-  local width_chars=$(( (SCREEN_WIDTH / 2) / CHAR_WIDTH ))
-  local height_chars=$(( (SCREEN_HEIGHT / 2) / CHAR_HEIGHT ))
-  local x_pos=$(( (index == 1 || index == 2) * (SCREEN_WIDTH / 2) ))
-  local y_pos=$(( (index == 2 || index == 3) * (SCREEN_HEIGHT / 2) ))
-  echo "${width_chars}x${height_chars}+${x_pos}+${y_pos}"
-}
-
 # WSL-specific options
 WSL_OPTS="--env WAYLAND_DISPLAY=$WAYLAND_DISPLAY --env PULSE_SERVER=$PULSE_SERVER --volume /usr/lib/wsl:/usr/lib/wsl \
 --env LD_LIBRARY_PATH=/usr/lib/wsl/lib --env LIBGL_ALWAYS_SOFTWARE=0 --env __GLX_VENDOR_LIBRARY_NAME=nvidia"
@@ -117,11 +102,7 @@ if [[ "$DESK_ENV" == "wsl" ]]; then
     DOCKER_CMD="$DOCKER_CMD $WSL_OPTS"
 fi
 DOCKER_CMD="$DOCKER_CMD ${MODE_SIM_OPTS} simulation-image"
-if [[ "$DESK_ENV" == "wsl" ]]; then
-  xterm -fa Monospace -fs 12 -hold -e "$DOCKER_CMD" &
-elif [[ "$DESK_ENV" == "gnome" ]]; then
-  gnome-terminal --geometry=$(get_quadrant_geometry 0) -- bash -c "$DOCKER_CMD; exec bash"
-fi
+xterm -title "Simulation" -fa Monospace -fs 10 -bg black -fg white -hold -e bash -c "$DOCKER_CMD" &
 
 # Initialize a counter for the drone IDs
 DRONE_ID=0
@@ -146,11 +127,7 @@ for i in $(seq 1 $NUM_QUADS); do
       DOCKER_CMD="$DOCKER_CMD $WSL_OPTS"
   fi
   DOCKER_CMD="$DOCKER_CMD ${MODE_SIM_OPTS} aircraft-image"
-  if [[ "$DESK_ENV" == "wsl" ]]; then
-    xterm -fa Monospace -fs 12 -hold -e "$DOCKER_CMD" &
-  elif [[ "$DESK_ENV" == "gnome" ]]; then
-    gnome-terminal --geometry=$(get_quadrant_geometry $(( DRONE_ID % 4 ))) -- bash -c "$DOCKER_CMD; exec bash"
-  fi
+  xterm -title "Quad $DRONE_ID" -fa Monospace -fs 10 -bg black -fg white -hold -e bash -c "$DOCKER_CMD" &
 done
 
 # Launch the vtol containers
@@ -173,11 +150,7 @@ for i in $(seq 1 $NUM_VTOLS); do
       DOCKER_CMD="$DOCKER_CMD $WSL_OPTS"
   fi
   DOCKER_CMD="$DOCKER_CMD ${MODE_SIM_OPTS} aircraft-image"
-  if [[ "$DESK_ENV" == "wsl" ]]; then
-    xterm -fa Monospace -fs 12 -hold -e "$DOCKER_CMD" &
-  elif [[ "$DESK_ENV" == "gnome" ]]; then
-    gnome-terminal --geometry=$(get_quadrant_geometry $(( DRONE_ID % 4 ))) -- bash -c "$DOCKER_CMD; exec bash"
-  fi
+  xterm -title "VTOL $DRONE_ID" -fa Monospace -fs 10 -bg black -fg white -hold -e bash -c "$DOCKER_CMD" &
 done
 
 echo "Fly, my pretties, fly!"
