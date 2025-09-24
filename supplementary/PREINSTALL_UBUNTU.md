@@ -1,9 +1,6 @@
-# Pre-installation for Ubuntu 22
+# Pre-installation for AAS on Ubuntu 22
 
 ## Install Ubuntu 22 with NVIDIA Driver
-
-> [!NOTE]
-> Skip this step if you already have an **Ubuntu 22 computer with NVIDIA Driver**, Git, **Git LFS** etc.
 
 - Install the host OS from a startup disk based on `ubuntu-22.04.5-desktop-amd64.iso`
 - Choose "Normal installation", "Download updates while installing Ubuntu", no "Install third-party software"
@@ -33,9 +30,6 @@ git lfs install
 ```
 
 ## Install Docker Engine and NVIDIA Container Toolkit
-
-> [!NOTE]
-> Skip this step if you already installed **Docker Engine and NVIDIA Container Toolkit**
 
 ```sh
 # Based on https://docs.docker.com/engine/install/ubuntu/ and https://docs.docker.com/engine/install/linux-postinstall/

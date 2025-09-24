@@ -12,18 +12,6 @@ That is, the challenge—and good sport—of **full-stack integration** among:
 - the **many frameworks** that go into drone autonomy (a physics engine to simulate drone dynamics, a rendering engine to generate realistic imagery, a GPU-accelerated machine learning runtime for perception, one or more inter-process and inter-thread communication middleware, the interface to the microcontroller and autopilot software performing state-estimation and low-level control, the SDKs of the deployed embedded systems, etc.)
 - emulated **inter-robot communication** (in aerial systems, this is heavily affected by the actual flight plans and available RF hardware)
 
-## Design Manifesto
-
-- **Simplicity** (["simple is better than complex"](https://peps.python.org/pep-0020/), ["worse is better"](https://www.dreamsongs.com/RiseOfWorseIsBetter.html), and ["no fat software"](https://people.inf.ethz.ch/wirth/Articles/LeanSoftware.pdf) are the 3 slogans of the AAS)
-- [おまかせ](https://dhh.dk/2012/rails-is-omakase.html) **end-to-end**ness (from camera frames, to autopilot uORB/MAVLink commands)
-- **Recentness** (break and fix, rather than carrying technical [debt](https://c2.com/doc/oopsla92.html))
-- **Deployment** focus
-    - Clear, Dockerized split between simulation and aircraft software
-    - ROS2 intra-companion board messaging
-    - XRCE-DDS (PX4), MAVROS (ArduPilot) autopilot-to-companion board ROS2 UDP bridge
-    - GStreamer camera-to-companion board acquisition
-    - Zenoh inter-vehicle ROS2 bridge, with networking emulated by `docker network`
-
 ## Related Work
 
 A summary of existing multi-drone flight stacks can be found in [Table II of this paper](https://arxiv.org/pdf/2303.18237). Notable ones are:
@@ -42,12 +30,14 @@ A summary of aerial robotics simulators can be found in [Table IV of this paper]
 
 For even more resources, check out [`aerial_robotic_landscape`](https://github.com/ROS-Aerial/aerial_robotic_landscape).
 
-## Desiderata/Future Work
+## Design Manifesto
 
-Some additional features are highly desirable but were deemed premature for a minimum viable product:
-
-- Support for [SPARK-FAST-LIO](https://github.com/MIT-SPARK/spark-fast-lio)/[SuperOdom](https://github.com/superxslam/SuperOdom)
-- Support for [JSBSim](https://github.com/JSBSim-Team/jsbsim) flight dynamics
-- Support for [ArduPilot's DDS interface](https://ardupilot.org/dev/docs/ros2-interfaces.html)
-- Support for a [Isaac Sim](https://github.com/isaac-sim/IsaacSim) higher fidelity rendering
-- Support for [Betaflight SITL](https://betaflight.com/docs/development/SITL) interfaced *via* [MultiWii Serial Protocol (MSP)](https://github.com/betaflight/betaflight/tree/master/src/main/msp)
+- **Simplicity** (["simple is better than complex"](https://peps.python.org/pep-0020/), ["worse is better"](https://www.dreamsongs.com/RiseOfWorseIsBetter.html), and ["no fat software"](https://people.inf.ethz.ch/wirth/Articles/LeanSoftware.pdf) are the 3 slogans of the AAS)
+- [おまかせ](https://dhh.dk/2012/rails-is-omakase.html) **end-to-end**ness (from camera frames, to autopilot uORB/MAVLink commands)
+- **Recentness** (break and fix, rather than carrying technical [debt](https://c2.com/doc/oopsla92.html))
+- **Deployment** focus
+    - Clear, Dockerized split between simulation and aircraft software
+    - ROS2 intra-companion board messaging
+    - XRCE-DDS (PX4), MAVROS (ArduPilot) autopilot-to-companion board ROS2 UDP bridge
+    - GStreamer camera-to-companion board acquisition
+    - Zenoh inter-vehicle ROS2 bridge, with networking emulated by `docker network`

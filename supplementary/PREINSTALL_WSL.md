@@ -1,11 +1,9 @@
-# Pre-installation for Windows 11
+# Pre-installation for AAS on Windows 11
 
 ## Setup WSLg for Ubuntu 22
 
-> [!NOTE]
-> The [Windows Subsystem for Linux (WSL)](https://learn.microsoft.com/en-us/windows/wsl/install) lets developers install a Linux distribution (e.g. Ubuntu, OpenSUSE, Arch Linux, etc.) and use Linux applications, utilities, and Bash command-line tools directly on Windows, unmodified, without the overhead of a traditional virtual machine or dualboot setup
-> 
-> **The latest WSL2 and WSLg (WSL2 extension with GUI capabilities) are already included in Windows 11**
+> [!IMPORTANT]
+> **The latest Windows Subsystem for Linux (WSL2) and WSLg (WSL2 extension with GUI capabilities) are already included in Windows 11**
 
 - From PowerShell, check available Linux distributions `wsl --list --online`
 - Install "Ubuntu-22.04" `wsl --install -d Ubuntu-22.04`
@@ -32,7 +30,7 @@ sudo apt install x11-xserver-utils
 xclock # A new window with a clock should appear
 ```
 
-> [!IMPORTANT]
+> [!WARNING]
 > When building and running large Docker images (e.g. the simulator and aircraft containers), WSL can easily consume available system resources. To prevent crashes, hangs, or 100% disk usage, configure WSL’s resource limits using a `.wslconfig` file
 > 
 > - Create (or edit) the file `C:\Users\<YourWindowsUsername>\.wslconfig` (make sure it has no extension)
@@ -60,7 +58,7 @@ xclock # A new window with a clock should appear
 
 Download and install **NVIDIA driver 580** using the [NVIDIA App](https://www.nvidia.com/en-us/software/nvidia-app/) 
 
-> [!NOTE] 
+> [!WARNING] 
 > The latest NVIDIA Windows drivers fully support **WSL2**, enabling existing CUDA applications compiled on Linux to run unmodified in WSL, once the Windows NVIDIA driver is installed, CUDA is available in WSL2 via a stubbed `libcuda.so`
 >
 > **Do NOT install a separate NVIDIA GPU Linux driver inside WSL2**

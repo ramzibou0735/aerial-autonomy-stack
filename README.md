@@ -10,9 +10,9 @@ https://github.com/user-attachments/assets/c194ada6-2996-4bfa-99e9-32b45e29281d
 
 ## Features
 
-- Support for multiple **quadrotors and VTOLs** based on either **PX4 or ArduPilot**
-- **ROS2**-based autopilot interfaces (*via* XRCE-DDS and MAVROS)
-- **Windows 11 support** *via* WSLg
+- Support for **multiple quadrotors and VTOLs** based on either **PX4 or ArduPilot**
+- Autopilot and vehicle-agnostic **ROS2** action-based autopilot interface (*via* XRCE-DDS and MAVROS)
+- **Windows 11 compatibility** *via* WSLg
 - Support for **YOLOv8** (with ONNX GPU Runtimes) and **LiDAR Odometry** (with [KISS-ICP](https://github.com/PRBonn/kiss-icp))
 - **Dockerized simulation** based on [`nvcr.io/nvidia/cuda:12.8.1-cudnn-runtime-ubuntu22.04`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/cuda/tags)
 - **Dockerized deployment** based on [`nvcr.io/nvidia/l4t-jetpack:r36.4.0`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/l4t-jetpack/tags)
@@ -21,26 +21,26 @@ https://github.com/user-attachments/assets/c194ada6-2996-4bfa-99e9-32b45e29281d
 - Support for [PX4 Offboard](https://docs.px4.io/main/en/flight_modes/offboard.html) mode (e.g. CTBR/`VehicleRatesSetpoint` for agile, GNSS-denied flight) 
 - Support for [ArduPilot Guided](https://ardupilot.org/copter/docs/ac2_guidedmode.html) mode (i.e. `setpoint_velocity`, `setpoint_accel` references)
 - Logs analysis with [`flight_review`](https://github.com/PX4/flight_review) (`.ulg`), MAVExplorer (`.bin`), and [PlotJuggler](https://github.com/facontidavide/PlotJuggler) (`rosbag`)
-- **Steppable simulation** interface for reinforcement learning
+- **Steppable simulation**
 - Support for Gazebo's [**`WindEffects`**](https://github.com/gazebosim/gz-sim/blob/gz-sim10/examples/worlds/wind.sdf)
 
 <details>
 <summary>AAS leverages the following frameworks: <i>(expand)</i></summary>
 
-> [*ROS2 Humble*](https://docs.ros.org/en/rolling/Releases.html) (LTS, EOL 5/2027), [*Gazebo Sim Harmonic*](https://gazebosim.org/docs/latest/releases/) (LTS, EOL 9/2028), [*PX4 1.16*](https://github.com/PX4/PX4-Autopilot/releases) interfaced *via* [XRCE-DDS](https://github.com/eProsima/Micro-XRCE-DDS/releases), [*ArduPilot 4.6*](https://github.com/ArduPilot/ardupilot/releases) interfaced *via* [MAVROS](https://github.com/mavlink/mavros/releases), [*YOLOv8*](https://github.com/ultralytics/ultralytics/releases) on [*ONNX Runtime 1.22*](https://onnxruntime.ai/getting-started) (latest stable releases as of 8/2025), [*L4T 36* (Ubuntu 22-based)/*JetPack 6*](https://developer.nvidia.com/embedded/jetpack-archive) (for deployment only, latest major release as of 8/2025)
+> [*Ubuntu 22.04*](https://ubuntu.com/about/release-cycle) (LTS, ESM 4/2032), [*`nvidia-driver-580`*](https://developer.nvidia.com/datacenter-driver-archive) (latest as of 9/2025), [*Docker Engine v28*](https://docs.docker.com/engine/release-notes/28/) (latest as of 9/2025), [*ROS2 Humble*](https://docs.ros.org/en/rolling/Releases.html) (LTS, EOL 5/2027), [*Gazebo Sim Harmonic*](https://gazebosim.org/docs/latest/releases/) (LTS, EOL 9/2028), [*PX4 1.16*](https://github.com/PX4/PX4-Autopilot/releases) interfaced *via* [XRCE-DDS](https://github.com/eProsima/Micro-XRCE-DDS/releases), [*ArduPilot 4.6*](https://github.com/ArduPilot/ardupilot/releases) interfaced *via* [MAVROS](https://github.com/mavlink/mavros/releases), [*YOLOv8*](https://github.com/ultralytics/ultralytics/releases) on [*ONNX Runtime 1.22*](https://onnxruntime.ai/getting-started) (latest stable releases as of 8/2025), [*L4T 36* (Ubuntu 22-based)/*JetPack 6*](https://developer.nvidia.com/embedded/jetpack-archive) (for deployment only, latest major release as of 8/2025), [WSLg](https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-apps) (for simulation and development on Windows 11 only)
 
 </details>
 
 ---
 
-## Part 1: Installation of AAS
+## Part 1: Installation
 
 > [!IMPORTANT]
-> This stack is developed using a [Ubuntu 22.04](https://ubuntu.com/about/release-cycle) host (penultimate LTS, ESM 4/2032) with [`nvidia-driver-580`](https://developer.nvidia.com/datacenter-driver-archive) and Docker Engine v28 (latest stable releases as of 9/2025) on an i9-13 with RTX3500 and an i7-11 with RTX3060—**note that an NVIDIA GPU *is* required for the best performance**
+> AAS is developed using a Ubuntu 22.04 host with `nvidia-driver-580` on an i9-13 with RTX 3500 and an i7-11 with RTX 3060—**note that an NVIDIA GPU *is* required for the best performance**
 > 
-> **To setup the requirements: (i) Ubuntu 22, (ii) Git LFS, (iii) NVIDIA driver, (iv) Docker Engine, (v) NVIDIA Container Toolkit, and (vi) NVIDIA NGC API Key, read [`PREINSTALL_UBUNTU.md`](/supplementary/PREINSTALL_UBUNTU.md)**
+> **To setup the requirements: (i) Ubuntu, (ii) Git LFS, (iii) NVIDIA driver, (iv) Docker Engine, (v) NVIDIA Container Toolkit, and (vi) NVIDIA NGC API Key, read [`PREINSTALL_UBUNTU.md`](/supplementary/PREINSTALL_UBUNTU.md)**
 >
-> Windows 11 support is available *via* [WSLg](https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-apps), read [`PREINSTALL_WSL.md`](/supplementary/PREINSTALL_WSL.md)
+> Windows 11 support is available *via* WSLg, read [`PREINSTALL_WSL.md`](/supplementary/PREINSTALL_WSL.md)
 
 ```sh
 # Clone this repo
@@ -55,17 +55,16 @@ cd ~/git/aerial-autonomy-stack
 > [!WARNING]
 > The build script creates two ~20GB images (including lots of tools and artifacts for development)
 > 
-> Building from scratch requires a good/stable internet connection (`Ctrl + c` and restart if necessary)
+> The first build requires a good/stable internet connection (`Ctrl + c` and restart if necessary)
 
 ```sh
-# Clone external repos (in github_clones/) and build the Docker images
 cd ~/git/aerial-autonomy-stack/scripts
 ./sim_build.sh # The first build takes ~25', subsequent ones take seconds to minutes
 ```
 
 ---
 
-## Part 2: Simulation and Development with AAS
+## Part 2: Simulation and Development
 
 ```sh
 # Start a simulation (note: ArduPilot STIL takes ~40s to be ready to arm)
@@ -73,9 +72,8 @@ cd ~/git/aerial-autonomy-stack/scripts
 AUTOPILOT=px4 NUM_QUADS=1 NUM_VTOLS=1 WORLD=swiss_town ./sim_run.sh # Check the script for more options
 ```
 
-> On a low-mid range laptop—i7-11 with 16GB RAM and RTX3060—AAS simulates 3 PX4 quads with camera and LiDAR at 99% of the wall-clock (note that ArduPilot faster physics updates and more complex worlds have higher computational demands). Make sure you [run `sudo prime-select nvidia` and rebooted](/supplementary/PREINSTALL_UBUNTU.md#install-ubuntu-22-with-nvidia-driver).
->
-> Once "Ready to Fly", one can takeoff and control from QGroundControl's ["Fly View"](https://docs.qgroundcontrol.com/master/en/qgc-user-guide/fly_view/fly_view.html)
+> [!NOTE]
+> On a low-mid range laptop—i7-11 with 16GB RAM and RTX 3060—AAS simulates three PX4 quads with camera and LiDAR at 99% real-time-factor (note that ArduPilot faster physics updates and more complex worlds have higher computational demands). Make sure you run `sudo prime-select nvidia` and rebooted to leverage the GPU compute.
 
 ![worlds](https://github.com/user-attachments/assets/45a2f2ad-cc31-4d71-aa2e-4fe542a59a77)
 
@@ -142,26 +140,23 @@ ros2 run mission mission --conops yalla --ros-args -r __ns:=/Drone$DRONE_ID -p u
 
 ### Command Line Interface
 
-Read the banner comment in the `autopilot_interface` headers for command line examples (takeoff, orbit, reposition, offboard, land):
-
-- [`ardupilot_interface.hpp`](/aircraft/aircraft_ws/src/autopilot_interface/src/ardupilot_interface.hpp): ArduPilot actions and services
-- [`px4_interface.hpp`](/aircraft/aircraft_ws/src/autopilot_interface/src/px4_interface.hpp): PX4 actions and services
+Read the banner comment in the [`ardupilot_interface.hpp`](/aircraft/aircraft_ws/src/autopilot_interface/src/ardupilot_interface.hpp) and [`px4_interface.hpp`](/aircraft/aircraft_ws/src/autopilot_interface/src/px4_interface.hpp) headers for command line examples (takeoff, orbit, reposition, offboard, land):
 
 Once flown from CLI, implemented your mission in [`MissionNode.conops_callback()`](/aircraft/aircraft_ws/src/mission/mission/mission_node.py)
 
 
-### Development
+### Development within Live Containers
 
 Launching the `sim_run.sh` script with `MODE=dev`, does **not** start the simulation and mounts folders `simulation_resources`, `aircraft_resources`, and `ros2_ws/src` as volumes to more easily track, commit, push changes while building and testing them within the containers
 
 ```sh
-# Develop within live containers
 cd ~/git/aerial-autonomy-stack/scripts
 MODE=dev ./sim_run.sh # Images are pre-built but the ros2_ws/src/ and *_resources/ folders are mounted from the host
 ```
 
-> [!NOTE]
-> Project Structure
+> [!TIP]
+> <details>
+> <summary>AAS Structure <i>(expand)</i></summary>
 > 
 > ```sh
 > aerial-autonomy-stack
@@ -209,20 +204,16 @@ MODE=dev ./sim_run.sh # Images are pre-built but the ros2_ws/src/ and *_resource
 >     │
 >     └── simulation.yml.erb           # Simulation docker tmux entrypoint
 > ```
+> </details>
 
 ---
 
-## Part 3: Deployment of AAS
+## Part 3: Jetson Deployment
 
 > [!IMPORTANT]
 > These instructions are tested on a [Holybro Jetson Baseboard](https://holybro.com/products/pixhawk-jetson-baseboard) kit that includes (i) a Pixhawk 6X autopilot and (ii) an NVIDIA Orin NX 16GB computer connected via both serial and ethernet
 > 
 > **To setup (i) PX4's DDS UDP client, (ii) ArduPilot serial MAVLink bridge, (iii) JetPack 6, (iv) Docker Engine, (v) NVIDIA Container Toolkit, and (vi) NVIDIA NGC API Key on Orin, read [`AVIONICS.md`](/supplementary/AVIONICS.md)**
->
-> The Holybro Jetson Baseboard comes with an (i) integrated 4-way (Orin, 6X, RJ-45, JST) Ethernet switch and (ii) two JST USB 2.0 that can be connected to ASIX Ethernet adapters to create additional network interfaces
-> 
-> Make sure to configure Orin, 6X's XRCE-DDS, IP radio, Zenoh, etc. consistently with your network setup; the camera acquisition pipeline should be setup in `yolo_inference_node.py`, the LiDAR should publish on topic `/lidar_points` for KISS-ICP (if necessary, discuss in the [Issues](https://github.com/JacopoPan/aerial-autonomy-stack/issues))
-
 
 ```sh
 # On Jetson Orin NX, build for arm64 with TensorRT support
@@ -238,6 +229,14 @@ cd ~/git/aerial-autonomy-stack/scripts
 DRONE_TYPE=quad AUTOPILOT=px4 DRONE_ID=1 CAMERA=true LIDAR=false ./deploy_run.sh
 docker exec -it aircraft-container tmux attach
 ```
+
+## Future Work/Ideas for Contributions
+
+- Support for [SPARK-FAST-LIO](https://github.com/MIT-SPARK/spark-fast-lio)/[SuperOdom](https://github.com/superxslam/SuperOdom)
+- Support for [JSBSim](https://github.com/JSBSim-Team/jsbsim) flight dynamics
+- Support for [ArduPilot's DDS interface](https://ardupilot.org/dev/docs/ros2-interfaces.html)
+- Support for a [Isaac Sim](https://github.com/isaac-sim/IsaacSim) higher fidelity rendering
+- Support for [Betaflight SITL](https://betaflight.com/docs/development/SITL) interfaced *via* [MultiWii Serial Protocol (MSP)](https://github.com/betaflight/betaflight/tree/master/src/main/msp)
 
 ---
 > You've done a man's job, sir. I guess you're through, huh?
@@ -255,6 +254,11 @@ docker exec -it aircraft-container tmux attach
 - For PX4 quad max tilt maneuver, zero the anti-windup gain: const float arw_gain = 2.f / _gain_vel_p(0);
 - ????
 - Profit
+
+Expand in AVIONIC.md
+> The Holybro Jetson Baseboard comes with an (i) integrated 4-way (Orin, 6X, RJ-45, JST) Ethernet switch and (ii) two JST USB 2.0 that can be connected to ASIX Ethernet adapters to create additional network interfaces
+> 
+> Make sure to configure Orin, 6X's XRCE-DDS, IP radio, Zenoh, etc. consistently with your network setup; the camera acquisition pipeline should be setup in `yolo_inference_node.py`, the LiDAR should publish on topic `/lidar_points` for KISS-ICP (if necessary, discuss in the [Issues](https://github.com/JacopoPan/aerial-autonomy-stack/issues))
 
 ### Known Issues
 
