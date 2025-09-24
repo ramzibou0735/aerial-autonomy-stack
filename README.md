@@ -230,6 +230,8 @@ DRONE_TYPE=quad AUTOPILOT=px4 DRONE_ID=1 CAMERA=true LIDAR=false ./deploy_run.sh
 docker exec -it aircraft-container tmux attach
 ```
 
+---
+
 ## Future Work/Ideas for Contributions
 
 - Support for [SPARK-FAST-LIO](https://github.com/MIT-SPARK/spark-fast-lio)/[SuperOdom](https://github.com/superxslam/SuperOdom)
