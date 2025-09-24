@@ -6,8 +6,6 @@
 2. **Simulate** vision and control in software-in-the-loop, with YOLOv8 and PX4/ArduPilot
 3. **Deploy** in real drones with NVIDIA Orin/JetPack
 
-> For the motivation behind AAS and how it compares to similar projects, read [`RATIONALE.md`](/supplementary/RATIONALE.md)
-
 https://github.com/user-attachments/assets/c194ada6-2996-4bfa-99e9-32b45e29281d
 
 ## Features
@@ -24,7 +22,7 @@ https://github.com/user-attachments/assets/c194ada6-2996-4bfa-99e9-32b45e29281d
 - Support for [ArduPilot Guided](https://ardupilot.org/copter/docs/ac2_guidedmode.html) mode (i.e. `setpoint_velocity`, `setpoint_accel` references)
 - Logs analysis with [`flight_review`](https://github.com/PX4/flight_review) (`.ulg`), MAVExplorer (`.bin`), and [PlotJuggler](https://github.com/facontidavide/PlotJuggler) (`rosbag`)
 - **Steppable simulation** interface for reinforcement learning
-- Support for Gazebo's [**`WindEffects`**](https://github.com/gazebosim/gz-sim/blob/gz-sim10/examples/worlds/wind.sdf) (except PX4 VTOL)
+- Support for Gazebo's [**`WindEffects`**](https://github.com/gazebosim/gz-sim/blob/gz-sim10/examples/worlds/wind.sdf)
 
 <details>
 <summary>AAS leverages the following frameworks: <i>(expand)</i></summary>
@@ -38,9 +36,9 @@ https://github.com/user-attachments/assets/c194ada6-2996-4bfa-99e9-32b45e29281d
 ## Part 1: Installation of AAS
 
 > [!IMPORTANT]
-> This stack is developed using a [Ubuntu 22.04](https://ubuntu.com/about/release-cycle) host (penultimate LTS, ESM 4/2032) with [**`nvidia-driver-580`**](https://developer.nvidia.com/datacenter-driver-archive) and Docker Engine v28 (latest stable releases as of 9/2025) on an i9-13 with RTX3500 and an i7-11 with RTX3060—**note that an NVIDIA GPU *is* required for the best performance**
+> This stack is developed using a [Ubuntu 22.04](https://ubuntu.com/about/release-cycle) host (penultimate LTS, ESM 4/2032) with [`nvidia-driver-580`](https://developer.nvidia.com/datacenter-driver-archive) and Docker Engine v28 (latest stable releases as of 9/2025) on an i9-13 with RTX3500 and an i7-11 with RTX3060—**note that an NVIDIA GPU *is* required for the best performance**
 > 
-> **To setup the requirements: (i) Ubuntu 22, Git LFS, (ii) NVIDIA driver, (iii) Docker Engine, (iv) NVIDIA Container Toolkit, and (v) NVIDIA NGC API Key, read [`PREINSTALL_UBUNTU.md`](/supplementary/PREINSTALL_UBUNTU.md)**
+> **To setup the requirements: (i) Ubuntu 22, (ii) Git LFS, (iii) NVIDIA driver, (iv) Docker Engine, (v) NVIDIA Container Toolkit, and (vi) NVIDIA NGC API Key, read [`PREINSTALL_UBUNTU.md`](/supplementary/PREINSTALL_UBUNTU.md)**
 >
 > Windows 11 support is available *via* [WSLg](https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-apps), read [`PREINSTALL_WSL.md`](/supplementary/PREINSTALL_WSL.md)
 
