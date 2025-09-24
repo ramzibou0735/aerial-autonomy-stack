@@ -1,4 +1,4 @@
-# Pre-installation
+# Pre-installation for Ubuntu 22
 
 ## Install Ubuntu 22 with NVIDIA Driver
 
