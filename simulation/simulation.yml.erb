@@ -197,7 +197,7 @@ windows:
           gosu qgcuser /squashfs-root/AppRun &
           (for i in {1..10}; do 
             sleep 2; 
-            if wmctrl -l | grep -q "QGroundControl" && wmctrl -r "QGroundControl" -e 0,0,9000,640,480; then 
+            if wmctrl -l | grep -q "QGroundControl" && wmctrl -r "QGroundControl" -e 0,0,650,640,480; then 
               break; 
             fi; 
           done)
