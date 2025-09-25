@@ -127,7 +127,7 @@ class YoloInferenceNode(Node):
             drone_id = os.getenv('DRONE_ID', '0')
             self.WINDOW_NAME = f"YOLOv8 (Aircraft {drone_id})"
             cv2.namedWindow(self.WINDOW_NAME, cv2.WINDOW_NORMAL)
-            cv2.moveWindow(self.WINDOW_NAME, 1500-(int(drone_id)-1)*50, 5+(int(drone_id)-1)*150)
+            cv2.moveWindow(self.WINDOW_NAME, 880+(int(drone_id)-1)*25, 5+(int(drone_id)-1)*200)
             # cv2.resizeWindow(self.WINDOW_NAME, 400, 200)
 
         # Start the video capture thread

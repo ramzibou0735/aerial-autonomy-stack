@@ -128,10 +128,10 @@ docker exec simulation-container bash -c "gz topic -t /world/\$WORLD/wind/ -m gz
 cd ~/git/aerial-autonomy-stack/scripts
 AUTOPILOT=px4 NUM_QUADS=1 ./sim_run.sh # Also try AUTOPILOT=ardupilot, or NUM_QUADS=0 NUM_VTOLS=1
 
-# In aircraft 1's terminal
+# In aircraft 1's terminal (paste in Xterm with middle-click)
 ros2 run mission mission --conops yalla --ros-args -r __ns:=/Drone$DRONE_ID -p use_sim_time:=true # This mission is a simple takeoff, followed by an orbit, and landing for any vehicle
 
-# Finally, in the simulation's terminal
+# Finally, in the simulation's terminal (paste in Xterm with middle-click)
 /simulation_resources/patches/plot_logs.sh # Analyze the flight logs
 ```
 

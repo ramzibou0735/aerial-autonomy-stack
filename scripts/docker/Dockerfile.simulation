@@ -194,6 +194,13 @@ RUN apt-get update && \
 ################################################################################
 FROM ros2-gz-qgc-px4custom-ardupilot-gst-pymavlink-zenoh-image AS simulation-dev-image
 
+# Install wmctrl to resize Gazebo and QGC windows
+RUN apt update \
+    && apt install -y --no-install-recommends \
+        wmctrl \
+    && apt clean \
+    && rm -rf /var/lib/apt/lists/*
+
 # Install https://github.com/PX4/flight_review
 RUN apt-get update && \
     apt-get install -y sqlite3 libfftw3-bin libfftw3-dev \

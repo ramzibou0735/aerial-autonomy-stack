@@ -24,6 +24,23 @@ else
 fi
 echo "Desktop environment: $DESK_ENV"
 
+# Get screen size (default: 1080p)
+SCREEN_WIDTH=1920
+SCREEN_HEIGHT=1080
+if command -v xdpyinfo >/dev/null 2>&1; then
+  resolution=$(xdpyinfo 2>/dev/null | grep dimensions | awk '{print $2}')
+  if [[ -n "$resolution" && "$resolution" =~ ^[0-9]+x[0-9]+$ ]]; then
+    SCREEN_WIDTH=$(echo "$resolution" | cut -d'x' -f1)
+    SCREEN_HEIGHT=$(echo "$resolution" | cut -d'x' -f2)
+  fi
+elif command -v xrandr >/dev/null 2>&1; then
+  resolution=$(xrandr 2>/dev/null | grep -E '^\s*[0-9]+x[0-9]+.*\*' | head -n1 | awk '{print $1}')
+  if [[ -n "$resolution" && "$resolution" =~ ^[0-9]+x[0-9]+$ ]]; then
+    SCREEN_WIDTH=$(echo "$resolution" | cut -d'x' -f1)
+    SCREEN_HEIGHT=$(echo "$resolution" | cut -d'x' -f2)
+  fi
+fi
+
 # Cleanup function
 cleanup() {
   DOCKER_PIDS=$(pgrep -f "docker run.*simulation-image|docker run.*aircraft-image" 2>/dev/null || true)
@@ -85,6 +102,17 @@ docker network inspect "$NETWORK_NAME" >/dev/null 2>&1 || docker network create 
 WSL_OPTS="--env WAYLAND_DISPLAY=$WAYLAND_DISPLAY --env PULSE_SERVER=$PULSE_SERVER --volume /usr/lib/wsl:/usr/lib/wsl \
 --env LD_LIBRARY_PATH=/usr/lib/wsl/lib --env LIBGL_ALWAYS_SOFTWARE=0 --env __GLX_VENDOR_LIBRARY_NAME=nvidia"
 
+# On-screen terminal placement variables
+NUM_TERMINALS=$((NUM_QUADS + NUM_VTOLS + 1))
+TERM_COLS=80 # Terminal width in characters
+TERM_ROWS=30 # Terminal height in characters
+CHAR_WIDTH=6 # Estimate pixel dimensions (approximate - varies by font)
+CHAR_HEIGHT=13 # For Monospace -fs 10: roughly 6px wide, 13px tall per character
+TERM_WIDTH=$((TERM_COLS * CHAR_WIDTH))
+TERM_HEIGHT=$((TERM_ROWS * CHAR_HEIGHT))
+X_POS=$((SCREEN_WIDTH - TERM_WIDTH))
+Y_POS=0
+
 # Launch the simulation container
 DOCKER_CMD="echo 'Launching Simulation Container...'; \
   docker run -it --rm \
@@ -102,7 +130,7 @@ if [[ "$DESK_ENV" == "wsl" ]]; then
     DOCKER_CMD="$DOCKER_CMD $WSL_OPTS"
 fi
 DOCKER_CMD="$DOCKER_CMD ${MODE_SIM_OPTS} simulation-image"
-xterm -title "Simulation" -fa Monospace -fs 10 -bg black -fg white -hold -e bash -c "$DOCKER_CMD" &
+xterm -title "Simulation" -fa Monospace -fs 10 -bg black -fg white -geometry "${TERM_COLS}x${TERM_ROWS}+${X_POS}+${Y_POS}" -hold -e bash -c "$DOCKER_CMD" &
 
 # Initialize a counter for the drone IDs
 DRONE_ID=0
@@ -127,7 +155,13 @@ for i in $(seq 1 $NUM_QUADS); do
       DOCKER_CMD="$DOCKER_CMD $WSL_OPTS"
   fi
   DOCKER_CMD="$DOCKER_CMD ${MODE_SIM_OPTS} aircraft-image"
-  xterm -title "Quad $DRONE_ID" -fa Monospace -fs 10 -bg black -fg white -hold -e bash -c "$DOCKER_CMD" &
+  if [ $((DRONE_ID % 2)) -eq 1 ]; then
+    X_POS=$((SCREEN_WIDTH - TERM_WIDTH - 200))
+  else
+    X_POS=$((SCREEN_WIDTH - TERM_WIDTH))
+  fi
+  Y_POS=$(( DRONE_ID * (SCREEN_HEIGHT - TERM_HEIGHT) / (NUM_TERMINALS) ))
+  xterm -title "Quad $DRONE_ID" -fa Monospace -fs 10 -bg black -fg white -geometry "${TERM_COLS}x${TERM_ROWS}+${X_POS}+${Y_POS}" -hold -e bash -c "$DOCKER_CMD" &
 done
 
 # Launch the vtol containers
@@ -150,7 +184,13 @@ for i in $(seq 1 $NUM_VTOLS); do
       DOCKER_CMD="$DOCKER_CMD $WSL_OPTS"
   fi
   DOCKER_CMD="$DOCKER_CMD ${MODE_SIM_OPTS} aircraft-image"
-  xterm -title "VTOL $DRONE_ID" -fa Monospace -fs 10 -bg black -fg white -hold -e bash -c "$DOCKER_CMD" &
+  if [ $((DRONE_ID % 2)) -eq 1 ]; then
+    X_POS=$((SCREEN_WIDTH - TERM_WIDTH - 200))
+  else
+    X_POS=$((SCREEN_WIDTH - TERM_WIDTH))
+  fi
+  Y_POS=$(( DRONE_ID * (SCREEN_HEIGHT - TERM_HEIGHT) / (NUM_TERMINALS) ))
+  xterm -title "VTOL $DRONE_ID" -fa Monospace -fs 10 -bg black -fg white -geometry "${TERM_COLS}x${TERM_ROWS}+${X_POS}+${Y_POS}" -hold -e bash -c "$DOCKER_CMD" &
 done
 
 echo "Fly, my pretties, fly!"
