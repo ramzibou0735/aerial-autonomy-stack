@@ -245,7 +245,7 @@ for i in $(seq 1 $NUM_QUADS); do
   if [[ "$DESK_ENV" == "wsl" ]]; then
       DOCKER_CMD="$DOCKER_CMD $WSL_OPTS"
   fi
-  DOCKER_CMD="$DOCKER_CMD ${MODE_SIM_OPTS} aircraft-image"
+  DOCKER_CMD="$DOCKER_CMD ${MODE_AIR_OPTS} aircraft-image"
   calculate_terminal_position $DRONE_ID $NUM_TERMINALS
   xterm -title "Quad $DRONE_ID" -fa Monospace -fs 10 -bg black -fg white -geometry "${TERM_COLS}x${TERM_ROWS}+${X_POS}+${Y_POS}" -hold -e bash -c "$DOCKER_CMD" &
 done
@@ -269,7 +269,7 @@ for i in $(seq 1 $NUM_VTOLS); do
   if [[ "$DESK_ENV" == "wsl" ]]; then
       DOCKER_CMD="$DOCKER_CMD $WSL_OPTS"
   fi
-  DOCKER_CMD="$DOCKER_CMD ${MODE_SIM_OPTS} aircraft-image"
+  DOCKER_CMD="$DOCKER_CMD ${MODE_AIR_OPTS} aircraft-image"
   calculate_terminal_position $DRONE_ID $NUM_TERMINALS
   xterm -title "VTOL $DRONE_ID" -fa Monospace -fs 10 -bg black -fg white -geometry "${TERM_COLS}x${TERM_ROWS}+${X_POS}+${Y_POS}" -hold -e bash -c "$DOCKER_CMD" &
 done
