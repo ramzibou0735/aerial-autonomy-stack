@@ -44,22 +44,19 @@ https://github.com/user-attachments/assets/c194ada6-2996-4bfa-99e9-32b45e29281d
 
 ```sh
 # Clone this repo
-mkdir -p ~/git
+mkdir -p ~/git && cd ~/git
 git lfs install
-git clone https://github.com/JacopoPan/aerial-autonomy-stack.git ~/git/aerial-autonomy-stack
-cd ~/git/aerial-autonomy-stack
+git clone https://github.com/JacopoPan/aerial-autonomy-stack.git
 ```
 
 ### Build the Docker Images
 
 > [!WARNING]
-> The build script creates two ~20GB images (including lots of tools and artifacts for development)
-> 
-> The first build requires a good/stable internet connection (`Ctrl + c` and restart if necessary)
+> The first build requires ~50GB of disk space and ~25' with a good/stable internet connection (`Ctrl + c` and restart if needed)
 
 ```sh
 cd ~/git/aerial-autonomy-stack/scripts
-./sim_build.sh # The first build takes ~25', subsequent ones take seconds to minutes
+./sim_build.sh # The first build takes ~25', subsequent ones will take seconds to minutes thanks to the Docker cache
 ```
 
 ---
@@ -67,13 +64,13 @@ cd ~/git/aerial-autonomy-stack/scripts
 ## Part 2: Simulation and Development
 
 ```sh
-# Start a simulation (note: ArduPilot STIL takes ~40s to be ready to arm)
+# Start a simulation (note: ArduPilot SITL takes ~40s to be ready to arm)
 cd ~/git/aerial-autonomy-stack/scripts
 AUTOPILOT=px4 NUM_QUADS=1 NUM_VTOLS=1 WORLD=swiss_town ./sim_run.sh # Check the script for more options
 ```
 
 > [!NOTE]
-> On a low-mid range laptop—i7-11 with 16GB RAM and RTX 3060—AAS simulates three PX4 quads with camera and LiDAR at 99% real-time-factor (note that ArduPilot faster physics updates and more complex worlds have higher computational demands). Make sure you run `sudo prime-select nvidia` and rebooted to leverage the GPU compute.
+> On a low-mid range laptop—i7-11 with 16GB RAM and RTX 3060—AAS simulates three PX4 quads with camera and LiDAR at 99% real-time-factor (note that ArduPilot faster physics updates and more complex worlds have higher computational demands). Make sure you run `sudo prime-select nvidia` and rebooted to effectively leverage GPU compute.
 
 ![worlds](https://github.com/user-attachments/assets/45a2f2ad-cc31-4d71-aa2e-4fe542a59a77)
 
@@ -217,9 +214,9 @@ MODE=dev ./sim_run.sh # Images are pre-built but the ros2_ws/src/ and *_resource
 
 ```sh
 # On Jetson Orin NX, build for arm64 with TensorRT support
-mkdir -p ~/git
+mkdir -p ~/git && cd ~/git
 git lfs install
-git clone git@github.com:JacopoPan/aerial-autonomy-stack.git ~/git/aerial-autonomy-stack
+git clone git@github.com:JacopoPan/aerial-autonomy-stack.git
 cd ~/git/aerial-autonomy-stack/scripts
 ./deploy_build.sh # The first build takes ~1h (mostly to build onnxruntime-gpu from source)
 ```
@@ -244,8 +241,6 @@ docker exec -it aircraft-container tmux attach
 > You've done a man's job, sir. I guess you're through, huh?
 
 <!-- 
-
-
 
 ## TODOs
 
@@ -272,7 +267,5 @@ Expand in AVIONIC.md
 - In ArdupilotInterface's action callbacks, std::shared_lock<std::shared_mutex> lock(node_data_mutex_); could be used on the reads of lat_, lon_, alt_
 - In yolo_inference_node.py, cannot open GPU accelerated (nvh264dec) GStreamer pipeline with cv2.VideoCapture, might need to recompile OpenCV to have both CUDA and GStreamer support (or use python3-gi gir1.2-gst-plugins-base-1.0 gir1.2-gstreamer-1.0 and circumvent OpenCV)
 - QGC does not save roll and pitch in the telemetry bar for PX4 VTOLs (MAV_TYPE 22)
-
-
 
 -->
