@@ -33,7 +33,7 @@ windows:
         - >
           (for i in {1..10}; do 
             sleep 2; 
-            if wmctrl -l | grep -q "Gazebo Sim" && wmctrl -r "Gazebo Sim" -e 0,0,0,800,600; then 
+            if wmctrl -l | grep -q "Gazebo Sim" && wmctrl -r "Gazebo Sim" -e 0,$(($(xrandr | grep -oE '[0-9]+x[0-9]+' | head -1 | cut -d'x' -f1) - 768)),0,1024,768; then
               break; 
             fi; 
           done)
@@ -57,7 +57,7 @@ windows:
         - >
           (for i in {1..10}; do 
             sleep 2; 
-            if wmctrl -l | grep -q "Gazebo Sim" && wmctrl -r "Gazebo Sim" -e 0,0,0,800,600; then 
+            if wmctrl -l | grep -q "Gazebo Sim" && wmctrl -r "Gazebo Sim" -e 0,$(($(xrandr | grep -oE '[0-9]+x[0-9]+' | head -1 | cut -d'x' -f1) - 768)),0,1024,768; then
               break; 
             fi; 
           done)
@@ -197,7 +197,7 @@ windows:
           gosu qgcuser /squashfs-root/AppRun &
           (for i in {1..10}; do 
             sleep 2; 
-            if wmctrl -l | grep -q "QGroundControl" && wmctrl -r "QGroundControl" -e 0,0,650,640,480; then 
+            if wmctrl -l | grep -q "QGroundControl" && wmctrl -r "QGroundControl" -e 0,$(($(xrandr | grep -oE '[0-9]+x[0-9]+' | head -1 | cut -d'x' -f1) - 768)),1000,1024,768; then
               break; 
             fi; 
           done)

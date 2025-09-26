@@ -85,123 +85,15 @@ docker network inspect "$NETWORK_NAME" >/dev/null 2>&1 || docker network create 
 WSL_OPTS="--env WAYLAND_DISPLAY=$WAYLAND_DISPLAY --env PULSE_SERVER=$PULSE_SERVER --volume /usr/lib/wsl:/usr/lib/wsl \
 --env LD_LIBRARY_PATH=/usr/lib/wsl/lib --env LIBGL_ALWAYS_SOFTWARE=0 --env __GLX_VENDOR_LIBRARY_NAME=nvidia"
 
-# Get primary display dimensions (for multi-monitor)
-get_primary_display_info() {
-    if command -v xrandr >/dev/null 2>&1; then
-        # Get primary display info
-        local primary_info=$(xrandr 2>/dev/null | grep " connected primary" | head -1)
-        if [[ -n "$primary_info" ]]; then
-            # Extract resolution from primary display
-            local resolution=$(echo "$primary_info" | grep -oE '[0-9]+x[0-9]+' | head -1)
-            if [[ -n "$resolution" && "$resolution" =~ ^[0-9]+x[0-9]+$ ]]; then
-                SCREEN_WIDTH=$(echo "$resolution" | cut -d'x' -f1)
-                SCREEN_HEIGHT=$(echo "$resolution" | cut -d'x' -f2)
-                echo "Using primary display: ${SCREEN_WIDTH}x${SCREEN_HEIGHT}"
-                return 0
-            fi
-        fi
-        # Fallback: get first active display
-        local resolution=$(xrandr 2>/dev/null | grep -E '^\s*[0-9]+x[0-9]+.*\*' | head -n1 | awk '{print $1}')
-        if [[ -n "$resolution" && "$resolution" =~ ^[0-9]+x[0-9]+$ ]]; then
-            SCREEN_WIDTH=$(echo "$resolution" | cut -d'x' -f1)
-            SCREEN_HEIGHT=$(echo "$resolution" | cut -d'x' -f2)
-            echo "Using first active display: ${SCREEN_WIDTH}x${SCREEN_HEIGHT}"
-            return 0
-        fi
-    fi
-    # Fallback to xdpyinfo (gets combined resolution on multi-monitor)
-    if command -v xdpyinfo >/dev/null 2>&1; then
-        local resolution=$(xdpyinfo 2>/dev/null | grep dimensions | awk '{print $2}')
-        if [[ -n "$resolution" && "$resolution" =~ ^[0-9]+x[0-9]+$ ]]; then
-            SCREEN_WIDTH=$(echo "$resolution" | cut -d'x' -f1)
-            SCREEN_HEIGHT=$(echo "$resolution" | cut -d'x' -f2)
-            echo "Using combined display resolution: ${SCREEN_WIDTH}x${SCREEN_HEIGHT}"
-            return 0
-        fi
-    fi
-    # Default fallback
-    SCREEN_WIDTH=1920
-    SCREEN_HEIGHT=1080
-    echo "Using default resolution: ${SCREEN_WIDTH}x${SCREEN_HEIGHT}"
-}
-# Dynamic character size estimation based on screen resolution
-get_char_dimensions() {
-    local dpi_scale=1.0
-    # Estimate DPI scaling based on resolution
-    if [ "$SCREEN_WIDTH" -ge 2560 ] || [ "$SCREEN_HEIGHT" -ge 1440 ]; then
-        # High resolution display (1440p, 4K, etc.)
-        dpi_scale=1.5
-    elif [ "$SCREEN_WIDTH" -ge 3840 ] || [ "$SCREEN_HEIGHT" -ge 2160 ]; then
-        # 4K and above
-        dpi_scale=2.0
-    fi
-    # Base character dimensions for Monospace -fs 10
-    local base_char_width=6
-    local base_char_height=13
-    # Apply scaling
-    CHAR_WIDTH=$(echo "$base_char_width * $dpi_scale" | bc -l | cut -d. -f1)
-    CHAR_HEIGHT=$(echo "$base_char_height * $dpi_scale" | bc -l | cut -d. -f1)
-    # Fallback if bc is not available
-    if [ -z "$CHAR_WIDTH" ] || [ "$CHAR_WIDTH" -eq 0 ]; then
-        CHAR_WIDTH=$(awk "BEGIN {printf \"%.0f\", $base_char_width * $dpi_scale}")
-    fi
-    if [ -z "$CHAR_HEIGHT" ] || [ "$CHAR_HEIGHT" -eq 0 ]; then
-        CHAR_HEIGHT=$(awk "BEGIN {printf \"%.0f\", $base_char_height * $dpi_scale}")
-    fi
-    echo "Character dimensions: ${CHAR_WIDTH}x${CHAR_HEIGHT} (scale: $dpi_scale)"
-}
-# Adaptive terminal sizing
-get_terminal_dimensions() {
-    # Adjust terminal size based on screen resolution
-    if [ "$SCREEN_WIDTH" -ge 2560 ]; then
-        # Larger terminals for high-res displays
-        TERM_COLS=100
-        TERM_ROWS=35
-    elif [ "$SCREEN_WIDTH" -ge 1920 ]; then
-        # Standard size for 1080p+
-        TERM_COLS=80
-        TERM_ROWS=30
-    else
-        # Smaller terminals for lower resolution
-        TERM_COLS=70
-        TERM_ROWS=25
-    fi
-    TERM_WIDTH=$((TERM_COLS * CHAR_WIDTH))
-    TERM_HEIGHT=$((TERM_ROWS * CHAR_HEIGHT))
-    echo "Terminal size: ${TERM_COLS}x${TERM_ROWS} (${TERM_WIDTH}x${TERM_HEIGHT} pixels)"
-}
-# Improved positioning with margin consideration
+# Setup terminal dimensions
+TERM_COLS=80
+TERM_ROWS=32
+FONT_SIZE=10
 calculate_terminal_position() {
-    local drone_id=$1 # 0-based drone ID (0 = simulation, 1+ = drones)
-    local total_terminals=$2
-    # Add margins for better spacing
-    local margin=20
-    local usable_height=$((SCREEN_HEIGHT - margin * 2))
-    local usable_width=$((SCREEN_WIDTH - margin * 2))
-    # X position logic (odd/even based on drone_id)
-    if [ $((drone_id % 2)) -eq 1 ]; then
-        # Odd: offset from right edge
-        X_POS=$((SCREEN_WIDTH - TERM_WIDTH - 200 - margin))
-    else
-        # Even: at right edge
-        X_POS=$((SCREEN_WIDTH - TERM_WIDTH - margin))
-    fi
-    # Y position: distributed vertically with margins
-    if [ "$total_terminals" -eq 1 ]; then
-        Y_POS=$(( (SCREEN_HEIGHT - TERM_HEIGHT) / 2 ))
-    else
-        # Use drone_id directly (0, 1, 2, ...) for even spacing
-        Y_POS=$(( margin + drone_id * usable_height / (total_terminals - 1) ))
-        # Ensure we don't go off screen
-        if [ $((Y_POS + TERM_HEIGHT)) -gt $((SCREEN_HEIGHT - margin)) ]; then
-            Y_POS=$((SCREEN_HEIGHT - TERM_HEIGHT - margin))
-        fi
-    fi
+  local drone_id=$1
+  X_POS=$((100 + drone_id * 100))
+  Y_POS=$(( drone_id * 250 ))
 }
-get_primary_display_info
-get_char_dimensions  
-get_terminal_dimensions
-NUM_TERMINALS=$((NUM_QUADS + NUM_VTOLS + 1))
 
 # Initialize a counter for the drone IDs
 DRONE_ID=0
@@ -223,8 +115,8 @@ if [[ "$DESK_ENV" == "wsl" ]]; then
     DOCKER_CMD="$DOCKER_CMD $WSL_OPTS"
 fi
 DOCKER_CMD="$DOCKER_CMD ${MODE_SIM_OPTS} simulation-image"
-calculate_terminal_position $DRONE_ID $NUM_TERMINALS
-xterm -title "Simulation" -fa Monospace -fs 10 -bg black -fg white -geometry "${TERM_COLS}x${TERM_ROWS}+${X_POS}+${Y_POS}" -hold -e bash -c "$DOCKER_CMD" &
+calculate_terminal_position $DRONE_ID
+xterm -title "Simulation" -fa Monospace -fs $FONT_SIZE -bg black -fg white -geometry "${TERM_COLS}x${TERM_ROWS}+${X_POS}+${Y_POS}" -hold -e bash -c "$DOCKER_CMD" &
 
 # Launch the quad containers
 for i in $(seq 1 $NUM_QUADS); do
@@ -246,8 +138,8 @@ for i in $(seq 1 $NUM_QUADS); do
       DOCKER_CMD="$DOCKER_CMD $WSL_OPTS"
   fi
   DOCKER_CMD="$DOCKER_CMD ${MODE_AIR_OPTS} aircraft-image"
-  calculate_terminal_position $DRONE_ID $NUM_TERMINALS
-  xterm -title "Quad $DRONE_ID" -fa Monospace -fs 10 -bg black -fg white -geometry "${TERM_COLS}x${TERM_ROWS}+${X_POS}+${Y_POS}" -hold -e bash -c "$DOCKER_CMD" &
+  calculate_terminal_position $DRONE_ID
+  xterm -title "Quad $DRONE_ID" -fa Monospace -fs $FONT_SIZE -bg black -fg white -geometry "${TERM_COLS}x${TERM_ROWS}+${X_POS}+${Y_POS}" -hold -e bash -c "$DOCKER_CMD" &
 done
 
 # Launch the vtol containers
@@ -270,8 +162,8 @@ for i in $(seq 1 $NUM_VTOLS); do
       DOCKER_CMD="$DOCKER_CMD $WSL_OPTS"
   fi
   DOCKER_CMD="$DOCKER_CMD ${MODE_AIR_OPTS} aircraft-image"
-  calculate_terminal_position $DRONE_ID $NUM_TERMINALS
-  xterm -title "VTOL $DRONE_ID" -fa Monospace -fs 10 -bg black -fg white -geometry "${TERM_COLS}x${TERM_ROWS}+${X_POS}+${Y_POS}" -hold -e bash -c "$DOCKER_CMD" &
+  calculate_terminal_position $DRONE_ID
+  xterm -title "VTOL $DRONE_ID" -fa Monospace -fs $FONT_SIZE -bg black -fg white -geometry "${TERM_COLS}x${TERM_ROWS}+${X_POS}+${Y_POS}" -hold -e bash -c "$DOCKER_CMD" &
 done
 
 echo "Fly, my pretties, fly!"

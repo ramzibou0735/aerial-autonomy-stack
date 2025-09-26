@@ -194,10 +194,10 @@ RUN apt-get update && \
 ################################################################################
 FROM ros2-gz-qgc-px4custom-ardupilot-gst-pymavlink-zenoh-image AS simulation-dev-image
 
-# Install wmctrl to resize Gazebo and QGC windows
+# Install wmctrl and xrandr to resize Gazebo and QGC GUIs
 RUN apt update \
     && apt install -y --no-install-recommends \
-        wmctrl \
+        wmctrl x11-xserver-utils \
     && apt clean \
     && rm -rf /var/lib/apt/lists/*
 
