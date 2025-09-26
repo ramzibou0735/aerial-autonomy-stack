@@ -87,16 +87,16 @@ WSL_OPTS="--env WAYLAND_DISPLAY=$WAYLAND_DISPLAY --env PULSE_SERVER=$PULSE_SERVE
 
 # Get primary display dimensions
 get_primary_display_info() {
-    local resolution=$(xrandr 2>/dev/null | grep " connected primary" | grep -oE '[0-9]+x[0-9]+' | head -1)
-    if [[ "$resolution" =~ ^[0-9]+x[0-9]+$ ]]; then
-        SCREEN_WIDTH=$(echo "$resolution" | cut -d'x' -f1)
-        SCREEN_HEIGHT=$(echo "$resolution" | cut -d'x' -f2)
-        echo "Primary display: ${SCREEN_WIDTH}x${SCREEN_HEIGHT}"
-    else
-        SCREEN_WIDTH=1920
-        SCREEN_HEIGHT=1080
-        echo "Fallback resolution to ${SCREEN_WIDTH}x${SCREEN_HEIGHT} default"
-    fi
+  local resolution=$(xrandr 2>/dev/null | grep " connected primary" | grep -oE '[0-9]+x[0-9]+' | head -1)
+  if [[ "$resolution" =~ ^[0-9]+x[0-9]+$ ]]; then
+    SCREEN_WIDTH=$(echo "$resolution" | cut -d'x' -f1)
+    SCREEN_HEIGHT=$(echo "$resolution" | cut -d'x' -f2)
+    echo "Primary display: ${SCREEN_WIDTH}x${SCREEN_HEIGHT}"
+  else
+    SCREEN_WIDTH=1920
+    SCREEN_HEIGHT=1080
+    echo "Fallback resolution to ${SCREEN_WIDTH}x${SCREEN_HEIGHT} default"
+  fi
 }
 get_primary_display_info
 
@@ -105,18 +105,17 @@ TERM_COLS=80
 TERM_ROWS=32
 FONT_SIZE=10
 calculate_terminal_position() {
-    local drone_id=$1
-    SCREEN_SCALE=$((SCREEN_HEIGHT * 100 / 1080)) # Full HD = 100%
-    X_POS=$(( (50 + drone_id * 50) * SCREEN_SCALE / 100 ))
-    Y_POS=$(( (drone_id * 125) * SCREEN_SCALE / 100 ))
+  local drone_id=$1
+  SCREEN_SCALE=$((SCREEN_HEIGHT * 100 / 1080)) # Full HD = 100%
+  X_POS=$(( (50 + drone_id * 50) * SCREEN_SCALE / 100 ))
+  Y_POS=$(( (drone_id * 125) * SCREEN_SCALE / 100 ))
 }
 
 # Initialize a counter for the drone IDs
-DRONE_ID=0
+DRONE_ID=0 # 0: simulation, 1-N: drones
 
 # Launch the simulation container
-DOCKER_CMD="echo 'Launching Simulation Container...'; \
-  docker run -it --rm \
+DOCKER_CMD="docker run -it --rm \
   --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --device /dev/dri --gpus all \
   --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR \
   --env ROS_DOMAIN_ID=99 --env AUTOPILOT=$AUTOPILOT --env DRONE_TYPE=$DRONE_TYPE \
@@ -128,7 +127,7 @@ DOCKER_CMD="echo 'Launching Simulation Container...'; \
   --name simulation-container"
 # Add WSL-specific options and complete the command
 if [[ "$DESK_ENV" == "wsl" ]]; then
-    DOCKER_CMD="$DOCKER_CMD $WSL_OPTS"
+  DOCKER_CMD="$DOCKER_CMD $WSL_OPTS"
 fi
 DOCKER_CMD="$DOCKER_CMD ${MODE_SIM_OPTS} simulation-image"
 calculate_terminal_position $DRONE_ID
@@ -138,20 +137,19 @@ xterm -title "Simulation" -fa Monospace -fs $FONT_SIZE -bg black -fg white -geom
 for i in $(seq 1 $NUM_QUADS); do
   DRONE_ID=$((DRONE_ID + 1))
   sleep 1.5 # Limit resource usage
-  DOCKER_CMD="echo 'Launching Quadcopter Container $DRONE_ID...'; \
-    docker run -it --rm \
-      --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --device /dev/dri --gpus all \
-      --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR \
-      --env ROS_DOMAIN_ID=$DRONE_ID --env AUTOPILOT=$AUTOPILOT \
-      --env DRONE_TYPE=quad \
-      --env DRONE_ID=$DRONE_ID --env HEADLESS=$HEADLESS --env CAMERA=$CAMERA --env LIDAR=$LIDAR \
-      --env SIMULATED_TIME=true \
-      --net=aas-network --ip=42.42.1.$DRONE_ID \
-      --privileged \
-      --name aircraft-container_$DRONE_ID"
+  DOCKER_CMD="docker run -it --rm \
+    --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --device /dev/dri --gpus all \
+    --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR \
+    --env ROS_DOMAIN_ID=$DRONE_ID --env AUTOPILOT=$AUTOPILOT \
+    --env DRONE_TYPE=quad \
+    --env DRONE_ID=$DRONE_ID --env HEADLESS=$HEADLESS --env CAMERA=$CAMERA --env LIDAR=$LIDAR \
+    --env SIMULATED_TIME=true \
+    --net=aas-network --ip=42.42.1.$DRONE_ID \
+    --privileged \
+    --name aircraft-container_$DRONE_ID"
   # Add WSL-specific options and complete the command
   if [[ "$DESK_ENV" == "wsl" ]]; then
-      DOCKER_CMD="$DOCKER_CMD $WSL_OPTS"
+    DOCKER_CMD="$DOCKER_CMD $WSL_OPTS"
   fi
   DOCKER_CMD="$DOCKER_CMD ${MODE_AIR_OPTS} aircraft-image"
   calculate_terminal_position $DRONE_ID
@@ -162,20 +160,19 @@ done
 for i in $(seq 1 $NUM_VTOLS); do
   DRONE_ID=$((DRONE_ID + 1))
   sleep 1.5 # Limit resource usage
-  DOCKER_CMD="echo 'Launching VTOL Container $DRONE_ID...'; \
-    docker run -it --rm \
-      --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --device /dev/dri --gpus all \
-      --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR \
-      --env ROS_DOMAIN_ID=$DRONE_ID --env AUTOPILOT=$AUTOPILOT \
-      --env DRONE_TYPE=vtol \
-      --env DRONE_ID=$DRONE_ID --env HEADLESS=$HEADLESS --env CAMERA=$CAMERA --env LIDAR=$LIDAR \
-      --env SIMULATED_TIME=true \
-      --net=aas-network --ip=42.42.1.$DRONE_ID \
-      --privileged \
-      --name aircraft-container_$DRONE_ID"
+  DOCKER_CMD="docker run -it --rm \
+    --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --device /dev/dri --gpus all \
+    --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR \
+    --env ROS_DOMAIN_ID=$DRONE_ID --env AUTOPILOT=$AUTOPILOT \
+    --env DRONE_TYPE=vtol \
+    --env DRONE_ID=$DRONE_ID --env HEADLESS=$HEADLESS --env CAMERA=$CAMERA --env LIDAR=$LIDAR \
+    --env SIMULATED_TIME=true \
+    --net=aas-network --ip=42.42.1.$DRONE_ID \
+    --privileged \
+    --name aircraft-container_$DRONE_ID"
   # Add WSL-specific options and complete the command
   if [[ "$DESK_ENV" == "wsl" ]]; then
-      DOCKER_CMD="$DOCKER_CMD $WSL_OPTS"
+    DOCKER_CMD="$DOCKER_CMD $WSL_OPTS"
   fi
   DOCKER_CMD="$DOCKER_CMD ${MODE_AIR_OPTS} aircraft-image"
   calculate_terminal_position $DRONE_ID
