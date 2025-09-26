@@ -18,7 +18,7 @@ windows:
 
   <% if autopilot == 'px4' %>
   - gz_sim:
-      layout: even-horizontal
+      layout: main-vertical
       panes:
         - >
           <% if camera == 'false' %>
@@ -30,9 +30,16 @@ windows:
           GZ_SIM_RESOURCE_PATH=$GZ_SIM_RESOURCE_PATH:/simulation_resources/aircraft_models:/simulation_resources/simulation_worlds 
           GZ_SIM_PHYSICS_ENGINE_PATH=$GZ_SIM_PHYSICS_ENGINE_PATH:/usr/lib/x86_64-linux-gnu/gz-physics-7/engine-plugins/
           gz sim -v4 -r <% if headless == 'true' %> -s <% end %> <%= world %>.sdf
+        - >
+          (for i in {1..10}; do 
+            sleep 2; 
+            if wmctrl -l | grep -q "Gazebo Sim" && wmctrl -r "Gazebo Sim" -e 0,$(($(xrandr | grep -oE '[0-9]+x[0-9]+' | head -1 | cut -d'x' -f1) - 768)),0,1024,768; then
+              break; 
+            fi; 
+          done)
   <% elsif autopilot == 'ardupilot' %>
   - gz_sim:
-      layout: even-horizontal
+      layout: main-vertical
       panes:
         - > 
           <% if camera == 'false' %>
@@ -47,6 +54,13 @@ windows:
           GZ_SIM_RESOURCE_PATH=/simulation_resources/aircraft_models:/simulation_resources/simulation_worlds:$GZ_SIM_RESOURCE_PATH 
           GZ_SIM_PHYSICS_ENGINE_PATH=$GZ_SIM_PHYSICS_ENGINE_PATH:/usr/lib/x86_64-linux-gnu/gz-physics-7/engine-plugins/
           gz sim -v4 -r <% if headless == 'true' %> -s <% end %> populated_ardupilot.sdf
+        - >
+          (for i in {1..10}; do 
+            sleep 2; 
+            if wmctrl -l | grep -q "Gazebo Sim" && wmctrl -r "Gazebo Sim" -e 0,$(($(xrandr | grep -oE '[0-9]+x[0-9]+' | head -1 | cut -d'x' -f1) - 768)),0,1024,768; then
+              break; 
+            fi; 
+          done)
   <% end %>
 
   <% drone_id = -1 %>
@@ -180,5 +194,11 @@ windows:
           <% if num_quads > 0 %>
           sed -i 's/virtualJoystickAutoCenterThrottle=false/virtualJoystickAutoCenterThrottle=true/g' /home/qgcuser/.config/QGroundControl/QGroundControl.ini &&
           <% end %>
-          gosu qgcuser /squashfs-root/AppRun -geometry 800x600+960+540
+          gosu qgcuser /squashfs-root/AppRun &
+          (for i in {1..10}; do 
+            sleep 2; 
+            if wmctrl -l | grep -q "QGroundControl" && wmctrl -r "QGroundControl" -e 0,$(($(xrandr | grep -oE '[0-9]+x[0-9]+' | head -1 | cut -d'x' -f1) - 768)),1000,1024,768; then
+              break; 
+            fi; 
+          done)
         <% end %>
