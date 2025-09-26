@@ -88,10 +88,13 @@ WSL_OPTS="--env WAYLAND_DISPLAY=$WAYLAND_DISPLAY --env PULSE_SERVER=$PULSE_SERVE
 # Get primary display dimensions
 get_primary_display_info() {
   local resolution=$(xrandr 2>/dev/null | grep " connected primary" | grep -oE '[0-9]+x[0-9]+' | head -1)
+  if [[ ! "$resolution" =~ ^[0-9]+x[0-9]+$ ]]; then
+    resolution=$(xrandr 2>/dev/null | grep " connected" | grep -oE '[0-9]+x[0-9]+' | head -1) # Fallback
+  fi
   if [[ "$resolution" =~ ^[0-9]+x[0-9]+$ ]]; then
     SCREEN_WIDTH=$(echo "$resolution" | cut -d'x' -f1)
     SCREEN_HEIGHT=$(echo "$resolution" | cut -d'x' -f2)
-    echo "Primary display: ${SCREEN_WIDTH}x${SCREEN_HEIGHT}"
+    echo "Detected display: ${SCREEN_WIDTH}x${SCREEN_HEIGHT}"
   else
     SCREEN_WIDTH=1920
     SCREEN_HEIGHT=1080
