@@ -259,6 +259,7 @@ Expand in AVIONIC.md
 
 ### Known Issues
 
+- wmctrl does not work as-is in WSLg
 - QGC is started with a virtual joystick (with low throttle if using only VTOLs and centered throttle if there are quads), this is reflective of real-life but note that this counts as "RC loss" when switching focus from one autopilot instance to another
 - ArduPilot CIRCLE mode for quads require to explicitly center the virtual throttle with 'rc 3 1500' to keep altitude
 - Gazebo WindEffects plugin is disabled for PX4 standard_vtol
