@@ -85,14 +85,30 @@ docker network inspect "$NETWORK_NAME" >/dev/null 2>&1 || docker network create 
 WSL_OPTS="--env WAYLAND_DISPLAY=$WAYLAND_DISPLAY --env PULSE_SERVER=$PULSE_SERVER --volume /usr/lib/wsl:/usr/lib/wsl \
 --env LD_LIBRARY_PATH=/usr/lib/wsl/lib --env LIBGL_ALWAYS_SOFTWARE=0 --env __GLX_VENDOR_LIBRARY_NAME=nvidia"
 
+# Get primary display dimensions
+get_primary_display_info() {
+    local resolution=$(xrandr 2>/dev/null | grep " connected primary" | grep -oE '[0-9]+x[0-9]+' | head -1)
+    if [[ "$resolution" =~ ^[0-9]+x[0-9]+$ ]]; then
+        SCREEN_WIDTH=$(echo "$resolution" | cut -d'x' -f1)
+        SCREEN_HEIGHT=$(echo "$resolution" | cut -d'x' -f2)
+        echo "Primary display: ${SCREEN_WIDTH}x${SCREEN_HEIGHT}"
+    else
+        SCREEN_WIDTH=1920
+        SCREEN_HEIGHT=1080
+        echo "Fallback resolution to ${SCREEN_WIDTH}x${SCREEN_HEIGHT} default"
+    fi
+}
+get_primary_display_info
+
 # Setup terminal dimensions
 TERM_COLS=80
 TERM_ROWS=32
 FONT_SIZE=10
 calculate_terminal_position() {
-  local drone_id=$1
-  X_POS=$((100 + drone_id * 100))
-  Y_POS=$(( drone_id * 250 ))
+    local drone_id=$1
+    SCREEN_SCALE=$((SCREEN_HEIGHT * 100 / 1080)) # Full HD = 100%
+    X_POS=$(( (50 + drone_id * 50) * SCREEN_SCALE / 100 ))
+    Y_POS=$(( (drone_id * 125) * SCREEN_SCALE / 100 ))
 }
 
 # Initialize a counter for the drone IDs

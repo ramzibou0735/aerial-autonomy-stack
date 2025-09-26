@@ -30,13 +30,6 @@ windows:
           GZ_SIM_RESOURCE_PATH=$GZ_SIM_RESOURCE_PATH:/simulation_resources/aircraft_models:/simulation_resources/simulation_worlds 
           GZ_SIM_PHYSICS_ENGINE_PATH=$GZ_SIM_PHYSICS_ENGINE_PATH:/usr/lib/x86_64-linux-gnu/gz-physics-7/engine-plugins/
           gz sim -v4 -r <% if headless == 'true' %> -s <% end %> <%= world %>.sdf
-        - >
-          (for i in {1..10}; do 
-            sleep 2; 
-            if wmctrl -l | grep -q "Gazebo Sim" && wmctrl -r "Gazebo Sim" -e 0,$(($(xrandr | grep -oE '[0-9]+x[0-9]+' | head -1 | cut -d'x' -f1) - 768)),0,1024,768; then
-              break; 
-            fi; 
-          done)
   <% elsif autopilot == 'ardupilot' %>
   - gz_sim:
       layout: main-vertical
@@ -54,14 +47,24 @@ windows:
           GZ_SIM_RESOURCE_PATH=/simulation_resources/aircraft_models:/simulation_resources/simulation_worlds:$GZ_SIM_RESOURCE_PATH 
           GZ_SIM_PHYSICS_ENGINE_PATH=$GZ_SIM_PHYSICS_ENGINE_PATH:/usr/lib/x86_64-linux-gnu/gz-physics-7/engine-plugins/
           gz sim -v4 -r <% if headless == 'true' %> -s <% end %> populated_ardupilot.sdf
-        - >
-          (for i in {1..10}; do 
-            sleep 2; 
-            if wmctrl -l | grep -q "Gazebo Sim" && wmctrl -r "Gazebo Sim" -e 0,$(($(xrandr | grep -oE '[0-9]+x[0-9]+' | head -1 | cut -d'x' -f1) - 768)),0,1024,768; then
-              break; 
-            fi; 
-          done)
   <% end %>
+        - >
+          (
+            PRIMARY_RES=$(xrandr | grep -oE '[0-9]+x[0-9]+' | head -1)
+            SCREEN_W=$(echo $PRIMARY_RES | cut -d'x' -f1)
+            SCREEN_H=$(echo $PRIMARY_RES | cut -d'x' -f2)
+            SCREEN_SCALE=$((SCREEN_H * 100 / 1080)) # Full HD = 100%
+            WIN_W=$(( 800 * SCREEN_SCALE / 100 ))
+            WIN_H=$(( 600 * SCREEN_SCALE / 100 ))
+            POS_X=$((SCREEN_W - WIN_W))
+            POS_Y=$(( 0 ))
+            for i in {1..10}; do 
+              sleep 2
+              if wmctrl -l | grep -q "Gazebo Sim"; then
+                wmctrl -r "Gazebo Sim" -e "0,$POS_X,$POS_Y,$WIN_W,$WIN_H" && break
+              fi
+            done
+          )
 
   <% drone_id = -1 %>
 
@@ -195,10 +198,20 @@ windows:
           sed -i 's/virtualJoystickAutoCenterThrottle=false/virtualJoystickAutoCenterThrottle=true/g' /home/qgcuser/.config/QGroundControl/QGroundControl.ini &&
           <% end %>
           gosu qgcuser /squashfs-root/AppRun &
-          (for i in {1..10}; do 
-            sleep 2; 
-            if wmctrl -l | grep -q "QGroundControl" && wmctrl -r "QGroundControl" -e 0,$(($(xrandr | grep -oE '[0-9]+x[0-9]+' | head -1 | cut -d'x' -f1) - 768)),1000,1024,768; then
-              break; 
-            fi; 
-          done)
+          (
+            PRIMARY_RES=$(xrandr | grep -oE '[0-9]+x[0-9]+' | head -1)
+            SCREEN_W=$(echo $PRIMARY_RES | cut -d'x' -f1)
+            SCREEN_H=$(echo $PRIMARY_RES | cut -d'x' -f2)
+            SCREEN_SCALE=$((SCREEN_H * 100 / 1080)) # Full HD = 100%
+            WIN_W=$(( 800 * SCREEN_SCALE / 100 ))
+            WIN_H=$(( 600 * SCREEN_SCALE / 100 ))
+            POS_X=$((SCREEN_W - WIN_W))
+            POS_Y=$((WIN_H))
+            for i in {1..10}; do 
+              sleep 2
+              if wmctrl -l | grep -q "QGroundControl"; then
+                wmctrl -r "QGroundControl" -e "0,$POS_X,$POS_Y,$WIN_W,$WIN_H" && break
+              fi
+            done
+          )
         <% end %>
