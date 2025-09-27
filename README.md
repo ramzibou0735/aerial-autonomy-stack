@@ -3,19 +3,19 @@
 *Aerial autonomy stack* (AAS) is a software stack to:
 
 1. **Develop** end-to-end drone autonomy with ROS2
-2. **Simulate** (on GPU) perception and control in software-in-the-loop, with YOLOv8, LiDAR and PX4/ArduPilot
-3. **Deploy** autonomy in real drones with NVIDIA Orin/JetPack
+2. **Simulate** perception and control in SITL, with YOLOv8, LiDAR and PX4/ArduPilot
+3. **Deploy** in real drones with NVIDIA Orin/JetPack
 
 https://github.com/user-attachments/assets/c194ada6-2996-4bfa-99e9-32b45e29281d
 
 ## Features
 
 - Support for **multiple quadrotors and VTOLs** based on either **PX4 or ArduPilot**
-- Autopilot and vehicle-agnostic **ROS2** action-based autopilot interface (*via* XRCE-DDS and MAVROS)
+- Vehicle-agnostic **ROS2** action-based autopilot interface (*via* XRCE-DDS and MAVROS)
 - Support for **YOLOv8** (with ONNX GPU Runtimes) and **LiDAR Odometry** (with [KISS-ICP](https://github.com/PRBonn/kiss-icp))
 - **Dockerized simulation** based on [`nvcr.io/nvidia/cuda:12.8.1-cudnn-runtime-ubuntu22.04`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/cuda/tags)
 - **Dockerized deployment** based on [`nvcr.io/nvidia/l4t-jetpack:r36.4.0`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/l4t-jetpack/tags)
-- **Windows 11 compatibility** and GPU support *via* WSLg
+- **Windows 11 compatibility** with GPU support *via* WSLg
 - **3D worlds** for [PX4](https://docs.px4.io/main/en/simulation/#sitl-simulation-environment) and [ArduPilot](https://ardupilot.org/dev/docs/sitl-simulator-software-in-the-loop.html#sitl-architecture) software-in-the-loop (SITL) simulation
 - [Zenoh](https://github.com/eclipse-zenoh/zenoh-plugin-ros2dds) inter-vehicle ROS2 bridge
 - Support for [PX4 Offboard](https://docs.px4.io/main/en/flight_modes/offboard.html) mode (e.g. CTBR/`VehicleRatesSetpoint` for agile, GNSS-denied flight) 
@@ -36,7 +36,7 @@ https://github.com/user-attachments/assets/c194ada6-2996-4bfa-99e9-32b45e29281d
 ## Part 1: Installation
 
 > [!IMPORTANT]
-> AAS is developed using a Ubuntu 22.04 host with `nvidia-driver-580` on an i9-13 with RTX 3500 and an i7-11 with RTX 3060—**note that an NVIDIA GPU *is* required for the best performance**
+> AAS is developed using a Ubuntu 22.04 host with `nvidia-driver-580` on an i9-13 with RTX 3500 and an i7-11 with RTX 3060—**note that an NVIDIA GPU *is* required for ideal performance**
 > 
 > **To setup the requirements: (i) Ubuntu, (ii) Git LFS and Xterm, (iii) NVIDIA driver, (iv) Docker Engine, (v) NVIDIA Container Toolkit, and (vi) NVIDIA NGC API Key, read [`PREINSTALL_UBUNTU.md`](/supplementary/PREINSTALL_UBUNTU.md)**
 >
@@ -140,7 +140,6 @@ ros2 run mission mission --conops yalla --ros-args -r __ns:=/Drone$DRONE_ID -p u
 Read the banner comment in the [`ardupilot_interface.hpp`](/aircraft/aircraft_ws/src/autopilot_interface/src/ardupilot_interface.hpp) and [`px4_interface.hpp`](/aircraft/aircraft_ws/src/autopilot_interface/src/px4_interface.hpp) headers for command line examples (takeoff, orbit, reposition, offboard, land):
 
 Once flown from CLI, implemented your mission in [`MissionNode.conops_callback()`](/aircraft/aircraft_ws/src/mission/mission/mission_node.py)
-
 
 ### Development within Live Containers
 
