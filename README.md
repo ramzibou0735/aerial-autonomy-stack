@@ -3,8 +3,8 @@
 *Aerial autonomy stack* (AAS) is a software stack to:
 
 1. **Develop** end-to-end drone autonomy with ROS2
-2. **Simulate** perception and control in SITL, with YOLOv8, LiDAR and PX4/ArduPilot
-3. **Deploy** in real drones with NVIDIA Orin/JetPack
+2. **Simulate** perception and control in SITL, with YOLOv8, LiDAR and PX4 or ArduPilot
+3. **Deploy** in real drones with JetPack on NVIDIA Orin
 
 https://github.com/user-attachments/assets/c194ada6-2996-4bfa-99e9-32b45e29281d
 
@@ -36,7 +36,7 @@ https://github.com/user-attachments/assets/c194ada6-2996-4bfa-99e9-32b45e29281d
 ## Part 1: Installation
 
 > [!IMPORTANT]
-> AAS is developed using a Ubuntu 22.04 host with `nvidia-driver-580` on an i9-13 with RTX 3500 and an i7-11 with RTX 3060—**note that an NVIDIA GPU *is* required for ideal performance**
+> AAS is developed using Ubuntu 22.04 with `nvidia-driver-580` on an i9-13 with RTX 3500 and an i7-11 with RTX 3060—an NVIDIA GPU *is* required for ideal performance
 > 
 > **To setup the requirements: (i) Ubuntu, (ii) Git LFS and Xterm, (iii) NVIDIA driver, (iv) Docker Engine, (v) NVIDIA Container Toolkit, and (vi) NVIDIA NGC API Key, read [`PREINSTALL_UBUNTU.md`](/supplementary/PREINSTALL_UBUNTU.md)**
 >
@@ -45,28 +45,28 @@ https://github.com/user-attachments/assets/c194ada6-2996-4bfa-99e9-32b45e29281d
 ```sh
 # Clone this repo
 mkdir -p ~/git && cd ~/git
+
 git lfs install
 git clone https://github.com/JacopoPan/aerial-autonomy-stack.git
-```
 
-### Build the Docker Images
+# Build the Docker Images
+cd ~/git/aerial-autonomy-stack/scripts
+
+./sim_build.sh # The first build takes ~25', subsequent ones will take seconds to minutes thanks to the Docker cache
+```
 
 > [!WARNING]
 > The first build requires ~50GB of disk space and ~25' with a good/stable internet connection (`Ctrl + c` and restart if needed)
-
-```sh
-cd ~/git/aerial-autonomy-stack/scripts
-./sim_build.sh # The first build takes ~25', subsequent ones will take seconds to minutes thanks to the Docker cache
-```
 
 ---
 
 ## Part 2: Simulation and Development
 
 ```sh
-# Start a simulation (note: ArduPilot SITL takes ~40s to be ready to arm)
+# Start a simulation
 cd ~/git/aerial-autonomy-stack/scripts
-AUTOPILOT=px4 NUM_QUADS=1 NUM_VTOLS=1 WORLD=swiss_town ./sim_run.sh # Check the script for more options
+
+AUTOPILOT=px4 NUM_QUADS=1 NUM_VTOLS=1 WORLD=swiss_town ./sim_run.sh # Check the script for more options (note: ArduPilot SITL takes ~40s to be ready to arm)
 ```
 
 > [!NOTE]
@@ -83,15 +83,22 @@ Available `WORLD`s:
 To advance the simulation in **discrete time steps**, e.g. 1s, from a terminal on the host, run:
 
 ```sh
-docker exec simulation-container bash -c "gz service -s /world/\$WORLD/control --reqtype gz.msgs.WorldControl --reptype gz.msgs.Boolean --req 'multi_step: 250, pause: true'" # Adjust multi_step based on the value of max_step_size in the world's .sdf (defaults: 250 for PX4, 1000 for ArduPilot)
+docker exec simulation-container bash -c " \
+  gz service -s /world/\$WORLD/control \
+    --reqtype gz.msgs.WorldControl --reptype gz.msgs.Boolean \
+    --req 'multi_step: 250, pause: true'" # Adjust multi_step based on the value of max_step_size in the world's .sdf (defaults: 250 for PX4, 1000 for ArduPilot)
 ```
 
 To add or disable a **wind field**, from a terminal on the host, run:
 
 ```sh
-docker exec simulation-container bash -c "gz topic -t /world/\$WORLD/wind/ -m gz.msgs.Wind  -p 'linear_velocity: {x: 0.0 y: 3.0}, enable_wind: true'" # Positive X blows from the West, positive Y blows from the South
+docker exec simulation-container bash -c " \
+  gz topic -t /world/\$WORLD/wind/ -m gz.msgs.Wind \
+  -p 'linear_velocity: {x: 0.0 y: 3.0}, enable_wind: true'" # Positive X blows from the West, positive Y blows from the South
 
-docker exec simulation-container bash -c "gz topic -t /world/\$WORLD/wind/ -m gz.msgs.Wind  -p 'enable_wind: false'" # Disable WindEffects
+docker exec simulation-container bash -c " \
+  gz topic -t /world/\$WORLD/wind/ -m gz.msgs.Wind \
+  -p 'enable_wind: false'" # Disable WindEffects
 ```
 
 > [!TIP]
@@ -126,18 +133,20 @@ docker exec simulation-container bash -c "gz topic -t /world/\$WORLD/wind/ -m gz
 
 ```sh
 cd ~/git/aerial-autonomy-stack/scripts
-AUTOPILOT=px4 NUM_QUADS=1 ./sim_run.sh # Also try AUTOPILOT=ardupilot, or NUM_QUADS=0 NUM_VTOLS=1
 
-# In aircraft 1's terminal (paste in Xterm with middle-click)
-ros2 run mission mission --conops yalla --ros-args -r __ns:=/Drone$DRONE_ID -p use_sim_time:=true # This mission is a simple takeoff, followed by an orbit, and landing for any vehicle
+AUTOPILOT=px4 NUM_QUADS=1 ./sim_run.sh # Or `ardupilot`, or `NUM_VTOLS=1`
 
-# Finally, in the simulation's terminal (paste in Xterm with middle-click)
+# Note: in Xterm, paste with middle-click
+
+# In aircraft 1's terminal
+ros2 run mission mission --conops yalla \
+  --ros-args -r __ns:=/Drone$DRONE_ID -p use_sim_time:=true # This mission is a simple takeoff, followed by an orbit, and landing for any vehicle
+
+# Finally, in the simulation's terminal
 /simulation_resources/patches/plot_logs.sh # Analyze the flight logs
 ```
 
-### Command Line Interface
-
-Read the banner comment in the [`ardupilot_interface.hpp`](/aircraft/aircraft_ws/src/autopilot_interface/src/ardupilot_interface.hpp) and [`px4_interface.hpp`](/aircraft/aircraft_ws/src/autopilot_interface/src/px4_interface.hpp) headers for command line examples (takeoff, orbit, reposition, offboard, land):
+To create a new mission, read the banner comments in [`ardupilot_interface.hpp`](/aircraft/aircraft_ws/src/autopilot_interface/src/ardupilot_interface.hpp) and [`px4_interface.hpp`](/aircraft/aircraft_ws/src/autopilot_interface/src/px4_interface.hpp) for command line examples of takeoff, orbit, reposition, offboard, land
 
 Once flown from CLI, implemented your mission in [`MissionNode.conops_callback()`](/aircraft/aircraft_ws/src/mission/mission/mission_node.py)
 
@@ -147,6 +156,7 @@ Launching the `sim_run.sh` script with `MODE=dev`, does **not** start the simula
 
 ```sh
 cd ~/git/aerial-autonomy-stack/scripts
+
 MODE=dev ./sim_run.sh # Images are pre-built but the ros2_ws/src/ and *_resources/ folders are mounted from the host
 ```
 
@@ -207,16 +217,20 @@ MODE=dev ./sim_run.sh # Images are pre-built but the ros2_ws/src/ and *_resource
 ## Part 3: Jetson Deployment
 
 > [!IMPORTANT]
-> These instructions are tested on a [Holybro Jetson Baseboard](https://holybro.com/products/pixhawk-jetson-baseboard) kit that includes (i) a Pixhawk 6X autopilot and (ii) an NVIDIA Orin NX 16GB computer connected via both serial and ethernet
+> These instructions are tested on a [Holybro Jetson Baseboard](https://holybro.com/products/pixhawk-jetson-baseboard) (Pixhawk 6X autopilot + NVIDIA Orin NX 16GB)
 > 
 > **To setup (i) PX4's DDS UDP client, (ii) ArduPilot serial MAVLink bridge, (iii) JetPack 6, (iv) Docker Engine, (v) NVIDIA Container Toolkit, and (vi) NVIDIA NGC API Key on Orin, read [`AVIONICS.md`](/supplementary/AVIONICS.md)**
 
 ```sh
-# On Jetson Orin NX, build for arm64 with TensorRT support
+# Clone this repo
 mkdir -p ~/git && cd ~/git
+
 git lfs install
 git clone git@github.com:JacopoPan/aerial-autonomy-stack.git
+
+# On Jetson Orin NX, build for arm64 with TensorRT support
 cd ~/git/aerial-autonomy-stack/scripts
+
 ./deploy_build.sh # The first build takes ~1h (mostly to build onnxruntime-gpu from source)
 ```
 

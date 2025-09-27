@@ -27,7 +27,8 @@ sudo apt install xfonts-base
 # Install X11 apps and xserver
 sudo apt install x11-apps
 sudo apt install x11-xserver-utils
-xclock # A new window with a clock should appear
+
+xclock # Test: a new window with a clock should appear
 ```
 
 > [!WARNING]
@@ -51,7 +52,7 @@ xclock # A new window with a clock should appear
 > exit
 > wsl --shutdown 
 > wsl ~
-> free -h # To check available memory and swap
+> free -h # Check the available memory and swap reflect .wslconfig
 > ```
 
 ## Install the NVIDIA Driver in Windows 11
@@ -73,7 +74,8 @@ nvidia-smi # From WSL, check NVIDIA driver
 
 sudo apt update
 sudo apt install mesa-utils
-glxinfo -B # You should see something like: `OpenGL renderer string: D3D12 (NVIDIA RTX A4500)`
+
+glxinfo -B # Check the GPU is the OpenGL renderer
 ```
 
 ## Install Docker Engine and NVIDIA Container Toolkit inside WSLg
@@ -103,16 +105,18 @@ sudo apt-get update
 ```
 
 ```sh
-# Install and test Docker Engine
+# Install Docker Engine
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-sudo docker run hello-world
-sudo docker version # 28.3.0 at the time of writing
+
+sudo docker run hello-world  # Test
+sudo docker version # Test: 28.3.0 at the time of writing
 
 # Remove the need to sudo the docker command
 sudo groupadd docker
 sudo usermod -aG docker $USER
 newgrp docker # Reboot
-docker run hello-world
+
+docker run hello-world # Test
 ```
 
 Log in to the NVIDIA Registry:
@@ -137,9 +141,7 @@ sudo apt install -y nvidia-container-toolkit
 sudo nvidia-ctk runtime configure --runtime=docker
 sudo systemctl restart docker
 
-# Check `nvidia` runtime is available
-docker info | grep -i runtime
+docker info | grep -i runtime # Check `nvidia` runtime is available
 
-# Test with
-docker run --rm --gpus all nvidia/cuda:12.2.0-base-ubuntu22.04 nvidia-smi
+docker run --rm --gpus all nvidia/cuda:12.2.0-base-ubuntu22.04 nvidia-smi # Test
 ```

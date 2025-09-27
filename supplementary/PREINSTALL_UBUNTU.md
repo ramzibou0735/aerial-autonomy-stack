@@ -17,9 +17,8 @@ sudo apt upgrade
 # Select PRIME profile "NVIDIA (Performance Mode)" from CLI (or, if available, use `nvidia-settings` -> "PRIME Profiles" -> "NVIDIA (Performance Mode)")
 sudo prime-select nvidia # Reboot and check in Ubuntu's "Settings" -> "About" -> "Graphics" is your NVIDIA card
 
-sudo apt install mesa-utils # Also installed in the simulation container, for gz sim rendering
-# Check the GPU is the OpenGL renderer
-glxinfo | grep "OpenGL renderer"
+sudo apt install mesa-utils
+glxinfo | grep "OpenGL renderer" # Check the GPU is the OpenGL renderer
 
 # Install git
 sudo apt install git
@@ -56,16 +55,18 @@ sudo apt-get update
 ```
 
 ```sh
-# Install and test Docker Engine
+# Install Docker Engine
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-sudo docker run hello-world
-sudo docker version # 28.3.0 at the time of writing
+
+sudo docker run hello-world # Test
+sudo docker version # Test: 28.3.0 at the time of writing
 
 # Remove the need to sudo the docker command
 sudo groupadd docker
 sudo usermod -aG docker $USER
 newgrp docker # Reboot
-docker run hello-world
+
+docker run hello-world # Test
 ```
 
 Log in to the NVIDIA Registry:
@@ -90,9 +91,7 @@ sudo apt install -y nvidia-container-toolkit
 sudo nvidia-ctk runtime configure --runtime=docker
 sudo systemctl restart docker
 
-# Check `nvidia` runtime is available
-docker info | grep -i runtime
+docker info | grep -i runtime # Check `nvidia` runtime is available
 
-# Test with
-docker run --rm --gpus all nvidia/cuda:12.2.0-base-ubuntu22.04 nvidia-smi
+docker run --rm --gpus all nvidia/cuda:12.2.0-base-ubuntu22.04 nvidia-smi # Test
 ```
