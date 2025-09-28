@@ -79,9 +79,10 @@ RUN apt update \
         libxcb-xinerama0 libxkbcommon-x11-0 libxcb-cursor-dev \
     && apt clean \
     && rm -rf /var/lib/apt/lists/*
-RUN wget https://d176tv9ibo4jno.cloudfront.net/latest/QGroundControl-x86_64.AppImage
-RUN chmod +x /QGroundControl-x86_64.AppImage
-RUN /QGroundControl-x86_64.AppImage --appimage-extract
+RUN wget https://d176tv9ibo4jno.cloudfront.net/latest/QGroundControl-x86_64.AppImage && \
+    chmod +x /QGroundControl-x86_64.AppImage && \
+    /QGroundControl-x86_64.AppImage --appimage-extract && \
+    rm /QGroundControl-x86_64.AppImage
 # Run with $ gosu qgcuser /squashfs-root/AppRun
 
 ################################################################################
@@ -104,10 +105,10 @@ FROM ros2-gz-qgc-px4-image AS ros2-gz-qgc-px4-ardupilot-image
 # Based on https://ardupilot.org/dev/docs/building-setup-linux.html#building-setup-linux
 COPY /github_clones/ardupilot /git/ardupilot
 WORKDIR /git/ardupilot
-RUN useradd -m -s /bin/bash arduuser
-RUN echo "arduuser ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/arduuser && chmod 0440 /etc/sudoers.d/arduuser
-RUN gosu arduuser git config --global --add safe.directory /git/ardupilot
-RUN chown -R arduuser:arduuser /git/ardupilot
+RUN useradd -m -s /bin/bash arduuser && \
+    echo "arduuser ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/arduuser && chmod 0440 /etc/sudoers.d/arduuser && \
+    gosu arduuser git config --global --add safe.directory /git/ardupilot && \
+    chown -R arduuser:arduuser /git/ardupilot
 RUN USER=arduuser gosu arduuser bash ./Tools/environment_install/install-prereqs-ubuntu.sh -y
 RUN gosu arduuser bash -c "cd /git/ardupilot && ./waf configure --board sitl && ./waf build"
 RUN chown -R root:root /git/ardupilot

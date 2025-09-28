@@ -250,6 +250,7 @@ docker exec -it aircraft-container tmux attach
 - Support for [ArduPilot's DDS interface](https://ardupilot.org/dev/docs/ros2-interfaces.html)
 - Support for a [Isaac Sim](https://github.com/isaac-sim/IsaacSim) higher fidelity rendering
 - Support for [Betaflight SITL](https://betaflight.com/docs/development/SITL) interfaced *via* [MultiWii Serial Protocol (MSP)](https://github.com/betaflight/betaflight/tree/master/src/main/msp)
+- Minimalist Docker images without source/artifacts for CI/CD and deployment
 
 ---
 > You've done a man's job, sir. I guess you're through, huh?
