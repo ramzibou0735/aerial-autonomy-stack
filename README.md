@@ -43,7 +43,7 @@ https://github.com/user-attachments/assets/c194ada6-2996-4bfa-99e9-32b45e29281d
 > Windows 11 support is available *via* WSLg, read [`REQUIREMENTS_WSL.md`](/supplementary/REQUIREMENTS_WSL.md)
 
 > [!WARNING]
-> The 1st build takes ~50GB and ~25' with a good connection (`Ctrl + c`, restart if needed)
+> The 1st build takes ~45GB of space and ~25' with good internet (`Ctrl + c` and restart if needed)
 
 ```sh
 # Clone this repo
