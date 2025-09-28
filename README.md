@@ -25,7 +25,7 @@ https://github.com/user-attachments/assets/c194ada6-2996-4bfa-99e9-32b45e29281d
 - **Steppable simulation**
 
 <details>
-<summary>AAS leverages the following frameworks: <i>(expand)</i></summary>
+<summary>AAS leverages the following frameworks: <i>(click to expand)</i></summary>
 
 > [*Ubuntu 22.04*](https://ubuntu.com/about/release-cycle) (LTS, ESM 4/2032), [*`nvidia-driver-580`*](https://developer.nvidia.com/datacenter-driver-archive) (latest as of 9/2025), [*Docker Engine v28*](https://docs.docker.com/engine/release-notes/28/) (latest as of 9/2025), [*ROS2 Humble*](https://docs.ros.org/en/rolling/Releases.html) (LTS, EOL 5/2027), [*Gazebo Sim Harmonic*](https://gazebosim.org/docs/latest/releases/) (LTS, EOL 9/2028), [*PX4 1.16*](https://github.com/PX4/PX4-Autopilot/releases) interfaced *via* [XRCE-DDS](https://github.com/eProsima/Micro-XRCE-DDS/releases), [*ArduPilot 4.6*](https://github.com/ArduPilot/ardupilot/releases) interfaced *via* [MAVROS](https://github.com/mavlink/mavros/releases), [*YOLOv8*](https://github.com/ultralytics/ultralytics/releases) on [*ONNX Runtime 1.22*](https://onnxruntime.ai/getting-started) (latest stable releases as of 8/2025), [*L4T 36* (Ubuntu 22-based)/*JetPack 6*](https://developer.nvidia.com/embedded/jetpack-archive) (for deployment only, latest major release as of 8/2025), [WSLg](https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-apps) (for simulation and development on Windows 11 only)
 
@@ -38,9 +38,12 @@ https://github.com/user-attachments/assets/c194ada6-2996-4bfa-99e9-32b45e29281d
 > [!IMPORTANT]
 > AAS is developed using Ubuntu 22.04 with `nvidia-driver-580` on an i9-13 with RTX 3500 and an i7-11 with RTX 3060—an NVIDIA GPU *is* required for ideal performance
 > 
-> **To setup the requirements: (i) Ubuntu, (ii) Git LFS and Xterm, (iii) NVIDIA driver, (iv) Docker Engine, (v) NVIDIA Container Toolkit, and (vi) NVIDIA NGC API Key, read [`PREINSTALL_UBUNTU.md`](/supplementary/PREINSTALL_UBUNTU.md)**
+> **To setup the requirements: (i) Ubuntu, (ii) Git LFS and Xterm, (iii) NVIDIA driver, (iv) Docker Engine, (v) NVIDIA Container Toolkit, and (vi) NVIDIA NGC API Key, read [`REQUIREMENTS_UBUNTU.md`](/supplementary/REQUIREMENTS_UBUNTU.md)**
 >
-> Windows 11 support is available *via* WSLg, read [`PREINSTALL_WSL.md`](/supplementary/PREINSTALL_WSL.md)
+> Windows 11 support is available *via* WSLg, read [`REQUIREMENTS_WSL.md`](/supplementary/REQUIREMENTS_WSL.md)
+
+> [!WARNING]
+> The 1st build takes ~50GB and ~25' with a good connection (`Ctrl + c`, restart if needed)
 
 ```sh
 # Clone this repo
@@ -49,14 +52,11 @@ mkdir -p ~/git && cd ~/git
 git lfs install
 git clone https://github.com/JacopoPan/aerial-autonomy-stack.git
 
-# Build the Docker Images
+# Build the Docker images
 cd ~/git/aerial-autonomy-stack/scripts
 
 ./sim_build.sh # The first build takes ~25', subsequent ones will take seconds to minutes thanks to the Docker cache
 ```
-
-> [!WARNING]
-> The first build requires ~50GB of disk space and ~25' with a good/stable internet connection (`Ctrl + c` and restart if needed)
 
 ---
 
@@ -101,34 +101,6 @@ docker exec simulation-container bash -c " \
   -p 'enable_wind: false'" # Disable WindEffects
 ```
 
-> [!TIP]
-> <details>
-> <summary>Tmux and Docker Shortcuts <i>(expand)</i></summary>
-> 
-> - Move between Tmux windows with `Ctrl + b`, then `n`, `p`
-> - Move between Tmux panes with `Ctrl + b`, then `arrow keys`
-> - Enter copy mode to scroll back with `Ctrl + [`, then `arrow keys`, exit with `q`
-> - Split a Tmux window with `Ctrl + b`, then `"` (horizontal) or `%` (vertical)
-> - Detach Tmux with `Ctrl + b`, then `d`
-> ```sh
-> tmux list-sessions # List all sessions
-> tmux attach-session -t [session_name] # Reattach a session
-> tmux kill-session -t [session_name] # Kill a session
-> tmux kill-server # Kill all sessions
-> ```
-> Docker hygiene:
-> ```sh
-> docker ps -a # List containers
-> docker stop $(docker ps -q) # Stop all containers
-> docker container prune # Remove all stopped containers
-> 
-> docker images # List images
-> docker image prune # Remove untagged images
-> docker rmi <image_name_or_id> # Remove a specific image
-> docker builder prune # Clear the cache system wide
-> ```
-> </details>
-
 ### Fly a Mission
 
 ```sh
@@ -164,7 +136,7 @@ MODE=dev ./sim_run.sh # Images are pre-built but the ros2_ws/src/ and *_resource
 
 > [!TIP]
 > <details>
-> <summary>AAS Structure <i>(expand)</i></summary>
+> <summary>AAS Structure <i>(click to expand)</i></summary>
 > 
 > ```sh
 > aerial-autonomy-stack
@@ -213,15 +185,42 @@ MODE=dev ./sim_run.sh # Images are pre-built but the ros2_ws/src/ and *_resource
 >     └── simulation.yml.erb           # Simulation docker tmux entrypoint
 > ```
 > </details>
+> 
+> <details>
+> <summary>Tmux and Docker Shortcuts <i>(click to expand)</i></summary>
+> 
+> - Move between Tmux windows with `Ctrl + b`, then `n`, `p`
+> - Move between Tmux panes with `Ctrl + b`, then `arrow keys`
+> - Enter copy mode to scroll back with `Ctrl + [`, then `arrow keys`, exit with `q`
+> - Split a Tmux window with `Ctrl + b`, then `"` (horizontal) or `%` (vertical)
+> - Detach Tmux with `Ctrl + b`, then `d`
+> ```sh
+> tmux list-sessions # List all sessions
+> tmux attach-session -t [session_name] # Reattach a session
+> tmux kill-session -t [session_name] # Kill a session
+> tmux kill-server # Kill all sessions
+> ```
+> Docker hygiene:
+> ```sh
+> docker ps -a # List containers
+> docker stop $(docker ps -q) # Stop all containers
+> docker container prune # Remove all stopped containers
+> 
+> docker images # List images
+> docker image prune # Remove untagged images
+> docker rmi <image_name_or_id> # Remove a specific image
+> docker builder prune # Clear the cache system wide
+> ```
+> </details>
 
 ---
 
 ## Part 3: Jetson Deployment
 
 > [!IMPORTANT]
-> These instructions are tested on a [Holybro Jetson Baseboard](https://holybro.com/products/pixhawk-jetson-baseboard) (Pixhawk 6X autopilot + NVIDIA Orin NX 16GB)
+> These instructions are tested on a [Holybro Jetson Baseboard](https://holybro.com/products/pixhawk-jetson-baseboard) (Pixhawk 6X + NVIDIA Orin NX 16GB)
 > 
-> **To setup (i) PX4's DDS UDP client, (ii) ArduPilot serial MAVLink bridge, (iii) JetPack 6, (iv) Docker Engine, (v) NVIDIA Container Toolkit, and (vi) NVIDIA NGC API Key on Orin, read [`AVIONICS.md`](/supplementary/AVIONICS.md)**
+> **To setup (i) PX4's DDS UDP client, (ii) ArduPilot serial MAVLink bridge, (iii) JetPack 6, (iv) Docker Engine, (v) NVIDIA Container Toolkit, and (vi) NVIDIA NGC API Key on Orin, read [`SETUP_AVIONICS.md`](/supplementary/SETUP_AVIONICS.md)**
 
 ```sh
 # Clone this repo
@@ -237,7 +236,7 @@ cd ~/git/aerial-autonomy-stack/scripts
 ```
 
 ```sh
-# On Jetson Orin NX, start and attach the aerial-autonomy-stack (e.g., from ssh)
+# On Jetson Orin NX, start and attach an aircraft-container (e.g., from ssh)
 DRONE_TYPE=quad AUTOPILOT=px4 DRONE_ID=1 CAMERA=true LIDAR=false ./deploy_run.sh
 docker exec -it aircraft-container tmux attach
 ```
@@ -267,10 +266,9 @@ docker exec -it aircraft-container tmux attach
 - ????
 - Profit
 
-Expand in AVIONIC.md
-> The Holybro Jetson Baseboard comes with an (i) integrated 4-way (Orin, 6X, RJ-45, JST) Ethernet switch and (ii) two JST USB 2.0 that can be connected to ASIX Ethernet adapters to create additional network interfaces
-> 
-> Make sure to configure Orin, 6X's XRCE-DDS, IP radio, Zenoh, etc. consistently with your network setup; the camera acquisition pipeline should be setup in `yolo_inference_node.py`, the LiDAR should publish on topic `/lidar_points` for KISS-ICP (if necessary, discuss in the [Issues](https://github.com/JacopoPan/aerial-autonomy-stack/issues))
+Add to AVIONICS.md
+- The Holybro Jetson Baseboard comes with an (i) integrated 4-way (Orin, 6X, RJ-45, JST) Ethernet switch and (ii) two JST USB 2.0 that can be connected to ASIX Ethernet adapters to create additional network interfaces
+- Make sure to configure Orin, 6X's XRCE-DDS, IP radio, Zenoh, etc. consistently with your network setup; the camera acquisition pipeline should be setup in `yolo_inference_node.py`, the LiDAR should publish on topic `/lidar_points` for KISS-ICP (if necessary, discuss in the [Issues](https://github.com/JacopoPan/aerial-autonomy-stack/issues))
 
 SITL architectures
 - https://docs.px4.io/main/en/simulation/#sitl-simulation-environment
@@ -281,7 +279,7 @@ SITL architectures
 - wmctrl does not work as-is in WSLg
 - QGC is started with a virtual joystick (with low throttle if using only VTOLs and centered throttle if there are quads), this is reflective of real-life but note that this counts as "RC loss" when switching focus from one autopilot instance to another
 - ArduPilot CIRCLE mode for quads require to explicitly center the virtual throttle with 'rc 3 1500' to keep altitude
-- Gazebo WindEffects plugin is disabled for PX4 standard_vtol
+- Gazebo WindEffects plugin is disabled/not working for PX4 standard_vtol
 - Command 178 MAV_CMD_DO_CHANGE_SPEED is accepted but not effective in changing speed for ArduPilot VTOL
 - ArduPilot SITL for Iris uses option -f that also sets "external": True, this is not the case for the Alti Transition from ArduPilot/SITL_Models 
 - In ArdupilotInterface's action callbacks, std::shared_lock<std::shared_mutex> lock(node_data_mutex_); could be used on the reads of lat_, lon_, alt_

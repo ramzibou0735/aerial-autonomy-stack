@@ -1,4 +1,4 @@
-# Pre-installation for AAS on Windows 11
+# Pre-installation Steps for AAS on Windows 11
 
 ## Setup WSLg for Ubuntu 22
 
@@ -32,10 +32,10 @@ xclock # Test: a new window with a clock should appear
 ```
 
 > [!WARNING]
-> When building and running large Docker images (e.g. the simulator and aircraft containers), WSL can easily consume available system resources. To prevent crashes, hangs, or 100% disk usage, configure WSL’s resource limits using a `.wslconfig` file
+> When building and running large Docker images (e.g. the simulator and aircraft containers), WSL can easily consume available system resources: to prevent crashes, hangs, or 100% disk usage, configure WSL’s resource limits using a `.wslconfig` file
 > 
-> - Create (or edit) the file `C:\Users\<YourWindowsUsername>\.wslconfig` (make sure it has no extension)
-> - Add the following content to it (change `YourWindowsUsername`, increase the amount of resources, if available)
+> - Create (or edit) file `C:\Users\<YourWindowsUsername>\.wslconfig` (make sure it has no extension)
+> - Add the following lines to it (change `YourWindowsUsername`; increase the amount of resources, if available)
 > 
 > ```sh
 > [wsl2]
@@ -102,21 +102,19 @@ echo \
   $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | \
   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 sudo apt-get update
-```
 
-```sh
 # Install Docker Engine
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-sudo docker run hello-world  # Test
-sudo docker version # Test: 28.3.0 at the time of writing
+sudo docker run hello-world  # Test Docker is working
+sudo docker version # Check version, 28.3.0 at the time of writing
 
 # Remove the need to sudo the docker command
 sudo groupadd docker
 sudo usermod -aG docker $USER
 newgrp docker # Reboot
 
-docker run hello-world # Test
+docker run hello-world # Test Docker is working without sudo
 ```
 
 Log in to the NVIDIA Registry:
@@ -143,5 +141,5 @@ sudo systemctl restart docker
 
 docker info | grep -i runtime # Check `nvidia` runtime is available
 
-docker run --rm --gpus all nvidia/cuda:12.2.0-base-ubuntu22.04 nvidia-smi # Test
+docker run --rm --gpus all nvidia/cuda:12.2.0-base-ubuntu22.04 nvidia-smi # Test nvidia-smi works in a container with CUDA
 ```

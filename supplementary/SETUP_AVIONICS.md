@@ -1,4 +1,4 @@
-# Avionics
+# Setup Avionics
 
 ## Configure PX4's Network and DDS Client
 
@@ -106,21 +106,19 @@ echo \
   $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | \
   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 sudo apt-get update
-```
 
-```sh
 # Install Docker Engine
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-sudo docker run hello-world # Test
-sudo docker version # Test: 28.3.0 at the time of writing
+sudo docker run hello-world # Test Docker is working
+sudo docker version # Check version, 28.3.0 at the time of writing
 
 # Remove the need to sudo the docker command
 sudo groupadd docker
 sudo usermod -aG docker $USER
 newgrp docker # Reboot
 
-docker run hello-world # Test
+docker run hello-world # Test Docker is working without sudo
 
 # Log in to the NVIDIA Registry
 docker login nvcr.io # To be able to reliably pull NVIDIA base images
@@ -138,5 +136,5 @@ sudo systemctl restart docker
 
 docker info | grep -i runtime # Check `nvidia` runtime is available
 
-docker run --rm --runtime=nvidia nvidia/l4t-base:r36.2.0 nvidia-smi # Test
+docker run --rm --runtime=nvidia nvidia/l4t-base:r36.2.0 nvidia-smi # Test nvidia-smi works in a container with Linux4Tegra
 ```
