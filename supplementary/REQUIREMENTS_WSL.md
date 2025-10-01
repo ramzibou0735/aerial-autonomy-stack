@@ -143,3 +143,6 @@ docker info | grep -i runtime # Check `nvidia` runtime is available
 
 docker run --rm --gpus all nvidia/cuda:12.2.0-base-ubuntu22.04 nvidia-smi # Test nvidia-smi works in a container with CUDA
 ```
+
+![wsl](https://github.com/user-attachments/assets/1b4a18c0-896f-4e5f-9186-72425ceeabac)
+
