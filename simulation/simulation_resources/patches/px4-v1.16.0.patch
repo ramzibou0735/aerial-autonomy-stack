@@ -46,15 +46,14 @@ index a13f1b14b0..83a816a378 100755
                 'feedback': feedback, 'email': email, 'source': args.source}
  
 diff --git a/src/modules/navigator/navigator_main.cpp b/src/modules/navigator/navigator_main.cpp
-index dc53c6928d..0f85104f56 100644
+index dc53c6928d..79b604e348 100644
 --- a/src/modules/navigator/navigator_main.cpp
 +++ b/src/modules/navigator/navigator_main.cpp
-@@ -648,6 +648,11 @@ void Navigator::run()
+@@ -648,6 +648,10 @@ void Navigator::run()
  
  				_vtol_takeoff.setTransitionAltitudeAbsolute(cmd.param7);
  
-+				float epsilon = 1e-6f;
-+				if (std::fabs(cmd.param2 - 3.0f) < epsilon) { // Specified transition direction
++				if (std::fabs(cmd.param2 - 3.0f) < FLT_EPSILON) { // Specified transition direction
 +					_vtol_takeoff.setTransitionDirection(cmd.param4);
 +				}
 +
@@ -62,7 +61,7 @@ index dc53c6928d..0f85104f56 100644
  				_vtol_takeoff.setLoiterLocation(matrix::Vector2d(cmd.param5, cmd.param6));
  
 diff --git a/src/modules/navigator/vtol_takeoff.cpp b/src/modules/navigator/vtol_takeoff.cpp
-index 503a0279f9..a7eda4a1d0 100644
+index 503a0279f9..01d8a98ba7 100644
 --- a/src/modules/navigator/vtol_takeoff.cpp
 +++ b/src/modules/navigator/vtol_takeoff.cpp
 @@ -71,8 +71,12 @@ VtolTakeoff::on_active()
@@ -71,7 +70,7 @@ index 503a0279f9..a7eda4a1d0 100644
  				_mission_item.nav_cmd = NAV_CMD_WAYPOINT;
 -				_mission_item.yaw = wrap_pi(get_bearing_to_next_waypoint(_mission_item.lat,
 -							    _mission_item.lon, _loiter_location(0), _loiter_location(1)));
-+				if (std::isnan(_transition_direction_deg)) {
++				if (!PX4_ISFINITE(_transition_direction_deg)) {
 +					_mission_item.yaw = wrap_pi(get_bearing_to_next_waypoint(_navigator->get_home_position()->lat,
 +					_navigator->get_home_position()->lon, _loiter_location(0), _loiter_location(1)));
 +				} else {
