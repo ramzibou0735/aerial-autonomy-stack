@@ -11,6 +11,40 @@ index ddb9703828..59be1ee21e 100644
  
  if param greater -s MNT_MODE_IN -1
  then
+diff --git a/Tools/upload_log.py b/Tools/upload_log.py
+index a13f1b14b0..83a816a378 100755
+--- a/Tools/upload_log.py
++++ b/Tools/upload_log.py
+@@ -25,10 +25,6 @@ except ImportError as e:
+     sys.exit(1)
+ 
+ 
+-SERVER = 'https://logs.px4.io'
+-#SERVER = 'http://localhost:5006' # for testing locally
+-UPLOAD_URL = SERVER+'/upload'
+-
+ quiet = False
+ 
+ def ask_value(text, default=None):
+@@ -60,6 +56,8 @@ def main():
+     parser = ArgumentParser(description=__doc__)
+     parser.add_argument('--quiet', '-q', dest='quiet', action='store_true', default=False,
+             help='Quiet mode: do not ask for values which were not provided as parameters')
++    parser.add_argument('--server', dest='server', type=str, default='https://logs.px4.io',
++                    help='Server URL (default: https://logs.px4.io)')
+     parser.add_argument("--description", dest="description", type=str,
+                       help="Log description", default=None)
+     parser.add_argument("--feedback", dest="feedback", type=str,
+@@ -99,6 +97,9 @@ def main():
+     else:
+         email = args.email
+ 
++    SERVER = args.server
++    UPLOAD_URL = SERVER + '/upload'
++
+     payload = {'type': args.type, 'description': description,
+                'feedback': feedback, 'email': email, 'source': args.source}
+ 
 diff --git a/src/modules/navigator/navigator_main.cpp b/src/modules/navigator/navigator_main.cpp
 index dc53c6928d..0f85104f56 100644
 --- a/src/modules/navigator/navigator_main.cpp
