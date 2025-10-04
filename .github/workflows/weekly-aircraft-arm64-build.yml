@@ -10,6 +10,14 @@ jobs:
     runs-on: ubuntu-22.04-arm
 
     steps: 
+      - name: Add swap space
+        run: |
+          sudo fallocate -l 10G /swapfile
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
+          free -h
+
       - name: Check disk space
         run: df -h
 
