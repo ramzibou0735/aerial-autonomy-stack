@@ -1,0 +1,22 @@
+name: Docker Build
+
+on:
+  schedule:
+    - cron: '0 3 * * 0'
+  workflow_dispatch: {}
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Clone other repos
+        run: CLONE_ONLY=true ./scripts/sim_build.sh 
+
+      - name: Build the aircraft image
+        run: docker build -t aircraft-image -f ./scripts/docker/Dockerfile.aircraft .
