@@ -9,14 +9,22 @@ jobs:
   build:
     runs-on: ubuntu-22.04-arm
 
-    steps: 
+    steps:       
       - name: Add swap space
         run: |
+          echo "=== Before swap modification ==="
+          free -h
+          sudo swapon --show
+          echo ""
+          sudo swapoff -a
+          sudo rm -f /swapfile
           sudo fallocate -l 10G /swapfile
           sudo chmod 600 /swapfile
           sudo mkswap /swapfile
           sudo swapon /swapfile
+          echo "=== After swap modification ==="
           free -h
+          sudo swapon --show
 
       - name: Check disk space
         run: df -h
