@@ -1,4 +1,4 @@
-name: Docker Build
+name: Weekly aircraft-image amd64 docker build
 
 on:
   schedule:
@@ -12,10 +12,18 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/share/boost
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          df -h
+
       - name: Check out the repository
         uses: actions/checkout@v4
 
-      - name: Clone other repos
+      - name: Clone external repos
         run: CLONE_ONLY=true ./scripts/sim_build.sh 
 
       - name: Build the aircraft image
