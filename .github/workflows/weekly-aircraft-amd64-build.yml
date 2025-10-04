@@ -8,6 +8,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
+    timeout-minutes: 60
 
     steps:
       - name: Free disk space
@@ -30,7 +31,11 @@ jobs:
           sudo chmod 600 /swapfile
           sudo mkswap /swapfile
           sudo swapon /swapfile
+
+      - name: Check swap
+        run: |
           free -h
+          sudo swapon --show
           
       - name: Check disk space
         run: df -h
