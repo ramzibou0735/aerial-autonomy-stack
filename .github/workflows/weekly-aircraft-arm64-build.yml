@@ -18,8 +18,5 @@ jobs:
       - name: Check out the repository
         uses: actions/checkout@v4
 
-      - name: Clone external repos
-        run: CLONE_ONLY=true ./scripts/sim_build.sh 
-
-      - name: Build the aircraft image
-        run: docker build -t aircraft-image -f ./scripts/docker/Dockerfile.aircraft .
+      - name: Clone external repos and build the image
+        run: ./scripts/deploy_build.sh 
