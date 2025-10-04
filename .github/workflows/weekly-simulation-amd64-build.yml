@@ -14,12 +14,19 @@ jobs:
     steps:
       - name: Free disk space
         run: |
-          df -h
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /opt/ghc
           sudo rm -rf /usr/local/share/boost
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
           df -h
+
+      - name: Move Docker data to /mnt
+        run: |
+          sudo systemctl stop docker
+          sudo mkdir -p /mnt/docker-data
+          sudo mv /var/lib/docker /mnt/docker-data/
+          sudo ln -s /mnt/docker-data/docker /var/lib/docker
+          sudo systemctl start docker
 
       - name: Check out the repository
         uses: actions/checkout@v4
