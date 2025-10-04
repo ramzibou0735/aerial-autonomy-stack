@@ -1,0 +1,16 @@
+name: Weekly aircraft arm64 build
+
+on:
+  schedule:
+    - cron: '0 3 * * 0'
+  workflow_dispatch: {}
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-22.04-arm
+
+    steps: 
+      - name: Check disk space
+        run: df -h
