@@ -1,4 +1,4 @@
-name: Weekly aircraft arm64 build
+name: aircraft-image arm64
 
 on:
   schedule:
