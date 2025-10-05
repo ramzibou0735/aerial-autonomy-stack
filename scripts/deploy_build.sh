@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Note that this script should run on Orin to build for arm64
+# Note: this script builds for arm64 and is tested on NVIDIA Jetson Orin NX 16GB
 
 # Exit immediately if a command exits with a non-zero status
 set -e
@@ -12,6 +12,11 @@ if [ "${CLEAN_BUILD:-false}" = "true" ]; then
   rm -rf "${SCRIPT_DIR}/../github_clones"
   docker rmi aircraft-image:latest || true
   docker builder prune -f # If CLEAN_BUILD is "true", rebuild everything from scratch
+fi
+
+BUILD_DOCKER=true
+if [ "${CLONE_ONLY:-false}" = "true" ]; then
+  BUILD_DOCKER=false # If CLONE_ONLY is "true", disable the build steps
 fi
 
 # Create a folder (ignored by git) to clone GitHub repos
@@ -46,5 +51,9 @@ for repo_info in "${REPOS[@]}"; do
   fi
 done
 
-# The first build takes ~1h (mostly to build onnxruntime-gpu from source) and creates an 18GB image
-docker build -t aircraft-image -f "${SCRIPT_DIR}/docker/Dockerfile.aircraft" "${SCRIPT_DIR}/.."
+if [ "$BUILD_DOCKER" = "true" ]; then
+  # The first build takes ~1h (mostly to build onnxruntime-gpu from source) and creates an 18GB image
+  docker build -t aircraft-image -f "${SCRIPT_DIR}/docker/Dockerfile.aircraft" "${SCRIPT_DIR}/.."
+else
+  echo -e "Skipping Docker build"
+fi
