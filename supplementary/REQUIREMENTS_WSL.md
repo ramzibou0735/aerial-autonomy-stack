@@ -1,9 +1,11 @@
 # Pre-installation Steps for AAS on Windows 11
 
-## Setup WSLg for Ubuntu 22
+## Setup WSLg with Ubuntu 22
 
 > [!IMPORTANT]
 > **The latest Windows Subsystem for Linux (WSL2) and WSLg (WSL2 extension with GUI capabilities) are already included in Windows 11**
+>
+> These instructions are tested using Windows 11 Pro (OS build 26100.6584) on a w7-34 with RTX A4500
 
 - From PowerShell, check available Linux distributions `wsl --list --online`
 - Install "Ubuntu-22.04" `wsl --install -d Ubuntu-22.04`
