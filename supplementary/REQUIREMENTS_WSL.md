@@ -13,17 +13,6 @@
 sudo apt update
 sudo apt upgrade
 
-# Install git
-sudo apt install git
-
-# Install git-lfs (for the large files in simulation_resources/)
-sudo apt install git-lfs
-git lfs install
-
-# Install xterm
-sudo apt install xterm
-sudo apt install xfonts-base
-
 # Install X11 apps and xserver
 sudo apt install x11-apps
 sudo apt install x11-xserver-utils

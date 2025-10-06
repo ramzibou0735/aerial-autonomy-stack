@@ -19,17 +19,6 @@ sudo prime-select nvidia # Reboot and check in Ubuntu's "Settings" -> "About" ->
 
 sudo apt install mesa-utils
 glxinfo | grep "OpenGL renderer" # Check the GPU is the OpenGL renderer
-
-# Install git
-sudo apt install git
-
-# Install git-lfs (for the large files in simulation_resources/)
-sudo apt install git-lfs
-git lfs install
-
-# Install xterm
-sudo apt install xterm
-sudo apt install xfonts-base
 ```
 
 ## Install Docker Engine and NVIDIA Container Toolkit

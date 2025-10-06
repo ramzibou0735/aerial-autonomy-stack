@@ -64,17 +64,6 @@ sdkmanager # Log in with your https://developer.nvidia.com account
 
 Also read the [PX4 documentation](https://github.com/PX4/PX4-Autopilot/blob/main/docs/en/companion_computer/holybro_pixhawk_jetson_baseboard.md#flashing-the-jetson-board)
 
-```sh
-sudo apt update
-
-# Install git
-sudo apt install git
-
-# Install git-lfs (for the large files in simulation_resources/)
-sudo apt install git-lfs
-git lfs install
-```
-
 > [!WARNING]
 > At the time of writing, **Snap is broken on JetPack 6**, a fix is suggested [here](https://forums.developer.nvidia.com/t/chromium-other-browsers-not-working-after-flashing-or-updating-heres-why-and-quick-fix/338891)
 > ```sh

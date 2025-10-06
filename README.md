@@ -38,7 +38,7 @@ https://github.com/user-attachments/assets/c194ada6-2996-4bfa-99e9-32b45e29281d
 > [!IMPORTANT]
 > AAS is developed using Ubuntu 22.04 with `nvidia-driver-580` on an i9-13 with RTX 3500 and an i7-11 with RTX 3060—an NVIDIA GPU *is* required for ideal performance
 > 
-> **To setup the requirements: (i) Ubuntu, (ii) Git LFS and Xterm, (iii) NVIDIA driver, (iv) Docker Engine, (v) NVIDIA Container Toolkit, and (vi) NVIDIA NGC API Key, read [`REQUIREMENTS_UBUNTU.md`](/supplementary/REQUIREMENTS_UBUNTU.md)**
+> **To setup the requirements: (i) Ubuntu, (ii) NVIDIA driver, (iii) Docker Engine, and (iv) NVIDIA Container Toolkit (with NVIDIA NGC API Key), read [`REQUIREMENTS_UBUNTU.md`](/supplementary/REQUIREMENTS_UBUNTU.md)**
 >
 > Windows 11 support is available *via* WSLg, read [`REQUIREMENTS_WSL.md`](/supplementary/REQUIREMENTS_WSL.md)
 
@@ -47,15 +47,17 @@ https://github.com/user-attachments/assets/c194ada6-2996-4bfa-99e9-32b45e29281d
 
 
 ```sh
+# Install dependencies (git, Git LFS, Xterm)
+sudo apt update
+sudo apt install -y git git-lfs xterm xfonts-base
+git lfs install
+
 # Clone this repo
 mkdir -p ~/git && cd ~/git
-
-git lfs install
 git clone https://github.com/JacopoPan/aerial-autonomy-stack.git
 
 # Build the Docker images
 cd ~/git/aerial-autonomy-stack/scripts
-
 ./sim_build.sh # The first build takes ~25', subsequent ones will take seconds to minutes thanks to the Docker cache
 ```
 
@@ -70,7 +72,6 @@ cd ~/git/aerial-autonomy-stack/scripts
 ```sh
 # Start a simulation
 cd ~/git/aerial-autonomy-stack/scripts
-
 AUTOPILOT=px4 NUM_QUADS=1 NUM_VTOLS=1 WORLD=swiss_town ./sim_run.sh # Check the script for more options (note: ArduPilot SITL takes ~40s to be ready to arm)
 ```
 
@@ -110,7 +111,6 @@ docker exec simulation-container bash -c " \
 
 ```sh
 cd ~/git/aerial-autonomy-stack/scripts
-
 AUTOPILOT=px4 NUM_QUADS=1 ./sim_run.sh # Or `ardupilot`, or `NUM_VTOLS=1`
 
 # Note: in Xterm, paste with middle-click
@@ -135,7 +135,6 @@ Launching the `sim_run.sh` script with `MODE=dev`, does **not** start the simula
 
 ```sh
 cd ~/git/aerial-autonomy-stack/scripts
-
 MODE=dev ./sim_run.sh # Images are pre-built but the ros2_ws/src/ and *_resources/ folders are mounted from the host
 ```
 
@@ -225,18 +224,20 @@ MODE=dev ./sim_run.sh # Images are pre-built but the ros2_ws/src/ and *_resource
 > [!IMPORTANT]
 > These instructions are tested on a [Holybro Jetson Baseboard](https://holybro.com/products/pixhawk-jetson-baseboard) (Pixhawk 6X + NVIDIA Orin NX 16GB)
 > 
-> **To setup (i) PX4's DDS UDP client, (ii) ArduPilot serial MAVLink bridge, (iii) JetPack 6, (iv) Docker Engine, (v) NVIDIA Container Toolkit, and (vi) NVIDIA NGC API Key on Orin, read [`SETUP_AVIONICS.md`](/supplementary/SETUP_AVIONICS.md)**
+> **To setup (i.a) PX4's DDS UDP client or (i.b) ArduPilot serial MAVLink bridge, (ii) JetPack 6, (iii) Docker Engine, and (iv) NVIDIA Container Toolkit (with NVIDIA NGC API Key) on Orin, read [`SETUP_AVIONICS.md`](/supplementary/SETUP_AVIONICS.md)**
 
 ```sh
+# Install dependencies (git, Git LFS)
+sudo apt update
+sudo apt install -y git git-lfs
+git lfs install
+
 # Clone this repo
 mkdir -p ~/git && cd ~/git
-
-git lfs install
 git clone git@github.com:JacopoPan/aerial-autonomy-stack.git
 
 # On Jetson Orin NX, build for arm64 with TensorRT support
 cd ~/git/aerial-autonomy-stack/scripts
-
 ./deploy_build.sh # The first build takes ~1h (mostly to build onnxruntime-gpu from source)
 ```
 
