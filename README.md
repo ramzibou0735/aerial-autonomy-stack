@@ -113,8 +113,6 @@ docker exec simulation-container bash -c " \
 cd ~/git/aerial-autonomy-stack/scripts
 AUTOPILOT=px4 NUM_QUADS=1 ./sim_run.sh # Or `ardupilot`, or `NUM_VTOLS=1`
 
-# Note: in Xterm, paste with middle-click
-
 # In aircraft 1's terminal
 ros2 run mission mission --conops yalla \
   --ros-args -r __ns:=/Drone$DRONE_ID -p use_sim_time:=true # This mission is a simple takeoff, followed by an orbit, and landing for any vehicle

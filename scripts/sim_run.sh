@@ -114,6 +114,14 @@ calculate_terminal_position() {
   Y_POS=$(( (drone_id * 125) * SCREEN_SCALE / 100 ))
 }
 
+# Enable Shift+Ctrl+C/V copy-paste in xterm
+XTERM_CONFIG_ARGS=(
+  -xrm 'XTerm*selectToClipboard: true'
+  -xrm 'XTerm*VT100.Translations: #override \
+    Ctrl Shift <Key>C: copy-selection(CLIPBOARD) \n\
+    Ctrl Shift <Key>V: insert-selection(CLIPBOARD)'
+)
+
 # Initialize a counter for the drone IDs
 DRONE_ID=0 # 0: simulation, 1-N: drones
 
@@ -134,7 +142,7 @@ if [[ "$DESK_ENV" == "wsl" ]]; then
 fi
 DOCKER_CMD="$DOCKER_CMD ${MODE_SIM_OPTS} simulation-image"
 calculate_terminal_position $DRONE_ID
-xterm -title "Simulation" -fa Monospace -fs $FONT_SIZE -bg black -fg white -geometry "${TERM_COLS}x${TERM_ROWS}+${X_POS}+${Y_POS}" -hold -e bash -c "$DOCKER_CMD" &
+xterm "${XTERM_CONFIG_ARGS[@]}" -title "Simulation" -fa Monospace -fs $FONT_SIZE -bg black -fg white -geometry "${TERM_COLS}x${TERM_ROWS}+${X_POS}+${Y_POS}" -hold -e bash -c "$DOCKER_CMD" &
 
 # Launch the quad containers
 for i in $(seq 1 $NUM_QUADS); do
@@ -156,7 +164,7 @@ for i in $(seq 1 $NUM_QUADS); do
   fi
   DOCKER_CMD="$DOCKER_CMD ${MODE_AIR_OPTS} aircraft-image"
   calculate_terminal_position $DRONE_ID
-  xterm -title "Quad $DRONE_ID" -fa Monospace -fs $FONT_SIZE -bg black -fg white -geometry "${TERM_COLS}x${TERM_ROWS}+${X_POS}+${Y_POS}" -hold -e bash -c "$DOCKER_CMD" &
+  xterm "${XTERM_CONFIG_ARGS[@]}" -title "Quad $DRONE_ID" -fa Monospace -fs $FONT_SIZE -bg black -fg white -geometry "${TERM_COLS}x${TERM_ROWS}+${X_POS}+${Y_POS}" -hold -e bash -c "$DOCKER_CMD" &
 done
 
 # Launch the vtol containers
@@ -179,7 +187,7 @@ for i in $(seq 1 $NUM_VTOLS); do
   fi
   DOCKER_CMD="$DOCKER_CMD ${MODE_AIR_OPTS} aircraft-image"
   calculate_terminal_position $DRONE_ID
-  xterm -title "VTOL $DRONE_ID" -fa Monospace -fs $FONT_SIZE -bg black -fg white -geometry "${TERM_COLS}x${TERM_ROWS}+${X_POS}+${Y_POS}" -hold -e bash -c "$DOCKER_CMD" &
+  xterm "${XTERM_CONFIG_ARGS[@]}" -title "VTOL $DRONE_ID" -fa Monospace -fs $FONT_SIZE -bg black -fg white -geometry "${TERM_COLS}x${TERM_ROWS}+${X_POS}+${Y_POS}" -hold -e bash -c "$DOCKER_CMD" &
 done
 
 echo "Fly, my pretties, fly!"
