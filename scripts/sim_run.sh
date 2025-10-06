@@ -114,7 +114,7 @@ calculate_terminal_position() {
   Y_POS=$(( (drone_id * 125) * SCREEN_SCALE / 100 ))
 }
 
-# Enable Shift+Ctrl+C/V copy-paste in xterm
+# Enable Shift+Ctrl+c, Shift+Ctrl+v copy-paste in xterm
 XTERM_CONFIG_ARGS=(
   -xrm 'XTerm*selectToClipboard: true'
   -xrm 'XTerm*VT100.Translations: #override \
