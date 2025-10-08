@@ -232,7 +232,7 @@ git lfs install
 
 # Clone this repo
 mkdir -p ~/git && cd ~/git
-git clone git@github.com:JacopoPan/aerial-autonomy-stack.git
+git clone https://github.com/JacopoPan/aerial-autonomy-stack.git
 
 # On Jetson Orin NX, build for arm64 with TensorRT support
 cd ~/git/aerial-autonomy-stack/scripts

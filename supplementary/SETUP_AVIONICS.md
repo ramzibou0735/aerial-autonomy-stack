@@ -44,13 +44,13 @@ MAVLink can be connected either over ethernet or using the Pixhawk 6X's TELEM2 s
 
 ## Flash JetPack 6 to Jetson Orin
 
-Holybro Jetson baseboard normally comes installed with JetPack 5
+Holybro Jetson baseboards normally ship with JetPack 5
 
-To upgrade, download NVIDIA SDK Manager on the Ubuntu 22 host computer from [here](https://developer.nvidia.com/sdk-manager#installation_get_started)
+To upgrade to JetPack 6, download NVIDIA SDK Manager on the Ubuntu 22 host computer from [here](https://developer.nvidia.com/sdk-manager#installation_get_started)
 
 ```sh
 cd ~/Downloads
-sudo apt install ./sdkmanager_2.3.0-12617_amd64.deb 
+sudo apt install ./sdkmanager_2.3.0-12626_amd64.deb 
 sdkmanager # Log in with your https://developer.nvidia.com account 
 ```
 
@@ -58,8 +58,11 @@ sdkmanager # Log in with your https://developer.nvidia.com account
 - Connect the USB-C port closes to the fan to the computer running `sdkmanager` and power on the board
 - On Step 1, select "Jetson", "Host Machine Ubuntu 22 x86_64", "Target Hardware Jetson Orin NX" (automatically detected), "SDK Version JetPack 6.2.1"
 - On Step 2, under "Target Components", select all "Jetson Linux" (uncheck all others)
-- On the flash dialog after the download, choose "OEM Pre-config", username, password, and "Storage NVMe"
-- Log in, finish the configuration, power-off, put the board out of recovery mode and power-on again
+- Accept the "terms and conditions" and click "CONTINUE" (if prompted, click "Create" folder and input the password to `sudo`)
+- Wait for `sdkmanager` to download the necessary software
+- On the flash dialog after the download, choose "OEM Pre-config", username, password, and "Storage NVMe", click "Flash"
+- On `sdkmanager` click "FINISH AND EXIT" once the process is completed
+- With a screen, mouse, and keyboard connected to the Jetson basedboad, log in, finish the configuration, power-off, put the board out of recovery mode and power-on again
 - Select an appropriate "Power Mode" (e.g. 25W)
 
 Also read the [PX4 documentation](https://github.com/PX4/PX4-Autopilot/blob/main/docs/en/companion_computer/holybro_pixhawk_jetson_baseboard.md#flashing-the-jetson-board)
@@ -108,12 +111,21 @@ sudo usermod -aG docker $USER
 newgrp docker # Reboot
 
 docker run hello-world # Test Docker is working without sudo
+```
 
-# Log in to the NVIDIA Registry
+Log in to the NVIDIA Registry:
+
+- Go to https://ngc.nvidia.com and login/create an account.
+- Click on your account the top right, go to Setup -> Get API Key.
+- Click "Generate API Key" -> "+ Generate Personal Key" for the "NCG Catalog" service, confirm, and copy the key.
+
+```sh
 docker login nvcr.io # To be able to reliably pull NVIDIA base images
 Username: # type $oauthtoken
 Password: # copy and paste the API key and press enter to pull base images from nvcr.io/
+```
 
+```sh
 # Add NVIDIA Container Toolkit to use the GPU within containers
 distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
 curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
@@ -125,5 +137,5 @@ sudo systemctl restart docker
 
 docker info | grep -i runtime # Check `nvidia` runtime is available
 
-docker run --rm --runtime=nvidia nvidia/l4t-base:r36.2.0 nvidia-smi # Test nvidia-smi works in a container with Linux4Tegra
+docker run --rm --runtime=nvidia nvcr.io/nvidia/l4t-base:r36.2.0 nvidia-smi # Test nvidia-smi works in a container with Linux4Tegra
 ```
