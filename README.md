@@ -24,6 +24,8 @@ https://github.com/user-attachments/assets/c194ada6-2996-4bfa-99e9-32b45e29281d
 - Support for Gazebo's **wind effects** plugin
 - **Steppable simulation**
 
+Read about the [*rationale*](/supplementary/RATIONALE.md) for AAS in the [`supplementary/`](/supplementary/) material
+
 <details>
 <summary>AAS leverages the following frameworks: <i>(click to expand)</i></summary>
 
@@ -252,6 +254,7 @@ docker exec -it aircraft-container tmux attach
 
 ## Future Work / Ideas for Contributions
 
+- [PX4 HITL](https://docs.px4.io/main/en/simulation/hitl.html) simulation for Gazebo Harmonic
 - [Gymnasium](https://github.com/Farama-Foundation/Gymnasium) RL interface
 - Support for [SPARK-FAST-LIO](https://github.com/MIT-SPARK/spark-fast-lio)/[SuperOdom](https://github.com/superxslam/SuperOdom)
 - Support for [JSBSim](https://github.com/JSBSim-Team/jsbsim) flight dynamics
