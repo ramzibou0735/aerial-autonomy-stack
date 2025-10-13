@@ -256,34 +256,16 @@ docker exec -it aircraft-container tmux attach
 
 - [PX4 HITL](https://docs.px4.io/main/en/simulation/hitl.html) simulation for Gazebo Harmonic
 - [Gymnasium](https://github.com/Farama-Foundation/Gymnasium) RL interface
+- Support for [Betaflight SITL](https://betaflight.com/docs/development/SITL) interfaced *via* UDP or [MultiWii Serial Protocol (MSP)](https://github.com/betaflight/betaflight/tree/master/src/main/msp)
 - Support for [SPARK-FAST-LIO](https://github.com/MIT-SPARK/spark-fast-lio)/[SuperOdom](https://github.com/superxslam/SuperOdom)
 - Support for [JSBSim](https://github.com/JSBSim-Team/jsbsim) flight dynamics
 - Support for [ArduPilot's DDS interface](https://ardupilot.org/dev/docs/ros2-interfaces.html)
 - Support for a [Isaac Sim](https://github.com/isaac-sim/IsaacSim) higher fidelity rendering
-- Support for [Betaflight SITL](https://betaflight.com/docs/development/SITL) interfaced *via* [MultiWii Serial Protocol (MSP)](https://github.com/betaflight/betaflight/tree/master/src/main/msp)
 
 ---
 > You've done a man's job, sir. I guess you're through, huh?
 
 <!-- 
-
-## TODOs
-
-- https://developer.nvidia.com/embedded/learn/tutorials/first-picture-csi-usb-camera
-- https://github.com/Livox-SDK/livox_ros_driver2
-- Add state estimation package/node
-- Add bounding-box-based Offboard
-- For PX4 quad max tilt maneuver, zero the anti-windup gain: const float arw_gain = 2.f / _gain_vel_p(0);
-- ????
-- Profit
-
-Add to AVIONICS.md
-- The Holybro Jetson Baseboard comes with an (i) integrated 4-way (Orin, 6X, RJ-45, JST) Ethernet switch and (ii) two JST USB 2.0 that can be connected to ASIX Ethernet adapters to create additional network interfaces
-- Make sure to configure Orin, 6X's XRCE-DDS, IP radio, Zenoh, etc. consistently with your network setup; the camera acquisition pipeline should be setup in `yolo_inference_node.py`, the LiDAR should publish on topic `/lidar_points` for KISS-ICP (if necessary, discuss in the [Issues](https://github.com/JacopoPan/aerial-autonomy-stack/issues))
-
-SITL architectures
-- https://docs.px4.io/main/en/simulation/#sitl-simulation-environment
-- https://ardupilot.org/dev/docs/sitl-simulator-software-in-the-loop.html#sitl-architecture
 
 ### Known Issues
 
@@ -296,5 +278,30 @@ SITL architectures
 - In ArdupilotInterface's action callbacks, std::shared_lock<std::shared_mutex> lock(node_data_mutex_); could be used on the reads of lat_, lon_, alt_
 - In yolo_inference_node.py, cannot open GPU accelerated (nvh264dec) GStreamer pipeline with cv2.VideoCapture, might need to recompile OpenCV to have both CUDA and GStreamer support (or use python3-gi gir1.2-gst-plugins-base-1.0 gir1.2-gstreamer-1.0 and circumvent OpenCV)
 - QGC does not save roll and pitch in the telemetry bar for PX4 VTOLs (MAV_TYPE 22)
+- PX4 quad max tilt is limited by the anti-windup gain (zero it to deactivate it): const float arw_gain = 2.f / _gain_vel_p(0);
+
+-->
+
+<!-- 
+
+## TODOs
+
+HITL/SITL architectures
+- https://docs.px4.io/main/en/simulation/
+- https://docs.px4.io/main/en/simulation/#sitl-simulation-environment
+- https://ardupilot.org/dev/docs/sitl-simulator-software-in-the-loop.html#sitl-architecture
+
+Add Jetson drivers
+- https://developer.nvidia.com/embedded/learn/tutorials/first-picture-csi-usb-camera
+- https://github.com/Livox-SDK/livox_ros_driver2
+
+- Add state estimation package/node
+- Add bounding-box-based Offboard
+- ????
+- Profit
+
+Add back to AVIONICS.md
+- The Holybro Jetson Baseboard comes with an (i) integrated 4-way (Orin, 6X, RJ-45, JST) Ethernet switch and (ii) two JST USB 2.0 that can be connected to ASIX Ethernet adapters to create additional network interfaces
+- Make sure to configure Orin, 6X's XRCE-DDS, IP radio, Zenoh, etc. consistently with your network setup; the camera acquisition pipeline should be setup in `yolo_inference_node.py`, the LiDAR should publish on topic `/lidar_points` for KISS-ICP (if necessary, discuss in the [Issues](https://github.com/JacopoPan/aerial-autonomy-stack/issues))
 
 -->

@@ -1,5 +1,35 @@
 # Setup Avionics
 
+## Build and Flash the PX4 or ArduPilot Firmware
+
+For ArduPilot
+
+```sh
+# Check available ArduPilot targets
+docker run -it --rm --entrypoint bash simulation-image -c "cd /git/ardupilot && ./waf list_boards"
+
+# Build ArduCopter (quads) for Pixhawk 6X (saved in the ~/Downloads folder)
+docker run -it --rm --entrypoint bash -v ~/Downloads:/temp simulation-image -c \
+  "cd /git/ardupilot && ./waf configure --board Pixhawk6X && ./waf copter && cp build/Pixhawk6X/bin/*.apj /temp/"
+
+# Build ArduPlane (VTOLs) for Pixhawk 6X (saved in the ~/Downloads folder)
+docker run -it --rm --entrypoint bash -v ~/Downloads:/temp simulation-image -c \
+  "cd /git/ardupilot && ./waf configure --board Pixhawk6X && ./waf plane && cp build/Pixhawk6X/bin/*.apj /temp/"
+```
+
+For PX4
+
+```sh
+# Check available PX4 targets
+docker run -it --rm --entrypoint bash simulation-image -c "cd /git/PX4-Autopilot && make list_config_targets"
+
+# Build PX4 for Pixhawk 6X (saved in the ~/Downloads folder)
+docker run -it --rm --entrypoint bash -v ~/Downloads:/temp simulation-image -c \
+  "cd /git/PX4-Autopilot && make px4_fmu-v6x_default && cp build/px4_fmu-v6x_default/*.px4 /temp/"
+```
+
+To load the firmware to the autopilot, follow [QGroundControl's User Guide](https://docs.qgroundcontrol.com/Stable_V5.0/en/qgc-user-guide/setup_view/firmware.html) and select the newly created `.apj` or `.px4` file
+
 ## Configure PX4's Network and DDS Client
 
 > [!NOTE]
