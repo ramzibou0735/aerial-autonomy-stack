@@ -36,28 +36,38 @@ To load the firmware to the autopilot, follow [QGroundControl's User Guide](http
 > Skip this step if you are using ArduPilot
 
 - Access QGroundControl -> Analyze Tools -> MAVLink console
-- Copy-and-paste the following commands (to assign an IP the PX4 autopilot (e.g., 10.10.1.33) and let the `uxrce_dds_client` connect to the NX (e.g., on IP 10.10.1.44) using namespace "Drone1")
+- Copy-and-paste the following commands (to assign an IP the PX4 autopilot (e.g., 10.10.1.33) and let the `uxrce_dds_client` connect to the Orin NX (e.g., on IP 10.10.1.44) using namespace "Drone1")
 - Re-start the autopilot 
 
 ```sh
+# Configure DDS Client connection to the NX
 mkdir /fs/microsd/etc
-echo "uxrce_dds_client stop" > /fs/microsd/etc/extras.txt
-echo "sleep 3" >> /fs/microsd/etc/extras.txt
-echo "uxrce_dds_client start -p 8888 -h 10.10.1.44 -n Drone1" >> /fs/microsd/etc/extras.txt
+cd /fs/microsd/etc
+echo "uxrce_dds_client stop" > extras.txt
+echo "sleep 3" >> extras.txt
+echo -n "uxrce_dds_client start -p 8888" >> extras.txt
+echo " -h 10.10.1.44 -n Drone2" >> extras.txt
+# Check the content of the file
+cat /fs/microsd/etc/extras.txt
 
+# Configure Autopilot Network settings
 echo DEVICE=eth0 > /fs/microsd/net.cfg
 echo BOOTPROTO=static >> /fs/microsd/net.cfg
 echo IPADDR=10.10.1.33 >> /fs/microsd/net.cfg
 echo NETMASK=255.255.255.0 >> /fs/microsd/net.cfg
 echo ROUTER=10.10.1.254 >> /fs/microsd/net.cfg
 echo DNS=10.10.1.254 >> /fs/microsd/net.cfg
-
-# Check the content of the files
-cat /fs/microsd/etc/extras.txt
+# Check the content of the file
 cat /fs/microsd/net.cfg
-
+# Apply
 netman update
+# Reboot and check new network configuration
+ifconfig
 ```
+
+On the NX, configure the "PCI Ethernet" connection's IPv4 with address 10.10.1.44 and Netmask 255.255.255.0
+
+One should be able to `ping 10.10.1.44` (the Orin NX) from MAVLink Console on QGC; and `ping 10.10.1.33` (the autopilot) from a terminal on the Orin NX
 
 Also read the [PX4 documentation](https://github.com/PX4/PX4-Autopilot/blob/main/docs/en/companion_computer/holybro_pixhawk_jetson_baseboard.md#ethernet-setup-using-netplan)
 
