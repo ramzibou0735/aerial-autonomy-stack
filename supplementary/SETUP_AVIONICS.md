@@ -46,7 +46,7 @@ cd /fs/microsd/etc
 echo "uxrce_dds_client stop" > extras.txt
 echo "sleep 3" >> extras.txt
 echo -n "uxrce_dds_client start -p 8888" >> extras.txt
-echo " -h 10.10.1.44 -n Drone2" >> extras.txt
+echo " -h 10.10.1.44 -n Drone1" >> extras.txt
 # Check the content of the file
 cat /fs/microsd/etc/extras.txt
 
