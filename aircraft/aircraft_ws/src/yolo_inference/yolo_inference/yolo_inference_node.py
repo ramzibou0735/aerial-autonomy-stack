@@ -119,7 +119,8 @@ class YoloInferenceNode(Node):
         if self.architecture == 'x86_64':
             cap = cv2.VideoCapture(gst_pipeline_string, cv2.CAP_GSTREAMER)
         elif self.architecture == 'aarch64':
-            cap = cv2.VideoCapture("sample.mp4") # Load example video for testing
+            cap = cv2.VideoCapture(gst_pipeline_string, cv2.CAP_GSTREAMER)
+            # cap = cv2.VideoCapture("sample.mp4") # Load example video for testing
             # TODO: open CSI or RTSP camera feed instead, use hardware acceleration
         assert cap.isOpened(), "Failed to open video stream"
 
