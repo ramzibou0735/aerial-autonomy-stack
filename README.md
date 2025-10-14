@@ -258,9 +258,6 @@ docker exec -it aircraft-container tmux attach
 - [Gymnasium](https://github.com/Farama-Foundation/Gymnasium) RL interface
 - Support for [Betaflight SITL](https://betaflight.com/docs/development/SITL) interfaced *via* UDP or [MultiWii Serial Protocol (MSP)](https://github.com/betaflight/betaflight/tree/master/src/main/msp)
 - Support for [SPARK-FAST-LIO](https://github.com/MIT-SPARK/spark-fast-lio)/[SuperOdom](https://github.com/superxslam/SuperOdom)
-- Support for [JSBSim](https://github.com/JSBSim-Team/jsbsim) flight dynamics
-- Support for [ArduPilot's DDS interface](https://ardupilot.org/dev/docs/ros2-interfaces.html)
-- Support for a [Isaac Sim](https://github.com/isaac-sim/IsaacSim) higher fidelity rendering
 
 ---
 > You've done a man's job, sir. I guess you're through, huh?
@@ -303,5 +300,11 @@ Add Jetson drivers
 Add back to AVIONICS.md
 - The Holybro Jetson Baseboard comes with an (i) integrated 4-way (Orin, 6X, RJ-45, JST) Ethernet switch and (ii) two JST USB 2.0 that can be connected to ASIX Ethernet adapters to create additional network interfaces
 - Make sure to configure Orin, 6X's XRCE-DDS, IP radio, Zenoh, etc. consistently with your network setup; the camera acquisition pipeline should be setup in `yolo_inference_node.py`, the LiDAR should publish on topic `/lidar_points` for KISS-ICP (if necessary, discuss in the [Issues](https://github.com/JacopoPan/aerial-autonomy-stack/issues))
+
+# Desired features
+
+- Support for [JSBSim](https://github.com/JSBSim-Team/jsbsim) flight dynamics
+- Support for [ArduPilot's DDS interface](https://ardupilot.org/dev/docs/ros2-interfaces.html)
+- Support for a [Isaac Sim](https://github.com/isaac-sim/IsaacSim) higher fidelity rendering
 
 -->

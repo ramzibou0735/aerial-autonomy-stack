@@ -2,7 +2,18 @@
 
 ## Build and Flash the PX4 or ArduPilot Firmware
 
-For ArduPilot
+Build the PX4 firmware in `simulation-image` for Pixhawk 6X
+
+```sh
+# Check available PX4 targets
+docker run -it --rm --entrypoint bash simulation-image -c "cd /git/PX4-Autopilot && make list_config_targets"
+
+# Build PX4 for Pixhawk 6X (saved in the ~/Downloads folder)
+docker run -it --rm --entrypoint bash -v ~/Downloads:/temp simulation-image -c \
+  "cd /git/PX4-Autopilot && make px4_fmu-v6x_default && cp build/px4_fmu-v6x_default/*.px4 /temp/"
+```
+
+Build the ArduPilot firmware in `simulation-image` for Pixhawk 6X
 
 ```sh
 # Check available ArduPilot targets
@@ -17,18 +28,7 @@ docker run -it --rm --entrypoint bash -v ~/Downloads:/temp simulation-image -c \
   "cd /git/ardupilot && ./waf configure --board Pixhawk6X && ./waf plane && cp build/Pixhawk6X/bin/*.apj /temp/"
 ```
 
-For PX4
-
-```sh
-# Check available PX4 targets
-docker run -it --rm --entrypoint bash simulation-image -c "cd /git/PX4-Autopilot && make list_config_targets"
-
-# Build PX4 for Pixhawk 6X (saved in the ~/Downloads folder)
-docker run -it --rm --entrypoint bash -v ~/Downloads:/temp simulation-image -c \
-  "cd /git/PX4-Autopilot && make px4_fmu-v6x_default && cp build/px4_fmu-v6x_default/*.px4 /temp/"
-```
-
-To load the firmware to the autopilot, follow [QGroundControl's User Guide](https://docs.qgroundcontrol.com/Stable_V5.0/en/qgc-user-guide/setup_view/firmware.html) and select the newly created `.apj` or `.px4` file
+To flash the newly created `.px4` or `.apj` file to your autopilot board, follow [QGC's User Guide](https://docs.qgroundcontrol.com/Stable_V5.0/en/qgc-user-guide/setup_view/firmware.html) 
 
 ## Configure PX4's Network and DDS Client
 
@@ -65,7 +65,7 @@ netman update
 ifconfig
 ```
 
-On the NX, configure the "PCI Ethernet" connection's IPv4 with address 10.10.1.44 and Netmask 255.255.255.0
+On the Jetson Baseboard's Orin NX, configure the "PCI Ethernet" connection's IPv4 with address 10.10.1.44 and netmask 255.255.255.0
 
 One should be able to `ping 10.10.1.44` (the Orin NX) from MAVLink Console on QGC; and `ping 10.10.1.33` (the autopilot) from a terminal on the Orin NX
 
