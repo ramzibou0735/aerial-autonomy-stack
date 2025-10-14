@@ -35,8 +35,12 @@ To flash the newly created `.px4` or `.apj` file to your autopilot board, follow
 > [!NOTE]
 > Skip this step if you are using ArduPilot
 
-- Access QGroundControl -> Analyze Tools -> MAVLink console
-- Copy-and-paste the following commands (to assign an IP the PX4 autopilot (e.g., 10.10.1.33) and let the `uxrce_dds_client` connect to the Orin NX (e.g., on IP 10.10.1.44) using namespace "Drone1")
+On the Jetson Baseboard's Orin NX, under "Settings" -> "Network", configure the "PCI Ethernet" connection to "Manual" with IPv4 with address 10.10.1.44 and netmask 255.255.255.0
+
+Connect the Pixhawk 6X to the ground station with the USB-C port next to the RJ-45 port
+
+- Access QGroundControl -> "Analyze Tools" -> "MAVLink console"
+- Copy-and-paste the following commands (these will assign an IP the PX4 autopilot (e.g., 10.10.1.33) and let the `uxrce_dds_client` connect to the Orin NX (e.g., on IP 10.10.1.44) using namespace "Drone1")
 - Re-start the autopilot 
 
 ```sh
@@ -47,7 +51,7 @@ echo "uxrce_dds_client stop" > extras.txt
 echo "sleep 3" >> extras.txt
 echo -n "uxrce_dds_client start -p 8888" >> extras.txt
 echo " -h 10.10.1.44 -n Drone1" >> extras.txt
-# Check the content of the file
+# Check the content of the file (remember to set the proper "DroneX" namespace)
 cat /fs/microsd/etc/extras.txt
 
 # Configure Autopilot Network settings
@@ -59,17 +63,30 @@ echo ROUTER=10.10.1.254 >> /fs/microsd/net.cfg
 echo DNS=10.10.1.254 >> /fs/microsd/net.cfg
 # Check the content of the file
 cat /fs/microsd/net.cfg
-# Apply
+# Check the current network configuration
+ifconfig
+# Apply the new configuration
 netman update
 # Reboot and check new network configuration
 ifconfig
+
+# Set vehicle/MAV_SYS_ID (for multiple QGC connections) and UXRCE_DDS_DOM_ID/ROS_DOMAIN_ID
+param set MAV_SYS_ID 1
+param set UXRCE_DDS_DOM_ID 1
+
+# Optionally
+param set MAV_2_CONFIG 0 # Disable MAVLINK on Ethernet (so Ethernet is used for XRCE-DDS only), if needed, also check params MAV_0_CONFIG, MAV_1_CONFIG
+param set UXRCE_DDS_CFG 1000 # Use DDS over Ethernet
 ```
 
-On the Jetson Baseboard's Orin NX, configure the "PCI Ethernet" connection's IPv4 with address 10.10.1.44 and netmask 255.255.255.0
+> [!IMPORTANT]
+> Match `MAV_SYS_ID`, `UXRCE_DDS_DOM_ID`, and `uxrce_dds_client`'s namespace `-n Drone1`, with the `DRONE_ID` used to launch `./deploy_run.sh`: this is the `ROS_DOMAIN_ID` of the aircraft container
 
 One should be able to `ping 10.10.1.44` (the Orin NX) from MAVLink Console on QGC; and `ping 10.10.1.33` (the autopilot) from a terminal on the Orin NX
 
+<!-- 
 Also read the [PX4 documentation](https://github.com/PX4/PX4-Autopilot/blob/main/docs/en/companion_computer/holybro_pixhawk_jetson_baseboard.md#ethernet-setup-using-netplan)
+-->
 
 ## Configure ArduPilot's MAVLink bridge
 
@@ -105,7 +122,9 @@ sdkmanager # Log in with your https://developer.nvidia.com account
 - With a screen, mouse, and keyboard connected to the Jetson basedboad, log in, finish the configuration, power-off, put the board out of recovery mode and power-on again
 - Select an appropriate "Power Mode" (e.g. 25W)
 
+<!-- 
 Also read the [PX4 documentation](https://github.com/PX4/PX4-Autopilot/blob/main/docs/en/companion_computer/holybro_pixhawk_jetson_baseboard.md#flashing-the-jetson-board)
+-->
 
 > [!WARNING]
 > At the time of writing, **Snap is broken on JetPack 6**, a fix is suggested [here](https://forums.developer.nvidia.com/t/chromium-other-browsers-not-working-after-flashing-or-updating-heres-why-and-quick-fix/338891)
