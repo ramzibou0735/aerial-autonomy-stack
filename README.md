@@ -250,6 +250,45 @@ DRONE_TYPE=quad AUTOPILOT=px4 DRONE_ID=1 CAMERA=true LIDAR=false ./deploy_run.sh
 docker exec -it aircraft-container tmux attach
 ```
 
+### HITL Simulation
+
+> [!CAUTION]
+> Right now, HITL only includes the Jetson computers, support for Pixhawk is WIP
+
+Set up a LAN between: 1 simulation computer and N Jetson Baseboards (e.g. 192.168.8.XXX/24, using ASIX USB Ethernet adapters on the Baseboard's JST USB 2.0 ports)
+
+On the main computer running the simulation, run
+```sh
+SIM_LAN_IP=$(hostname -I | awk '{print $1}')
+docker swarm init --advertise-addr $SIM_LAN_IP
+# This will output a join command - copy it, looks like:
+# docker swarm join --token SWMTKN-1-xxxxx XXX.XXX.XXX.XXX:2377
+```
+
+On each of the NVIDIA Orin NX, copy the output from the previous command
+```sh
+docker swarm join --token SWMTKN-1-<ACTUAL_TOKEN> <ACTUAL_SIM_LAN_IP>:2377
+```
+
+On the main computer, start the simulation
+```sh
+docker node ls # Check all nodes have joined
+NUM_QUADS=1 NUM_VTOLS=0 AUTOPILOT=px4 ./sim_run_hitl.sh
+```
+
+On each of the NVIDIA Orin NX, start one of the aircraft (choosing `DRONE_TYPE`, `AUTOPILOT`, and `DRONE_ID` as appropriate)
+```sh
+DRONE_TYPE=quad AUTOPILOT=px4 DRONE_ID=1 ./deploy_run_hitl.sh
+```
+
+Once done, optionally, undo the `docker swarm` setup
+
+```sh
+docker swarm leave # On each NVIDIA Orin NX
+docker swarm leave --force # On the simulation computer
+docker info | grep "Swarm" # Check status
+```
+
 ---
 
 ## Future Work / Ideas for Contributions
