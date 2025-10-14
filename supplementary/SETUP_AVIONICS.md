@@ -40,7 +40,7 @@ On the Jetson Baseboard's Orin NX, under "Settings" -> "Network", configure the 
 Connect the Pixhawk 6X to the ground station with the USB-C port next to the RJ-45 port
 
 - Access QGroundControl -> "Analyze Tools" -> "MAVLink console"
-- Copy-and-paste the following commands (these will assign an IP the PX4 autopilot (e.g., 10.10.1.33) and let the `uxrce_dds_client` connect to the Orin NX (e.g., on IP 10.10.1.44) using namespace "Drone1")
+- Copy-and-paste the following commands (these will assign an IP to the PX4 autopilot (e.g., 10.10.1.33) and let the `uxrce_dds_client` connect to the Orin NX (e.g., on IP 10.10.1.44) using namespace `Drone1`)
 - Re-start the autopilot 
 
 ```sh
@@ -54,7 +54,7 @@ echo " -h 10.10.1.44 -n Drone1" >> extras.txt
 # Check the content of the file (remember to set the proper "DroneX" namespace)
 cat /fs/microsd/etc/extras.txt
 
-# Configure Autopilot Network settings
+# Configure Autopilot network settings
 echo DEVICE=eth0 > /fs/microsd/net.cfg
 echo BOOTPROTO=static >> /fs/microsd/net.cfg
 echo IPADDR=10.10.1.33 >> /fs/microsd/net.cfg
