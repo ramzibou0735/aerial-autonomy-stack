@@ -138,21 +138,21 @@ cd ~/git/aerial-autonomy-stack/scripts
 MODE=dev ./sim_run.sh # Starts one simulation-image and one aircraft-image where the ros2_ws/src/ and *_resources/ folders are mounted from the host
 ```
 
-To build changes made on the host either in `simulation_ws/src` or `aircraft_ws/src`
+To build changes made **on the host** in either `simulation_ws/src` or `aircraft_ws/src`
 
 ```sh
 cd ros2_ws/ # In the simulation and/or in the aircraft container
 colcon build --symlink-install
 ```
 
-To start the simulation (by default, this is a single PX4 quad)
+To start the simulation (by default, this is a single PX4 quad, configure using `sim_run.sh`)
 
 ```sh
 tmuxinator start -p /simulation.yml.erb # In the simulation container
 tmuxinator start -p /aircraft.yml.erb # In the aircraft container
 ```
 
-Once done, detach with `Ctrl + b`, then `d`; kill everything with `tmux kill-server && pkill -f gz`
+Once done, detach Tmux with `Ctrl + b`, then `d`; kill everything with `tmux kill-server && pkill -f gz`
 
 > [!TIP]
 > <details>
