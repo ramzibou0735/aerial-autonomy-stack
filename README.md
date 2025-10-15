@@ -135,8 +135,24 @@ Launching the `sim_run.sh` script with `MODE=dev`, does **not** start the simula
 
 ```sh
 cd ~/git/aerial-autonomy-stack/scripts
-MODE=dev ./sim_run.sh # Images are pre-built but the ros2_ws/src/ and *_resources/ folders are mounted from the host
+MODE=dev ./sim_run.sh # Starts one simulation-image and one aircraft-image where the ros2_ws/src/ and *_resources/ folders are mounted from the host
 ```
+
+To build changes made on the host either in `simulation_ws/src` or `aircraft_ws/src`
+
+```sh
+cd ros2_ws/ # In the simulation and/or in the aircraft container
+colcon build --symlink-install
+```
+
+To start the simulation (by default, this is a single PX4 quad)
+
+```sh
+tmuxinator start -p /simulation.yml.erb # In the simulation container
+tmuxinator start -p /aircraft.yml.erb # In the aircraft container
+```
+
+Once done, detach with `Ctrl + b`, then `d` and kill everything with `tmux kill-server && pkill -f gz`, repeat as needed
 
 > [!TIP]
 > <details>
