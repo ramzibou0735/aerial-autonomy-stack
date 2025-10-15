@@ -152,7 +152,7 @@ tmuxinator start -p /simulation.yml.erb # In the simulation container
 tmuxinator start -p /aircraft.yml.erb # In the aircraft container
 ```
 
-Once done, detach with `Ctrl + b`, then `d` and kill everything with `tmux kill-server && pkill -f gz`, repeat as needed
+Once done, detach with `Ctrl + b`, then `d`; kill everything with `tmux kill-server && pkill -f gz`; repeat as needed
 
 > [!TIP]
 > <details>
