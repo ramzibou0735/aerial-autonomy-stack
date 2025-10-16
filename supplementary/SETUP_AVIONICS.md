@@ -79,7 +79,7 @@ param set MAV_2_CONFIG 0 # Disable MAVLINK on Ethernet (so Ethernet is used for 
 param set UXRCE_DDS_CFG 1000 # Use DDS over Ethernet
 ```
 
-> [!IMPORTANT]
+> [!CAUTION]
 > Match `MAV_SYS_ID`, `UXRCE_DDS_DOM_ID`, and `uxrce_dds_client`'s namespace `-n Drone1`, with the `DRONE_ID` used to launch `./deploy_run.sh`: this is the `ROS_DOMAIN_ID` of the aircraft container
 
 One should be able to `ping 10.10.1.44` (the Orin NX) from MAVLink Console on QGC; and `ping 10.10.1.33` (the autopilot) from a terminal on the Orin NX
