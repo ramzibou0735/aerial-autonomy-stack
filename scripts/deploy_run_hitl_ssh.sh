@@ -27,4 +27,4 @@ docker run -it --rm \
   --privileged \
   --name aircraft-container_$DRONE_ID \
   -v ~/tensorrt_cache/:/tensorrt_cache \
-  aircraft-image"
+  aircraft-image
