@@ -25,7 +25,7 @@ esac
 
 if [ "$HEADLESS" = "false" ]; then
   # Grant access to the X server
-   xhost +local:docker # Remove this when building TensorRT cache for the first time
+   xhost +local:docker # Avoid this when building the TensorRT cache for the first time
 fi
 
 # Launch the aircraft container in detached mode
@@ -43,14 +43,21 @@ docker run -d -t \
   ${MODE_OPTS} \
   aircraft-image
 
-echo "Now attach with: docker exec -it aircraft-container tmux attach"
-echo "If MODE=dev, attach with: docker exec -it aircraft-container bash"
+if [[ "$MODE" == "dev" ]]; then
+  echo ""
+  echo "With MODE=dev, attach directly to the bash shell:"
+  echo "docker exec -it aircraft-container bash"
+else
+  echo ""
+  echo "Attach to the Tmux session in the running 'aircraft-container':"
+  echo "docker exec -it aircraft-container tmux attach"
+fi
+echo ""
+echo "To stop all containers and remove stopped containers"
+echo "docker stop $(docker ps -q) && docker container prune"
 
 # Check ONNX runtimes
 # MODE=dev HEADLESS=false ./deploy_run.sh
 # docker exec -it aircraft-container bash
 # python3 -c "import onnxruntime as ort; print(ort.__version__); print(ort.get_available_providers())"
 # tmuxinator start -p /aircraft.yml.erb
-
-# docker stop $(docker ps -q) # Stop all containers
-# docker container prune # Remove stopped containers

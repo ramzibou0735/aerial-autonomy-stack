@@ -265,6 +265,9 @@ DRONE_TYPE=quad AUTOPILOT=px4 DRONE_ID=1 CAMERA=true LIDAR=false ./deploy_run.sh
 docker exec -it aircraft-container tmux attach
 ```
 
+> [!WARNING]
+> For the 1st run, use `HEADLESS=true ./deploy_run.sh` and wait a few minutes to let the TensorRT cache build
+
 ---
 
 ## Future Work / Ideas for Contributions
