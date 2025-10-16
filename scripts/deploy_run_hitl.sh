@@ -73,6 +73,7 @@ DOCKER_CMD="docker run -it --rm \
   --env DRONE_ID=$DRONE_ID --env HEADLESS=$HEADLESS --env CAMERA=$CAMERA --env LIDAR=$LIDAR \
   --env SIMULATED_TIME=true \
   --env SUBNET_PREFIX=$SUBNET_PREFIX \
+  --env GST_DEBUG=4 \
   --net=host \
   --privileged \
   --name aircraft-container_$DRONE_ID \
