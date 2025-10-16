@@ -275,20 +275,19 @@ docker exec -it aircraft-container tmux attach
 
 Set up a LAN with netmask 255.255.0.0 and arbitrary `SUBNET_PREFIX` (e.g. 192.168) between:
 
-- 1 simulation computer, with IP `SUBNET_PREFIX`.1.99
+- one simulation computer, with IP `SUBNET_PREFIX`.1.99
 - `n` Jetson Baseboards with IPs `SUBNET_PREFIX`.1.1, ..., `SUBNET_PREFIX`.1.`n`
 
-On the desktop session of a Jetson, start one of the aircraft (choosing `DRONE_TYPE`, `AUTOPILOT`, and `DRONE_ID` as appropriate)
+First, start all aircraft containers
 ```sh
+# With screen, mouse and keyboard connected to a Jetson
 DRONE_TYPE=quad AUTOPILOT=px4 DRONE_ID=1 SUBNET_PREFIX=192.168 ./deploy_run_hitl.sh
-```
 
-On an SSH session on a Jetson, start another aircraft (choosing `DRONE_TYPE`, `AUTOPILOT`, and `DRONE_ID` as appropriate)
-```sh
+# With an SSH session connected to a Jetson
 DRONE_TYPE=quad AUTOPILOT=px4 DRONE_ID=2 SUBNET_PREFIX=192.168 ./deploy_run_hitl_ssh.sh
 ```
 
-Finally, on the main computer, start the simulation (choosing `NUM_QUADS`, `NUM_VTOLS`, and `AUTOPILOT` as appropriate)
+Finally, on the simulation computer 
 ```sh
 NUM_QUADS=2 NUM_VTOLS=0 AUTOPILOT=px4 SUBNET_PREFIX=192.168 ./sim_run_hitl.sh
 ```
