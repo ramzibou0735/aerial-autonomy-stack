@@ -6,6 +6,7 @@
 <% lidar = ENV.fetch('LIDAR', 'true') %>
 <% simulated_time = ENV.fetch('SIMULATED_TIME', 'false') %>
 <% record_rosbag = ENV.fetch('RECORD_ROSBAG', 'false') %>
+<% subnet_prefix = ENV.fetch('SUBNET_PREFIX', '42.42') %>
 
 name: drone
 
@@ -66,7 +67,7 @@ windows:
         - ros2 run state_sharing state_sharing_node --ros-args -p autopilot:=<%= autopilot %> -p drone_id:=<%= drone_id %> <% if simulated_time == 'true' %> -p use_sim_time:=true<% end %>
         - >
           erb /aircraft_resources/comms/zenoh_config_air.json5.erb > /aircraft_resources/comms/zenoh_config_air.json5 &&
-          zenoh-bridge-ros2dds -e tcp/42.42.1.99:7447 -c /aircraft_resources/comms/zenoh_config_air.json5
+          zenoh-bridge-ros2dds -e tcp/<%= subnet_prefix %>.1.99:7447 -c /aircraft_resources/comms/zenoh_config_air.json5
 
   <% if record_rosbag == 'true' %>
   - logging:

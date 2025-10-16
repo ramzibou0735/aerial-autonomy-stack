@@ -120,7 +120,7 @@ ros2 run mission mission --conops yalla \
   --ros-args -r __ns:=/Drone$DRONE_ID -p use_sim_time:=true # This mission is a simple takeoff, followed by an orbit, and landing for any vehicle
 
 # Finally, in the simulation's terminal
-/simulation_resources/patches/plot_logs.sh # Analyze the flight logs
+/simulation_resources/patches/plot_logs.sh # Analyze the flight logs at http://42.42.1.99:5006/browse
 ```
 
 To create a new mission, read the banner comments in [`ardupilot_interface.hpp`](/aircraft/aircraft_ws/src/autopilot_interface/src/ardupilot_interface.hpp) and [`px4_interface.hpp`](/aircraft/aircraft_ws/src/autopilot_interface/src/px4_interface.hpp) for command line examples of takeoff, orbit, reposition, offboard, land

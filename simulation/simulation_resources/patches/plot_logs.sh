@@ -21,7 +21,7 @@ if [[ -n "$NUM_DRONES" && "$NUM_DRONES" =~ ^[0-9]+$ ]]; then
     elif [ "$AUTOPILOT" == "px4" ]; then
         cd /git/flight_review/
         /px4rf-env/bin/python3 ./app/setup_db.py
-        /px4rf-env/bin/python3 ./app/serve.py --allow-websocket-origin=42.42.1.99:5006 2>/dev/null & # Starting flight_review (suppress "Address already in use" when running this script more than once)
+        /px4rf-env/bin/python3 ./app/serve.py --allow-websocket-origin=${SUBNET_PREFIX}.1.99:5006 2>/dev/null & # Starting flight_review (suppress "Address already in use" when running this script more than once)
         sleep 2
         for i in $(seq 0 $((NUM_DRONES - 1))); do
             log_dir="/git/PX4-Autopilot/build/px4_sitl_default/rootfs/$i/log"
@@ -31,7 +31,7 @@ if [[ -n "$NUM_DRONES" && "$NUM_DRONES" =~ ^[0-9]+$ ]]; then
                 latest_ulg=$(ls -t "$latest_date_dir"/*.ulg | head -n 1)
                 if [ -n "$latest_ulg" ]; then
                     echo "Latest .ulg log for PX4 drone $i is: $(basename "$latest_ulg")"
-                    python3 /git/PX4-Autopilot/Tools/upload_log.py --quiet --server=http://42.42.1.99:5006 "$latest_ulg"
+                    python3 /git/PX4-Autopilot/Tools/upload_log.py --quiet --server=http://${SUBNET_PREFIX}.1.99:5006 "$latest_ulg"
                 else
                     echo "No .ulg logs found for PX4 drone $i in: $latest_date_dir"
                 fi
@@ -40,7 +40,7 @@ if [[ -n "$NUM_DRONES" && "$NUM_DRONES" =~ ^[0-9]+$ ]]; then
             fi
         done
         echo ""
-        echo "You can view the imported logs at: http://42.42.1.99:5006/browse"
+        echo "You can view the imported logs at: http://${SUBNET_PREFIX}.1.99:5006/browse"
 
     else
         echo "Unknown AUTOPILOT"
