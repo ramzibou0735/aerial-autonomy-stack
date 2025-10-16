@@ -253,40 +253,26 @@ docker exec -it aircraft-container tmux attach
 ### HITL Simulation
 
 > [!CAUTION]
-> Right now, HITL only includes the Jetson computers, support for Pixhawk is WIP
+> As of now, HITL only includes the Jetson computers, support for Pixhawk is WIP
 
-Set up a LAN between: 1 simulation computer and N Jetson Baseboards (e.g. 192.168.8.XXX/24, using ASIX USB Ethernet adapters on the Baseboard's JST USB 2.0 ports)
+Set up a LAN with netmask 255.255.0.0 and arbitrary `SUBNET_PREFIX` (e.g. 192.168) between:
 
-On the main computer running the simulation, run
+- 1 simulation computer, with IP `SUBNET_PREFIX`.1.99
+- `n` Jetson Baseboards with IPs `SUBNET_PREFIX`.1.1, ..., `SUBNET_PREFIX`.1.`n`
+
+On the desktop session of a Jetson, start one of the aircraft (choosing `DRONE_TYPE`, `AUTOPILOT`, and `DRONE_ID` as appropriate)
 ```sh
-SIM_LAN_IP=$(hostname -I | awk '{print $1}')
-docker swarm init --advertise-addr $SIM_LAN_IP
-# This will output a join command - copy it, looks like:
-# docker swarm join --token SWMTKN-1-xxxxx XXX.XXX.XXX.XXX:2377
+DRONE_TYPE=quad AUTOPILOT=px4 DRONE_ID=1 SUBNET_PREFIX=192.168 ./deploy_run_hitl.sh
 ```
 
-On each of the NVIDIA Orin NX, copy the output from the previous command
+On an SSH session on a Jetson, start another aircraft (choosing `DRONE_TYPE`, `AUTOPILOT`, and `DRONE_ID` as appropriate)
 ```sh
-docker swarm join --token SWMTKN-1-<ACTUAL_TOKEN> <ACTUAL_SIM_LAN_IP>:2377
+DRONE_TYPE=quad AUTOPILOT=px4 DRONE_ID=2 SUBNET_PREFIX=192.168 ./deploy_run_hitl_ssh.sh
 ```
 
-On the main computer, start the simulation
+Finally, on the main computer, start the simulation (choosing `NUM_QUADS`, `NUM_VTOLS`, and `AUTOPILOT` as appropriate)
 ```sh
-docker node ls # Check all nodes have joined
-NUM_QUADS=1 NUM_VTOLS=0 AUTOPILOT=px4 ./sim_run_hitl.sh
-```
-
-On each of the NVIDIA Orin NX, start one of the aircraft (choosing `DRONE_TYPE`, `AUTOPILOT`, and `DRONE_ID` as appropriate)
-```sh
-DRONE_TYPE=quad AUTOPILOT=px4 DRONE_ID=1 ./deploy_run_hitl.sh
-```
-
-Once done, optionally, undo the `docker swarm` setup
-
-```sh
-docker swarm leave # On each NVIDIA Orin NX
-docker swarm leave --force # On the simulation computer
-docker info | grep "Swarm" # Check status
+NUM_QUADS=2 NUM_VTOLS=0 AUTOPILOT=px4 SUBNET_PREFIX=192.168 ./sim_run_hitl.sh
 ```
 
 ---
@@ -305,6 +291,7 @@ docker info | grep "Swarm" # Check status
 
 ### Known Issues
 
+- In HITL, the simulation containers must start after the aircraft ones for Gstreamer to pick up the UDP streams
 - wmctrl does not work as-is in WSLg
 - QGC is started with a virtual joystick (with low throttle if using only VTOLs and centered throttle if there are quads), this is reflective of real-life but note that this counts as "RC loss" when switching focus from one autopilot instance to another
 - ArduPilot CIRCLE mode for quads require to explicitly center the virtual throttle with 'rc 3 1500' to keep altitude

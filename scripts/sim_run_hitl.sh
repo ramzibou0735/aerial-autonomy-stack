@@ -10,7 +10,8 @@ AUTOPILOT="${AUTOPILOT:-px4}" # Options: px4 (default), ardupilot
 WORLD="${WORLD:-impalpable_greyness}" # Options: impalpable_greyness (default), apple_orchard, shibuya_crossing, swiss_town
 HEADLESS="${HEADLESS:-false}" # Options: true, false (default)
 CAMERA="${CAMERA:-true}" # Options: true (default), false
-LIDAR="${LIDAR:-true}" # Options: true (default), false 
+LIDAR="${LIDAR:-true}" # Options: true (default), false
+SUBNET_PREFIX="${SUBNET_PREFIX:-42.42}" # Subnet prefix, e.g., 42.42 (default), 192.168, etc.
 
 # Detect the environment (Ubuntu/GNOME, WSL, etc.)
 if command -v gnome-terminal >/dev/null 2>&1 && [ -n "$XDG_CURRENT_DESKTOP" ]; then
@@ -25,11 +26,6 @@ echo "Desktop environment: $DESK_ENV"
 if command -v xhost >/dev/null 2>&1; then 
   xhost +local:docker
 fi
-
-# Create network
-# NETWORK_NAME="aas-network-hitl"
-# docker network inspect "$NETWORK_NAME" >/dev/null 2>&1 || docker network create --driver overlay --subnet=42.42.0.0/16 --attachable "$NETWORK_NAME"
-SUBNET_PREFIX="192.168"
 
 # Get primary display dimensions
 get_primary_display_info() {

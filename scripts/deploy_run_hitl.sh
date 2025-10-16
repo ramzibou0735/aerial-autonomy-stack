@@ -10,6 +10,7 @@ DRONE_ID="${DRONE_ID:-1}" # Id of aircraft (default = 1)
 HEADLESS="${HEADLESS:-false}" # Options: true (default), false 
 CAMERA="${CAMERA:-true}" # Options: true (default), false
 LIDAR="${LIDAR:-true}" # Options: true (default), false
+SUBNET_PREFIX="${SUBNET_PREFIX:-42.42}" # Subnet prefix, e.g., 42.42 (default), 192.168, etc.
 
 # Detect the environment (Ubuntu/GNOME, WSL, etc.)
 if command -v gnome-terminal >/dev/null 2>&1 && [ -n "$XDG_CURRENT_DESKTOP" ]; then
@@ -24,8 +25,6 @@ echo "Desktop environment: $DESK_ENV"
 if command -v xhost >/dev/null 2>&1; then 
   xhost +local:docker
 fi
-
-SUBNET_PREFIX="192.168"
 
 # Get primary display dimensions
 get_primary_display_info() {
