@@ -120,16 +120,29 @@ class YoloInferenceNode(Node):
             cap = cv2.VideoCapture(gst_pipeline_string, cv2.CAP_GSTREAMER)
         elif self.architecture == 'aarch64':
             gst_pipeline_string = (
-                "udpsrc port=5600 ! "
+            "udpsrc port=5600 ! "
                 "application/x-rtp, media=(string)video, encoding-name=(string)H264 ! "
                 "rtph264depay ! "
-                "nvh264dec ! "  # NVIDIA hardware H.264 decoder for Jetson, or "nvv4l2decoder ! "  # Alternative hardware decoder
-                "nvvideoconvert ! "  # NVIDIA video converter for Jetson
-                "video/x-raw, format=BGR ! appsink"
+                "h264parse ! "
+                "nvv4l2decoder ! "     # Hardware Decoding: Uses the Orin's dedicated engine
+                "nvvidconv ! "         # NVMM-to-CPU Memory Conversion
+                "video/x-raw, format=I420 ! "
+                "videoconvert ! "      # CPU Color Conversion: I420 to BGR
+                "video/x-raw, format=BGR ! "
+                "appsink drop=true max-buffers=1 "
             )
+            # CPU fallback for test/debug
+            # gst_pipeline_string = (
+            #     "udpsrc port=5600 ! "
+            #     "application/x-rtp, media=(string)video, encoding-name=(string)H264 ! "
+            #     "rtph264depay ! "
+            #     "avdec_h264 ! "      # Generic CPU H.264 decoder
+            #     "videoconvert ! "
+            #     "video/x-raw, format=BGR ! appsink"
+            # )
             cap = cv2.VideoCapture(gst_pipeline_string, cv2.CAP_GSTREAMER)
             # cap = cv2.VideoCapture("sample.mp4") # Load example video for testing
-            # TODO: open CSI or RTSP camera feed instead, use hardware acceleration
+            # TODO: open CSI or RTSP camera feed instead
         assert cap.isOpened(), "Failed to open video stream"
 
         if not self.headless:
