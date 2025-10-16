@@ -46,15 +46,19 @@ docker run -d -t \
 if [[ "$MODE" == "dev" ]]; then
   echo ""
   echo "With MODE=dev, attach directly to the bash shell:"
-  echo "docker exec -it aircraft-container bash"
+  echo ""
+  echo -e "\t docker exec -it aircraft-container bash"
 else
   echo ""
   echo "Attach to the Tmux session in the running 'aircraft-container':"
-  echo "docker exec -it aircraft-container tmux attach"
+  echo ""
+  echo -e "\t docker exec -it aircraft-container tmux attach"
 fi
 echo ""
-echo "To stop all containers and remove stopped containers"
-echo "docker stop $(docker ps -q) && docker container prune"
+echo "To stop all containers and remove stopped containers:"
+echo ""
+echo -e '\t docker stop $(docker ps -q) && docker container prune'
+echo ""
 
 # Check ONNX runtimes
 # MODE=dev HEADLESS=false ./deploy_run.sh
