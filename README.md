@@ -35,7 +35,7 @@ Read about the [*rationale*](/supplementary/RATIONALE.md) for AAS in the [`suppl
 
 ---
 
-## Part 1: Installation
+## How-to Part 1: Installation
 
 > [!IMPORTANT]
 > AAS is developed using Ubuntu 22.04 with `nvidia-driver-580` on an i9-13 with RTX 3500 and an i7-11 with RTX 3060—an NVIDIA GPU *is* required for ideal performance
@@ -44,15 +44,11 @@ Read about the [*rationale*](/supplementary/RATIONALE.md) for AAS in the [`suppl
 >
 > Windows 11 support is available *via* WSLg, read [`REQUIREMENTS_WSL.md`](/supplementary/REQUIREMENTS_WSL.md)
 
-> [!WARNING]
-> The 1st build takes ~45GB of space and ~25' with good internet (`Ctrl + c` and restart if needed)
-
-
 ```sh
 # Install dependencies (git, Git LFS, Xterm)
 sudo apt update
 sudo apt install -y git git-lfs xterm xfonts-base
-git lfs install
+git lfs install # Without this, the `git clone` command will not download the large files in `simulation_resources/`
 
 # Clone this repo
 mkdir -p ~/git && cd ~/git
@@ -67,9 +63,12 @@ cd ~/git/aerial-autonomy-stack/scripts
 > [![simulation-image amd64](https://github.com/JacopoPan/aerial-autonomy-stack/actions/workflows/weekly-simulation-amd64-build.yml/badge.svg)](https://github.com/JacopoPan/aerial-autonomy-stack/actions/workflows/weekly-simulation-amd64-build.yml)
 > [![aircraft-image amd64](https://github.com/JacopoPan/aerial-autonomy-stack/actions/workflows/weekly-aircraft-amd64-build.yml/badge.svg)](https://github.com/JacopoPan/aerial-autonomy-stack/actions/workflows/weekly-aircraft-amd64-build.yml)
 
+> [!WARNING]
+> The 1st build takes ~45GB of space and ~25' with good internet (`Ctrl + c` and restart if needed)
+
 ---
 
-## Part 2: Simulation and Development
+## How-to Part 2: Simulation and Development
 
 ```sh
 # Start a simulation
@@ -120,7 +119,7 @@ ros2 run mission mission --conops yalla \
   --ros-args -r __ns:=/Drone$DRONE_ID -p use_sim_time:=true # This mission is a simple takeoff, followed by an orbit, and landing for any vehicle
 
 # Finally, in the simulation's terminal
-/simulation_resources/patches/plot_logs.sh # Analyze the flight logs at http://42.42.1.99:5006/browse
+/simulation_resources/patches/plot_logs.sh # Analyze the flight logs at http://42.42.1.99:5006/browse or in MAVExplorer
 ```
 
 To create a new mission, read the banner comments in [`ardupilot_interface.hpp`](/aircraft/aircraft_ws/src/autopilot_interface/src/ardupilot_interface.hpp) and [`px4_interface.hpp`](/aircraft/aircraft_ws/src/autopilot_interface/src/px4_interface.hpp) for command line examples of takeoff, orbit, reposition, offboard, land
@@ -135,8 +134,24 @@ Launching the `sim_run.sh` script with `MODE=dev`, does **not** start the simula
 
 ```sh
 cd ~/git/aerial-autonomy-stack/scripts
-MODE=dev ./sim_run.sh # Images are pre-built but the ros2_ws/src/ and *_resources/ folders are mounted from the host
+MODE=dev ./sim_run.sh # Starts one simulation-image and one aircraft-image where the ros2_ws/src/ and *_resources/ folders are mounted from the host
 ```
+
+To build changes made **on the host** in either `simulation_ws/src` or `aircraft_ws/src`
+
+```sh
+cd ros2_ws/ # In the simulation and/or in the aircraft container
+colcon build --symlink-install
+```
+
+To start the simulation (by default, this is a single PX4 quad, configure using `sim_run.sh`)
+
+```sh
+tmuxinator start -p /simulation.yml.erb # In the simulation container
+tmuxinator start -p /aircraft.yml.erb # In the aircraft container
+```
+
+Once done, detach Tmux with `Ctrl + b`, then `d`; kill everything with `tmux kill-server && pkill -f gz`
 
 > [!TIP]
 > <details>
@@ -219,18 +234,18 @@ MODE=dev ./sim_run.sh # Images are pre-built but the ros2_ws/src/ and *_resource
 
 ---
 
-## Part 3: Jetson Deployment
+## How-to Part 3: Jetson Deployment
 
 > [!IMPORTANT]
 > These instructions are tested on a [Holybro Jetson Baseboard](https://holybro.com/products/pixhawk-jetson-baseboard) (Pixhawk 6X + NVIDIA Orin NX 16GB)
 > 
-> **To setup (i.a) PX4's DDS UDP client or (i.b) ArduPilot serial MAVLink bridge, (ii) JetPack 6, (iii) Docker Engine, and (iv) NVIDIA Container Toolkit (with NVIDIA NGC API Key) on Orin, read [`SETUP_AVIONICS.md`](/supplementary/SETUP_AVIONICS.md)**
+> **To setup (i.a) PX4's DDS client or (i.b) ArduPilot MAVLink bridge, (ii) JetPack 6, (iii) Docker Engine, and (iv) NVIDIA Container Toolkit (with NVIDIA NGC API Key) on Orin, read [`SETUP_AVIONICS.md`](/supplementary/SETUP_AVIONICS.md)**
 
 ```sh
 # Install dependencies (git, Git LFS)
 sudo apt update
 sudo apt install -y git git-lfs
-git lfs install
+git lfs install # Without this, the `git clone` command will not download the large files in `simulation_resources/`
 
 # Clone this repo
 mkdir -p ~/git && cd ~/git
@@ -249,6 +264,9 @@ cd ~/git/aerial-autonomy-stack/scripts
 DRONE_TYPE=quad AUTOPILOT=px4 DRONE_ID=1 CAMERA=true LIDAR=false ./deploy_run.sh
 docker exec -it aircraft-container tmux attach
 ```
+
+> [!WARNING]
+> For the 1st run, use `HEADLESS=true ./deploy_run.sh` and wait a few minutes to let the TensorRT cache build
 
 ### HITL Simulation
 
