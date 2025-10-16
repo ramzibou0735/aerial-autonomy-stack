@@ -25,6 +25,8 @@ if command -v xhost >/dev/null 2>&1; then
   xhost +local:docker
 fi
 
+SUBNET_PREFIX="192.168"
+
 # Get primary display dimensions
 get_primary_display_info() {
   local resolution=$(xrandr 2>/dev/null | grep " connected primary" | grep -oE '[0-9]+x[0-9]+' | head -1)
@@ -70,7 +72,8 @@ DOCKER_CMD="docker run -it --rm \
   --env DRONE_TYPE=$DRONE_TYPE \
   --env DRONE_ID=$DRONE_ID --env HEADLESS=$HEADLESS --env CAMERA=$CAMERA --env LIDAR=$LIDAR \
   --env SIMULATED_TIME=true \
-  --net=aas-network-hitl --ip=42.42.1.$DRONE_ID \
+  --env SUBNET_PREFIX=$SUBNET_PREFIX \
+  --net=host \
   --privileged \
   --name aircraft-container_$DRONE_ID \
   -v ~/tensorrt_cache/:/tensorrt_cache \

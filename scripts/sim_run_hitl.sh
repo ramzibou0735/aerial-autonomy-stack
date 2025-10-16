@@ -27,8 +27,9 @@ if command -v xhost >/dev/null 2>&1; then
 fi
 
 # Create network
-NETWORK_NAME="aas-network-hitl"
-docker network inspect "$NETWORK_NAME" >/dev/null 2>&1 || docker network create --driver overlay --subnet=42.42.0.0/16 --attachable "$NETWORK_NAME"
+# NETWORK_NAME="aas-network-hitl"
+# docker network inspect "$NETWORK_NAME" >/dev/null 2>&1 || docker network create --driver overlay --subnet=42.42.0.0/16 --attachable "$NETWORK_NAME"
+SUBNET_PREFIX="192.168"
 
 # Get primary display dimensions
 get_primary_display_info() {
@@ -75,7 +76,8 @@ DOCKER_CMD="docker run -it --rm \
   --env NUM_QUADS=$NUM_QUADS --env NUM_VTOLS=$NUM_VTOLS \
   --env WORLD=$WORLD --env HEADLESS=$HEADLESS --env CAMERA=$CAMERA --env LIDAR=$LIDAR \
   --env SIMULATED_TIME=true \
-  --net=aas-network-hitl --ip=42.42.1.99 \
+  --env SUBNET_PREFIX=$SUBNET_PREFIX \
+  --net=host \
   --privileged \
   --name simulation-container \
   simulation-image"
