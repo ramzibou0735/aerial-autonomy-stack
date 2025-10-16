@@ -79,7 +79,8 @@ fi
 
 # Create network
 NETWORK_NAME="aas-network"
-docker network inspect "$NETWORK_NAME" >/dev/null 2>&1 || docker network create --subnet=42.42.0.0/16 "$NETWORK_NAME"
+SUBNET_PREFIX="42.42"
+docker network inspect "$NETWORK_NAME" >/dev/null 2>&1 || docker network create --subnet=${SUBNET_PREFIX}.0.0/16 "$NETWORK_NAME"
 
 # WSL-specific options
 WSL_OPTS="--env WAYLAND_DISPLAY=$WAYLAND_DISPLAY --env PULSE_SERVER=$PULSE_SERVER --volume /usr/lib/wsl:/usr/lib/wsl \
@@ -133,7 +134,8 @@ DOCKER_CMD="docker run -it --rm \
   --env NUM_QUADS=$NUM_QUADS --env NUM_VTOLS=$NUM_VTOLS \
   --env WORLD=$WORLD --env HEADLESS=$HEADLESS --env CAMERA=$CAMERA --env LIDAR=$LIDAR \
   --env SIMULATED_TIME=true \
-  --net=aas-network --ip=42.42.1.99 \
+  --env SUBNET_PREFIX=$SUBNET_PREFIX \
+  --net=aas-network --ip=${SUBNET_PREFIX}.1.99 \
   --privileged \
   --name simulation-container"
 # Add WSL-specific options and complete the command
@@ -155,7 +157,8 @@ for i in $(seq 1 $NUM_QUADS); do
     --env DRONE_TYPE=quad \
     --env DRONE_ID=$DRONE_ID --env HEADLESS=$HEADLESS --env CAMERA=$CAMERA --env LIDAR=$LIDAR \
     --env SIMULATED_TIME=true \
-    --net=aas-network --ip=42.42.1.$DRONE_ID \
+    --env SUBNET_PREFIX=$SUBNET_PREFIX \
+    --net=aas-network --ip=${SUBNET_PREFIX}.1.$DRONE_ID \
     --privileged \
     --name aircraft-container_$DRONE_ID"
   # Add WSL-specific options and complete the command
@@ -178,7 +181,8 @@ for i in $(seq 1 $NUM_VTOLS); do
     --env DRONE_TYPE=vtol \
     --env DRONE_ID=$DRONE_ID --env HEADLESS=$HEADLESS --env CAMERA=$CAMERA --env LIDAR=$LIDAR \
     --env SIMULATED_TIME=true \
-    --net=aas-network --ip=42.42.1.$DRONE_ID \
+    --env SUBNET_PREFIX=$SUBNET_PREFIX \
+    --net=aas-network --ip=${SUBNET_PREFIX}.1.$DRONE_ID \
     --privileged \
     --name aircraft-container_$DRONE_ID"
   # Add WSL-specific options and complete the command
