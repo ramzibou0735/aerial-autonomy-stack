@@ -97,32 +97,37 @@ class YoloInferenceNode(Node):
 
     def run_inference_loop(self):
         # Acquire video stream
-        gst_pipeline_string = (
-            "udpsrc port=5600 ! "
-            "application/x-rtp, media=(string)video, encoding-name=(string)H264 ! "
-            "rtph264depay ! "
-            "avdec_h264 threads=4 ! " # Use CPU decoder, threads=0 for autodetection
-            "videoconvert ! "
-            "video/x-raw, format=BGR ! appsink"
-        )
-        # NOT WORKING: system Python's OpenCV has GStreamer but no CUDA support
-        # TODO: build OpenCV from source to support both or use python3-gi gir1.2-gst-plugins-base-1.0 gir1.2-gstreamer-1.0
-        # gst_pipeline_string = (
-        #     "udpsrc port=5600 ! "
-        #     "'application/x-rtp, media=(string)video, encoding-name=(string)H264' ! "
-        #     "rtph264depay ! "
-        #     "nvh264dec ! "       # Use the NVIDIA hardware decoder
-        #     "cudadownload ! "    # Copy the frame from GPU to CPU memory
-        #     "videoconvert ! "
-        #     "video/x-raw, format=BGR ! appsink"
-        # )
-        gst_pipeline_string_orin = (
-            # TODO
-        )
         if self.architecture == 'x86_64':
+            gst_pipeline_string = (
+                "udpsrc port=5600 ! "
+                "application/x-rtp, media=(string)video, encoding-name=(string)H264 ! "
+                "rtph264depay ! "
+                "avdec_h264 threads=4 ! " # Use CPU decoder, threads=0 for autodetection
+                "videoconvert ! "
+                "video/x-raw, format=BGR ! appsink"
+            )
+            # NOT WORKING: system Python's OpenCV has GStreamer but no CUDA support
+            # TODO: build OpenCV from source to support both or use python3-gi gir1.2-gst-plugins-base-1.0 gir1.2-gstreamer-1.0
+            # gst_pipeline_string = (
+            #     "udpsrc port=5600 ! "
+            #     "'application/x-rtp, media=(string)video, encoding-name=(string)H264' ! "
+            #     "rtph264depay ! "
+            #     "nvh264dec ! "       # Use the NVIDIA hardware decoder
+            #     "cudadownload ! "    # Copy the frame from GPU to CPU memory
+            #     "videoconvert ! "
+            #     "video/x-raw, format=BGR ! appsink"
+            # )
             cap = cv2.VideoCapture(gst_pipeline_string, cv2.CAP_GSTREAMER)
         elif self.architecture == 'aarch64':
-            cap = cv2.VideoCapture(gst_pipeline_string_orin, cv2.CAP_GSTREAMER)
+            gst_pipeline_string = (
+                "udpsrc port=5600 ! "
+                "application/x-rtp, media=(string)video, encoding-name=(string)H264 ! "
+                "rtph264depay ! "
+                "nvh264dec ! "  # NVIDIA hardware H.264 decoder for Jetson, or "nvv4l2decoder ! "  # Alternative hardware decoder
+                "nvvideoconvert ! "  # NVIDIA video converter for Jetson
+                "video/x-raw, format=BGR ! appsink"
+            )
+            cap = cv2.VideoCapture(gst_pipeline_string, cv2.CAP_GSTREAMER)
             # cap = cv2.VideoCapture("sample.mp4") # Load example video for testing
             # TODO: open CSI or RTSP camera feed instead, use hardware acceleration
         assert cap.isOpened(), "Failed to open video stream"
