@@ -266,7 +266,7 @@ docker exec -it aircraft-container tmux attach
 ```
 
 > [!WARNING]
-> For the 1st run, use `HEADLESS=true ./deploy_run.sh` and wait a few minutes to let the TensorRT cache build
+> The 1st run of `./deploy_run.sh` requires ~4' to build the TensorRT cache
 
 ---
 
