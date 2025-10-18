@@ -44,7 +44,7 @@ windows:
           <% end %>
           /aas/simulation_resources/aircraft_models/_create_ardupilot_models.sh <%= num_quads %> <%= num_vtols %>  &&
           /aas/simulation_resources/simulation_worlds/_create_ardupilot_world.sh <%= num_quads %> <%= num_vtols %> /aas/simulation_resources/simulation_worlds/<%= world %>.sdf &&
-          GZ_SIM_SYSTEM_PLUGIN_PATH=/aas/github_repos/ardupilot_gazebo/build:$GZ_SIM_SYSTEM_PLUGIN_PATH 
+          GZ_SIM_SYSTEM_PLUGIN_PATH=/aas/github_apps/ardupilot_gazebo/build:$GZ_SIM_SYSTEM_PLUGIN_PATH 
           GZ_SIM_RESOURCE_PATH=/aas/simulation_resources/aircraft_models:/aas/simulation_resources/simulation_worlds:$GZ_SIM_RESOURCE_PATH 
           GZ_SIM_PHYSICS_ENGINE_PATH=$GZ_SIM_PHYSICS_ENGINE_PATH:/usr/lib/x86_64-linux-gnu/gz-physics-7/engine-plugins/
           gz sim -v4 -r <% if headless == 'true' %> -s <% end %> populated_ardupilot.sdf
@@ -83,7 +83,7 @@ windows:
           PX4_UXRCE_DDS_NS="Drone<%= drone_id + 1 %>"
           PX4_UXRCE_DDS_AG_IP="<%= subnet_prefix %>.1.<%= drone_id + 1 %>"
           PX4_UXRCE_DDS_PORT=8888
-          /aas/github_repos/PX4-Autopilot/build/px4_sitl_default/bin/px4 -i <%= drone_id %>
+          /aas/github_apps/PX4-Autopilot/build/px4_sitl_default/bin/px4 -i <%= drone_id %>
         - "ROS_DOMAIN_ID=<%= drone_id + 1 %> ros2 run ros_gz_bridge parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock"
         <% if lidar == 'true' %>
         - "ROS_DOMAIN_ID=<%= drone_id + 1 %> ros2 run ros_gz_bridge parameter_bridge /world/<%= world %>/model/x500_<%= drone_id %>/model/simple_lidar/link/lidar/base_link/sensor/lidar3d/scan/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked --ros-args -r /world/<%= world %>/model/x500_<%= drone_id %>/model/simple_lidar/link/lidar/base_link/sensor/lidar3d/scan/points:=/lidar_points"
@@ -100,7 +100,7 @@ windows:
       panes:
         - >
           sleep <%= (drone_id + 1) * 3 %> &&
-          /aas/github_repos/ardupilot/Tools/autotest/sim_vehicle.py 
+          /aas/github_apps/ardupilot/Tools/autotest/sim_vehicle.py 
           -v ArduCopter
           -f gazebo-iris
           --model JSON
@@ -141,7 +141,7 @@ windows:
           PX4_UXRCE_DDS_NS="Drone<%= drone_id + 1 %>"
           PX4_UXRCE_DDS_AG_IP="<%= subnet_prefix %>.1.<%= drone_id + 1 %>"
           PX4_UXRCE_DDS_PORT=8888
-          /aas/github_repos/PX4-Autopilot/build/px4_sitl_default/bin/px4 -i <%= drone_id %>
+          /aas/github_apps/PX4-Autopilot/build/px4_sitl_default/bin/px4 -i <%= drone_id %>
         - "ROS_DOMAIN_ID=<%= drone_id + 1 %> ros2 run ros_gz_bridge parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock"
         <% if lidar == 'true' %>
         - "ROS_DOMAIN_ID=<%= drone_id + 1 %> ros2 run ros_gz_bridge parameter_bridge /world/<%= world %>/model/standard_vtol_<%= drone_id %>/model/simple_lidar/link/lidar/base_link/sensor/lidar3d/scan/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked --ros-args -r /world/<%= world %>/model/standard_vtol_<%= drone_id %>/model/simple_lidar/link/lidar/base_link/sensor/lidar3d/scan/points:=/lidar_points"
@@ -158,7 +158,7 @@ windows:
       panes:
         - >
           sleep <%= (drone_id + 1) * 3 %> &&
-          /aas/github_repos/ardupilot/Tools/autotest/sim_vehicle.py 
+          /aas/github_apps/ardupilot/Tools/autotest/sim_vehicle.py 
           -v ArduPlane
           --model JSON
           -I <%= drone_id %>
