@@ -66,12 +66,12 @@ windows:
       panes:
         - ros2 run state_sharing state_sharing_node --ros-args -p autopilot:=<%= autopilot %> -p drone_id:=<%= drone_id %> <% if simulated_time == 'true' %> -p use_sim_time:=true<% end %>
         - >
-          erb /aircraft_resources/comms/zenoh_config_air.json5.erb > /aircraft_resources/comms/zenoh_config_air.json5 &&
-          zenoh-bridge-ros2dds -e tcp/<%= subnet_prefix %>.1.99:7447 -c /aircraft_resources/comms/zenoh_config_air.json5
+          erb /aas/aircraft_resources/comms/zenoh_config_air.json5.erb > /aas/aircraft_resources/comms/zenoh_config_air.json5 &&
+          zenoh-bridge-ros2dds -e tcp/<%= subnet_prefix %>.1.99:7447 -c /aas/aircraft_resources/comms/zenoh_config_air.json5
 
   <% if record_rosbag == 'true' %>
   - logging:
       layout: tiled
       panes:
-        - mkdir -p /rosbags && cd /rosbags && ros2 bag record -a
+        - mkdir -p /aas/rosbags && cd /aas/rosbags && ros2 bag record -a
   <% end %>

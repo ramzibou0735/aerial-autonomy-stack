@@ -15,8 +15,8 @@ NUM_VTOLS=$2
 BASE_PORT=9002
 
 # Paths to the base models
-QUAD_MODEL_PATH="/simulation_resources/aircraft_models/iris_with_ardupilot"
-VTOL_MODEL_PATH="/simulation_resources/aircraft_models/alti_transition_quad"
+QUAD_MODEL_PATH="/aas/simulation_resources/aircraft_models/iris_with_ardupilot"
+VTOL_MODEL_PATH="/aas/simulation_resources/aircraft_models/alti_transition_quad"
 
 # Check if model directories exist
 if [ ! -d "$QUAD_MODEL_PATH" ] && [ "$NUM_QUADS" -gt 0 ]; then
