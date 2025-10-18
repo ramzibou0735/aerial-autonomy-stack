@@ -8,8 +8,11 @@ if [[ -n "$NUM_DRONES" && "$NUM_DRONES" =~ ^[0-9]+$ ]]; then
     
     if [ "$AUTOPILOT" == "ardupilot" ]; then
         for i in $(seq 1 $NUM_DRONES); do
-            filename=$(printf "%08d.BIN" "$i") # Create filenames like 00000001.BIN, 00000002.BIN, etc.
-            logfile="/aas/logs/$filename"
+            LOGS_BASE_DIR="/aas/ardu_sitl_${i}/logs"
+            LASTLOG_PATH="${LOGS_BASE_DIR}/LASTLOG.TXT"
+            log_index=$(cat "$LASTLOG_PATH" | tr -d '\r') # Remove potential carriage return characters
+            filename=$(printf "%08d.BIN" "$log_index") # Create filenames like 00000001.BIN, 00000002.BIN, etc.
+            logfile="${LOGS_BASE_DIR}/$filename"
             if [ -f "$logfile" ]; then
                 echo "Opening log for drone $i: $logfile"
                 MAVExplorer.py "$logfile"  &
