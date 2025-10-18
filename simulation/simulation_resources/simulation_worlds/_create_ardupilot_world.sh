@@ -5,7 +5,7 @@ set -e
 
 if [ "$#" -ne 3 ]; then
   echo "Usage: $0 <num_quads> <num_vtols> <full_path_to_empty_world>"
-  echo "Example: ./_create_ardupilot_world.sh 2 1 /simulation_resources/simulation_worlds/impalpable_greyness.sdf"
+  echo "Example: ./_create_ardupilot_world.sh 2 1 /aas/simulation_resources/simulation_worlds/impalpable_greyness.sdf"
   exit 1
 fi
 

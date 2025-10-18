@@ -64,4 +64,4 @@ echo ""
 # MODE=dev HEADLESS=false ./deploy_run.sh
 # docker exec -it aircraft-container bash
 # python3 -c "import onnxruntime as ort; print(ort.__version__); print(ort.get_available_providers())"
-# tmuxinator start -p /aircraft.yml.erb
+# tmuxinator start -p /aas/aircraft.yml.erb

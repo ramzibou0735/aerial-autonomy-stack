@@ -9,7 +9,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Update the package list and install basic dependencies
 RUN apt update \
     && apt install -y --no-install-recommends \
-        wget gosu htop vim ruby tmux net-tools iproute2 iputils-ping \
+        wget gosu htop vim ruby tmux net-tools iproute2 iputils-ping netcat-openbsd \
         python3-pip python3-venv \
         mesa-utils \
     && gem install tmuxinator \
@@ -92,8 +92,8 @@ FROM ros2-gz-qgc-image AS ros2-gz-qgc-px4-image
 
 # PX4 SITL (NOTE: install PX4 tools first to avoid conflicts with ArduPilot, build later to customize)
 # Based on https://docs.px4.io/main/en/dev_setup/dev_env_linux_ubuntu.html
-COPY /github_clones/PX4-Autopilot /git/PX4-Autopilot
-WORKDIR /git/PX4-Autopilot
+COPY /github_clones/PX4-Autopilot /aas/github_apps/PX4-Autopilot
+WORKDIR /aas/github_apps/PX4-Autopilot
 RUN bash ./Tools/setup/ubuntu.sh --no-sim-tools
 
 ################################################################################
@@ -103,21 +103,21 @@ FROM ros2-gz-qgc-px4-image AS ros2-gz-qgc-px4-ardupilot-image
 
 # ArduPilot SITL (temporarily as arduuser, then re chown to root)
 # Based on https://ardupilot.org/dev/docs/building-setup-linux.html#building-setup-linux
-COPY /github_clones/ardupilot /git/ardupilot
-WORKDIR /git/ardupilot
+COPY /github_clones/ardupilot /aas/github_apps/ardupilot
+WORKDIR /aas/github_apps/ardupilot
 RUN useradd -m -s /bin/bash arduuser && \
     echo "arduuser ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/arduuser && chmod 0440 /etc/sudoers.d/arduuser && \
-    gosu arduuser git config --global --add safe.directory /git/ardupilot && \
-    chown -R arduuser:arduuser /git/ardupilot
+    gosu arduuser git config --global --add safe.directory /aas/github_apps/ardupilot && \
+    chown -R arduuser:arduuser /aas/github_apps/ardupilot
 RUN USER=arduuser gosu arduuser bash ./Tools/environment_install/install-prereqs-ubuntu.sh -y
-RUN gosu arduuser bash -c "cd /git/ardupilot && ./waf configure --board sitl && ./waf build"
-RUN chown -R root:root /git/ardupilot
-# Run with $ /git/ardupilot/build/sitl/bin/arducopter
+RUN gosu arduuser bash -c "cd /aas/github_apps/ardupilot && ./waf configure --board sitl && ./waf build"
+RUN chown -R root:root /aas/github_apps/ardupilot
+# Run with $ /aas/github_apps/ardupilot/build/sitl/bin/arducopter
 
 # ArduPilot Gazebo Plugin
 # Based on https://ardupilot.org/dev/docs/sitl-with-gazebo.html
-COPY /github_clones/ardupilot_gazebo /git/ardupilot_gazebo
-WORKDIR /git/ardupilot_gazebo
+COPY /github_clones/ardupilot_gazebo /aas/github_apps/ardupilot_gazebo
+WORKDIR /aas/github_apps/ardupilot_gazebo
 RUN apt update \
     && apt install -y --no-install-recommends \
         rapidjson-dev \
@@ -145,25 +145,25 @@ RUN find /temp_folder -type f -regex '.*/[0-9]+_.*' -exec cp {} /airframes/ \;
 FROM ros2-gz-qgc-px4-ardupilot-image AS ros2-gz-qgc-px4custom-ardupilot-image
 
 # Apply PX4 patch (DDS Agent on custom IP, ...) created with $ git diff > ../px4-v1.16.0.patch
-COPY simulation/simulation_resources/patches/px4-v1.16.0.patch /git/px4-v1.16.0.patch
-WORKDIR /git/PX4-Autopilot
+COPY simulation/simulation_resources/patches/px4-v1.16.0.patch /aas/github_apps/px4-v1.16.0.patch
+WORKDIR /aas/github_apps/PX4-Autopilot
 RUN git apply ../px4-v1.16.0.patch
 
 # Replace dds_topics.yaml with custom topics
-COPY simulation/simulation_resources/patches/dds_topics.yaml /git/PX4-Autopilot/src/modules/uxrce_dds_client/dds_topics.yaml
+COPY simulation/simulation_resources/patches/dds_topics.yaml /aas/github_apps/PX4-Autopilot/src/modules/uxrce_dds_client/dds_topics.yaml
 
 # Add PX4 Airframes ROMFS
-COPY --from=airframe_filter_stage /airframes/ /git/PX4-Autopilot/ROMFS/px4fmu_common/init.d-posix/airframes/
-WORKDIR /git/PX4-Autopilot/ROMFS/px4fmu_common/init.d-posix/airframes
+COPY --from=airframe_filter_stage /airframes/ /aas/github_apps/PX4-Autopilot/ROMFS/px4fmu_common/init.d-posix/airframes/
+WORKDIR /aas/github_apps/PX4-Autopilot/ROMFS/px4fmu_common/init.d-posix/airframes
 RUN rm -f CMakeLists.txt && \
     echo "px4_add_romfs_files(" >> CMakeLists.txt && \
     find ./ -type f -printf '%f\n' | sed 's/^/  /' >> CMakeLists.txt && \
     echo ")" >> CMakeLists.txt
 
 # Build PX4 SITL
-WORKDIR /git/PX4-Autopilot
+WORKDIR /aas/github_apps/PX4-Autopilot
 RUN make px4_sitl
-# Run with $ /git/PX4-Autopilot/build/px4_sitl_default/bin/px4
+# Run with $ /aas/github_apps/PX4-Autopilot/build/px4_sitl_default/bin/px4
 
 ################################################################################
 # Stage 6 - 18+GB ##############################################################
@@ -207,40 +207,40 @@ RUN apt-get update && \
     apt-get install -y sqlite3 libfftw3-bin libfftw3-dev \
     && apt clean \
     && rm -rf /var/lib/apt/lists/*
-COPY /github_clones/flight_review /git/flight_review
-WORKDIR /git/flight_review/app
+COPY /github_clones/flight_review /aas/github_apps/flight_review
+WORKDIR /aas/github_apps/flight_review/app
 RUN python3 -m venv /px4rf-env
 RUN /px4rf-env/bin/pip3 install --no-cache-dir --upgrade pip && \
     /px4rf-env/bin/pip3 install --no-cache-dir --resume-retries 5 -r requirements.txt
 
-# Build the ROS 2 workspace for external packages
-RUN mkdir -p /ros2_ws_github/src
-WORKDIR /ros2_ws_github
-RUN rosdep update
-RUN rosdep install --from-paths src/ --ignore-src --rosdistro humble -y
-# Explicitly use bash, not sh, to source and build the workspace
-RUN bash -c "source /opt/ros/humble/setup.bash && colcon build --symlink-install"
+# # Build the ROS 2 workspace for external packages
+# RUN mkdir -p /aas/github_ws/src
+# WORKDIR /aas/github_ws
+# RUN rosdep update
+# RUN rosdep install --from-paths src/ --ignore-src --rosdistro humble -y
+# # Explicitly use bash, not sh, to source and build the workspace
+# RUN bash -c "source /opt/ros/humble/setup.bash && colcon build --symlink-install"
 
 # Build the ROS 2 workspace
-COPY simulation/simulation_ws/src /ros2_ws/src
-WORKDIR /ros2_ws
+COPY simulation/simulation_ws/src /aas/simulation_ws/src
+WORKDIR /aas/simulation_ws
 RUN rosdep update
 RUN rosdep install --from-paths src/ --ignore-src --rosdistro humble -y
 # Explicitly use bash, not sh, to source and build the workspace
-RUN bash -c "source /opt/ros/humble/setup.bash && source /ros2_ws_github/install/setup.bash && colcon build --symlink-install"
+RUN bash -c "source /opt/ros/humble/setup.bash && (source /aas/github_ws/install/setup.bash || true) && colcon build --symlink-install"
 
 # Copy resources and configuration files from this repository
-COPY simulation/simulation_resources/ /simulation_resources
+COPY simulation/simulation_resources/ /aas/simulation_resources
 COPY simulation/simulation_resources/patches/QGroundControl.ini /home/qgcuser/.config/QGroundControl/QGroundControl.ini
-RUN chmod +x /simulation_resources/aircraft_models/_create_ardupilot_models.sh
-RUN chmod +x /simulation_resources/simulation_worlds/_create_ardupilot_world.sh
+RUN chmod +x /aas/simulation_resources/aircraft_models/_create_ardupilot_models.sh
+RUN chmod +x /aas/simulation_resources/simulation_worlds/_create_ardupilot_world.sh
 
 # Source the workspaces
-RUN echo "source /ros2_ws_github/install/setup.bash" >> /root/.bashrc
-RUN echo "source /ros2_ws/install/setup.bash" >> /root/.bashrc
-# If needed (but already in .bashrc) $ source /opt/ros/humble/setup.bash && source /ros2_ws_github/install/setup.bash && source /ros2_ws/install/setup.bash
+# RUN echo "source /aas/github_ws/install/setup.bash" >> /root/.bashrc
+RUN echo "source /aas/simulation_ws/install/setup.bash" >> /root/.bashrc
+# If needed (but already in .bashrc) $ source /opt/ros/humble/setup.bash && source /aas/github_ws/install/setup.bash && source /aas/simulation_ws/install/setup.bash
 
 # Final config
-WORKDIR /
-COPY simulation/simulation.yml.erb /simulation.yml.erb
-ENTRYPOINT ["tmuxinator", "start", "-p", "/simulation.yml.erb"]
+WORKDIR /aas
+COPY simulation/simulation.yml.erb /aas/simulation.yml.erb
+ENTRYPOINT ["tmuxinator", "start", "-p", "/aas/simulation.yml.erb"]

@@ -3,7 +3,7 @@
 # To use this scrip, enable RECORD_ROSBAG in 'aircraft.yml.erb'
 
 TMUX_PANE="logging.0" # The tmux <window_name>.<pane_index> where the recording is happening
-BAG_PARENT_DIR="/rosbags" # The directory where bags are saved
+BAG_PARENT_DIR="/aas/rosbags" # The directory where bags are saved
 
 echo "Stopping ros2 bag record in tmux pane: $TMUX_PANE..."
 tmux send-keys -t "$TMUX_PANE" C-c

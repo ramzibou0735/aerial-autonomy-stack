@@ -119,7 +119,7 @@ ros2 run mission mission --conops yalla \
   --ros-args -r __ns:=/Drone$DRONE_ID -p use_sim_time:=true # This mission is a simple takeoff, followed by an orbit, and landing for any vehicle
 
 # Finally, in the simulation's terminal
-/simulation_resources/patches/plot_logs.sh # Analyze the flight logs at http://42.42.1.99:5006/browse or in MAVExplorer
+/aas/simulation_resources/patches/plot_logs.sh # Analyze the flight logs at http://42.42.1.99:5006/browse or in MAVExplorer
 ```
 
 To create a new mission, read the banner comments in [`ardupilot_interface.hpp`](/aircraft/aircraft_ws/src/autopilot_interface/src/ardupilot_interface.hpp) and [`px4_interface.hpp`](/aircraft/aircraft_ws/src/autopilot_interface/src/px4_interface.hpp) for command line examples of takeoff, orbit, reposition, offboard, land
@@ -130,25 +130,25 @@ Once flown from CLI, implemented your mission in [`MissionNode.conops_callback()
 
 ### Development within Live Containers
 
-Launching the `sim_run.sh` script with `MODE=dev`, does **not** start the simulation and mounts folders `simulation_resources`, `aircraft_resources`, and `ros2_ws/src` as volumes to more easily track, commit, push changes while building and testing them within the containers
+Launching the `sim_run.sh` script with `MODE=dev`, does **not** start the simulation and mounts folders `[simulation|aircraft]_resources`, `[simulation|aircraft]_ws/src` as volumes to more easily track, commit, push changes while building and testing them within the containers
 
 ```sh
 cd ~/git/aerial-autonomy-stack/scripts
-MODE=dev ./sim_run.sh # Starts one simulation-image and one aircraft-image where the ros2_ws/src/ and *_resources/ folders are mounted from the host
+MODE=dev ./sim_run.sh # Starts one simulation-image and one aircraft-image where the *_resources/ and *_ws/src/ folders are mounted from the host
 ```
 
 To build changes made **on the host** in either `simulation_ws/src` or `aircraft_ws/src`
 
 ```sh
-cd ros2_ws/ # In the simulation and/or in the aircraft container
+cd /aas/simulation_ws/ # Or /aas/aircraft_ws/ in the simulation and/or in the aircraft container
 colcon build --symlink-install
 ```
 
 To start the simulation (by default, this is a single PX4 quad, configure using `sim_run.sh`)
 
 ```sh
-tmuxinator start -p /simulation.yml.erb # In the simulation container
-tmuxinator start -p /aircraft.yml.erb # In the aircraft container
+tmuxinator start -p /aas/aircraft.yml.erb # In the aircraft container (note: start the aircraft first to pick up the camera stream)
+tmuxinator start -p /aas/simulation.yml.erb # In the simulation container
 ```
 
 Once done, detach Tmux with `Ctrl + b`, then `d`; kill everything with `tmux kill-server && pkill -f gz`
