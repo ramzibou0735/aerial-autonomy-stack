@@ -213,13 +213,13 @@ RUN python3 -m venv /px4rf-env
 RUN /px4rf-env/bin/pip3 install --no-cache-dir --upgrade pip && \
     /px4rf-env/bin/pip3 install --no-cache-dir --resume-retries 5 -r requirements.txt
 
-# Build the ROS 2 workspace for external packages
-RUN mkdir -p /aas/github_ws/src
-WORKDIR /aas/github_ws
-RUN rosdep update
-RUN rosdep install --from-paths src/ --ignore-src --rosdistro humble -y
-# Explicitly use bash, not sh, to source and build the workspace
-RUN bash -c "source /opt/ros/humble/setup.bash && colcon build --symlink-install"
+# # Build the ROS 2 workspace for external packages
+# RUN mkdir -p /aas/github_ws/src
+# WORKDIR /aas/github_ws
+# RUN rosdep update
+# RUN rosdep install --from-paths src/ --ignore-src --rosdistro humble -y
+# # Explicitly use bash, not sh, to source and build the workspace
+# RUN bash -c "source /opt/ros/humble/setup.bash && colcon build --symlink-install"
 
 # Build the ROS 2 workspace
 COPY simulation/simulation_ws/src /aas/simulation_ws/src
@@ -227,7 +227,7 @@ WORKDIR /aas/simulation_ws
 RUN rosdep update
 RUN rosdep install --from-paths src/ --ignore-src --rosdistro humble -y
 # Explicitly use bash, not sh, to source and build the workspace
-RUN bash -c "source /opt/ros/humble/setup.bash && source /aas/github_ws/install/setup.bash && colcon build --symlink-install"
+RUN bash -c "source /opt/ros/humble/setup.bash && (source /aas/github_ws/install/setup.bash || true) && colcon build --symlink-install"
 
 # Copy resources and configuration files from this repository
 COPY simulation/simulation_resources/ /aas/simulation_resources
@@ -236,7 +236,7 @@ RUN chmod +x /aas/simulation_resources/aircraft_models/_create_ardupilot_models.
 RUN chmod +x /aas/simulation_resources/simulation_worlds/_create_ardupilot_world.sh
 
 # Source the workspaces
-RUN echo "source /aas/github_ws/install/setup.bash" >> /root/.bashrc
+# RUN echo "source /aas/github_ws/install/setup.bash" >> /root/.bashrc
 RUN echo "source /aas/simulation_ws/install/setup.bash" >> /root/.bashrc
 # If needed (but already in .bashrc) $ source /opt/ros/humble/setup.bash && source /aas/github_ws/install/setup.bash && source /aas/simulation_ws/install/setup.bash
 
