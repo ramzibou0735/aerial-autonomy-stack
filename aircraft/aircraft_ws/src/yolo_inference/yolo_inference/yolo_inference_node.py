@@ -95,7 +95,8 @@ class YoloInferenceNode(Node):
         
         self.get_logger().info("YOLO inference started.")
 
-    def run_inference_loop(self):
+    def run_inference_loop(self, hitl):
+        self.hitl = hitl
         # Acquire video stream
         if self.architecture == 'x86_64':
             gst_pipeline_string = (
@@ -119,31 +120,40 @@ class YoloInferenceNode(Node):
             # )
             cap = cv2.VideoCapture(gst_pipeline_string, cv2.CAP_GSTREAMER)
         elif self.architecture == 'aarch64':
-            gst_pipeline_string = (
-            "udpsrc port=5600 ! "
-                "application/x-rtp, media=(string)video, encoding-name=(string)H264 ! "
-                "rtph264depay ! "
-                "h264parse ! "
-                "nvv4l2decoder ! "     # Hardware Decoding: Uses the Orin's dedicated engine
-                "nvvidconv ! "         # NVMM-to-CPU Memory Conversion
-                "video/x-raw, format=I420 ! "
-                "videoconvert ! "      # CPU Color Conversion: I420 to BGR
-                "video/x-raw, format=BGR ! "
-                "appsink drop=true max-buffers=1 "
-            )
-            # ALSO WORKING: CPU fallback for test/debug
-            # gst_pipeline_string = (
-            #     "udpsrc port=5600 ! "
-            #     "application/x-rtp, media=(string)video, encoding-name=(string)H264 ! "
-            #     "rtph264depay ! "
-            #     "avdec_h264 ! "      # Generic CPU H.264 decoder
-            #     "videoconvert ! "
-            #     "video/x-raw, format=BGR ! appsink"
-            # )
-            cap = cv2.VideoCapture(gst_pipeline_string, cv2.CAP_GSTREAMER)
-            # cap = cv2.VideoCapture("sample.mp4") # Load example video for testing
-            # TODO: open CSI camera
-            # gst-launch-1.0 nvarguscamerasrc sensor-id=0 ! 'video/x-raw(memory:NVMM), width=1280, height=720, framerate=30/1' ! nvvidconv ! nv3dsink -e
+            if self.hitl: # For HITL, acquire UDP stream from gz-sim
+                gst_pipeline_string = (
+                "udpsrc port=5600 ! "
+                    "application/x-rtp, media=(string)video, encoding-name=(string)H264 ! "
+                    "rtph264depay ! "
+                    "h264parse ! "
+                    "nvv4l2decoder ! "     # Hardware Decoding: Uses the Orin's dedicated engine
+                    "nvvidconv ! "         # NVMM-to-CPU Memory Conversion
+                    "video/x-raw, format=I420 ! "
+                    "videoconvert ! "      # CPU Color Conversion: I420 to BGR
+                    "video/x-raw, format=BGR ! "
+                    "appsink drop=true max-buffers=1 "
+                )
+                # ALSO WORKING: CPU fallback for test/debug
+                # gst_pipeline_string = (
+                #     "udpsrc port=5600 ! "
+                #     "application/x-rtp, media=(string)video, encoding-name=(string)H264 ! "
+                #     "rtph264depay ! "
+                #     "avdec_h264 ! "      # Generic CPU H.264 decoder
+                #     "videoconvert ! "
+                #     "video/x-raw, format=BGR ! appsink"
+                # )
+                cap = cv2.VideoCapture(gst_pipeline_string, cv2.CAP_GSTREAMER)
+            else: # Default, acquire CSI camera 
+                gst_pipeline_string = (
+                    "nvarguscamerasrc sensor-id=0 ! "
+                    "video/x-raw(memory:NVMM), width=1280, height=720, framerate=30/1 ! "
+                    "nvvidconv ! "
+                    "video/x-raw, format=BGRx, width=1280, height=720, framerate=30/1 ! "
+                    "videoconvert ! "
+                    "appsink drop=true max-buffers=1"
+                ) # Test with: gst-launch-1.0 nvarguscamerasrc sensor-id=0 ! 'video/x-raw(memory:NVMM), width=1280, height=720, framerate=30/1' ! nvvidconv ! nv3dsink -e
+                cap = cv2.VideoCapture(gst_pipeline_string, cv2.CAP_GSTREAMER)
+        # cap = cv2.VideoCapture("/sample.mp4") # Load sample video for testing
         assert cap.isOpened(), "Failed to open video stream"
 
         if not self.headless:
@@ -281,12 +291,13 @@ class YoloInferenceNode(Node):
 def main(args=None):
     parser = argparse.ArgumentParser(description="YOLOv8 ROS2 Inference Node.")
     parser.add_argument('--headless', action='store_true', help="Run in headless mode.")
+    parser.add_argument('--hitl', action='store_true', help="Open camerafrom gz-sim for HITL.")
     cli_args, ros_args = parser.parse_known_args()
 
     rclpy.init(args=ros_args)
 
     yolo_node = YoloInferenceNode(headless=cli_args.headless)
-    yolo_node.run_inference_loop()
+    yolo_node.run_inference_loop(hitl=cli_args.hitl)
     
     yolo_node.destroy_node()
     rclpy.shutdown()

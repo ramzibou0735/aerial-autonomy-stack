@@ -12,6 +12,9 @@ CAMERA="${CAMERA:-true}" # Options: true (default), false
 LIDAR="${LIDAR:-true}" # Options: true (default), false
 SUBNET_PREFIX="${SUBNET_PREFIX:-42.42}" # Subnet prefix, e.g., 42.42 (default), 192.168, etc.
 
+# TODO default to false
+HITL="${HITL:-true}" # Options: true (default), false
+
 if [ "$HEADLESS" = "false" ]; then
   # Grant access to the X server
    xhost +local:docker # Avoid this when building the TensorRT cache for the first time
@@ -28,6 +31,7 @@ docker run -it --rm \
   --env DRONE_ID=$DRONE_ID --env HEADLESS=$HEADLESS --env CAMERA=$CAMERA --env LIDAR=$LIDAR \
   --env SIMULATED_TIME=true \
   --env SUBNET_PREFIX=$SUBNET_PREFIX \
+  --env HITL=$HITL \
   --env GST_DEBUG=3 \
   --net=host \
   --privileged \

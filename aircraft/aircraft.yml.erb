@@ -7,6 +7,7 @@
 <% simulated_time = ENV.fetch('SIMULATED_TIME', 'false') %>
 <% record_rosbag = ENV.fetch('RECORD_ROSBAG', 'false') %>
 <% subnet_prefix = ENV.fetch('SUBNET_PREFIX', '42.42') %>
+<% hitl = ENV.fetch('HITL', 'false') %>
 
 name: drone
 
@@ -51,7 +52,7 @@ windows:
   - yolo:
       layout: even-horizontal
       panes:
-        - ros2 run yolo_inference yolo_inference <% if headless == 'true' %> --headless<% end %> <% if simulated_time == 'true' %> --ros-args -p use_sim_time:=True<% end %>
+        - ros2 run yolo_inference yolo_inference <% if headless == 'true' %> --headless<% end %> <% if simulated_time == 'true' %> <% if hitl == 'true' %> --hitl<% end %> --ros-args -p use_sim_time:=True<% end %>
   <% end %>
 
   <% if lidar == 'true' %>

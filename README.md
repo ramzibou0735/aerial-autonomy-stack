@@ -330,18 +330,10 @@ HITL/SITL architectures
 - https://docs.px4.io/main/en/simulation/#sitl-simulation-environment
 - https://ardupilot.org/dev/docs/sitl-simulator-software-in-the-loop.html#sitl-architecture
 
-Add Jetson drivers
-- https://developer.nvidia.com/embedded/learn/tutorials/first-picture-csi-usb-camera
-- https://github.com/Livox-SDK/livox_ros_driver2
-
+- Add LiDAR driver https://github.com/Livox-SDK/livox_ros_driver2
+    the LiDAR should publish on topic `/lidar_points` for KISS-ICP
 - Add state estimation package/node
 - Add bounding-box-based Offboard
-- ????
-- Profit
-
-Add back to AVIONICS.md
-- The Holybro Jetson Baseboard comes with an (i) integrated 4-way (Orin, 6X, RJ-45, JST) Ethernet switch and (ii) two JST USB 2.0 that can be connected to ASIX Ethernet adapters to create additional network interfaces
-- Make sure to configure Orin, 6X's XRCE-DDS, IP radio, Zenoh, etc. consistently with your network setup; the camera acquisition pipeline should be setup in `yolo_inference_node.py`, the LiDAR should publish on topic `/lidar_points` for KISS-ICP (if necessary, discuss in the [Issues](https://github.com/JacopoPan/aerial-autonomy-stack/issues))
 
 # Desired features
 
