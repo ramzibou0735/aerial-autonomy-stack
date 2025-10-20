@@ -12,6 +12,11 @@ CAMERA="${CAMERA:-true}" # Options: true (default), false
 LIDAR="${LIDAR:-true}" # Options: true (default), false
 SUBNET_PREFIX="${SUBNET_PREFIX:-42.42}" # Subnet prefix, e.g., 42.42 (default), 192.168, etc.
 
+if [ "$HEADLESS" = "false" ]; then
+  # Grant access to the X server
+   xhost +local:docker # Avoid this when building the TensorRT cache for the first time
+fi
+
 # Launch the aircraft container
 docker run -it --rm \
   --runtime nvidia \
