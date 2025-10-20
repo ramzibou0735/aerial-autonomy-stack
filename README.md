@@ -307,7 +307,7 @@ Once done, detach Tmux with `Ctrl + b`, then `d` to close and remove all contain
 
 ### Known Issues
 
-- In HITL, the simulation containers must start after the aircraft ones for Gstreamer to pick up the UDP streams
+- The simulation (SITL or HITL) container must start after the aircraft ones for Gstreamer to pick up the UDP streams
 - wmctrl does not work as-is in WSLg
 - QGC is started with a virtual joystick (with low throttle if using only VTOLs and centered throttle if there are quads), this is reflective of real-life but note that this counts as "RC loss" when switching focus from one autopilot instance to another
 - ArduPilot CIRCLE mode for quads require to explicitly center the virtual throttle with 'rc 3 1500' to keep altitude
