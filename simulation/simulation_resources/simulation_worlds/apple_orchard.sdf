@@ -461,10 +461,10 @@
       <pose degrees="true">-5 -3 5 0 0 0</pose>
     </include>
 
-    <include>
+    <!-- <include>
       <uri>model://skibidi</uri>
       <pose degrees="true">-50 250 3 0 0 80</pose>
-    </include>
+    </include> -->
 
   </world>
 </sdf>
