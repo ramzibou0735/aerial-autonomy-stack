@@ -56,7 +56,7 @@ class YoloInferenceNode(Node):
         self.architecture = platform.machine()
         
         # Load classes
-        names_file = "coco.json"
+        names_file = "/aas/yolo/coco.json"
         with open(names_file, "r") as f:
             classes_str_keys = json.load(f)
             self.classes = {int(k): v for k, v in classes_str_keys.items()}
@@ -64,7 +64,7 @@ class YoloInferenceNode(Node):
         self.colors = (colors_rgba[:, [2, 1, 0]] * 255).astype(np.uint8) # From RGBA (0-1 float) to BGR (0-255 int)
 
         # Load model runtime
-        model_path = "yolov8n.onnx" # Model options (from fastest to most accurate, <10MB to >100MB): yolov8n, yolov8s, yolov8m, yolov8l, yolov8x
+        model_path = "/aas/yolo/yolov8n.onnx" # Model options (from fastest to most accurate, <10MB to >100MB): yolov8n, yolov8s, yolov8m, yolov8l, yolov8x
         if self.architecture == 'x86_64':
             print("Loading CUDAExecutionProvider on AMD64 (x86) architecture.")
             self.session = ort.InferenceSession(model_path, providers=["CUDAExecutionProvider"]) # For simulation

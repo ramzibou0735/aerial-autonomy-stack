@@ -56,13 +56,13 @@ else
   echo -e "\t docker exec -it aircraft-container tmux attach"
 fi
 echo ""
-echo "To stop all containers and remove stopped containers"
+echo "To stop all containers and remove stopped containers:"
 echo ""
-echo -e "\t docker stop $(docker ps -q) && docker container prune"
+echo -e '\t docker stop $(docker ps -q) && docker container prune'
 echo ""
 
 # Check ONNX runtimes
 # MODE=dev HEADLESS=false ./deploy_run.sh
 # docker exec -it aircraft-container bash
 # python3 -c "import onnxruntime as ort; print(ort.__version__); print(ort.get_available_providers())"
-# tmuxinator start -p /aircraft.yml.erb
+# tmuxinator start -p /aas/aircraft.yml.erb
