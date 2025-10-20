@@ -271,14 +271,14 @@ docker exec -it aircraft-container tmux attach
 ### HITL Simulation
 
 > [!CAUTION]
-> As of now, HITL only includes the Jetson computers, support for Pixhawk is WIP
+> As of now, HITL only includes the Jetson computers, support for Pixhawk is work-in-progress
 
-Set up a LAN with netmask 255.255.0.0 and arbitrary `SUBNET_PREFIX` (e.g. 192.168) between:
+Set up a LAN with netmask `255.255.0.0` and arbitrary `SUBNET_PREFIX` (e.g. `192.168`) between:
 
-- one simulation computer, with IP `SUBNET_PREFIX`.1.99
-- `n` Jetson Baseboards with IPs `SUBNET_PREFIX`.1.1, ..., `SUBNET_PREFIX`.1.`n`
+- one simulation computer, with IP `[SUBNET_PREFIX].1.99`
+- `N` Jetson Baseboards with IPs `[SUBNET_PREFIX].1.1`, ..., `[SUBNET_PREFIX].1.N`
 
-First, start all aircraft containers
+First, start all aircraft containers (e.g. via SSH)
 ```sh
 DRONE_ID=1 DRONE_TYPE=quad AUTOPILOT=px4 SUBNET_PREFIX=192.168 ./deploy_run_hitl.sh # Add HEADLESS=false if a screen is connected to the Jetson
 # DRONE_ID=2, etc.
@@ -288,6 +288,8 @@ Finally, on the simulation computer
 ```sh
 NUM_QUADS=2 NUM_VTOLS=0 AUTOPILOT=px4 SUBNET_PREFIX=192.168 ./sim_run_hitl.sh
 ```
+
+Once done, detach Tmux with `Ctrl + b`, then `d` to close and remove all containers
 
 ---
 
