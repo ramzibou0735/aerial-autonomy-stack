@@ -79,13 +79,15 @@ AUTOPILOT=px4 NUM_QUADS=1 NUM_VTOLS=1 WORLD=swiss_town ./sim_run.sh # Check the 
 > [!NOTE]
 > On a low-mid range laptop—i7-11 with 16GB RAM and RTX 3060—AAS simulates three PX4 quads with camera and LiDAR at 99% real-time-factor (note that ArduPilot faster physics updates and more complex worlds have higher computational demands). Make sure you run `sudo prime-select nvidia` and rebooted to effectively leverage GPU compute.
 
-![worlds](https://github.com/user-attachments/assets/45a2f2ad-cc31-4d71-aa2e-4fe542a59a77)
+![interface](https://github.com/user-attachments/assets/71b07851-42dd-45d4-a9f5-6b5b00cd85bc)
 
 Available `WORLD`s:
 - `apple_orchard`, a GIS world created using [BlenderGIS](https://github.com/domlysz/BlenderGIS)
 - `impalpable_greyness`, (default) an empty world with simple shapes
 - `shibuya_crossing`, a 3D world adapted from [cgtrader](https://www.cgtrader.com/)
 - `swiss_town`, a photogrammetry world courtesy of [Pix4D / pix4d.com](https://support.pix4d.com/hc/en-us/articles/360000235126)
+
+![worlds](https://github.com/user-attachments/assets/45a2f2ad-cc31-4d71-aa2e-4fe542a59a77)
 
 To advance the simulation in **discrete time steps**, e.g. 1s, from a terminal on the host, run:
 
@@ -125,8 +127,6 @@ ros2 run mission mission --conops yalla \
 To create a new mission, read the banner comments in [`ardupilot_interface.hpp`](/aircraft/aircraft_ws/src/autopilot_interface/src/ardupilot_interface.hpp) and [`px4_interface.hpp`](/aircraft/aircraft_ws/src/autopilot_interface/src/px4_interface.hpp) for command line examples of takeoff, orbit, reposition, offboard, land
 
 Once flown from CLI, implemented your mission in [`MissionNode.conops_callback()`](/aircraft/aircraft_ws/src/mission/mission/mission_node.py)
-
-![interface](https://github.com/user-attachments/assets/71b07851-42dd-45d4-a9f5-6b5b00cd85bc)
 
 ### Development within Live Containers
 
