@@ -280,11 +280,8 @@ Set up a LAN with netmask 255.255.0.0 and arbitrary `SUBNET_PREFIX` (e.g. 192.16
 
 First, start all aircraft containers
 ```sh
-# With screen, mouse and keyboard connected to a Jetson
-DRONE_TYPE=quad AUTOPILOT=px4 DRONE_ID=1 SUBNET_PREFIX=192.168 ./deploy_run_hitl.sh
-
-# With an SSH session connected to a Jetson
-DRONE_TYPE=quad AUTOPILOT=px4 DRONE_ID=2 SUBNET_PREFIX=192.168 ./deploy_run_hitl_ssh.sh
+DRONE_TYPE=quad AUTOPILOT=px4 DRONE_ID=1 SUBNET_PREFIX=192.168 ./deploy_run_hitl.sh # Add HEADLESS=false if a screen is connected to the Jetson
+# Etc.
 ```
 
 Finally, on the simulation computer 
