@@ -131,7 +131,7 @@ class YoloInferenceNode(Node):
                 "video/x-raw, format=BGR ! "
                 "appsink drop=true max-buffers=1 "
             )
-            # CPU fallback for test/debug
+            # ALSO WORKING: CPU fallback for test/debug
             # gst_pipeline_string = (
             #     "udpsrc port=5600 ! "
             #     "application/x-rtp, media=(string)video, encoding-name=(string)H264 ! "
@@ -142,7 +142,8 @@ class YoloInferenceNode(Node):
             # )
             cap = cv2.VideoCapture(gst_pipeline_string, cv2.CAP_GSTREAMER)
             # cap = cv2.VideoCapture("sample.mp4") # Load example video for testing
-            # TODO: open CSI or RTSP camera feed instead
+            # TODO: open CSI camera
+            # gst-launch-1.0 nvarguscamerasrc sensor-id=0 ! 'video/x-raw(memory:NVMM), width=1280, height=720, framerate=30/1' ! nvvidconv ! nv3dsink -e
         assert cap.isOpened(), "Failed to open video stream"
 
         if not self.headless:
