@@ -268,6 +268,29 @@ docker exec -it aircraft-container tmux attach
 > [!WARNING]
 > The 1st run of `./deploy_run.sh` requires ~4' to build the TensorRT cache
 
+### HITL Simulation
+
+> [!CAUTION]
+> As of now, HITL only includes the Jetson computers, support for Pixhawk is work-in-progress
+
+Set up a LAN with netmask `255.255.0.0` and arbitrary `SUBNET_PREFIX` (e.g. `192.168`) between:
+
+- one simulation computer, with IP `[SUBNET_PREFIX].1.99`
+- `N` Jetson Baseboards with IPs `[SUBNET_PREFIX].1.1`, ..., `[SUBNET_PREFIX].1.N`
+
+First, start all aircraft containers (e.g. via SSH)
+```sh
+DRONE_ID=1 DRONE_TYPE=quad AUTOPILOT=px4 SUBNET_PREFIX=192.168 ./deploy_run_hitl.sh # Add HEADLESS=false if a screen is connected to the Jetson
+# DRONE_ID=2, etc.
+```
+
+Finally, on the simulation computer 
+```sh
+NUM_QUADS=2 NUM_VTOLS=0 AUTOPILOT=px4 SUBNET_PREFIX=192.168 ./sim_run_hitl.sh
+```
+
+Once done, detach Tmux with `Ctrl + b`, then `d` to close and remove all containers
+
 ---
 
 ## Future Work / Ideas for Contributions
@@ -284,6 +307,7 @@ docker exec -it aircraft-container tmux attach
 
 ### Known Issues
 
+- The simulation (SITL or HITL) container must start after the aircraft ones for Gstreamer to pick up the UDP streams
 - wmctrl does not work as-is in WSLg
 - QGC is started with a virtual joystick (with low throttle if using only VTOLs and centered throttle if there are quads), this is reflective of real-life but note that this counts as "RC loss" when switching focus from one autopilot instance to another
 - ArduPilot CIRCLE mode for quads require to explicitly center the virtual throttle with 'rc 3 1500' to keep altitude
@@ -306,18 +330,10 @@ HITL/SITL architectures
 - https://docs.px4.io/main/en/simulation/#sitl-simulation-environment
 - https://ardupilot.org/dev/docs/sitl-simulator-software-in-the-loop.html#sitl-architecture
 
-Add Jetson drivers
-- https://developer.nvidia.com/embedded/learn/tutorials/first-picture-csi-usb-camera
-- https://github.com/Livox-SDK/livox_ros_driver2
-
+- Add LiDAR driver https://github.com/Livox-SDK/livox_ros_driver2
+    the LiDAR should publish on topic `/lidar_points` for KISS-ICP
 - Add state estimation package/node
 - Add bounding-box-based Offboard
-- ????
-- Profit
-
-Add back to AVIONICS.md
-- The Holybro Jetson Baseboard comes with an (i) integrated 4-way (Orin, 6X, RJ-45, JST) Ethernet switch and (ii) two JST USB 2.0 that can be connected to ASIX Ethernet adapters to create additional network interfaces
-- Make sure to configure Orin, 6X's XRCE-DDS, IP radio, Zenoh, etc. consistently with your network setup; the camera acquisition pipeline should be setup in `yolo_inference_node.py`, the LiDAR should publish on topic `/lidar_points` for KISS-ICP (if necessary, discuss in the [Issues](https://github.com/JacopoPan/aerial-autonomy-stack/issues))
 
 # Desired features
 

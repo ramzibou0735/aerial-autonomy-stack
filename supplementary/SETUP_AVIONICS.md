@@ -137,6 +137,21 @@ Also read the [PX4 documentation](https://github.com/PX4/PX4-Autopilot/blob/main
 > snap install firefox
 > ```
 
+## Configure Jetson-IO for the CSI IMX219-200 Camera
+
+```sh
+sudo /opt/nvidia/jetson-io/jetson-io.py
+
+# Follow these steps: 
+#   "Configure Jetson 24pin CSI Connector"
+#    -> "Configure for compatible hardware"
+#      -> "Camera IMX219 Dual" (even if only using one)
+#        -> "Save pin changes"
+#          -> "Save and reboot to reconfigure pins"
+
+sudo dmesg | grep -i imx219 # After reboot, this will show at least one imx219 successfully bound
+```
+
 ## Install Docker Engine and NVIDIA Container Toolkit on Jetson Orin
 
 ```sh
