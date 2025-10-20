@@ -76,10 +76,10 @@ cd ~/git/aerial-autonomy-stack/scripts
 AUTOPILOT=px4 NUM_QUADS=1 NUM_VTOLS=1 WORLD=swiss_town ./sim_run.sh # Check the script for more options (note: ArduPilot SITL takes ~40s to be ready to arm)
 ```
 
+![interface](https://github.com/user-attachments/assets/71b07851-42dd-45d4-a9f5-6b5b00cd85bc)
+
 > [!NOTE]
 > On a low-mid range laptop—i7-11 with 16GB RAM and RTX 3060—AAS simulates three PX4 quads with camera and LiDAR at 99% real-time-factor (note that ArduPilot faster physics updates and more complex worlds have higher computational demands). Make sure you run `sudo prime-select nvidia` and rebooted to effectively leverage GPU compute.
-
-![interface](https://github.com/user-attachments/assets/71b07851-42dd-45d4-a9f5-6b5b00cd85bc)
 
 Available `WORLD`s:
 - `apple_orchard`, a GIS world created using [BlenderGIS](https://github.com/domlysz/BlenderGIS)
