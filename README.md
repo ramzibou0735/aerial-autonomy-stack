@@ -17,7 +17,7 @@ https://github.com/user-attachments/assets/c194ada6-2996-4bfa-99e9-32b45e29281d
 - **Dockerized deployment** based on [`nvcr.io/nvidia/l4t-jetpack:r36.4.0`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/l4t-jetpack/tags)
 - **Windows 11 compatibility** with GPU support *via* WSLg
 - **3D worlds** for PX4 and ArduPilot software-in-the-loop (SITL) simulation
-- Distributed, **Jetson-in-the-loop simulation**
+- Distributed, **Jetson-in-the-loop simulation** to test networking and on-board compute
 - [Zenoh](https://github.com/eclipse-zenoh/zenoh-plugin-ros2dds) inter-vehicle ROS2 bridge
 - Support for [PX4 Offboard](https://docs.px4.io/main/en/flight_modes/offboard.html) mode (e.g. CTBR/`VehicleRatesSetpoint` for agile, GNSS-denied flight) 
 - Support for [ArduPilot Guided](https://ardupilot.org/copter/docs/ac2_guidedmode.html) mode (i.e. `setpoint_velocity`, `setpoint_accel` references)
@@ -36,7 +36,7 @@ Read about the [*rationale*](/supplementary/RATIONALE.md) for AAS in the [`suppl
 
 ---
 
-## How-to Part 1: Installation
+## How-to - Part 1: Installation
 
 > [!IMPORTANT]
 > AAS is developed using Ubuntu 22.04 with `nvidia-driver-580` on an i9-13 with RTX 3500 and an i7-11 with RTX 3060—an NVIDIA GPU *is* required for ideal performance
@@ -69,7 +69,7 @@ cd ~/git/aerial-autonomy-stack/scripts
 
 ---
 
-## How-to Part 2: Simulation and Development
+## How-to - Part 2: Simulation and Development
 
 ```sh
 # Start a simulation
@@ -235,7 +235,7 @@ Once done, detach Tmux with `Ctrl + b`, then `d`; kill everything with `tmux kil
 
 ---
 
-## How-to Part 3: Jetson Deployment
+## How-to - Part 3: Jetson Deployment
 
 > [!IMPORTANT]
 > These instructions are tested on a [Holybro Jetson Baseboard](https://holybro.com/products/pixhawk-jetson-baseboard) (Pixhawk 6X + NVIDIA Orin NX 16GB)
@@ -274,7 +274,7 @@ docker exec -it aircraft-container tmux attach
 > [!CAUTION]
 > As of now, HITL only includes the Jetson computers, support for Pixhawk is work-in-progress
 
-Set up a LAN with netmask `255.255.0.0` and arbitrary `SUBNET_PREFIX` (e.g. `192.168`) between:
+Using a router or [MANET radios](https://doodlelabs.com), set up a LAN with netmask `255.255.0.0` and arbitrary `SUBNET_PREFIX` (e.g. `192.168`) between:
 
 - one simulation computer, with IP `[SUBNET_PREFIX].1.99`
 - `N` Jetson Baseboards with IPs `[SUBNET_PREFIX].1.1`, ..., `[SUBNET_PREFIX].1.N`
