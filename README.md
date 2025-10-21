@@ -36,7 +36,7 @@ Read about the [*rationale*](/supplementary/RATIONALE.md) for AAS in the [`suppl
 
 ---
 
-## How-to - Part 1: Installation
+## "How-to" Part 1: Installation
 
 > [!IMPORTANT]
 > AAS is developed using Ubuntu 22.04 with `nvidia-driver-580` on an i9-13 with RTX 3500 and an i7-11 with RTX 3060—an NVIDIA GPU *is* required for ideal performance
@@ -69,7 +69,7 @@ cd ~/git/aerial-autonomy-stack/scripts
 
 ---
 
-## How-to - Part 2: Simulation and Development
+## "How-to" Part 2: Simulation and Development
 
 ```sh
 # Start a simulation
@@ -235,7 +235,7 @@ Once done, detach Tmux with `Ctrl + b`, then `d`; kill everything with `tmux kil
 
 ---
 
-## How-to - Part 3: Jetson Deployment
+## "How-to" Part 3: Jetson Deployment
 
 > [!IMPORTANT]
 > These instructions are tested on a [Holybro Jetson Baseboard](https://holybro.com/products/pixhawk-jetson-baseboard) (Pixhawk 6X + NVIDIA Orin NX 16GB)
@@ -274,7 +274,7 @@ docker exec -it aircraft-container tmux attach
 > [!CAUTION]
 > As of now, HITL only includes the Jetson computers, support for Pixhawk is work-in-progress
 
-Using a router or [MANET radios](https://doodlelabs.com), set up a LAN with netmask `255.255.0.0` and arbitrary `SUBNET_PREFIX` (e.g. `192.168`) between:
+Using a router or [MANET radios](https://doodlelabs.com), set up a LAN with netmask `255.255.0.0` and an arbitrary `SUBNET_PREFIX` (e.g. `192.168`) between:
 
 - one simulation computer, with IP `[SUBNET_PREFIX].1.99`
 - `N` Jetson Baseboards with IPs `[SUBNET_PREFIX].1.1`, ..., `[SUBNET_PREFIX].1.N`
@@ -282,7 +282,7 @@ Using a router or [MANET radios](https://doodlelabs.com), set up a LAN with netm
 First, start all aircraft containers (e.g. via SSH)
 ```sh
 DRONE_ID=1 DRONE_TYPE=quad AUTOPILOT=px4 SUBNET_PREFIX=192.168 ./deploy_run_hitl.sh # Add HEADLESS=false if a screen is connected to the Jetson
-# DRONE_ID=2, etc.
+# DRONE_ID=2 ...
 ```
 
 Finally, on the simulation computer 
