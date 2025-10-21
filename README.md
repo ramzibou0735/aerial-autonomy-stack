@@ -13,6 +13,10 @@ https://github.com/user-attachments/assets/c194ada6-2996-4bfa-99e9-32b45e29281d
 - Support for **multiple quadrotors and VTOLs** based on either **PX4 or ArduPilot**
 - Vehicle-agnostic **ROS2** action-based autopilot interface (*via* XRCE-DDS and MAVROS)
 - Support for **YOLOv8** (with ONNX GPU Runtimes) and **LiDAR Odometry** (with [KISS-ICP](https://github.com/PRBonn/kiss-icp))
+
+<details>
+<summary>Additional features: <i>(click to expand)</i></summary>
+
 - **Dockerized simulation** based on [`nvcr.io/nvidia/cuda:12.8.1-cudnn-runtime-ubuntu22.04`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/cuda/tags)
 - **Dockerized deployment** based on [`nvcr.io/nvidia/l4t-jetpack:r36.4.0`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/l4t-jetpack/tags)
 - **Windows 11 compatibility** with GPU support *via* WSLg
@@ -25,7 +29,7 @@ https://github.com/user-attachments/assets/c194ada6-2996-4bfa-99e9-32b45e29281d
 - Support for Gazebo's **wind effects** plugin
 - **Steppable simulation**
 
-Read about the [*rationale*](/supplementary/RATIONALE.md) for AAS in the [`supplementary/`](/supplementary/) material
+</details>
 
 <details>
 <summary>AAS leverages the following frameworks: <i>(click to expand)</i></summary>
@@ -33,6 +37,8 @@ Read about the [*rationale*](/supplementary/RATIONALE.md) for AAS in the [`suppl
 > [*Ubuntu 22.04*](https://ubuntu.com/about/release-cycle) (LTS, ESM 4/2032), [*`nvidia-driver-580`*](https://developer.nvidia.com/datacenter-driver-archive) (latest as of 9/2025), [*Docker Engine v28*](https://docs.docker.com/engine/release-notes/28/) (latest as of 9/2025), [*ROS2 Humble*](https://docs.ros.org/en/rolling/Releases.html) (LTS, EOL 5/2027), [*Gazebo Sim Harmonic*](https://gazebosim.org/docs/latest/releases/) (LTS, EOL 9/2028), [*PX4 1.16*](https://github.com/PX4/PX4-Autopilot/releases) interfaced *via* [XRCE-DDS](https://github.com/eProsima/Micro-XRCE-DDS/releases), [*ArduPilot 4.6*](https://github.com/ArduPilot/ardupilot/releases) interfaced *via* [MAVROS](https://github.com/mavlink/mavros/releases), [*YOLOv8*](https://github.com/ultralytics/ultralytics/releases) on [*ONNX Runtime 1.22*](https://onnxruntime.ai/getting-started) (latest stable releases as of 8/2025), [*L4T 36* (Ubuntu 22-based)/*JetPack 6*](https://developer.nvidia.com/embedded/jetpack-archive) (for deployment only, latest major release as of 8/2025), [WSLg](https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-apps) (for simulation and development on Windows 11 only)
 
 </details>
+
+Read about the [*rationale*](/supplementary/RATIONALE.md) for AAS in the [`supplementary/`](/supplementary/) material
 
 ---
 
@@ -279,7 +285,7 @@ Using a router or [MANET radios](https://doodlelabs.com), set up a LAN with netm
 - one simulation computer, with IP `[SUBNET_PREFIX].1.99`
 - `N` Jetson Baseboards with IPs `[SUBNET_PREFIX].1.1`, ..., `[SUBNET_PREFIX].1.N`
 
-First, start all aircraft containers (e.g. via SSH)
+First, start all aircraft containers, one on each Jetson (e.g. via SSH)
 ```sh
 DRONE_ID=1 DRONE_TYPE=quad AUTOPILOT=px4 SUBNET_PREFIX=192.168 ./deploy_run_hitl.sh # Add HEADLESS=false if a screen is connected to the Jetson
 # DRONE_ID=2 ...
@@ -291,15 +297,6 @@ NUM_QUADS=2 NUM_VTOLS=0 AUTOPILOT=px4 SUBNET_PREFIX=192.168 ./sim_run_hitl.sh
 ```
 
 Once done, detach Tmux with `Ctrl + b`, then `d` to close and remove all containers
-
----
-
-## Future Work / Ideas for Contributions
-
-- [PX4 HITL](https://docs.px4.io/main/en/simulation/hitl.html) simulation for Gazebo Harmonic
-- [Gymnasium](https://github.com/Farama-Foundation/Gymnasium) RL interface
-- Support for [Betaflight SITL](https://betaflight.com/docs/development/SITL) interfaced *via* UDP or [MultiWii Serial Protocol (MSP)](https://github.com/betaflight/betaflight/tree/master/src/main/msp)
-- Support for [SPARK-FAST-LIO](https://github.com/MIT-SPARK/spark-fast-lio)/[SuperOdom](https://github.com/superxslam/SuperOdom)
 
 ---
 > You've done a man's job, sir. I guess you're through, huh?
@@ -335,6 +332,15 @@ HITL/SITL architectures
     the LiDAR should publish on topic `/lidar_points` for KISS-ICP
 - Add state estimation package/node
 - Add bounding-box-based Offboard
+
+---
+
+## Future Work / Ideas for Contributions
+
+- [PX4 HITL](https://docs.px4.io/main/en/simulation/hitl.html) simulation for Gazebo Harmonic
+- [Gymnasium](https://github.com/Farama-Foundation/Gymnasium) RL interface
+- Support for [Betaflight SITL](https://betaflight.com/docs/development/SITL) interfaced *via* UDP or [MultiWii Serial Protocol (MSP)](https://github.com/betaflight/betaflight/tree/master/src/main/msp)
+- Support for [SPARK-FAST-LIO](https://github.com/MIT-SPARK/spark-fast-lio)/[SuperOdom](https://github.com/superxslam/SuperOdom)
 
 # Desired features
 

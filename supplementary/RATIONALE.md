@@ -5,9 +5,9 @@
 The *sim2real gap* is an euphemism for robotic projects that work well on a developer's laptop but not so much in the field.
 Aerial sim2real research often focuses on modeling and simulation of complex aerodynamics effects.
 
-Nonetheless, in applied robotics, an equally important component of *sim2real gap* lies in software tooling and engineering.
+Nonetheless, in applied robotics, an equally important component of *sim2real gap* lies in software tooling and engineering, where the [dynamic range between average and best can be >50-to-1](https://www.youtube.com/watch?v=wTgQ2PBiz-g&t=35s).
 
-That is, the challenge—and good sport—of **full-stack integration** among:
+This is the challenge—and good sport—of **full-stack integration** among:
 
 - the **many frameworks** that go into drone autonomy (a physics engine to simulate drone dynamics, a rendering engine to generate realistic imagery, a GPU-accelerated machine learning runtime for perception, one or more inter-process and inter-thread communication middleware, the interface to the microcontroller and autopilot software performing state-estimation and low-level control, the SDKs of the deployed embedded systems, etc.)
 - emulated **inter-robot communication** (in aerial systems, this is heavily affected by the actual flight plans and available RF hardware)
