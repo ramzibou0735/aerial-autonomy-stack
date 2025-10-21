@@ -135,32 +135,34 @@ To create a new mission, read the banner comments in [`ardupilot_interface.hpp`]
 
 Once flown from CLI, implemented your mission in [`MissionNode.conops_callback()`](/aircraft/aircraft_ws/src/mission/mission/mission_node.py)
 
-### Development within Live Containers
-
-Launching the `sim_run.sh` script with `MODE=dev`, does **not** start the simulation and mounts folders `[simulation|aircraft]_resources`, `[simulation|aircraft]_ws/src` as volumes to more easily track, commit, push changes while building and testing them within the containers
-
-```sh
-cd ~/git/aerial-autonomy-stack/scripts
-MODE=dev ./sim_run.sh # Starts one simulation-image and one aircraft-image where the *_resources/ and *_ws/src/ folders are mounted from the host
-```
-
-To build changes made **on the host** in either `simulation_ws/src` or `aircraft_ws/src`
-
-```sh
-cd /aas/simulation_ws/ # Or /aas/aircraft_ws/ in the simulation and/or in the aircraft container
-colcon build --symlink-install
-```
-
-To start the simulation (by default, this is a single PX4 quad, configure using `sim_run.sh`)
-
-```sh
-tmuxinator start -p /aas/aircraft.yml.erb # In the aircraft container (note: start the aircraft first to pick up the camera stream)
-tmuxinator start -p /aas/simulation.yml.erb # In the simulation container
-```
-
-Once done, detach Tmux with `Ctrl + b`, then `d`; kill everything with `tmux kill-server && pkill -f gz`
-
 > [!TIP]
+> <details>
+> <summary><b>Development within Live Containers</b> <i>(click to expand)</i></summary>
+> 
+> Launching the `sim_run.sh` script with `MODE=dev`, does **not** start the simulation and mounts folders `[simulation|aircraft]_resources`, `[simulation|aircraft]_ws/src` as volumes to more easily track, commit, push changes while building and testing them within the containers:
+> 
+> ```sh
+> cd ~/git/aerial-autonomy-stack/scripts
+> MODE=dev ./sim_run.sh # Starts one simulation-image and one aircraft-image where the *_resources/ and *_ws/src/ folders are mounted from the host
+> ```
+> 
+> To build changes made **on the host** in either `simulation_ws/src` or `aircraft_ws/src`:
+> 
+> ```sh
+> cd /aas/simulation_ws/ # Or /aas/aircraft_ws/ in the simulation and/or in the aircraft container
+> colcon build --symlink-install
+> ```
+> 
+> To start the simulation (by default, this is a single PX4 quad, configure using `sim_run.sh`):
+> 
+> ```sh
+> tmuxinator start -p /aas/aircraft.yml.erb # In the aircraft container (note: start the aircraft first to pick up the camera stream)
+> tmuxinator start -p /aas/simulation.yml.erb # In the simulation container
+> ```
+> 
+> Once done, detach Tmux with `Ctrl + b`, then `d`; kill everything with `tmux kill-server && pkill -f gz`
+> </details>
+>
 > <details>
 > <summary>AAS Structure <i>(click to expand)</i></summary>
 > 
@@ -285,14 +287,20 @@ Using a router or [MANET radios](https://doodlelabs.com), set up a LAN with netm
 - one simulation computer, with IP `[SUBNET_PREFIX].1.99`
 - `N` Jetson Baseboards with IPs `[SUBNET_PREFIX].1.1`, ..., `[SUBNET_PREFIX].1.N`
 
-First, start all aircraft containers, one on each Jetson (e.g. via SSH)
+First, start all aircraft containers, one on each Jetson (e.g. via SSH):
 ```sh
+# On Jetson with IP [SUBNET_PREFIX].1.1
 DRONE_ID=1 DRONE_TYPE=quad AUTOPILOT=px4 SUBNET_PREFIX=192.168 ./deploy_run_hitl.sh # Add HEADLESS=false if a screen is connected to the Jetson
+
+# On Jetson with IP [SUBNET_PREFIX].1.2
 # DRONE_ID=2 ...
+
+# Etc.
 ```
 
-Finally, on the simulation computer 
+Finally, on the simulation computer:
 ```sh
+# On amd64/RTX computer with IP [SUBNET_PREFIX].1.99
 NUM_QUADS=2 NUM_VTOLS=0 AUTOPILOT=px4 SUBNET_PREFIX=192.168 ./sim_run_hitl.sh
 ```
 
@@ -341,8 +349,6 @@ HITL/SITL architectures
 - [Gymnasium](https://github.com/Farama-Foundation/Gymnasium) RL interface
 - Support for [Betaflight SITL](https://betaflight.com/docs/development/SITL) interfaced *via* UDP or [MultiWii Serial Protocol (MSP)](https://github.com/betaflight/betaflight/tree/master/src/main/msp)
 - Support for [SPARK-FAST-LIO](https://github.com/MIT-SPARK/spark-fast-lio)/[SuperOdom](https://github.com/superxslam/SuperOdom)
-
-# Desired features
 
 - Support for [JSBSim](https://github.com/JSBSim-Team/jsbsim) flight dynamics
 - Support for [ArduPilot's DDS interface](https://ardupilot.org/dev/docs/ros2-interfaces.html)
