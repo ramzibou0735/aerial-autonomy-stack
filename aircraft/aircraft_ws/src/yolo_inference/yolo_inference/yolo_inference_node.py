@@ -16,7 +16,7 @@ from vision_msgs.msg import Detection2DArray, Detection2D, BoundingBox2D, Object
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 
-frame_queue = queue.Queue(maxsize=2) # A queue to hold frames
+frame_queue = queue.Queue(maxsize=3) # A queue to hold frames
 
 def frame_capture_thread(cap, is_running):
     frame_count = 0
@@ -146,12 +146,12 @@ class YoloInferenceNode(Node):
             else: # Default, acquire CSI camera 
                 gst_pipeline_string = (
                     "nvarguscamerasrc sensor-id=0 ! "
-                    "video/x-raw(memory:NVMM), width=1280, height=720, framerate=30/1 ! "
+                    "video/x-raw(memory:NVMM), width=1280, height=720, framerate=60/1 ! "
                     "nvvidconv ! "
-                    "video/x-raw, format=BGRx, width=1280, height=720, framerate=30/1 ! "
+                    "video/x-raw, format=BGRx, width=1280, height=720, framerate=60/1 ! "
                     "videoconvert ! "
-                    "appsink drop=true max-buffers=1"
-                ) # Test with: gst-launch-1.0 nvarguscamerasrc sensor-id=0 ! 'video/x-raw(memory:NVMM), width=1280, height=720, framerate=30/1' ! nvvidconv ! nv3dsink -e
+                    "appsink drop=true max-buffers=1 sync=false"
+                ) # Test with: gst-launch-1.0 nvarguscamerasrc sensor-id=0 ! 'video/x-raw(memory:NVMM), width=1280, height=720, framerate=60/1' ! nvvidconv ! nv3dsink -e
                 cap = cv2.VideoCapture(gst_pipeline_string, cv2.CAP_GSTREAMER)
         # cap = cv2.VideoCapture("/sample.mp4") # Load sample video for testing
         assert cap.isOpened(), "Failed to open video stream"

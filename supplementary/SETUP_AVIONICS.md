@@ -148,8 +148,13 @@ sudo /opt/nvidia/jetson-io/jetson-io.py
 #      -> "Camera IMX219 Dual" (even if only using one)
 #        -> "Save pin changes"
 #          -> "Save and reboot to reconfigure pins"
+#            -> Press any key to reboot
 
 sudo dmesg | grep -i imx219 # After reboot, this will show at least one imx219 successfully bound
+
+# Inspect camera resolution and frame rate
+sudo apt update && sudo apt install -y v4l-utils
+v4l2-ctl --list-formats-ext -d /dev/video0 
 ```
 
 ## Install Docker Engine and NVIDIA Container Toolkit on Jetson Orin
