@@ -149,12 +149,14 @@ class YoloInferenceNode(Node):
                     "video/x-raw(memory:NVMM), width=1280, height=720, framerate=60/1 ! "
                     "nvvidconv ! "
                     "video/x-raw, format=BGRx, width=1280, height=720, framerate=60/1 ! "
+                    "videorate ! "
                     "videoconvert ! "
                     "appsink drop=true max-buffers=1 sync=false"
                 ) # Test with: gst-launch-1.0 nvarguscamerasrc sensor-id=0 ! 'video/x-raw(memory:NVMM), width=1280, height=720, framerate=60/1' ! nvvidconv ! nv3dsink -e
                 cap = cv2.VideoCapture(gst_pipeline_string, cv2.CAP_GSTREAMER)
         # cap = cv2.VideoCapture("/sample.mp4") # Load sample video for testing
         assert cap.isOpened(), "Failed to open video stream"
+        print(f"Pipeline FPS: {cap.get(cv2.CAP_PROP_FPS)}")
 
         if not self.headless:
             drone_id = os.getenv('DRONE_ID', '0')
