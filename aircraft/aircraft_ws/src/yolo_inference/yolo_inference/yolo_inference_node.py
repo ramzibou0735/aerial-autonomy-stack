@@ -19,10 +19,17 @@ from cv_bridge import CvBridge
 frame_queue = queue.Queue(maxsize=3) # A queue to hold frames
 
 def frame_capture_thread(cap, is_running):
+    try:
+        os.nice(-10)
+    except:
+        pass
     frame_count = 0
     start_time = time.time()
+    read_times = []
     while is_running.is_set():
+        read_start = time.time()
         ret, frame = cap.read()
+        read_times.append(time.time() - read_start)
         if not ret:
             time.sleep(0.01)
             continue
@@ -35,10 +42,11 @@ def frame_capture_thread(cap, is_running):
             end_time = time.time()
             elapsed_time = end_time - start_time
             fps = frame_count / elapsed_time
-            print(f"Frame Reception Rate: {fps:.2f} FPS")
+            print(f"Frame Reception Rate: {fps:.2f} FPS; Avg. cap.read(): {sum(read_times) / len(read_times) * 1000:.2f}ms")
             # Reset counters
             frame_count = 0
             start_time = time.time()
+            read_times = []
 
 def xywh2xyxy(box):
     # Convert [x, y, w, h] to [x1, y1, x2, y2]
@@ -95,6 +103,10 @@ class YoloInferenceNode(Node):
         
         self.get_logger().info("YOLO inference started.")
 
+    def ros_spin_thread(self):
+        while rclpy.ok():
+            rclpy.spin_once(self, timeout_sec=0.001) # This is only to get the simulation time from /clock
+
     def run_inference_loop(self, hitl):
         self.hitl = hitl
         # Acquire video stream
@@ -149,7 +161,6 @@ class YoloInferenceNode(Node):
                     "video/x-raw(memory:NVMM), width=1280, height=720, framerate=60/1 ! "
                     "nvvidconv ! "
                     "video/x-raw, format=BGRx, width=1280, height=720, framerate=60/1 ! "
-                    "videorate ! "
                     "videoconvert ! "
                     "appsink drop=true max-buffers=1 sync=false"
                 ) # Test with: gst-launch-1.0 nvarguscamerasrc sensor-id=0 ! 'video/x-raw(memory:NVMM), width=1280, height=720, framerate=60/1' ! nvvidconv ! nv3dsink -e
@@ -168,15 +179,19 @@ class YoloInferenceNode(Node):
         # Start the video capture thread
         is_running = threading.Event()
         is_running.set()
-        thread = threading.Thread(target=frame_capture_thread, args=(cap, is_running))
-        thread.start()
+        frame_thread = threading.Thread(target=frame_capture_thread, args=(cap, is_running), daemon=True)
+        frame_thread.start()
+
+        # ROS spinning thread
+        ros_thread = threading.Thread(target=self.ros_spin_thread, daemon=True)
+        ros_thread.start()
 
         inference_count = 0
         start_time = time.time()
+        yolo_times = []
+        self.session_times = []
 
         while rclpy.ok():
-            rclpy.spin_once(self, timeout_sec=0) # This is only to get the simulation time from /clock
-
             try:
                 frame = frame_queue.get(timeout=1) # Get the most recent frame from the queue
             except queue.Empty:
@@ -184,17 +199,21 @@ class YoloInferenceNode(Node):
                 continue
             
             # Inference
+            yolo_start = time.time()
             boxes, confidences, class_ids = self.run_yolo(frame)
+            yolo_times.append(time.time() - yolo_start)
 
             inference_count += 1
             if inference_count % 120 == 0:
                 end_time = time.time()
                 elapsed_time = end_time - start_time
                 yolo_fps = inference_count / elapsed_time
-                print(f"YOLO Inference Rate: {yolo_fps:.2f} FPS")
+                print(f"YOLO Inference Rate: {yolo_fps:.2f} FPS; Avg. YOLO: {sum(yolo_times) / len(yolo_times)*1000:.2f}ms; Avg. session: {sum(self.session_times) / len(self.session_times)*1000:.2f}ms")
                 # Reset counters
                 inference_count = 0
                 start_time = time.time()
+                yolo_times = []
+                self.session_times = []
 
             # Publish detections
             self.publish_detections(frame, boxes, confidences, class_ids)
@@ -207,7 +226,7 @@ class YoloInferenceNode(Node):
 
         # Cleanup
         is_running.clear()
-        thread.join()
+        frame_thread.join()
         
         cap.release()
         if not self.headless:
@@ -216,13 +235,12 @@ class YoloInferenceNode(Node):
     def run_yolo(self, frame):
         h0, w0 = frame.shape[:2]
         INPUT_SIZE = 640 # YOLOv8 input size
-        
-        img = cv2.resize(frame, (INPUT_SIZE, INPUT_SIZE))
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        img = img.transpose(2, 0, 1).astype(np.float32) / 255.0
-        img = np.expand_dims(img, axis=0)
 
+        img = cv2.dnn.blobFromImage(frame, 1/255.0, (INPUT_SIZE, INPUT_SIZE), swapRB=True, crop=False)
+
+        session_start = time.time()
         outputs = self.session.run(None, {self.input_name: img})
+        self.session_times.append(time.time() - session_start)
         preds = np.squeeze(outputs[0]).transpose()
 
         boxes = preds[:, :4]
