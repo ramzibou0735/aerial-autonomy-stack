@@ -235,37 +235,47 @@ class YoloInferenceNode(Node):
     def run_yolo(self, frame):
         h0, w0 = frame.shape[:2]
         INPUT_SIZE = 640 # YOLOv8 input size
-
+        
         img = cv2.dnn.blobFromImage(frame, 1/255.0, (INPUT_SIZE, INPUT_SIZE), swapRB=True, crop=False)
-
+        
         session_start = time.time()
         outputs = self.session.run(None, {self.input_name: img})
         self.session_times.append(time.time() - session_start)
-        preds = np.squeeze(outputs[0]).transpose()
-
-        boxes = preds[:, :4]
-        class_scores = preds[:, 4:]
         
-        class_ids = np.argmax(class_scores, axis=1)
-        confidences = np.max(class_scores, axis=1)
-
+        preds = outputs[0][0].T
+        boxes = preds[:, :4]
+        scores = preds[:, 4:]
+        confidences = scores.max(axis=1)
+        class_ids = scores.argmax(axis=1)
+        
+        # Filter
         CONF_THRESH = 0.5
-        mask = (confidences > CONF_THRESH)
-
+        mask = confidences > CONF_THRESH
+        
+        if not mask.any():
+            return np.array([]), np.array([]), np.array([])
+        
+        # Apply mask once
+        boxes_filtered = boxes[mask]
+        confidences_filtered = confidences[mask]
+        class_ids_filtered = class_ids[mask]
+        
+        # Convert to xyxy once
+        boxes_xyxy = xywh2xyxy(boxes_filtered)
+        
         # Apply Non-Maximal Suppression
         NMS_THRESH = 0.45
-        boxes_for_nms = xywh2xyxy(boxes[mask])
-        indices = cv2.dnn.NMSBoxes(boxes_for_nms.tolist(), confidences[mask].tolist(), CONF_THRESH, NMS_THRESH)
+        indices = cv2.dnn.NMSBoxes(boxes_xyxy.tolist(), confidences_filtered.tolist(), CONF_THRESH, NMS_THRESH)
         
-        final_boxes = boxes[mask][indices]
-        final_confidences = confidences[mask][indices]
-        final_class_ids = class_ids[mask][indices]
+        if len(indices) == 0:
+            return np.array([]), np.array([]), np.array([])
         
-        final_boxes = xywh2xyxy(final_boxes)
-        scale_w, scale_h = w0 / INPUT_SIZE, h0 / INPUT_SIZE
-        final_boxes[:, [0, 2]] *= scale_w
-        final_boxes[:, [1, 3]] *= scale_h
-        return final_boxes, final_confidences, final_class_ids
+        # Scale 
+        final_boxes = boxes_xyxy[indices]
+        scale = np.array([w0 / INPUT_SIZE, h0 / INPUT_SIZE, w0 / INPUT_SIZE, h0 / INPUT_SIZE])
+        final_boxes *= scale
+        
+        return final_boxes, confidences_filtered[indices], class_ids_filtered[indices]
 
     def publish_detections(self, frame, boxes, confidences, class_ids):
         detection_array_msg = Detection2DArray()
