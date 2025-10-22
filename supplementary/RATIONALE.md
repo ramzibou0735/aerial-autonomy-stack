@@ -5,7 +5,7 @@
 The *sim2real gap* is an euphemism for robotic projects that work well on a developer's laptop but not so much in the field.
 Aerial sim2real research often focuses on modeling and simulation of complex aerodynamics effects.
 
-Nonetheless, in applied robotics, an equally important component of *sim2real gap* lies in software tooling and engineering, where the [dynamic range between "average and the best is 50-to-1, maybe 100-to-1"](https://www.youtube.com/watch?v=wTgQ2PBiz-g&t=35s).
+Nonetheless, in applied robotics, an equally important component of *sim2real gap* lies in software tooling and engineering, where the dynamic range between ["average and the best is 50-to-1, maybe 100-to-1"](https://www.youtube.com/watch?v=wTgQ2PBiz-g&t=35s).
 
 This is the challenge—and good sport—of **full-stack integration** among:
 
