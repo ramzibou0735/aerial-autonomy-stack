@@ -11,6 +11,8 @@ HEADLESS="${HEADLESS:-true}" # Options: true (default), false
 CAMERA="${CAMERA:-true}" # Options: true (default), false
 LIDAR="${LIDAR:-true}" # Options: true (default), false
 MODE="${MODE:-}" # Options: empty (default), dev, ...
+SUBNET_PREFIX="${SUBNET_PREFIX:-42.42}" # Subnet prefix, e.g., 42.42 (default), 192.168, etc.
+HITL="${HITL:-false}" # Options: true, false (default)
 
 # Initialize an empty variable for the flags
 MODE_OPTS=""
@@ -35,11 +37,12 @@ docker run -d -t \
   --volume /tmp/argus_socket:/tmp/argus_socket \
   --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR \
   --env ROS_DOMAIN_ID=$DRONE_ID --env AUTOPILOT=$AUTOPILOT --env DRONE_TYPE=$DRONE_TYPE \
-  --env DRONE_ID=$DRONE_ID --env CAMERA=$CAMERA --env LIDAR=$LIDAR \
-  --env SIMULATED_TIME=false --env HEADLESS=$HEADLESS\
+  --env DRONE_ID=$DRONE_ID --env HEADLESS=$HEADLESS --env CAMERA=$CAMERA --env LIDAR=$LIDAR --env GST_DEBUG=3 \
+  --env HITL=$HITL --env SIMULATED_TIME=$HITL \
+  --env SUBNET_PREFIX=$SUBNET_PREFIX \
   --net=host \
   --privileged \
-  --name aircraft-container \
+  --name aircraft-container_$DRONE_ID \
   -v ~/tensorrt_cache/:/tensorrt_cache \
   ${MODE_OPTS} \
   aircraft-image

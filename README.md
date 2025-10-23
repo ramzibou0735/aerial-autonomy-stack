@@ -290,7 +290,7 @@ Using a router or [MANET radios](https://doodlelabs.com), set up a LAN with netm
 First, start all aircraft containers, one on each Jetson (e.g. via SSH):
 ```sh
 # On Jetson with IP [SUBNET_PREFIX].1.1
-DRONE_ID=1 DRONE_TYPE=quad AUTOPILOT=px4 SUBNET_PREFIX=192.168 ./deploy_run_hitl.sh # Add HEADLESS=false if a screen is connected to the Jetson
+HITL=true DRONE_ID=1 DRONE_TYPE=quad AUTOPILOT=px4 SUBNET_PREFIX=192.168 ./deploy_run.sh # Add HEADLESS=false if a screen is connected to the Jetson
 
 # On Jetson with IP [SUBNET_PREFIX].1.2
 # DRONE_ID=2 ...
@@ -301,7 +301,7 @@ DRONE_ID=1 DRONE_TYPE=quad AUTOPILOT=px4 SUBNET_PREFIX=192.168 ./deploy_run_hitl
 Finally, on the simulation computer:
 ```sh
 # On amd64/RTX computer with IP [SUBNET_PREFIX].1.99
-NUM_QUADS=2 NUM_VTOLS=0 AUTOPILOT=px4 SUBNET_PREFIX=192.168 ./sim_run_hitl.sh
+HITL=true NUM_QUADS=2 NUM_VTOLS=0 AUTOPILOT=px4 SUBNET_PREFIX=192.168 ./sim_run.sh
 ```
 
 Once done, detach Tmux with `Ctrl + b`, then `d` to close and remove all containers

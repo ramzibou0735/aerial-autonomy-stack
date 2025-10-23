@@ -12,6 +12,8 @@ HEADLESS="${HEADLESS:-false}" # Options: true, false (default)
 CAMERA="${CAMERA:-true}" # Options: true (default), false
 LIDAR="${LIDAR:-true}" # Options: true (default), false 
 MODE="${MODE:-}" # Options: empty (default), dev, ...
+SUBNET_PREFIX="${SUBNET_PREFIX:-42.42}" # Subnet prefix, e.g., 42.42 (default), 192.168, etc.
+HITL="${HITL:-false}" # Options: true, false (default)
 
 # Detect the environment (Ubuntu/GNOME, WSL, etc.)
 if command -v gnome-terminal >/dev/null 2>&1 && [ -n "$XDG_CURRENT_DESKTOP" ]; then
@@ -77,10 +79,11 @@ if command -v xhost >/dev/null 2>&1; then
   xhost +local:docker
 fi
 
-# Create network
-NETWORK_NAME="aas-network"
-SUBNET_PREFIX="42.42"
-docker network inspect "$NETWORK_NAME" >/dev/null 2>&1 || docker network create --subnet=${SUBNET_PREFIX}.0.0/16 "$NETWORK_NAME"
+# Create docker network for SITL
+if [[ "$HITL" == "false" ]]; then
+  NETWORK_NAME="aas-network"
+  docker network inspect "$NETWORK_NAME" >/dev/null 2>&1 || docker network create --subnet=${SUBNET_PREFIX}.0.0/16 "$NETWORK_NAME"
+fi
 
 # WSL-specific options
 WSL_OPTS="--env WAYLAND_DISPLAY=$WAYLAND_DISPLAY --env PULSE_SERVER=$PULSE_SERVER --volume /usr/lib/wsl:/usr/lib/wsl \
@@ -135,9 +138,14 @@ DOCKER_CMD="docker run -it --rm \
   --env WORLD=$WORLD --env HEADLESS=$HEADLESS --env CAMERA=$CAMERA --env LIDAR=$LIDAR \
   --env SIMULATED_TIME=true \
   --env SUBNET_PREFIX=$SUBNET_PREFIX \
-  --net=aas-network --ip=${SUBNET_PREFIX}.1.99 \
   --privileged \
   --name simulation-container"
+# Configure network for HITL or SITL
+if [[ "$HITL" == "true" ]]; then
+  DOCKER_CMD="$DOCKER_CMD --net=host"
+else
+  DOCKER_CMD="$DOCKER_CMD --net=aas-network --ip=${SUBNET_PREFIX}.1.99"
+fi
 # Add WSL-specific options and complete the command
 if [[ "$DESK_ENV" == "wsl" ]]; then
   DOCKER_CMD="$DOCKER_CMD $WSL_OPTS"
@@ -146,53 +154,55 @@ DOCKER_CMD="$DOCKER_CMD ${MODE_SIM_OPTS} simulation-image"
 calculate_terminal_position $DRONE_ID
 xterm "${XTERM_CONFIG_ARGS[@]}" -title "Simulation" -fa Monospace -fs $FONT_SIZE -bg black -fg white -geometry "${TERM_COLS}x${TERM_ROWS}+${X_POS}+${Y_POS}" -hold -e bash -c "$DOCKER_CMD" &
 
-# Launch the quad containers
-for i in $(seq 1 $NUM_QUADS); do
-  DRONE_ID=$((DRONE_ID + 1))
-  sleep 1.5 # Limit resource usage
-  DOCKER_CMD="docker run -it --rm \
-    --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --device /dev/dri --gpus all \
-    --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR \
-    --env ROS_DOMAIN_ID=$DRONE_ID --env AUTOPILOT=$AUTOPILOT \
-    --env DRONE_TYPE=quad \
-    --env DRONE_ID=$DRONE_ID --env HEADLESS=$HEADLESS --env CAMERA=$CAMERA --env LIDAR=$LIDAR \
-    --env SIMULATED_TIME=true \
-    --env SUBNET_PREFIX=$SUBNET_PREFIX \
-    --net=aas-network --ip=${SUBNET_PREFIX}.1.$DRONE_ID \
-    --privileged \
-    --name aircraft-container_$DRONE_ID"
-  # Add WSL-specific options and complete the command
-  if [[ "$DESK_ENV" == "wsl" ]]; then
-    DOCKER_CMD="$DOCKER_CMD $WSL_OPTS"
-  fi
-  DOCKER_CMD="$DOCKER_CMD ${MODE_AIR_OPTS} aircraft-image"
-  calculate_terminal_position $DRONE_ID
-  xterm "${XTERM_CONFIG_ARGS[@]}" -title "Quad $DRONE_ID" -fa Monospace -fs $FONT_SIZE -bg black -fg white -geometry "${TERM_COLS}x${TERM_ROWS}+${X_POS}+${Y_POS}" -hold -e bash -c "$DOCKER_CMD" &
-done
+if [[ "$HITL" == "false" ]]; then
+  # Launch the quad containers
+  for i in $(seq 1 $NUM_QUADS); do
+    DRONE_ID=$((DRONE_ID + 1))
+    sleep 1.5 # Limit resource usage
+    DOCKER_CMD="docker run -it --rm \
+      --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --device /dev/dri --gpus all \
+      --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR \
+      --env ROS_DOMAIN_ID=$DRONE_ID --env AUTOPILOT=$AUTOPILOT \
+      --env DRONE_TYPE=quad \
+      --env DRONE_ID=$DRONE_ID --env HEADLESS=$HEADLESS --env CAMERA=$CAMERA --env LIDAR=$LIDAR \
+      --env SIMULATED_TIME=true \
+      --env SUBNET_PREFIX=$SUBNET_PREFIX \
+      --net=aas-network --ip=${SUBNET_PREFIX}.1.$DRONE_ID \
+      --privileged \
+      --name aircraft-container_$DRONE_ID"
+    # Add WSL-specific options and complete the command
+    if [[ "$DESK_ENV" == "wsl" ]]; then
+      DOCKER_CMD="$DOCKER_CMD $WSL_OPTS"
+    fi
+    DOCKER_CMD="$DOCKER_CMD ${MODE_AIR_OPTS} aircraft-image"
+    calculate_terminal_position $DRONE_ID
+    xterm "${XTERM_CONFIG_ARGS[@]}" -title "Quad $DRONE_ID" -fa Monospace -fs $FONT_SIZE -bg black -fg white -geometry "${TERM_COLS}x${TERM_ROWS}+${X_POS}+${Y_POS}" -hold -e bash -c "$DOCKER_CMD" &
+  done
 
-# Launch the vtol containers
-for i in $(seq 1 $NUM_VTOLS); do
-  DRONE_ID=$((DRONE_ID + 1))
-  sleep 1.5 # Limit resource usage
-  DOCKER_CMD="docker run -it --rm \
-    --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --device /dev/dri --gpus all \
-    --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR \
-    --env ROS_DOMAIN_ID=$DRONE_ID --env AUTOPILOT=$AUTOPILOT \
-    --env DRONE_TYPE=vtol \
-    --env DRONE_ID=$DRONE_ID --env HEADLESS=$HEADLESS --env CAMERA=$CAMERA --env LIDAR=$LIDAR \
-    --env SIMULATED_TIME=true \
-    --env SUBNET_PREFIX=$SUBNET_PREFIX \
-    --net=aas-network --ip=${SUBNET_PREFIX}.1.$DRONE_ID \
-    --privileged \
-    --name aircraft-container_$DRONE_ID"
-  # Add WSL-specific options and complete the command
-  if [[ "$DESK_ENV" == "wsl" ]]; then
-    DOCKER_CMD="$DOCKER_CMD $WSL_OPTS"
-  fi
-  DOCKER_CMD="$DOCKER_CMD ${MODE_AIR_OPTS} aircraft-image"
-  calculate_terminal_position $DRONE_ID
-  xterm "${XTERM_CONFIG_ARGS[@]}" -title "VTOL $DRONE_ID" -fa Monospace -fs $FONT_SIZE -bg black -fg white -geometry "${TERM_COLS}x${TERM_ROWS}+${X_POS}+${Y_POS}" -hold -e bash -c "$DOCKER_CMD" &
-done
+  # Launch the vtol containers
+  for i in $(seq 1 $NUM_VTOLS); do
+    DRONE_ID=$((DRONE_ID + 1))
+    sleep 1.5 # Limit resource usage
+    DOCKER_CMD="docker run -it --rm \
+      --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --device /dev/dri --gpus all \
+      --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NVIDIA_DRIVER_CAPABILITIES=all --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR \
+      --env ROS_DOMAIN_ID=$DRONE_ID --env AUTOPILOT=$AUTOPILOT \
+      --env DRONE_TYPE=vtol \
+      --env DRONE_ID=$DRONE_ID --env HEADLESS=$HEADLESS --env CAMERA=$CAMERA --env LIDAR=$LIDAR \
+      --env SIMULATED_TIME=true \
+      --env SUBNET_PREFIX=$SUBNET_PREFIX \
+      --net=aas-network --ip=${SUBNET_PREFIX}.1.$DRONE_ID \
+      --privileged \
+      --name aircraft-container_$DRONE_ID"
+    # Add WSL-specific options and complete the command
+    if [[ "$DESK_ENV" == "wsl" ]]; then
+      DOCKER_CMD="$DOCKER_CMD $WSL_OPTS"
+    fi
+    DOCKER_CMD="$DOCKER_CMD ${MODE_AIR_OPTS} aircraft-image"
+    calculate_terminal_position $DRONE_ID
+    xterm "${XTERM_CONFIG_ARGS[@]}" -title "VTOL $DRONE_ID" -fa Monospace -fs $FONT_SIZE -bg black -fg white -geometry "${TERM_COLS}x${TERM_ROWS}+${X_POS}+${Y_POS}" -hold -e bash -c "$DOCKER_CMD" &
+  done
+fi
 
 echo "Fly, my pretties, fly!"
 echo "Press any key to stop all containers and close the terminals..."
