@@ -58,16 +58,16 @@ def xywh2xyxy(box):
     return coord
 
 class YoloInferenceNode(Node):
-    def __init__(self, headless):
+    def __init__(self, headless, hitl):
         super().__init__('yolo_inference_node')
         self.headless = headless
+        self.hitl = hitl
         self.architecture = platform.machine()
         
         # Load classes
         names_file = "/aas/yolo/coco.json"
         with open(names_file, "r") as f:
-            classes_str_keys = json.load(f)
-            self.classes = {int(k): v for k, v in classes_str_keys.items()}
+            self.classes = {int(k): v for k, v in json.load(f).items()}
         colors_rgba = plt.cm.hsv(np.linspace(0, 1, len(self.classes)))
         self.colors = (colors_rgba[:, [2, 1, 0]] * 255).astype(np.uint8) # From RGBA (0-1 float) to BGR (0-255 int)
 
@@ -107,8 +107,7 @@ class YoloInferenceNode(Node):
         while rclpy.ok():
             rclpy.spin_once(self, timeout_sec=0.001) # This is only to get the simulation time from /clock
 
-    def run_inference_loop(self, hitl):
-        self.hitl = hitl
+    def run_inference_loop(self):
         # Acquire video stream
         if self.architecture == 'x86_64':
             gst_pipeline_string = (
@@ -326,8 +325,8 @@ def main(args=None):
 
     rclpy.init(args=ros_args)
 
-    yolo_node = YoloInferenceNode(headless=cli_args.headless)
-    yolo_node.run_inference_loop(hitl=cli_args.hitl)
+    yolo_node = YoloInferenceNode(headless=cli_args.headless, hitl=cli_args.hitl)
+    yolo_node.run_inference_loop()
     
     yolo_node.destroy_node()
     rclpy.shutdown()
