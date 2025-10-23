@@ -275,11 +275,11 @@ docker exec -it aircraft-container tmux attach
 ```
 
 > [!WARNING]
-> The 1st run of `./deploy_run.sh` requires ~4' to build the TensorRT cache
+> The 1st run of `./deploy_run.sh` requires ~3-4' to build the TensorRT cache
 
 ### HITL Simulation
 
-> [!CAUTION]
+> [!NOTE]
 > As of now, HITL only includes the Jetson computers, support for Pixhawk is work-in-progress
 
 Using a router or [MANET radios](https://doodlelabs.com), set up a LAN with netmask `255.255.0.0` and an arbitrary `SUBNET_PREFIX` (e.g. `192.168`) between:
