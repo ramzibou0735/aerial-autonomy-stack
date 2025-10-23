@@ -293,7 +293,7 @@ First, start all aircraft containers, one on each Jetson (e.g. via SSH):
 HITL=true DRONE_ID=1 DRONE_TYPE=quad AUTOPILOT=px4 SUBNET_PREFIX=192.168 ./deploy_run.sh # Add HEADLESS=false if a screen is connected to the Jetson
 
 # On Jetson with IP [SUBNET_PREFIX].1.2
-# DRONE_ID=2 ...
+HITL=true DRONE_ID=2 DRONE_TYPE=quad AUTOPILOT=px4 SUBNET_PREFIX=192.168 ./deploy_run.sh
 
 # Etc.
 ```
@@ -304,7 +304,7 @@ Finally, on the simulation computer:
 HITL=true NUM_QUADS=2 NUM_VTOLS=0 AUTOPILOT=px4 SUBNET_PREFIX=192.168 ./sim_run.sh
 ```
 
-Once done, detach Tmux with `Ctrl + b`, then `d` to close and remove all containers
+Once done, detach Tmux with `Ctrl + b`, then `d` then `docker stop $(docker ps -q) && docker container prune` to stop and remove all containers
 
 ---
 > You've done a man's job, sir. I guess you're through, huh?
