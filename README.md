@@ -3,7 +3,7 @@
 *Aerial autonomy stack* (AAS) is a software stack to:
 
 1. **Develop** end-to-end drone autonomy with ROS2
-2. **Simulate** perception and control in SITL, with YOLOv8, LiDAR and PX4 or ArduPilot
+2. **Simulate** perception and control in SITL and HITL, with YOLOv8, LiDAR and PX4 or ArduPilot
 3. **Deploy** in real drones with JetPack on NVIDIA Orin
 
 https://github.com/user-attachments/assets/c194ada6-2996-4bfa-99e9-32b45e29281d
@@ -20,8 +20,8 @@ https://github.com/user-attachments/assets/c194ada6-2996-4bfa-99e9-32b45e29281d
 - **Dockerized simulation** based on [`nvcr.io/nvidia/cuda:12.8.1-cudnn-runtime-ubuntu22.04`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/cuda/tags)
 - **Dockerized deployment** based on [`nvcr.io/nvidia/l4t-jetpack:r36.4.0`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/l4t-jetpack/tags)
 - **Windows 11 compatibility** with GPU support *via* WSLg
-- **3D worlds** for PX4 and ArduPilot software-in-the-loop (SITL) simulation
-- Distributed, **Jetson-in-the-loop simulation** to test networking and on-board compute
+- **3D worlds** for perception-based simulation
+- Distributed, **Hardware-(Jetson-)in-the-loop (HITL) simulation** to test on-board compute and networking
 - [Zenoh](https://github.com/eclipse-zenoh/zenoh-plugin-ros2dds) inter-vehicle ROS2 bridge
 - Support for [PX4 Offboard](https://docs.px4.io/main/en/flight_modes/offboard.html) mode (e.g. CTBR/`VehicleRatesSetpoint` for agile, GNSS-denied flight) 
 - Support for [ArduPilot Guided](https://ardupilot.org/copter/docs/ac2_guidedmode.html) mode (i.e. `setpoint_velocity`, `setpoint_accel` references)
@@ -183,13 +183,13 @@ Once flown from CLI, implemented your mission in [`MissionNode.conops_callback()
 > ├── scripts
 > │   ├── docker
 > │   │   ├── Dockerfile.aircraft     # Docker image for aircraft simulation and deployment
-> │   │   └── Dockerfile.simulation   # Docker image for Gazebo and SITL simulation
+> │   │   └── Dockerfile.simulation   # Docker image for SITL and HITL simulation
 > │   │
 > │   ├── deploy_build.sh             # Build `Dockerfile.aircraft` for arm64/Orin
-> │   ├── deploy_run.sh               # Start the aircraft docker on arm64/Orin
+> │   ├── deploy_run.sh               # Start the aircraft docker on arm64/Orin (deploy or HITL)
 > │   │
 > │   ├── sim_build.sh                # Build both dockerfiles for amd64/simulation
-> │   └── sim_run.sh                  # Start the simulation
+> │   └── sim_run.sh                  # Start the simulation (SITL or HITL)
 > │
 > └── simulation
 >     ├── simulation_resources
@@ -295,7 +295,8 @@ HITL=true DRONE_ID=1 DRONE_TYPE=quad AUTOPILOT=px4 SUBNET_PREFIX=192.168 ./deplo
 # On Jetson with IP [SUBNET_PREFIX].1.2
 HITL=true DRONE_ID=2 DRONE_TYPE=quad AUTOPILOT=px4 SUBNET_PREFIX=192.168 ./deploy_run.sh
 
-# Etc.
+# Optionally, attach each container
+docker exec -it aircraft-container_$DRONE_ID tmux attach
 ```
 
 Finally, on the simulation computer:
@@ -304,7 +305,7 @@ Finally, on the simulation computer:
 HITL=true NUM_QUADS=2 NUM_VTOLS=0 AUTOPILOT=px4 SUBNET_PREFIX=192.168 ./sim_run.sh
 ```
 
-Once done, detach Tmux with `Ctrl + b`, then `d` then `docker stop $(docker ps -q) && docker container prune` to stop and remove all containers
+Once done, detach Tmux with `Ctrl + b`, then `d`; use `docker stop $(docker ps -q) && docker container prune` to stop and remove all containers
 
 ---
 > You've done a man's job, sir. I guess you're through, huh?
@@ -331,27 +332,27 @@ Once done, detach Tmux with `Ctrl + b`, then `d` then `docker stop $(docker ps -
 
 ## TODOs
 
+# Dual-network SITL and HITL
+
+[Gymnasium](https://github.com/Farama-Foundation/Gymnasium) RL interface
+
 HITL/SITL architectures
 - https://docs.px4.io/main/en/simulation/
 - https://docs.px4.io/main/en/simulation/#sitl-simulation-environment
+- https://docs.px4.io/main/en/simulation/hitl.html add HITL for for Gazebo Harmonic
 - https://ardupilot.org/dev/docs/sitl-simulator-software-in-the-loop.html#sitl-architecture
 
 - Add LiDAR driver https://github.com/Livox-SDK/livox_ros_driver2
     the LiDAR should publish on topic `/lidar_points` for KISS-ICP
-- Add state estimation package/node
-- Add bounding-box-based Offboard
-
----
 
 ## Future Work / Ideas for Contributions
 
-- [PX4 HITL](https://docs.px4.io/main/en/simulation/hitl.html) simulation for Gazebo Harmonic
-- [Gymnasium](https://github.com/Farama-Foundation/Gymnasium) RL interface
 - Support for [Betaflight SITL](https://betaflight.com/docs/development/SITL) interfaced *via* UDP or [MultiWii Serial Protocol (MSP)](https://github.com/betaflight/betaflight/tree/master/src/main/msp)
-- Support for [SPARK-FAST-LIO](https://github.com/MIT-SPARK/spark-fast-lio)/[SuperOdom](https://github.com/superxslam/SuperOdom)
-
-- Support for [JSBSim](https://github.com/JSBSim-Team/jsbsim) flight dynamics
 - Support for [ArduPilot's DDS interface](https://ardupilot.org/dev/docs/ros2-interfaces.html)
+
 - Support for a [Isaac Sim](https://github.com/isaac-sim/IsaacSim) higher fidelity rendering
+- Support for [JSBSim](https://github.com/JSBSim-Team/jsbsim) flight dynamics
+
+- Support for [SPARK-FAST-LIO](https://github.com/MIT-SPARK/spark-fast-lio)/[SuperOdom](https://github.com/superxslam/SuperOdom)
 
 -->
