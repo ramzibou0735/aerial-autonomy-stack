@@ -51,12 +51,12 @@ if [[ "$MODE" == "dev" ]]; then
   echo ""
   echo "With MODE=dev, attach directly to the bash shell:"
   echo ""
-  echo -e "\t docker exec -it aircraft-container bash"
+  echo -e "\t docker exec -it aircraft-container_$DRONE_ID bash"
 else
   echo ""
   echo "Attach to the Tmux session in the running 'aircraft-container':"
   echo ""
-  echo -e "\t docker exec -it aircraft-container tmux attach"
+  echo -e "\t docker exec -it aircraft-container_$DRONE_ID tmux attach"
 fi
 echo ""
 echo "To stop all containers and remove stopped containers:"
