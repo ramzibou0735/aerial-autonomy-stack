@@ -260,12 +260,7 @@ SR2_RC_CHAN      1
 
 TELEM1 is the [bottom-right 6-pin port on the Jetson Baseboard](https://docs.holybro.com/autopilot/pixhawk-baseboards/pixhawk-jetson-baseboard/ports-pinout#tel1-tel3-ports)
 
-To use it to connect a ground station (e.g. QGC) with a telemetry radio (e.g., [Holybro 1W SiK telemetry](https://holybro.com/collections/telemetry-radios/products/sik-telemetry-radio-1w) for point-to-point or [Holybro P900 telemetry](https://holybro.com/collections/telemetry-radios/products/microhard-radio) for point-to-multipoint), use the following parameters
-
-<!--
-- [Sik NET ID configuration](https://docs.px4.io/main/en/data_links/sik_radio#configuration-instructions)
-- [P900 Point-to-Multipoint](https://docs.holybro.com/radio/microhard-radio/point-to-multipoint-setup-with-microhard-radio)
--->
+To use it to connect a ground station (e.g. QGC) with a telemetry radio (e.g., [Holybro 1W SiK telemetry](https://holybro.com/collections/telemetry-radios/products/sik-telemetry-radio-1w) for point-to-point or [Holybro Microhard telemetry](https://holybro.com/collections/telemetry-radios/products/microhard-telemetry-radio-v2) for point-to-multipoint), use the following parameters
 
 ### PX4 Configuration
 
@@ -302,6 +297,65 @@ SR1_RAW_SENS     2
 SR1_RC_CHAN      2
 # Tested with "Holybro SiK Telemetry Radio - Long Range; SKU: 17031"
 ```
+
+### Sik (point-to-point) and Microhard (point-to-multipoint) Radio Configuration
+
+For the [Holybro 1W SiK telemetry](https://holybro.com/collections/telemetry-radios/products/sik-telemetry-radio-1w), set `NETID` to use multiple pairs in point-to-point configuration simultaneously
+
+```sh
+groups # Check 'dialout' is in the list otherwise run 'sudo usermod -aG dialout $USER' and reboot
+sudo apt install -y picocom # Install picocom
+
+# To review the configuration of a connected point-to-point pair of Sik radios
+ls /dev/ttyUSB* # List devices
+# If necessary, close QGroundControl or anything else using the serial ports on which the radios are connected
+picocom -b 57600 /dev/ttyUSB0 # Connect to one of the devices listed above (in this case, ttyUSB0)
+# If the '+++' command below never returns "OK", the radio's SERIAL_SPEED may differ, retry, e.g., with '-b 115200'
+# If the radio is paired and connected to an autopilot, it will print gibberish, just ignore it
+# Proceed to the Sik radio Command Mode using picocom
++++      # Do NOT press Enter, wait for OK, it will enter Command Mode
+ATI5     # Press Enter, to list the local radio parameters
+RTI5     # Press Enter, to list the paired drone radio parameters, over the air, retry if necessary
+ATI7     # Press Enter, shows link info, RSSI, etc
+ATI      # Press Enter, shows firmware info
+ATO      # Press Enter, exits Command Mode
+# Ctrl+a, Ctrl+x to finally exit picocom
+
+# To edit the NETID of a Sik radio (do this on each end of the 2 radios in a pair, do not update NETID over the air)
+ls /dev/ttyUSB* # List devices
+# If necessary, close QGroundControl or anything else using the serial ports on which the radios are connected
+picocom -b 57600 /dev/ttyUSB0 # Connect to one of the devices listed above (in this case, ttyUSB0)
+# If the radio is paired and connected to an autopilot, it will print gibberish, turn the other radio off
+# If the '+++' command below never returns "OK", the radio's SERIAL_SPEED may differ, retry, e.g., with '-b 115200'
+# Proceed to the Sik radio Command Mode using picocom
++++      # Do NOT press Enter, wait for OK, it will enter Command Mode
+ATS3=31  # Press Enter, set the NETID of the radio connected via USB-C to, e.g., 31 (choose a different value of each pair)
+AT&W     # Press Enter, write the change
+ATZ      # Press Enter, reboot and apply (also exits Command Mode)
+# Wait a few seconds for the reboot
++++      # Do NOT press Enter, wait for OK, it will enter Command Mode
+ATI5     # Press Enter, to list the local radio parameters, verify the change
+ATO      # Press Enter, exits Command Mode
+# Ctrl+a, Ctrl+x to finally exit picocom
+
+# Note, the following parameters MUST match on the two ends of each pair (factory defaults are ok):
+S2:AIR_SPEED - over-the-air data rate in kbps
+S3:NETID - network ID, isolates a pair from other SiK radios nearby
+S8:MIN_FREQ/S9:MAX_FREQ - frequency band edges in kHz
+S10:NUM_CHANNELS - channels in the frequency band
+S13:MANCHESTER - encoding (off by default)
+```
+
+For the [Holybro Micorhard V2 P900 telemetry](https://holybro.com/collections/telemetry-radios/products/microhard-telemetry-radio-v2)
+
+ ```sh
+ TBD
+ ```
+
+<!--
+- [Sik NET ID configuration](https://docs.px4.io/main/en/data_links/sik_radio#configuration-instructions)
+- [Micorhard Point-to-Multipoint](https://docs.holybro.com/radio/microhard-radio/point-to-multipoint-setup-with-microhard-radio)
+-->
 
 ## RC Input
 

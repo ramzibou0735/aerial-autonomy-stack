@@ -11,7 +11,7 @@
 | 1   | Holybro X650 Almost-ready-to-fly Kit  | Quadcopter frame, motors, ESCs, propellers             | 699        | [URL][kit]
 | 2   | Holybro H-RTK ZED-F9P Ultralight      | GNSS module (GPS, GLONASS, Galileo, BeiDou)            | 279        | [URL][gps]
 | 3   | Holybro Fixed Carbon Fiber GPS mount  | GNSS module support                                    | 12         | [URL][mount]
-| 4   | Holybro Microhard Telemetry Radio*    | Point-to-multipoint telemetry (1 ground + 1 per drone) | 449        | [URL][telem]
+| 4   | Holybro Microhard Telemetry Radio V2* | Point-to-multipoint telemetry (1 ground + 1 per drone) | 449        | [URL][telem]
 | 5   | RadioMaster Boxer RC CC2500           | Radio controller                                       | 100        | [URL][rc]
 | 6   | RadioMaster R86C V2 Receiver          | Receiver for the radio controller                      | 28         | [URL][rec]
 | 7   | Matek Power Module PM12S-4A           | 5V and 12V supply for Doodle and Jetson                | 20         | [URL][matek]
@@ -90,7 +90,7 @@ flowchart TB
 [kit]:https://holybro.com/collections/x650-kits/products/x650-kits?variant=43994378240189
 [gps]:https://holybro.com/collections/standard-h-rtk-series/products/h-rtk-f9p-ultralight?variant=45785783009469
 [mount]:https://holybro.com/collections/gps-accessories/products/fixed-carbon-fiber-gps-mount?variant=42749655449789
-[telem]:https://holybro.com/collections/telemetry-radios/products/microhard-radio?variant=42522025590973
+[telem]:https://holybro.com/collections/telemetry-radios/products/microhard-telemetry-radio-v2?variant=45272017535165
 [telem2]:https://holybro.com/collections/telemetry-radios/products/sik-telemetry-radio-1w?variant=45094904856765
 [rc]:https://radiomasterrc.com/collections/boxer-radio/products/boxer-radio-controller-m2?variant=46486352298176
 [rec]:https://holybro.com/products/radiomaster-r86c-receiver
