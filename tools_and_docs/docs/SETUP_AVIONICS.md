@@ -268,7 +268,7 @@ To use it to connect a ground station (e.g. QGC) with a telemetry radio (e.g., [
 MAV_0_CONFIG        TELEM 1
 MAV_0_FLOW_CTRL     Auto-detected
 MAV_0_FORWARD       Enabled
-MAV_0_RADIO_CTL     Normal
+MAV_0_MODE          Normal
 MAV_0_RATE          1200B/s
 
 SER_TEL1_BAUD       57600 8N1
@@ -300,61 +300,108 @@ SR1_RC_CHAN      2
 
 ### Sik (point-to-point) and Microhard (point-to-multipoint) Radio Configuration
 
+```sh
+groups                              # Check 'dialout' is in the list otherwise run 'sudo usermod -aG dialout $USER' and reboot
+sudo apt install -y picocom         # Install picocom
+```
+
 For the [Holybro 1W SiK telemetry](https://holybro.com/collections/telemetry-radios/products/sik-telemetry-radio-1w), set `NETID` to use multiple pairs in point-to-point configuration simultaneously
 
 ```sh
-groups # Check 'dialout' is in the list otherwise run 'sudo usermod -aG dialout $USER' and reboot
-sudo apt install -y picocom # Install picocom
+ls /dev/ttyUSB*                     # List devices
+# If necessary, close QGroundControl or anything else using the serial ports on which the radios are connected
 
 # To review the configuration of a connected point-to-point pair of Sik radios
-ls /dev/ttyUSB* # List devices
-# If necessary, close QGroundControl or anything else using the serial ports on which the radios are connected
-picocom -b 57600 /dev/ttyUSB0 # Connect to one of the devices listed above (in this case, ttyUSB0)
+picocom -b 57600 /dev/ttyUSB0       # Connect to one of the devices listed above (in this case, ttyUSB0)
 # If the '+++' command below never returns "OK", the radio's SERIAL_SPEED may differ, retry, e.g., with '-b 115200'
 # If the radio is paired and connected to an autopilot, it will print gibberish, just ignore it
-# Proceed to the Sik radio Command Mode using picocom
-+++      # Do NOT press Enter, wait for OK, it will enter Command Mode
-ATI5     # Press Enter, to list the local radio parameters
-RTI5     # Press Enter, to list the paired drone radio parameters, over the air, retry if necessary
-ATI7     # Press Enter, shows link info, RSSI, etc
-ATI      # Press Enter, shows firmware info
-ATO      # Press Enter, exits Command Mode
++++                                 # Do NOT press Enter, wait for OK, it will enter Command Mode
+ATI5                                # Press Enter, to list the local radio parameters
+RTI5                                # Press Enter, to list the paired drone radio parameters, over the air, retry if necessary
+ATI7                                # Press Enter, shows link info, RSSI, etc
+ATI                                 # Press Enter, shows firmware info
+ATO                                 # Press Enter, exits Command Mode/returns to Data Mode ('O' not zero)
 # Ctrl+a, Ctrl+x to finally exit picocom
 
-# To edit the NETID of a Sik radio (do this on each end of the 2 radios in a pair, do not update NETID over the air)
-ls /dev/ttyUSB* # List devices
-# If necessary, close QGroundControl or anything else using the serial ports on which the radios are connected
-picocom -b 57600 /dev/ttyUSB0 # Connect to one of the devices listed above (in this case, ttyUSB0)
-# If the radio is paired and connected to an autopilot, it will print gibberish, turn the other radio off
-# If the '+++' command below never returns "OK", the radio's SERIAL_SPEED may differ, retry, e.g., with '-b 115200'
-# Proceed to the Sik radio Command Mode using picocom
-+++      # Do NOT press Enter, wait for OK, it will enter Command Mode
-ATS3=31  # Press Enter, set the NETID of the radio connected via USB-C to, e.g., 31 (choose a different value of each pair)
-AT&W     # Press Enter, write the change
-ATZ      # Press Enter, reboot and apply (also exits Command Mode)
+# Similarly, to edit the NETID of a Sik radio (do this on each of the two radios in a pair, do not update NETID over the air)
+picocom -b 57600 /dev/ttyUSB0
++++                                 # Do NOT press Enter, wait for OK, it will enter Command Mode
+ATS3=31                             # Press Enter, set the NETID of the radio connected via USB-C to, e.g., 31 (radios in the same pair must use the same NETID, choose a different value for each pair)
+AT&W                                # Press Enter, write the change
+ATZ                                 # Press Enter, reboot and apply (also exits Command Mode)
 # Wait a few seconds for the reboot
-+++      # Do NOT press Enter, wait for OK, it will enter Command Mode
-ATI5     # Press Enter, to list the local radio parameters, verify the change
-ATO      # Press Enter, exits Command Mode
++++                                 # Do NOT press Enter, wait for OK, it will enter Command Mode
+ATI5                                # Press Enter, to list the local radio parameters, verify the change
+ATO                                 # Press Enter, exits Command Mode/returns to Data Mode ('O' not zero)
 # Ctrl+a, Ctrl+x to finally exit picocom
 
 # Note, the following parameters MUST match on the two ends of each pair (factory defaults are ok):
-S2:AIR_SPEED - over-the-air data rate in kbps
-S3:NETID - network ID, isolates a pair from other SiK radios nearby
-S8:MIN_FREQ/S9:MAX_FREQ - frequency band edges in kHz
-S10:NUM_CHANNELS - channels in the frequency band
-S13:MANCHESTER - encoding (off by default)
+# - S2:AIR_SPEED - over-the-air data rate in kbps
+# - S3:NETID - network ID, isolates a pair from other SiK radios nearby
+# - S8:MIN_FREQ/S9:MAX_FREQ - frequency band edges in kHz
+# - S10:NUM_CHANNELS - channels in the frequency band
+# - S13:MANCHESTER - encoding (off by default)
+# Optional:
+# - S4:TXPOWER - set to 30 for 1W if supported/allowed
 ```
 
-For the [Holybro Micorhard V2 P900 telemetry](https://holybro.com/collections/telemetry-radios/products/microhard-telemetry-radio-v2)
+For the [Holybro Microhard V2 P900 telemetry](https://holybro.com/collections/telemetry-radios/products/microhard-telemetry-radio-v2)
 
- ```sh
- TBD
- ```
+```sh
+ls /dev/ttyUSB*                     # List devices
+# If necessary, close QGroundControl or anything else using the serial ports on which the radios are connected
+
+# To review the configuration of a Microhard V2 P900 radio
+picocom -b 9600 /dev/ttyUSB0        # Connect to one of the devices listed above (in this case, ttyUSB0), Command Mode on Microhard runs at 9600
+# With picocom open, enter Command Mode:
+#   1. Remove power from the XT30 port
+#   2. Press and HOLD the CONFIG button
+#   3. Re-apply power to the XT30 port, wait for boot and release the CONFIG button
+# Session prints "NO CARRIER / OK" to confirm entering Command Mode
+AT&V                                # Press Enter, to list the local radio parameters
+ATA                                 # Press Enter, exits Command Mode/returns to Data Mode
+# Ctrl+a, Ctrl+x to exit picocom
+
+# Holybro Microhard V2 telemetries factory settings are point-to-point configurations
+# The following instructions apply the point-to-multipoint configuration
+
+# Master radio (GCS)
+# Connect picocom and restart the radio holding the CONFIG button as above
+AT&F7                               # Press Enter, set PMP Master profile: S133=0 (PMP), S101=0 (Master), S140=65535 (broadcast to all remotes), S105=1 (master unit address, do not change)
+ATS102=2                            # Press Enter, restore 57600 serial baud (this is the data baud rate, not the 9600 Command Mode nor the air link baud rate)
+ATS104=1337                         # Press Enter, set Network ID, e.g., 1337 (radios in the point-to-multipoint network must use the same Network ID)
+ATS108=27                           # Press Enter, optional: 20dBm=100mW, 27dBm=500mW, 30dBm=1W
+AT&V                                # Press Enter, verify: S133=0, S101=0, S140=65535, S102=2, S104=1337, S105=1
+AT&W                                # Press Enter, write the changes
+ATA                                 # Press Enter, return to data mode
+
+# Remote radio #1 (Drone 1)
+# Connect picocom and restart the radio holding the CONFIG button as above
+AT&F8                               # Press Enter, set PMP Slave profile: S133=0 (PMP), S101=2 (Remote), S140=1 (send data to master, do not change)
+ATS102=2                            # Press Enter, restore 57600 serial baud (this is the data baud rate, not the 9600 Command Mode nor the air link baud rate)
+ATS104=1337                         # Press Enter, set Network ID, e.g., 1337 (radios in the point-to-multipoint network must use the same Network ID)
+ATS108=27                           # Press Enter, optional: 20dBm=100mW, 27dBm=500mW, 30dBm=1W
+ATS105=2                            # Press Enter, set the unit address, MUST be unique per remote
+AT&V                                # Press Enter, verify: S133=0, S101=2, S140=1, S102=2, S104=1337, S105=2
+AT&W                                # Press Enter, write the changes
+ATA                                 # Press Enter, return to data mode
+
+# Remote radio #2 (Drone 2)
+# Connect picocom and restart the radio holding the CONFIG button as above
+# Follow the same steps as for Remote 1, except ATS105
+...
+ATS105=3                            # Press Enter, set the unit address, MUST be unique per remote
+...
+
+# Verify the PMP network formed:
+#   1. Power on the master and all remotes
+#   2. On each remote: the orange RX LED lights tells the radio is synchronized and receiving valid packets from the master
+#   3. The 3 blue RSSI LEDs show link strength
+```
 
 <!--
 - [Sik NET ID configuration](https://docs.px4.io/main/en/data_links/sik_radio#configuration-instructions)
-- [Micorhard Point-to-Multipoint](https://docs.holybro.com/radio/microhard-radio/point-to-multipoint-setup-with-microhard-radio)
+- [Microhard Point-to-Multipoint](https://docs.holybro.com/radio/microhard-radio/point-to-multipoint-setup-with-microhard-radio)
 -->
 
 ## RC Input
