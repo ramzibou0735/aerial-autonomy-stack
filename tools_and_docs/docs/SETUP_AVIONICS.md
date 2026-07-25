@@ -298,7 +298,7 @@ SR1_RC_CHAN      2
 # Tested with "Holybro SiK Telemetry Radio - Long Range; SKU: 17031"
 ```
 
-### Sik (point-to-point) and Microhard (point-to-multipoint) Radio Configuration
+### SiK (point-to-point) and Microhard (point-to-multipoint) Radio Configuration
 
 ```sh
 groups                              # Check 'dialout' is in the list otherwise run 'sudo usermod -aG dialout $USER' and reboot
@@ -345,7 +345,7 @@ ATO                                 # Press Enter, exits Command Mode/returns to
 # - S4:TXPOWER - set to 30 for 1W if supported/allowed
 ```
 
-For the [Holybro Microhard V2 P900 telemetry](https://holybro.com/collections/telemetry-radios/products/microhard-telemetry-radio-v2)
+For the [Holybro Microhard V2 P900 telemetry](https://holybro.com/collections/telemetry-radios/products/microhard-telemetry-radio-v2), use the point-to-multipoint configuration
 
 ```sh
 ls /dev/ttyUSB*                     # List devices
