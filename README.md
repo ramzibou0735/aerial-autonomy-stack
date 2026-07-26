@@ -107,7 +107,7 @@ cancellable_action "ros2 action send_goal /Drone${DRONE_ID}/offboard_action \
 
 ![logs](https://github.com/user-attachments/assets/d207f4da-6560-4d90-abf6-aac598a168c5)
 
-![worlds](https://github.com/user-attachments/assets/b9f7635a-0b1f-4698-ba6a-70ab1b412aef)
+![worlds](https://github.com/user-attachments/assets/3d82d87b-e816-4043-8f02-dfedd8133e9c)
 
 > `WORLD`s:
 > *(i)* `apple_orchard`, a GIS world created using [BlenderGIS](https://github.com/domlysz/BlenderGIS)
@@ -198,6 +198,7 @@ cancellable_action "ros2 action send_goal /Drone${DRONE_ID}/offboard_action \
 > </details>
 
 ![vio](https://github.com/user-attachments/assets/b1a97041-a508-4365-8197-9bf6ba32bcc1)
+> `BUILD_ADVANCED_ODOM=true ./sim_build.sh` adds to the `aircraft-image` several VIO and LIVO packages, including `openvins`, `rovio`, `fastlio`, `superodom`, and `mimosa`
 
 ## 3. Deployment on Jetson
 
