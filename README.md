@@ -496,8 +496,9 @@ aerial-autonomy-stack
 
 - [x] Host OS: [Ubuntu 22.04/24.04/26.04 (LTS, ESM 4/2036)](https://ubuntu.com/about/release-cycle)
 - [ ] Jetpack: [6.2.1 (rev. 1) [L4T 36.4.4, Ubuntu 22-based]](https://developer.nvidia.com/embedded/jetpack-archive)
-    - **TODO: upgrade to JP 7.2 [L4T 39.2, Ubuntu 24-based]**
-- [x] [`nvidia-driver-580`](https://developer.nvidia.com/datacenter-driver-archive)
+  - **TODO: upgrade to JP 7.2 [L4T 39.2, Ubuntu 24-based]**
+- [ ] [`nvidia-driver-580`](https://developer.nvidia.com/datacenter-driver-archive)
+  - **TODO: upgrade to `nvidia-driver-610`**
 - [x] [Docker Engine v29](https://docs.docker.com/engine/release-notes/)
 - [x] [NVIDIA Container Toolkit 1.19](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/index.html)
 - [x] `amd64` base image: [`cuda:12.9.2-cudnn-runtime-ubuntu22.04`](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/cuda/tags)
@@ -506,9 +507,11 @@ aerial-autonomy-stack
 - [x] [ROS2 Humble (LTS, EOL 5/2027)](https://docs.ros.org/en/rolling/Releases.html)
 - [x] [Gazebo Sim Harmonic (LTS, EOL 9/2028)](https://gazebosim.org/docs/latest/releases/)
 - [x] [PX4 1.17.0](https://github.com/PX4/PX4-Autopilot/releases)
-- [x] [ArduPilot 4.6.3](https://github.com/ArduPilot/ardupilot/releases)
+- [ ] [ArduPilot 4.6.3](https://github.com/ArduPilot/ardupilot/releases)
+  - **TODO: upgrade to 4.7.0**
 - [x] [Ultralytics 8.4/YOLO26](https://github.com/ultralytics/ultralytics/releases)
-- [x] [ONNX Runtime 1.23.2](https://github.com/microsoft/onnxruntime/releases)
+- [ ] [ONNX Runtime 1.23.2](https://github.com/microsoft/onnxruntime/releases)
+  - **TODO: upgrade to 1.28.0**
 
 Transitive constraints (as of May 2026):
 
@@ -516,7 +519,7 @@ Transitive constraints (as of May 2026):
   - JetPack 6/Orin latest supported DeepStream version is 7.1 (DS 8.0, 9.0 are on JetPack 7/Thor)
   - JetPack 6 is based on L4T 36 (Ubuntu 22)
     - Ubuntu 22's system Python is version 3.10
-      - The last available ONNX Runtime GPU wheel for Python 3.10 is version 1.23.2 ([ORT 1.24+ is available on Python 3.11+](https://github.com/microsoft/onnxruntime/releases/tag/v1.24.1))
+      - The last available ONNX Runtime GPU wheel for Python 3.10 is version 1.23.2 ([ORT >=1.24 is available on Python >=3.11](https://github.com/microsoft/onnxruntime/releases/tag/v1.24.1))
         - ONNX Runtime GPU 1.23.2 only supports CUDA 12 ([CUDA 13 added in ORT 1.24.1](https://github.com/microsoft/onnxruntime/releases/tag/v1.24.1))
           - The latest CUDA 12 on the [NVIDIA NGC Catalog](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/cuda/tags) is 12.9.2 (e.g., `cuda:12.9.2-cudnn-runtime-ubuntu22.04`)
     - Ubuntu 22's GStreamer `apt` package is version 1.20
