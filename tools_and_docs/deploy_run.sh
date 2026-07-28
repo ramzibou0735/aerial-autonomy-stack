@@ -54,6 +54,7 @@ if [[ "$GROUND" == "true" ]]; then
   # This is a bit hacky, but allows using the deploy_run.sh script for the ground container
   # Without GPU requirements: --device /dev/dri --gpus all --env NVIDIA_DRIVER_CAPABILITIES=all
   # Forcing HEADLESS to false, opening REMOTE_VIDEO_STREAMS and SSH_CONNECTIONS
+  # GND_TELEM_BAUD=115200 for use with point-to-multipoint Microhard telemetry
   xhost +local:docker # Grant access to the X server
   docker run -it --rm \
     --volume /tmp/.X11-unix:/tmp/.X11-unix:rw \
@@ -66,6 +67,7 @@ if [[ "$GROUND" == "true" ]]; then
     --env HOST_INPUT_GID="$(getent group input | cut -d: -f3)" \
     --env REMOTE_VIDEO_STREAMS=true \
     --env SSH_CONNECTIONS=true \
+    --env GND_TELEM_BAUD=115200 \
     --net=host \
     --privileged \
     --name ground-container \

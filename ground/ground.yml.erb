@@ -11,6 +11,7 @@
   simulated_time = ENV.fetch('SIMULATED_TIME', 'false') == 'true'
   remote_video_streams = ENV.fetch('REMOTE_VIDEO_STREAMS', 'false') == 'true'
   ssh_connections = ENV.fetch('SSH_CONNECTIONS', 'false') == 'true'
+  gnd_telem_baud = ENV.fetch('GND_TELEM_BAUD', '57600') # 57600 for SiK point-to-point, 115200 for Microhard point-to-multipoint with two drones
 
   # Load sensor information from the sensor_config.yaml file
   require 'yaml'
@@ -55,7 +56,7 @@ windows:
               echo "    Adding telemetry radio found at: $real_dev"
               echo "[UartEndpoint radio${radio_endpoint_idx}]" >> /aas/ground_resources/comms/mavlink_router_main.conf
               echo "Device = $real_dev" >> /aas/ground_resources/comms/mavlink_router_main.conf
-              echo "Baud = 57600" >> /aas/ground_resources/comms/mavlink_router_main.conf
+              echo "Baud = <%= gnd_telem_baud %>" >> /aas/ground_resources/comms/mavlink_router_main.conf
               radio_endpoint_idx=$((radio_endpoint_idx + 1))
             done
           ) &&
