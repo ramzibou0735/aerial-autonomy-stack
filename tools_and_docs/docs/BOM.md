@@ -205,9 +205,9 @@ RSSI_CHANNEL        16              # Tells the flight controller to read Channe
 # In QGC -> Vehicle Configuration -> Sensors, calibrate accelerometer, level horizon, and compass (outdoors)
 ```
 
-## Telemetry Radio Configuration
+## Radio Configuration
 
-To set up the network IDs and trasmission power of SiK point-to-point or Microhard point-to-multipoint telemetry radios with AT commands, read [`SETUP_AVIONICS.md`](/tools_and_docs/docs/SETUP_AVIONICS.md)
+To *(i)* pair an RC and *(ii)* set up the network IDs and trasmission power of SiK point-to-point or Microhard point-to-multipoint telemetry radios with AT commands, read [`SETUP_AVIONICS.md`](/tools_and_docs/docs/SETUP_AVIONICS.md)
 
 ## Triple Redundancy for RTL
 

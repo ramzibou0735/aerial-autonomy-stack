@@ -409,3 +409,16 @@ ATS105=3                            # Press Enter, set the unit address, MUST be
 RC IN is the [bottom-left 5-pin port on the Jetson Baseboard](https://docs.holybro.com/autopilot/pixhawk-baseboards/pixhawk-jetson-baseboard/ports-pinout#rc-in-port)
 
 Use it to connect an RC receiver (e.g., [Radiomaster R86C V2](https://radiomasterrc.com/products/r86c-receiver), [[user manual](https://cdn.shopify.com/s/files/1/0609/8324/7079/files/R86C.pdf)]) and bind it to an RC (e.g., [Radiomaster Boxer 4in1](https://radiomasterrc.com/products/boxer-radio-controller-m2?variant=46486352232640), [[user manual](https://cdn.shopify.com/s/files/1/0701/8066/7584/files/BOXER_A1.9.pdf)])
+
+On the Radiomaster Boxer, press `MDL`, then `PAGE>`, on the `SETUP` page scroll to the `Internal RF` configuration:
+
+```sh
+Mode        MULTI
+Type        FrSky X
+Subtype     D16
+Ch. Range   CH1-16
+...
+Failsafe    No pulses
+```
+
+Power on R86C receiver in [bind mode](https://cdn.shopify.com/s/files/1/0609/8324/7079/files/R86C.pdf) by holding the KEY button, on the RC, select `Receiver   [Bnd]` on the `SETUP` page
