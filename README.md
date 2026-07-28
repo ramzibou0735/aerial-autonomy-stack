@@ -60,7 +60,7 @@ done
 
 ## 2. Multi-drone Simulation
 
-![workspace](https://github.com/user-attachments/assets/ad909fcc-69de-44ac-84b3-c5bc7a1c896f)
+![workspace](https://github.com/user-attachments/assets/81b6df7f-f85f-4764-acb3-055e37f6419d)
 
 Start AAS:
 
