@@ -8,6 +8,8 @@
 
 For an example bill of materials, read [`BOM.md`](/tools_and_docs/docs/BOM.md); for motivation, read [`RATIONALE.md`](/tools_and_docs/docs/RATIONALE.md)
 
+https://github.com/user-attachments/assets/57e5bc91-8bee-4bae-8f81-a9aacef471e7
+
 <details>
 <summary><b>Features</b> <i>(click to expand)</i></summary>
 
@@ -543,7 +545,6 @@ External repositories:
 </details>
 
 ---
-https://github.com/user-attachments/assets/57e5bc91-8bee-4bae-8f81-a9aacef471e7
 > You've done a man's job, sir. I guess you're through, huh?
 
 <!--
