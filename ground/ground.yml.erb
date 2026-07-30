@@ -11,7 +11,7 @@
   simulated_time = ENV.fetch('SIMULATED_TIME', 'false') == 'true'
   remote_video_streams = ENV.fetch('REMOTE_VIDEO_STREAMS', 'false') == 'true'
   ssh_connections = ENV.fetch('SSH_CONNECTIONS', 'false') == 'true'
-  gnd_telem_baud = ENV.fetch('GND_TELEM_BAUD', '57600') # 57600 for SiK point-to-point, 115200 for Microhard point-to-multipoint with two drones
+  gnd_telem_baud = ENV.fetch('GND_TELEM_BAUD', '57600') # 57600 for SiK point-to-point, 230400 for Microhard point-to-multipoint with two drones
 
   # Load sensor information from the sensor_config.yaml file
   require 'yaml'
@@ -30,7 +30,7 @@ windows:
       layout: even-horizontal
       panes:
         - clear && echo "So nice to have you with us, this is the ground container."
-        - ros2 run ground_system ground_system --ros-args -p num_drones:=<%= num_drones %> -p base_port:=18540 -p rate:=2.0 <%= simulated_time ? '-p use_sim_time:=True' : '' %> -p assignments:="['1-0', '2-0']"
+        - ros2 run ground_system ground_system --ros-args -p num_drones:=<%= num_drones %> -p base_port:=18540 -p rate:=10.0 <%= simulated_time ? '-p use_sim_time:=True' : '' %> -p assignments:="['1-0', '2-0']"
 
   - mavlink-router:
       layout: tiled

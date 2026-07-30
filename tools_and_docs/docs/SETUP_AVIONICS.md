@@ -273,7 +273,7 @@ MAV_0_RATE          1200B/s
 
 SER_TEL1_BAUD       57600 8N1
 # All these are default values and tested with "Holybro SiK Telemetry Radio - Long Range; SKU: 17031"
-# Note: on a point-to-multipoint configuration with multiple drones the serial baud rate between the ground radio and GCS computer should be greater than SER_TEL1_BAUD, scaling with the number of drones yet capped by the air link (e.g. with two drones, GND_TELEM_BAUD=115200 in ./deploy_run.sh)
+# Note: on a point-to-multipoint configuration with multiple drones the serial baud rate between the ground radio and GCS computer should be greater than SER_TEL1_BAUD, scaling with the number of drones yet capped by the air link (e.g., GND_TELEM_BAUD=230400 in ./deploy_run.sh)
 ```
 
 ### ArduPilot Configuration
@@ -285,19 +285,23 @@ SERIAL1_BAUD        57600
 SERIAL1_OPTIONS     0
 SERIAL1_PROTOCOL    MAVLink2
 
-# Stream rates for the telemetry radio (potentially modified by QGC)
-SR1_ADSB         5
-SR1_EXTRA1       10
+# Stream rates for the telemetry radio
+# Note: for the values below to be authoritative, one MUST change QGroundControl default settings
+# In QGroundControl -> Application Settings -> Telemetry
+# Make sure the "ArduPilot Only Stream Rates" are "set by the vehicle", NOT "requested"
+# This is enforced by "apmStartMavlinkStreams=false" in QGroundControl.ini
+SR1_ADSB         0
+SR1_EXTRA1       4
 SR1_EXTRA2       4
 SR1_EXTRA3       2
 SR1_EXT_STAT     2
 SR1_PARAMS       10
-SR1_POSITION     5
-SR1_RAW_CTRL     2
-SR1_RAW_SENS     2
-SR1_RC_CHAN      2
+SR1_POSITION     10
+SR1_RAW_CTRL     0
+SR1_RAW_SENS     0
+SR1_RC_CHAN      1
 # Tested with "Holybro SiK Telemetry Radio - Long Range; SKU: 17031"
-# Note: on a point-to-multipoint configuration with multiple drones the serial baud rate between the ground radio and GCS computer should be greater than SERIAL1_BAUD, scaling with the number of drones yet capped by the air link (e.g. with two drones, GND_TELEM_BAUD=115200 in ./deploy_run.sh)
+# Note: on a point-to-multipoint configuration with multiple drones the serial baud rate between the ground radio and GCS computer should be greater than SERIAL1_BAUD, scaling with the number of drones yet capped by the air link (e.g., GND_TELEM_BAUD=230400 in ./deploy_run.sh)
 ```
 
 ### SiK (point-to-point) and Microhard (point-to-multipoint) Radio Configuration
@@ -370,10 +374,11 @@ ATA                                 # Press Enter, exits Command Mode/returns to
 # Master radio (GCS)
 # Connect picocom and restart the radio holding the CONFIG button as above
 AT&F7                               # Press Enter, set PMP Master profile: S133=0 (PMP), S101=0 (Master), S140=65535 (broadcast to all remotes), S105=1 (master unit address, do not change)
-ATS102=1                            # Press Enter, increase the serial baud to 115200 to receive multiple drone telemetries (this is the data baud rate, not the 9600 Command Mode nor the air link baud rate)
+ATS102=0                            # Press Enter, increase the serial baud to 230400 to receive multiple drone telemetries (this is the data baud rate, not the 9600 Command Mode nor the air link baud rate)
+ATS103=2                            # Press Enter, increase the air link rate to 276480bps
 ATS104=1337                         # Press Enter, set Network ID, e.g., 1337 (radios in the point-to-multipoint network must use the same Network ID)
 ATS108=27                           # Press Enter, optional: 20dBm=100mW, 27dBm=500mW, 30dBm=1W
-AT&V                                # Press Enter, verify: S133=0, S101=0, S140=65535, S102=1, S104=1337, S105=1
+AT&V                                # Press Enter, verify: S133=0, S101=0, S140=65535, S102=0, S103=2, S104=1337, S105=1
 AT&W                                # Press Enter, write the changes
 ATA                                 # Press Enter, return to data mode
 
@@ -381,10 +386,12 @@ ATA                                 # Press Enter, return to data mode
 # Connect picocom and restart the radio holding the CONFIG button as above
 AT&F8                               # Press Enter, set PMP Slave profile: S133=0 (PMP), S101=2 (Remote), S140=1 (send data to master, do not change)
 ATS102=2                            # Press Enter, set a 57600 serial baud for each drone radio (this is the data baud rate, not the 9600 Command Mode nor the air link baud rate)
+ATS103=2                            # Press Enter, increase the air link rate to 276480bps
 ATS104=1337                         # Press Enter, set Network ID, e.g., 1337 (radios in the point-to-multipoint network must use the same Network ID)
 ATS108=27                           # Press Enter, optional: 20dBm=100mW, 27dBm=500mW, 30dBm=1W
 ATS105=2                            # Press Enter, set the unit address, MUST be unique per remote
-AT&V                                # Press Enter, verify: S133=0, S101=2, S140=1, S102=2, S104=1337, S105=2
+AT&K3                               # Press Enter, enable RTS/CTS handshaking towards the FCU
+AT&V                                # Press Enter, verify: S133=0, S101=2, S140=1, S102=2, S103=2, S104=1337, S105=2, and "Handshaking &K3" in the header line
 AT&W                                # Press Enter, write the changes
 ATA                                 # Press Enter, return to data mode
 
