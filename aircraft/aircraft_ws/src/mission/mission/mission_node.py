@@ -99,7 +99,7 @@ class MissionNode(Node):
         self.create_subscription( # 15Hz
             Detection2DArray, '/detections', self.yolo_detections_callback,
             self.qos_profile, callback_group=self.subscriber_callback_group)
-        self.create_subscription( # 1Hz
+        self.create_subscription( # 10Hz
             SwarmObs, '/tracks', self.ground_tracks_callback,
             self.qos_profile, callback_group=self.subscriber_callback_group)
 

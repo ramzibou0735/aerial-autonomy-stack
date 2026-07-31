@@ -92,7 +92,7 @@ ArdupilotGuided::ArdupilotGuided() : Node("ardupilot_guided"),
 
     // Perception subscribers
     ground_tracks_sub_ = this->create_subscription<ground_system_msgs::msg::SwarmObs>(
-        "/tracks", qos_profile_sub, // 1Hz
+        "/tracks", qos_profile_sub, // 10Hz
         std::bind(&ArdupilotGuided::ground_tracks_callback, this, std::placeholders::_1), subscriber_options);
     yolo_detections_sub_ = this->create_subscription<vision_msgs::msg::Detection2DArray>(
         "/detections", qos_profile_sub, // 15Hz
@@ -189,6 +189,10 @@ void ArdupilotGuided::ground_tracks_callback(const ground_system_msgs::msg::Swar
     ground_tracks_ = msg; // Save the smart pointer to the latest message
     last_track_time_ = this->get_clock()->now();
 
+    // Invalidate the pursuit references: they will only be valid if fully recomputed below
+    desired_bearing_rad_ = desired_elevation_rad_ = closing_distance_ = NAN;
+    target_vn_ = target_ve_ = target_vd_ = NAN;
+
     // Verify ArduPilot own position
     double own_lat = lat_;
     double own_lon = lon_;
@@ -214,6 +218,12 @@ void ArdupilotGuided::ground_tracks_callback(const ground_system_msgs::msg::Swar
         return;
     }
     const auto& target_track = *target_it; // Bind a reference without copying
+
+    // Ignore track if stale
+    if (target_track.time_since_last_update_s > 2.0) { // TODO: parametrize
+        RCLCPP_WARN(get_logger(), "Target track is stale");
+        return;
+    }
 
     // Save target velocities
     target_vn_ = target_track.velocity_n_m_s;

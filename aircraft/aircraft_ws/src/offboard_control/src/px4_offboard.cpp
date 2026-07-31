@@ -94,7 +94,7 @@ PX4Offboard::PX4Offboard() : Node("px4_offboard"),
 
     // Perception subscribers
     ground_tracks_sub_ = this->create_subscription<ground_system_msgs::msg::SwarmObs>(
-        "/tracks", qos_profile_sub, // 1Hz
+        "/tracks", qos_profile_sub, // 10Hz
         std::bind(&PX4Offboard::ground_tracks_callback, this, std::placeholders::_1), subscriber_options);
     yolo_detections_sub_ = this->create_subscription<vision_msgs::msg::Detection2DArray>(
         "/detections", qos_profile_sub, // 15Hz
@@ -195,6 +195,10 @@ void PX4Offboard::ground_tracks_callback(const ground_system_msgs::msg::SwarmObs
     ground_tracks_ = msg; // Save the smart pointer to the latest message
     last_track_time_ = this->get_clock()->now();
 
+    // Invalidate the pursuit references: they will only be valid if fully recomputed below
+    traj_ref_east_ = traj_ref_north_ = traj_ref_up_ = NAN;
+    target_vn_ = target_ve_ = target_vd_ = NAN;
+
     // Verify LLA position of own reference point (used in PX4 local position)
     double reference_lat = ref_lat_;
     double reference_lon = ref_lon_;
@@ -220,6 +224,12 @@ void PX4Offboard::ground_tracks_callback(const ground_system_msgs::msg::SwarmObs
         return;
     }
     const auto& target_track = *target_it; // Bind a reference without copying
+
+    // Ignore track if stale
+    if (target_track.time_since_last_update_s > 2.0) { // TODO: parametrize
+        RCLCPP_WARN(get_logger(), "Target track is stale");
+        return;
+    }
 
     // Save target velocities
     target_vn_ = target_track.velocity_n_m_s;

@@ -68,6 +68,10 @@ private:
     double simulated_link_jitter_s_;
     double simulated_link_loss_prob_;
     double simulated_link_rate_;
+    double simulated_link_outage_rate_;
+    double simulated_link_outage_duration_s_;
+    std::map<int, rclcpp::Time> sim_next_outage_;
+    std::map<int, rclcpp::Time> sim_outage_until_;
     std::map<int, rclcpp::Time> last_sim_msg_;
     std::map<int, std::deque<DelayedSimObs>> delayed_sim_obs_buf_;
 
