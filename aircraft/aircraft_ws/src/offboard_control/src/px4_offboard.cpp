@@ -444,7 +444,9 @@ void PX4Offboard::traj_ref_predictive_rendezvous(OffboardControlMode& mode)
     trajectory_ref.timestamp = mode.timestamp;
     trajectory_ref.acceleration = {NAN, NAN, NAN}; // Unused
     trajectory_ref.jerk = {NAN, NAN, NAN}; // Unused
-    if (!std::isnan(traj_ref_east_) && !std::isnan(traj_ref_north_) && !std::isnan(traj_ref_up_)) {
+    if (!std::isnan(traj_ref_east_) && !std::isnan(traj_ref_north_) && !std::isnan(traj_ref_up_) &&
+        (this->get_clock()->now() - last_track_time_).seconds() < 2.0) {
+
         double dt = std::clamp((this->get_clock()->now() - last_track_time_).seconds(), 0.0, 2.0);
         double current_north = traj_ref_north_ + (target_vn_ * dt);
         double current_east  = traj_ref_east_  + (target_ve_ * dt);

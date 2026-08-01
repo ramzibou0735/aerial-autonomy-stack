@@ -263,7 +263,7 @@ class MissionNode(Node):
         if ground_tracks and ground_tracks.tracks:
             output += "Ground Tracks:\n"
             for track in ground_tracks.tracks:
-                output += f"  Id {track.id}, lat: {track.latitude_deg:.5f} lon: {track.longitude_deg:.5f} alt (msl): {track.altitude_m:.2f}\n"
+                output += f"  Id {track.id}, lat: {track.latitude_deg:.5f} lon: {track.longitude_deg:.5f} alt (msl): {track.altitude_m:.2f} ({track.time_since_last_update_s:.1f}s old)\n"
         else:
             output += "Ground Tracks: [No data]\n"
         

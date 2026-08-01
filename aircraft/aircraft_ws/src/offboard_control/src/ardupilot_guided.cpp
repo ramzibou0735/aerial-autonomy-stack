@@ -416,7 +416,9 @@ void ArdupilotGuided::vel_ref_lead_pursuit()
     vel_msg.header.stamp = this->get_clock()->now();
     vel_msg.header.frame_id = "map"; // World frame, without automatic yaw alignment
     if (!std::isnan(desired_bearing_rad_) && !std::isnan(desired_elevation_rad_) && !std::isnan(closing_distance_) &&
-        !std::isnan(target_vn_) && !std::isnan(target_ve_) && !std::isnan(target_vd_)) {
+        !std::isnan(target_vn_) && !std::isnan(target_ve_) && !std::isnan(target_vd_) &&
+        (this->get_clock()->now() - last_track_time_).seconds() < 2.0) {
+
         // Calculate unit line-of-sight (LOS) vector in ENU
         double u_E = std::cos(desired_elevation_rad_) * std::sin(desired_bearing_rad_);
         double u_N = std::cos(desired_elevation_rad_) * std::cos(desired_bearing_rad_);
@@ -454,7 +456,8 @@ void ArdupilotGuided::acc_ref_proportional_navigation()
     accel_msg.header.stamp = this->get_clock()->now();
     accel_msg.header.frame_id = "map"; // World frame, with automatic yaw alignment
     if (!std::isnan(desired_bearing_rad_) && !std::isnan(desired_elevation_rad_) && !std::isnan(closing_distance_) &&
-        !std::isnan(target_vn_) && !std::isnan(target_ve_) && !std::isnan(target_vd_)) {
+        !std::isnan(target_vn_) && !std::isnan(target_ve_) && !std::isnan(target_vd_) &&
+        (this->get_clock()->now() - last_track_time_).seconds() < 2.0) {
 
         // Calculate ENU error vector
         double r_E = closing_distance_ * std::sin(desired_bearing_rad_);
