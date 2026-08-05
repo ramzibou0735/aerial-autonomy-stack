@@ -260,7 +260,13 @@ Set up a LAN on an arbitrary `SIM_SUBNET` with netmask `255.255.0.0` (e.g. `172.
 > - One ground computer, with IP `[AIR_SUBNET].90.101`
 > - `N` Jetson Baseboards with IPs `[AIR_SUBNET].90.1`, ..., `[AIR_SUBNET].90.N` 
 
-First, start all aircraft containers, one on each Jetson (e.g. *via* SSH):
+First, start the ground container:
+```sh
+# On the computer with IPs ending in 90.101
+HITL=true GROUND=true NUM_QUADS=2 AIR_SUBNET=10.223 HEADLESS=false ./deploy_run.sh
+```
+
+Then, start all aircraft containers, one on each Jetson (e.g. *via* SSH from the ground container):
 ```sh
 # On the Jetson with IPs ending in 90.1
 HITL=true DRONE_ID=1 SIM_SUBNET=172.30 AIR_SUBNET=10.223 ./deploy_run.sh                      # Add HEADLESS=false if a screen is connected to the Jetson
@@ -271,21 +277,15 @@ HITL=true DRONE_ID=1 SIM_SUBNET=172.30 AIR_SUBNET=10.223 ./deploy_run.sh        
 HITL=true DRONE_ID=2 SIM_SUBNET=172.30 AIR_SUBNET=10.223 ./deploy_run.sh                      # Add HEADLESS=false if a screen is connected to the Jetson
 ```
 
-Then, start the simulation:
+Finally, start the simulation container:
 ```sh
 # On the computer with IPs ending in 90.100
-HITL=true NUM_QUADS=2 SIM_SUBNET=172.30 ./sim_run.sh
+HITL=true NUM_QUADS=2 SIM_SUBNET=172.30 PLOT=true ./sim_run.sh
 ```
 
-Finally, start QGC and the Zenoh bridge:
-```sh
-# On the computer with IPs ending in 90.101
-HITL=true GROUND=true NUM_QUADS=2 AIR_SUBNET=10.223 HEADLESS=false ./deploy_run.sh
-```
+> **Note:** running only the last 3 commands with `GND_CONTAINER=false` puts the Zenoh bridge on the `SIM_SUBNET`, removing the need for the optional `AIR_SUBNET` and the computer with IP ending in `90.101`
 
-> **Note:** running only the first 3 commands with `GND_CONTAINER=false` puts the Zenoh bridge on the `SIM_SUBNET`, removing the need for the optional `AIR_SUBNET` and the computer with IP ending in `90.101`
-
-Once done, detach Tmux (and remove the containers) with `Ctrl + b`, then `d`
+Once done, detach Tmux (and remove the containers) with `tmux kill-server`
 </details>
 
 ## 4. Gymnasium RL Environment
