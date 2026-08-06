@@ -302,7 +302,9 @@ RUN pip3 install --no-cache-dir --upgrade pip && \
     pip3 install --no-cache-dir --resume-retries 5 rerun-sdk
 # Add rviz_2d_overlay_plugins, based on https://github.com/teamspatzenhirn/rviz_2d_overlay_plugins#rviz_2d_overlay_plugins
 RUN mkdir -p /aas/github_ws/src/rviz_2d_overlay_plugins && \
-    wget -qO- https://github.com/teamspatzenhirn/rviz_2d_overlay_plugins/archive/refs/heads/main.tar.gz | tar -xz -C /aas/github_ws/src/rviz_2d_overlay_plugins --strip-components=1
+    SHA=$(git ls-remote https://github.com/teamspatzenhirn/rviz_2d_overlay_plugins.git refs/heads/main | cut -f1) && [ -n "$SHA" ] && \
+    wget -qO- https://github.com/teamspatzenhirn/rviz_2d_overlay_plugins/archive/${SHA}.tar.gz | tar -xz -C /aas/github_ws/src/rviz_2d_overlay_plugins --strip-components=1 && \
+    echo "rviz_2d_overlay_plugins main ${SHA} $(find /aas/github_ws/src/rviz_2d_overlay_plugins -maxdepth 1 -type f -printf '%TF\n' | head -1)" >> /aas/repo_dep_branch_heads.txt
 WORKDIR /aas/github_ws
 # Explicitly use bash, not sh, to source and build the workspace
 RUN bash -c "source /opt/ros/humble/setup.bash && colcon build --packages-select rviz_2d_overlay_msgs rviz_2d_overlay_plugins --cmake-args -DCMAKE_BUILD_TYPE=Release"
@@ -328,11 +330,15 @@ WORKDIR /aas/mimosa_custom_gtsam_ws/src
 COPY /_github_clones/mimosa /aas/mimosa_custom_gtsam_ws/src/mimosa
 # Download config_utilities (branch: dev/mimosa), gtsam (commit c952ef9, see issue: https://github.com/ntnu-arl/mimosa/issues/19), and gtsam_points (branch: minimal_updated)
 RUN mkdir -p config_utilities \
-    && wget -qO- https://github.com/ntnu-arl/config_utilities/archive/refs/heads/dev/mimosa.tar.gz | tar -xz -C config_utilities --strip-components=1 \
+    && SHA=$(git ls-remote https://github.com/ntnu-arl/config_utilities.git refs/heads/dev/mimosa | cut -f1) && [ -n "$SHA" ] \
+    && wget -qO- https://github.com/ntnu-arl/config_utilities/archive/${SHA}.tar.gz | tar -xz -C config_utilities --strip-components=1 \
+    && echo "config_utilities dev/mimosa ${SHA} $(find config_utilities -maxdepth 1 -type f -printf '%TF\n' | head -1)" >> /aas/repo_dep_branch_heads.txt \
     && mkdir -p gtsam \
     && wget -qO- https://github.com/ntnu-arl/gtsam/archive/c952ef9.tar.gz | tar -xz -C gtsam --strip-components=1 \
     && mkdir -p gtsam_points \
-    && wget -qO- https://github.com/ntnu-arl/gtsam_points/archive/refs/heads/minimal_updated.tar.gz | tar -xz -C gtsam_points --strip-components=1
+    && SHA=$(git ls-remote https://github.com/ntnu-arl/gtsam_points.git refs/heads/minimal_updated | cut -f1) && [ -n "$SHA" ] \
+    && wget -qO- https://github.com/ntnu-arl/gtsam_points/archive/${SHA}.tar.gz | tar -xz -C gtsam_points --strip-components=1 \
+    && echo "gtsam_points minimal_updated ${SHA} $(find gtsam_points -maxdepth 1 -type f -printf '%TF\n' | head -1)" >> /aas/repo_dep_branch_heads.txt
 WORKDIR /aas/mimosa_custom_gtsam_ws
 # Fix ROS 2 Humble compatibility:
 # 1. mimosa expects cv_bridge.hpp (Iron/Jazzy), but Humble uses cv_bridge.h
@@ -356,7 +362,9 @@ RUN apt-get update && \
     && apt clean \
     && rm -rf /var/lib/apt/lists/* \
     && mkdir kindr \
-    && wget -qO- https://github.com/ethz-asl/kindr/archive/refs/heads/master.tar.gz | tar -xz -C kindr --strip-components=1 \
+    && SHA=$(git ls-remote https://github.com/ethz-asl/kindr.git refs/heads/master | cut -f1) && [ -n "$SHA" ] \
+    && wget -qO- https://github.com/ethz-asl/kindr/archive/${SHA}.tar.gz | tar -xz -C kindr --strip-components=1 \
+    && echo "kindr master ${SHA} $(find kindr -maxdepth 1 -type f -printf '%TF\n' | head -1)" >> /aas/repo_dep_branch_heads.txt \
     && cd kindr \
     && mkdir build && cd build \
     && cmake .. -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \

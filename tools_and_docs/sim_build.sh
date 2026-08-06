@@ -59,8 +59,9 @@ for repo_info in "${REPOS[@]}"; do
   if [ -d "$TARGET_DIR" ]; then
     cd "$TARGET_DIR"
     BRANCH=$(git branch --show-current)
-    TAGS=$(git tag --points-at HEAD)
-    echo "There is a clone of ${dir} on branch: ${BRANCH}, tags: [${TAGS}]"
+    TAGS=$(git tag --points-at HEAD | paste -sd, -)
+    HEAD_INFO=$(git log -1 --format='%h %cs (%cr)')
+    printf '%-30s %-20s %-20s %s\n' "$dir" "${BRANCH:-[detached]}" "$TAGS" "$HEAD_INFO"
     # The script does not automatically pull changes for already cloned repos (as they should be on fixed tags)
     # This avoids breaking the Docker cache but it requires manually deleting the _github_clones folder for branch/tag updates
     # git pull
