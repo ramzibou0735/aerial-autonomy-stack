@@ -187,6 +187,7 @@ CIRCLE_OPTIONS      0               # Disable using the pitch/roll stick control
 GUID_TIMEOUT        3.0             # (default) Guided mode timeout after which vehicle will stop or return to level if no updates are received
 GUID_OPTIONS        0               # (default) If the 3rd bit is not set, interprets att_msg.thrust as a [0,1] climb-rate target
 FS_THR_ENABLE       1               # Commands an RTL if the RC link is lost, requires configuring "Failsafe No pulses" on the Boxer RC using protocol FrSky X D16 with the R86C receiver
+RC_FS_TIMEOUT       5               # The timeout before the RC failsafe engages
 FS_GCS_ENABLE       1               # Commands an RTL if the QGC link is lost
 FS_GCS_TIMEOUT      5               # The timeout before the GCS failsafe engages
 FS_OPTIONS          0               # Never ignore the failsafes (not in AUTO/GUIDED, nor in pilot-controlled modes)
