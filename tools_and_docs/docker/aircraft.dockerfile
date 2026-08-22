@@ -47,11 +47,11 @@ RUN apt update \
     && echo "source /opt/ros/humble/setup.bash" >> /root/.bashrc \
     && rosdep init
 
-# Install Zenoh ROS2 bridge
+# Install Zenoh ROS2 bridge (pinned to 1.9.0 on Ubuntu 22/jammy because 1.10.0's amd64 build requires glibc >= 2.38 and jammy only has 2.35)
 RUN curl -L https://download.eclipse.org/zenoh/debian-repo/zenoh-public-key | gpg --dearmor --yes --output /etc/apt/keyrings/zenoh-public-key.gpg \
     && echo "deb [signed-by=/etc/apt/keyrings/zenoh-public-key.gpg] https://download.eclipse.org/zenoh/debian-repo/ /" | tee -a /etc/apt/sources.list > /dev/null \
     && apt-get update && \
-    apt-get install -y --no-install-recommends zenoh-bridge-ros2dds \
+    apt-get install -y --no-install-recommends zenoh-bridge-ros2dds$(. /etc/os-release; [ "$VERSION_ID" = "22.04" ] && echo "=1.9.0") \
     && apt clean \
     && rm -rf /var/lib/apt/lists/*
 
